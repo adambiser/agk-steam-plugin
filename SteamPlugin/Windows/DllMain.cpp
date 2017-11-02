@@ -272,6 +272,20 @@ int SetAchievement(const char *pchName)
 }
 
 /*
+Raises a notification about achievemnt progress for progress stat achievements.
+The notification only shows when current progress is less than the max.
+SetStat still needs to be used to set the progress stat value.
+*/
+int IndicateAchievementProgress(const char *pchName, int nCurProgress, int nMaxProgress)
+{
+	if (Steam)
+	{
+		return Steam->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
+	}
+	return false;
+}
+
+/*
 Clears an achievement.
 Returns 1 if the process succeeds.  Otherwise, returns 0.
 Use StatsInitialized() to determine when user stats are initialized before calling this method.

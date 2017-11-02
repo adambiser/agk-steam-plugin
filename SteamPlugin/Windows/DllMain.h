@@ -48,6 +48,7 @@ extern "C" DLL_EXPORT int GetNumAchievements();
 extern "C" DLL_EXPORT char* GetAchievementID(int index);
 extern "C" DLL_EXPORT int GetAchievement(const char *pchName);
 extern "C" DLL_EXPORT int SetAchievement(const char *pchName);
+extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *pchName, int nCurProgress, int nMaxProgress);
 extern "C" DLL_EXPORT int ClearAchievement(const char *pchName);
 // User stats methods.
 extern "C" DLL_EXPORT int GetStatInt(const char *pchName);

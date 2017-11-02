@@ -63,6 +63,7 @@ public:
 	const char* GetAchievementID(int index);
 	bool GetAchievement(const char *name, bool *pbAchieved);
 	bool SetAchievement(const char *pchName);
+	bool IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress);
 	bool ClearAchievement(const char *pchName);
 	// User stats methods.
 	bool GetStat(const char *pchName, int32 *pData);

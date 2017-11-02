@@ -24,6 +24,7 @@ GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,0
 GetAchievementID,S,I,GetAchievementID,0,0,0,0,0
 GetAchievement,I,S,GetAchievement,0,0,0,0,0
 SetAchievement,I,S,SetAchievement,0,0,0,0,0
+IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,0
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,0
 #
 # User stats methods.

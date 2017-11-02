@@ -88,7 +88,7 @@ if Steam.SteamInitialized()
 		next
 		// User Stats
 		AddVirtualButton(90, 50, 600, 100)
-		SetVirtualButtonText(90, "Add Win")
+		SetVirtualButtonText(90, "Add" + CHR(10) + "25 Wins")
 		AddVirtualButton(91, 150, 600, 100)
 		SetVirtualButtonText(91, "Add Loss")
 		AddVirtualButton(92, 250, 600, 100)
@@ -128,8 +128,10 @@ if Steam.SteamInitialized()
 			endif
 		next
 		if GetVirtualButtonPressed(90) // Win
-			AddStatus("Increment NumGames: " + TF(Steam.SetStatInt("NumGames", Steam.GetStatInt("NumGames") + 1)))
-			AddStatus("Increment NumWins: " + TF(Steam.SetStatInt("NumWins", Steam.GetStatInt("NumWins") + 1)))
+			AddStatus("Increment NumGames: " + TF(Steam.SetStatInt("NumGames", Steam.GetStatInt("NumGames") + 25)))
+			AddStatus("Increment NumWins: " + TF(Steam.SetStatInt("NumWins", Steam.GetStatInt("NumWins") + 25)))
+			// Note that notification only shows when current progress is less than the max.
+			Steam.IndicateAchievementProgress("ACH_WIN_100_GAMES", Steam.GetStatInt("NumWins"), 100)
 			storeStats = 1
 		endif
 		if GetVirtualButtonPressed(91) // Loss

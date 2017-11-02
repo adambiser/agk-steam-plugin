@@ -229,6 +229,15 @@ bool SteamPlugin::SetAchievement(const char *pchName)
 	return SteamUserStats()->SetAchievement(pchName);
 }
 
+bool SteamPlugin::IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress)
+{
+	if (!m_StatsInitialized)
+	{
+		return false;
+	}
+	return SteamUserStats()->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
+}
+
 bool SteamPlugin::ClearAchievement(const char *pchName)
 {
 	m_AchievementStored = false;
