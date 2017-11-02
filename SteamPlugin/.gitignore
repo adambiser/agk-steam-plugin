@@ -1,0 +1,13 @@
+# These are from the Steamworks SDK.
+public/*
+redistributable_bin/*
+
+# Ignore build folders
+*/Debug/*
+*/Release/*
+
+# Ignore user files.
+*.user
+*.suo
+/.vs/*
+*.VC.db

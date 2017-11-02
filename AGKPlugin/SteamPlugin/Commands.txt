@@ -1,0 +1,35 @@
+#CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64
+#
+# General methods.
+#
+Init,I,0,Init,0,0,0,0,0
+Shutdown,0,0,Shutdown,0,0,0,0,0
+SteamInitialized,I,0,SteamInitialized,0,0,0,0,0
+GetAppID,I,0,GetAppID,0,0,0,0,0
+LoggedOn,I,0,LoggedOn,0,0,0,0,0
+RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
+#
+# General user stats methods.
+#
+RequestStats,I,0,RequestStats,0,0,0,0,0
+StatsInitialized,I,0,StatsInitialized,0,0,0,0,0
+StoreStats,I,0,StoreStats,0,0,0,0,0
+ResetAllStats,I,I,ResetAllStats,0,0,0,0,0
+StatsStored,I,0,StatsStored,0,0,0,0,0
+AchievementStored,I,0,AchievementStored,0,0,0,0,0
+#
+# Achievements methods.
+#
+GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,0
+GetAchievementID,S,I,GetAchievementID,0,0,0,0,0
+GetAchievement,I,S,GetAchievement,0,0,0,0,0
+SetAchievement,I,S,SetAchievement,0,0,0,0,0
+ClearAchievement,I,S,ClearAchievement,0,0,0,0,0
+#
+# User stats methods.
+#
+GetStatInt,I,S,GetStatInt,0,0,0,0,0
+GetStatFloat,F,S,GetStatFloat,0,0,0,0,0
+SetStatInt,I,SI,SetStatInt,0,0,0,0,0
+SetStatFloat,I,SF,SetStatFloat,0,0,0,0,0
+UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,0
