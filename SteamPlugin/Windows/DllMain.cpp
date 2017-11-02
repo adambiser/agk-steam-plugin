@@ -53,7 +53,7 @@ char *CreateString(const char* text)
 This method should be called before attempting to do anything else with this plugin.
 Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
 Note that this also calls RequestStats, so calling code does not need to do so.
-The result of the RequestStats call has no affect the returned value.
+The result of the RequestStats call has no effect on the return value.
 */
 int Init()
 {
@@ -73,7 +73,7 @@ int Init()
 }
 
 /*
-Shutsdown the plugin and frees memory.
+Shuts down the plugin and frees memory.
 */
 void Shutdown()
 {
@@ -84,7 +84,7 @@ void Shutdown()
 }
 
 /*
-Used to determine whether the Steam API has been initialized.
+Gets whether the Steam API has been initialized.
 When it has, this method returns 1.  Otherwise 0 is returned.
 
 */
