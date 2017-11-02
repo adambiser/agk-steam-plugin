@@ -16,6 +16,8 @@ To allow AGK to use the plugin, copy the SteamPlugin folder from inside the AGKP
 
 ### Important Note
 
+In order to develop with this plugin, the AGK IDE should be run directly rather than from the Steam client or the Steam API will use the IDE's appid instead of the project's appid.
+
 When running a project from within the AGK IDE, the IDE will delete the "steam_api.dll" and "steam_appid.txt" files.
 To prevent this, set both as Read-only in their file properties.
 This does not happen when running the game directly from the project's EXE file.
