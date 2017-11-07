@@ -32,16 +32,20 @@ THE SOFTWARE.
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
+	m_RequestingStats(false),
 	m_StatsInitialized(false),
+	m_StoringStats(false),
 	m_StatsStored(false),
 	m_AchievementStored(false),
 	m_hSteamLeaderboard(0),
-	m_LeaderboardFindResultReceived(false),
-	//m_ErrorCode(0),
+	m_FindingLeaderboard(false),
+	m_UploadingLeaderboardScore(false),
+	m_LeaderboardScoreStored(false),
+	m_DownloadingLeaderboardEntries(false),
+	m_NumLeaderboardEntries(0),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
-	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored),
-	m_CallbackLeaderboardFindResult(this, &SteamPlugin::OnLeaderboardFindResult)
+	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored)
 {
 	// Nothing for now
 }
@@ -72,11 +76,17 @@ void SteamPlugin::Shutdown()
 		// Reset member variables.
 		m_AppID = 0;
 		m_SteamInitialized = false;
+		m_RequestingStats = false;
 		m_StatsInitialized = false;
+		m_StoringStats = false;
 		m_StatsStored = false;
 		m_AchievementStored = false;
 		m_hSteamLeaderboard = 0;
-		m_LeaderboardFindResultReceived = false;
+		m_FindingLeaderboard = false;
+		m_UploadingLeaderboardScore = false;
+		m_LeaderboardScoreStored = false;
+		m_DownloadingLeaderboardEntries = false;
+		m_NumLeaderboardEntries = 0;
 	}
 }
 
@@ -103,6 +113,15 @@ bool SteamPlugin::LoggedOn()
 	return SteamUser()->BLoggedOn();
 }
 
+const char *SteamPlugin::GetPersonaName()
+{
+	if (!m_SteamInitialized)
+	{
+		return 0;
+	}
+	return SteamFriends()->GetPersonaName();
+}
+
 void SteamPlugin::RunCallbacks()
 {
 	if (!m_SteamInitialized)
@@ -124,7 +143,8 @@ bool SteamPlugin::RequestStats()
 	{
 		return false;
 	}
-	return SteamUserStats()->RequestCurrentStats();
+	m_RequestingStats = SteamUserStats()->RequestCurrentStats();
+	return m_RequestingStats;
 }
 
 // Callback for RequestStats.
@@ -132,16 +152,12 @@ void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
+		m_RequestingStats = false;
 		if (pCallback->m_eResult == k_EResultOK)
 		{
 			m_StatsInitialized = true;
 		}
 	}
-}
-
-bool SteamPlugin::StatsInitialized()
-{
-	return m_StatsInitialized;
 }
 
 bool SteamPlugin::StoreStats()
@@ -150,7 +166,8 @@ bool SteamPlugin::StoreStats()
 	{
 		return false;
 	}
-	return SteamUserStats()->StoreStats();
+	m_StoringStats = SteamUserStats()->StoreStats();
+	return m_StoringStats;
 }
 
 bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
@@ -159,7 +176,8 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 	{
 		return false;
 	}
-	return SteamUserStats()->ResetAllStats(bAchievementsToo);
+	m_StoringStats = SteamUserStats()->ResetAllStats(bAchievementsToo);
+	return m_StoringStats;
 }
 
 // Callback for StoreStats.
@@ -167,16 +185,12 @@ void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
+		m_StoringStats = false;
 		if (pCallback->m_eResult == k_EResultOK)
 		{
 			m_StatsStored = true;
 		}
 	}
-}
-
-bool SteamPlugin::StatsStored()
-{
-	return m_StatsStored;
 }
 
 // Callback for StoreStats.
@@ -186,11 +200,6 @@ void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
 	{
 		m_AchievementStored = true;
 	}
-}
-
-bool SteamPlugin::AchievementStored()
-{
-	return m_AchievementStored;
 }
 
 int SteamPlugin::GetNumAchievements()
@@ -300,6 +309,7 @@ bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSessio
 // Leaderboards
 void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
 {
+	m_FindingLeaderboard = false;
 	if (!pCallback->m_bLeaderboardFound || bIOFailure)
 	{
 		// Did not find the leaderboard.
@@ -308,33 +318,103 @@ void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIO
 	m_hSteamLeaderboard = pCallback->m_hSteamLeaderboard;
 }
 
-SteamAPICall_t SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
+bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
-	m_hSteamLeaderboard = NULL;
+	if (m_FindingLeaderboard)
+	{
+		// Already waiting for the callback.
+		return false;
+	}
 	if (!m_StatsInitialized)
 	{
-		return 0;
+		return false;
 	}
+	m_FindingLeaderboard = true;
+	m_hSteamLeaderboard = 0;
 	SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
 	m_callResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
-	//return SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+	return true;
 }
 
-//bool SteamPlugin::LeaderboardFindResultReceived()
-//{
-//	return m_LeaderboardFindResultReceived;
-//}
-//
-//SteamLeaderboard_t SteamPlugin::GetLeaderboardFindResultHandle()
-//{
-//	return m_hSteamLeaderboard;
-//}
+void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOFailure)
+{
+	m_UploadingLeaderboardScore = false;
+	m_LeaderboardScoreStored = (pCallback->m_bSuccess && !bIOFailure);
+}
 
-//int GetLeaderboardEntryCount( SteamLeaderboard_t hSteamLeaderboard ) = 0;
-//virtual ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hSteamLeaderboard) = 0;
-//	virtual ELeaderboardDisplayType GetLeaderboardDisplayType( SteamLeaderboard_t hSteamLeaderboard ) = 0;
-//CALL_RESULT(LeaderboardScoresDownloaded_t)
-//virtual SteamAPICall_t DownloadLeaderboardEntries(SteamLeaderboard_t hSteamLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd) = 0;
-//CALL_RESULT(LeaderboardScoresDownloaded_t)
-//virtual SteamAPICall_t DownloadLeaderboardEntriesForUsers(SteamLeaderboard_t hSteamLeaderboard,
-//	ARRAY_COUNT_D(cUsers, Array of users to retrieve) CSteamID *prgUsers, int cUsers) = 0;
+bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score)
+{
+	if (m_UploadingLeaderboardScore)
+	{
+		// Already waiting for the callback.
+		return false;
+	}
+	if (!hLeaderboard)
+	{
+		return false;
+	}
+	m_UploadingLeaderboardScore = true;
+	SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score, NULL, 0);
+	m_callResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
+	return true;
+}
+
+void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool bIOFailure)
+{
+	m_DownloadingLeaderboardEntries = false;
+	if (!bIOFailure)
+	{
+		m_NumLeaderboardEntries = min(pCallback->m_cEntryCount, MAX_LEADERBOARD_ENTRIES);
+		for (int index = 0; index < m_NumLeaderboardEntries; index++)
+		{
+			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallback->m_hSteamLeaderboardEntries, index, &m_leaderboardEntries[index], NULL, 0);
+		}
+	}
+}
+
+bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
+{
+	if (m_DownloadingLeaderboardEntries)
+	{
+		// Already waiting for the callback.
+		return false;
+	}
+	if (!hLeaderboard)
+	{
+		return false;
+	}
+	m_DownloadingLeaderboardEntries = true;
+	SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	m_callResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
+	return true;
+}
+
+int SteamPlugin::GetLeaderboardEntryGlobalRank(int index)
+{
+	if (index < 0 || index >= m_NumLeaderboardEntries)
+	{
+		agk::PluginError("GetLeaderboardEntryGlobalRank index out of bounds.");
+		return 0;
+	}
+	return m_leaderboardEntries[index].m_nGlobalRank;
+}
+
+int SteamPlugin::GetLeaderboardEntryScore(int index)
+{
+	if (index < 0 || index >= m_NumLeaderboardEntries)
+	{
+		agk::PluginError("GetLeaderboardEntryScore index out of bounds.");
+		return 0;
+	}
+	return m_leaderboardEntries[index].m_nScore;
+}
+
+const char *SteamPlugin::GetLeaderboardEntryPersonaName(int index)
+{
+	if (index < 0 || index >= m_NumLeaderboardEntries)
+	{
+		agk::PluginError("GetLeaderboardEntryScore index out of bounds.");
+		return 0;
+	}
+	return SteamFriends()->GetFriendPersonaName(m_leaderboardEntries[index].m_steamIDUser);;
+}

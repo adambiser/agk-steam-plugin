@@ -121,6 +121,15 @@ int LoggedOn()
 	return false;
 }
 
+char *GetPersonaName()
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetPersonaName());
+	}
+	return CreateString(0);
+}
+
 /*
 Call every frame to allow the Steam API callbacks to process.
 Should be used in conjunction with RequestStats and StoreStats to ensure the callbacks finish.
@@ -143,6 +152,15 @@ int RequestStats()
 	if (Steam)
 	{
 		return Steam->RequestStats();
+	}
+	return false;
+}
+
+int RequestingStats()
+{
+	if (Steam)
+	{
+		return Steam->RequestingStats();
 	}
 	return false;
 }
@@ -182,6 +200,15 @@ int ResetAllStats(int bAchievementsToo)
 	if (Steam)
 	{
 		return Steam->ResetAllStats(bAchievementsToo != 0);
+	}
+	return false;
+}
+
+int StoringStats()
+{
+	if (Steam)
+	{
+		return Steam->StoringStats();
 	}
 	return false;
 }
@@ -372,13 +399,111 @@ int UpdateAvgRateStat(const char *pchName, float flCountThisSession, float dSess
 	return false;
 }
 
-/*
+
 int FindLeaderboard(const char *pchLeaderboardName)
 {
 	if (Steam)
 	{
 		return Steam->FindLeaderboard(pchLeaderboardName);
 	}
+	return false;
+}
+
+int FindingLeaderboard()
+{
+	if (Steam)
+	{
+		return Steam->FindingLeaderboard();
+	}
+	return false;
+}
+
+int GetLeaderboardHandle()
+{
+	if (Steam)
+	{
+		return (int) Steam->GetLeaderboardHandle();
+	}
 	return 0;
 }
-*/
+
+int UploadLeaderboardScore(int hLeaderboard, int score)
+{
+	if (Steam)
+	{
+		return Steam->UploadLeaderboardScore((SteamLeaderboard_t) hLeaderboard, score);
+	}
+	return false;
+}
+
+int UploadingLeaderboardScore()
+{
+	if (Steam)
+	{
+		return Steam->UploadingLeaderboardScore();
+	}
+	return false;
+}
+
+int LeaderboardScoreStored()
+{
+	if (Steam)
+	{
+		return Steam->LeaderboardScoreStored();
+	}
+	return false;
+}
+
+int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
+{
+	if (Steam)
+	{
+		return Steam->DownloadLeaderboardEntries(hLeaderboard, (ELeaderboardDataRequest) eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	}
+	return false;
+}
+
+int DownloadingLeaderboardEntries()
+{
+	if (Steam)
+	{
+		return Steam->DownloadingLeaderboardEntries();
+	}
+	return false;
+}
+
+int GetNumLeaderboardEntries()
+{
+	if (Steam)
+	{
+		return Steam->GetNumLeaderboardEntries();
+	}
+	return 0;
+}
+
+int GetLeaderboardEntryGlobalRank(int index)
+{
+	if (Steam)
+	{
+		return Steam->GetLeaderboardEntryGlobalRank(index);
+	}
+	return 0;
+}
+
+int GetLeaderboardEntryScore(int index)
+{
+	if (Steam)
+	{
+		return Steam->GetLeaderboardEntryScore(index);
+	}
+	return 0;
+}
+
+char *GetLeaderboardEntryPersonaName(int index)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetLeaderboardEntryPersonaName(index));
+	}
+	return CreateString(0);
+}

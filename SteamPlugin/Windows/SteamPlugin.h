@@ -25,20 +25,35 @@ THE SOFTWARE.
 
 #include <steam_api.h>
 
+#define MAX_LEADERBOARD_ENTRIES 10
+
 class SteamPlugin {
 private:
 	uint64 m_AppID;
 	bool m_SteamInitialized;
+	bool m_RequestingStats;
 	bool m_StatsInitialized;
+	bool m_StoringStats;
 	bool m_StatsStored;
 	bool m_AchievementStored;
 	SteamLeaderboard_t m_hSteamLeaderboard;
-	bool m_LeaderboardFindResultReceived;
-	//int m_ErrorCode;
+	bool m_FindingLeaderboard;
+	bool m_UploadingLeaderboardScore;
+	bool m_LeaderboardScoreStored;
+	bool m_DownloadingLeaderboardEntries;
+	int m_NumLeaderboardEntries;
+	LeaderboardEntry_t m_leaderboardEntries[MAX_LEADERBOARD_ENTRIES];
+	// User stats callbacks
 	STEAM_CALLBACK(SteamPlugin, OnAchievementStored, UserAchievementStored_t, m_CallbackAchievementStored);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsStored, UserStatsStored_t, m_CallbackUserStatsStored);
-	
+	// Leaderboard callbacks
+	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
+	CCallResult<SteamPlugin, LeaderboardFindResult_t> m_callResultFindLeaderboard;
+	void OnUploadScore(LeaderboardScoreUploaded_t *pResult, bool bIOFailure);
+	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_callResultUploadScore;
+	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
+	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_callResultDownloadScore;
 
 public:
 	SteamPlugin();
@@ -49,14 +64,17 @@ public:
 	bool SteamInitialized();
 	int GetAppID();
 	bool LoggedOn();
+	const char *GetPersonaName();
 	void RunCallbacks();
 	// General user stats methods.
 	bool RequestStats();
-	bool StatsInitialized();
+	bool RequestingStats() { return m_RequestingStats; }
+	bool StatsInitialized() { return m_StatsInitialized; }
 	bool StoreStats();
 	bool ResetAllStats(bool bAchievementsToo);
-	bool StatsStored();
-	bool AchievementStored();
+	bool StoringStats() { return m_StoringStats; }
+	bool StatsStored() { return m_StatsStored; }
+	bool AchievementStored() { return m_AchievementStored; }
 	// Achievements methods.
 	int GetNumAchievements();
 	const char* GetAchievementID(int index);
@@ -71,15 +89,20 @@ public:
 	bool SetStat(const char *pchName, float fData);
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 	// Leaderboards
-	int m_nLeaderboardEntries;
-	LeaderboardEntry_t m_leaderboardEntries[10];
-	SteamAPICall_t FindLeaderboard(const char *pchLeaderboardName);
-	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
-	CCallResult<LeaderboardFindResult_t, bool> m_callResultFindLeaderboard;
-	//void OnUploadScore(LeaderboardScoreUploaded_t *pResult, bool bIOFailure);
-	//CCallResult<LeaderboardScoreUploaded_t, bool> m_callResultUploadScore;
-	//void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
-	//CCallResult<LeaderboardScoresDownloaded_t, bool> m_callResultDownloadScore;
+	bool FindLeaderboard(const char *pchLeaderboardName);
+	bool FindingLeaderboard() { return m_FindingLeaderboard; }
+	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
+
+	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score);
+	bool UploadingLeaderboardScore() { return m_UploadingLeaderboardScore; }
+	bool LeaderboardScoreStored() { return m_LeaderboardScoreStored; }
+
+	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
+	bool DownloadingLeaderboardEntries() { return m_DownloadingLeaderboardEntries; }
+	int GetNumLeaderboardEntries() { return m_NumLeaderboardEntries; }
+	int GetLeaderboardEntryGlobalRank(int index);
+	int GetLeaderboardEntryScore(int index);
+	const char *GetLeaderboardEntryPersonaName(int index);
 };
 
 #endif // STEAMPLUGIN_H_
