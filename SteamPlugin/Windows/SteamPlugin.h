@@ -38,7 +38,6 @@ private:
 	STEAM_CALLBACK(SteamPlugin, OnAchievementStored, UserAchievementStored_t, m_CallbackAchievementStored);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsStored, UserStatsStored_t, m_CallbackUserStatsStored);
-	STEAM_CALLBACK(SteamPlugin, OnLeaderboardFindResult, LeaderboardFindResult_t, m_CallbackLeaderboardFindResult);
 	
 
 public:
@@ -72,9 +71,15 @@ public:
 	bool SetStat(const char *pchName, float fData);
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 	// Leaderboards
+	int m_nLeaderboardEntries;
+	LeaderboardEntry_t m_leaderboardEntries[10];
 	SteamAPICall_t FindLeaderboard(const char *pchLeaderboardName);
-	bool LeaderboardFindResultReceived();
-	SteamLeaderboard_t GetLeaderboardFindResultHandle();
+	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
+	CCallResult<LeaderboardFindResult_t, bool> m_callResultFindLeaderboard;
+	//void OnUploadScore(LeaderboardScoreUploaded_t *pResult, bool bIOFailure);
+	//CCallResult<LeaderboardScoreUploaded_t, bool> m_callResultUploadScore;
+	//void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
+	//CCallResult<LeaderboardScoresDownloaded_t, bool> m_callResultDownloadScore;
 };
 
 #endif // STEAMPLUGIN_H_

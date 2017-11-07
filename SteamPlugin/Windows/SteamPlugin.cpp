@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include <stdio.h>
 #include <steam_api.h>
 #include "SteamPlugin.h"
+#include "..\AGKLibraryCommands.h"
 
 #pragma comment(lib, "steam_api.lib")
 
@@ -296,31 +297,38 @@ bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSessio
 	return SteamUserStats()->UpdateAvgRateStat(pchName, flCountThisSession, dSessionLength);
 }
 
-void SteamPlugin::OnLeaderboardFindResult(LeaderboardFindResult_t *pCallback)
+// Leaderboards
+void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
 {
-	m_LeaderboardFindResultReceived = true;
+	if (!pCallback->m_bLeaderboardFound || bIOFailure)
+	{
+		// Did not find the leaderboard.
+		return;
+	}
 	m_hSteamLeaderboard = pCallback->m_hSteamLeaderboard;
 }
 
 SteamAPICall_t SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
-	m_LeaderboardFindResultReceived = false;
+	m_hSteamLeaderboard = NULL;
 	if (!m_StatsInitialized)
 	{
 		return 0;
 	}
-	return SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+	SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+	m_callResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
+	//return SteamUserStats()->FindLeaderboard(pchLeaderboardName);
 }
 
-bool SteamPlugin::LeaderboardFindResultReceived()
-{
-	return m_LeaderboardFindResultReceived;
-}
-
-SteamLeaderboard_t SteamPlugin::GetLeaderboardFindResultHandle()
-{
-	return m_hSteamLeaderboard;
-}
+//bool SteamPlugin::LeaderboardFindResultReceived()
+//{
+//	return m_LeaderboardFindResultReceived;
+//}
+//
+//SteamLeaderboard_t SteamPlugin::GetLeaderboardFindResultHandle()
+//{
+//	return m_hSteamLeaderboard;
+//}
 
 //int GetLeaderboardEntryCount( SteamLeaderboard_t hSteamLeaderboard ) = 0;
 //virtual ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hSteamLeaderboard) = 0;
@@ -330,45 +338,3 @@ SteamLeaderboard_t SteamPlugin::GetLeaderboardFindResultHandle()
 //CALL_RESULT(LeaderboardScoresDownloaded_t)
 //virtual SteamAPICall_t DownloadLeaderboardEntriesForUsers(SteamLeaderboard_t hSteamLeaderboard,
 //	ARRAY_COUNT_D(cUsers, Array of users to retrieve) CSteamID *prgUsers, int cUsers) = 0;
-
-
-/*
-DLL_EXPORT int GetI()
-{
-    return i + 10;
-}
-
-DLL_EXPORT float AddFloat(float a, float b)
-{
-    return a + b;
-}
-
-DLL_EXPORT char* ModifyString(const char* str)
-{
-	int length = (int) strlen(str) + 1;
-	char* str2 = agk::CreateString( length );
-	strcpy_s( str2, length, str );
-	str2[0] = 'A';
-    return str2;
-}
-
-DLL_EXPORT void DLLPrint(const char* str)
-{
-    agk::Print( str );
-}
-
-DLL_EXPORT void CreateRedSquare()
-{
-	agk::CreateSprite( 1, 0 );
-	agk::SetSpriteSize( 1, 100, 100 );
-	agk::SetSpritePosition( 1, 10, 100 );
-	agk::SetSpriteColor( 1, 255,0,0,255 );
-}
-
-DLL_EXPORT void LotsOfParams( int a, int b, float c, float d, int e, const char* f, float g )
-{
-	char str[256];
-	sprintf( str, "a: %d, b: %d, c: %f, d: %f, e: %d, f: %s, g: %f", a, b, c, d, e, f, g );
-	agk::Print( str );
-}
-*/
