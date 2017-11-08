@@ -52,6 +52,11 @@ EndFunction "FALSE"
 
 #import_plugin SteamPlugin As Steam
 
+// Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
+#constant k_ELeaderboardDataRequestGlobal			0
+#constant k_ELeaderboardDataRequestGlobalAroundUser	1
+#constant k_ELeaderboardDataRequestFriends			2
+
 AddStatus("Steam Initialized: " + TF(Steam.Init()))
 if not Steam.SteamInitialized()
 	Message("Could not initialize Steam API.  Closing.")
@@ -66,12 +71,9 @@ AddStatus("UserID: " + Steam.GetPersonaName())
 // Wait up to 2 seconds for current user stats to load.
 // This should actually be a part of the main loop.
 timeout = Timer() + 2
-while Timer() < timeout
+while Steam.RequestingStats() and Timer() < timeout
 	Sync()
 	Steam.RunCallbacks() // Must be called to allow the callbacks (RequestStats) to process.
-	if not Steam.RequestingStats()
-		exit
-	endif
 endwhile
 // Show achievement info if loaded.
 AddStatus("StatsInitialized: " + TF(Steam.StatsInitialized()))
@@ -125,40 +127,33 @@ Function ShowLeaderboard()
 	if Steam.FindLeaderboard("Feet Traveled")
 		AddStatus("Finding Leaderboard: 'Feet Traveled'")
 		timeout = Timer() + 2
-		while Timer() < timeout
+		while Steam.FindingLeaderboard() and Timer() < timeout
 			Sync()
 			Steam.RunCallbacks() // Must be called to allow the callbacks (RequestStats) to process.
-			if not Steam.FindingLeaderboard()
-				exit
-			endif
 		endwhile
 		AddStatus("Leaderboard handle: " + str(Steam.GetLeaderboardHandle()))
 		// If the leaderboard is not found, the handle is 0.
 		hLeaderboard as integer
 		hLeaderboard = Steam.GetLeaderboardHandle()
 		if hLeaderboard
+			// Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
 			AddStatus("UploadLeaderboardScore...")
 			if Steam.UploadLeaderboardScore(hLeaderboard, 100)
 				timeout = Timer() + 2
-				while Timer() < timeout
+				while Steam.UploadingLeaderboardScore() and Timer() < timeout
 					Sync()
 					Steam.RunCallbacks() // Must be called to allow the callbacks (RequestStats) to process.
-					if not Steam.UploadingLeaderboardScore()
-						exit
-					endif
 				endwhile
 				AddStatus("LeaderboardScoreStored: " + TF(Steam.LeaderboardScoreStored()))
 			endif
 			// Download user rank
 			AddStatus("--- User Rank ---")
-			if Steam.DownloadLeaderboardEntries(hLeaderboard, 1, 0, 0)
+			// 0 to 0 around user will give only the user's entry.
+ 			if Steam.DownloadLeaderboardEntries(hLeaderboard, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
 				timeout = Timer() + 2
-				while Timer() < timeout
+				while Steam.DownloadingLeaderboardEntries() and Timer() < timeout
 					Sync()
 					Steam.RunCallbacks() // Must be called to allow the callbacks (RequestStats) to process.
-					if not Steam.DownloadingLeaderboardEntries()
-						exit
-					endif
 				endwhile
 				AddStatus("GetNumLeaderboardEntries: " + str(Steam.GetNumLeaderboardEntries()))
 				for x = 0 to Steam.GetNumLeaderboardEntries() - 1
@@ -167,14 +162,11 @@ Function ShowLeaderboard()
 			endif
 			// Download global leaders
 			AddStatus("--- Global leaders ---")
-			if Steam.DownloadLeaderboardEntries(hLeaderboard, 0, 0, 10)
+			if Steam.DownloadLeaderboardEntries(hLeaderboard, k_ELeaderboardDataRequestGlobal, 1, 10)
 				timeout = Timer() + 2
-				while Timer() < timeout
+				while Steam.DownloadingLeaderboardEntries() and Timer() < timeout
 					Sync()
 					Steam.RunCallbacks() // Must be called to allow the callbacks (RequestStats) to process.
-					if not Steam.DownloadingLeaderboardEntries()
-						exit
-					endif
 				endwhile
 				AddStatus("GetNumLeaderboardEntries: " + str(Steam.GetNumLeaderboardEntries()))
 				for x = 0 to Steam.GetNumLeaderboardEntries() - 1
@@ -254,12 +246,9 @@ do
 		// Wait for stats and achievement to be stored.  This step doesn't appear
 		// to be necessary unless you really want to know if and when they get stored.
 		timeout = Timer() + 2
-		while Timer() < timeout
-			Steam.RunCallbacks() // Call to allow the StoreStats callbacks to report.
-			if Steam.StoringStats()
-				exit
-			endif
+		while Steam.StoringStats() and Timer() < timeout
 			Sync()
+			Steam.RunCallbacks() // Call to allow the StoreStats callbacks to report.
 		endwhile
 		AddStatus("StatsStored: " + TF(Steam.StatsStored()))
 		AddStatus("AchievementStored: " + TF(Steam.AchievementStored()))

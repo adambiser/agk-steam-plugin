@@ -92,11 +92,11 @@ public:
 	bool FindLeaderboard(const char *pchLeaderboardName);
 	bool FindingLeaderboard() { return m_FindingLeaderboard; }
 	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
-
+	// Uploading scores
 	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score);
 	bool UploadingLeaderboardScore() { return m_UploadingLeaderboardScore; }
 	bool LeaderboardScoreStored() { return m_LeaderboardScoreStored; }
-
+	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 	bool DownloadingLeaderboardEntries() { return m_DownloadingLeaderboardEntries; }
 	int GetNumLeaderboardEntries() { return m_NumLeaderboardEntries; }
