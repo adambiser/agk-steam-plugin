@@ -454,6 +454,42 @@ int LeaderboardScoreStored()
 	return false;
 }
 
+int UploadedScoreChanged()
+{
+	if (Steam)
+	{
+		return Steam->UploadedScoreChanged();
+	}
+	return false;
+}
+
+int UploadedScore()
+{
+	if (Steam)
+	{
+		return Steam->UploadedScore();
+	}
+	return 0;
+}
+
+int UploadedGlobalRankNew()
+{
+	if (Steam)
+	{
+		return Steam->UploadedGlobalRankNew();
+	}
+	return 0;
+}
+
+int UploadedGlobalRankPrevious()
+{
+	if (Steam)
+	{
+		return Steam->UploadedGlobalRankPrevious();
+	}
+	return 0;
+}
+
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
 	if (Steam)

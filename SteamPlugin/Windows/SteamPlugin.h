@@ -40,6 +40,10 @@ private:
 	bool m_FindingLeaderboard;
 	bool m_UploadingLeaderboardScore;
 	bool m_LeaderboardScoreStored;
+	bool m_UploadedScoreChanged;
+	int m_UploadedScore;
+	int m_UploadedGlobalRankNew;
+	int m_UploadedGlobalRankPrevious;
 	bool m_DownloadingLeaderboardEntries;
 	int m_NumLeaderboardEntries;
 	LeaderboardEntry_t m_leaderboardEntries[MAX_LEADERBOARD_ENTRIES];
@@ -96,6 +100,10 @@ public:
 	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score);
 	bool UploadingLeaderboardScore() { return m_UploadingLeaderboardScore; }
 	bool LeaderboardScoreStored() { return m_LeaderboardScoreStored; }
+	bool UploadedScoreChanged() { return m_UploadedScoreChanged; }
+	int UploadedScore() { return m_UploadedScore; }
+	int UploadedGlobalRankNew() { return m_UploadedGlobalRankNew; }
+	int UploadedGlobalRankPrevious() { return m_UploadedGlobalRankPrevious; }
 	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 	bool DownloadingLeaderboardEntries() { return m_DownloadingLeaderboardEntries; }

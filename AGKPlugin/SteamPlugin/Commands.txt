@@ -45,6 +45,10 @@ FindingLeaderboard,I,0,FindingLeaderboard,0,0,0,0,0
 GetLeaderboardHandle,I,0,GetLeaderboardHandle,0,0,0,0,0
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,0
 UploadingLeaderboardScore,I,0,UploadingLeaderboardScore,0,0,0,0,0
+UploadedScoreChanged,I,0,UploadedScoreChanged,0,0,0,0,0
+UploadedScore,I,0,UploadedScore,0,0,0,0,0
+UploadedGlobalRankNew,I,0,UploadedGlobalRankNew,0,0,0,0,0
+UploadedGlobalRankPrevious,I,0,UploadedGlobalRankPrevious,0,0,0,0,0
 LeaderboardScoreStored,I,0,LeaderboardScoreStored,0,0,0,0,0
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,0
 DownloadingLeaderboardEntries,I,0,DownloadingLeaderboardEntries,0,0,0,0,0

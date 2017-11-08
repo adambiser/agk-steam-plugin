@@ -66,7 +66,10 @@ extern "C" DLL_EXPORT int GetLeaderboardHandle();
 extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 extern "C" DLL_EXPORT int UploadingLeaderboardScore();
 extern "C" DLL_EXPORT int LeaderboardScoreStored();
-
+extern "C" DLL_EXPORT int UploadedScoreChanged();
+extern "C" DLL_EXPORT int UploadedScore();
+extern "C" DLL_EXPORT int UploadedGlobalRankNew();
+extern "C" DLL_EXPORT int UploadedGlobalRankPrevious();
 // https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 extern "C" DLL_EXPORT int DownloadingLeaderboardEntries();
