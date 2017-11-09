@@ -41,10 +41,10 @@ SteamPlugin::SteamPlugin() :
 	m_FindingLeaderboard(false),
 	m_UploadingLeaderboardScore(false),
 	m_LeaderboardScoreStored(false),
-	m_UploadedScoreChanged(false),
-	m_UploadedScore(0),
-	m_UploadedGlobalRankNew(0),
-	m_UploadedGlobalRankPrevious(0),
+	m_LeaderboardScoreChanged(false),
+	m_LeaderboardUploadedScore(0),
+	m_LeaderboardGlobalRankNew(0),
+	m_LeaderboardGlobalRankPrevious(0),
 	m_DownloadingLeaderboardEntries(false),
 	m_NumLeaderboardEntries(0),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
@@ -89,10 +89,10 @@ void SteamPlugin::Shutdown()
 		m_FindingLeaderboard = false;
 		m_UploadingLeaderboardScore = false;
 		m_LeaderboardScoreStored = false;
-		m_UploadedScoreChanged = false;
-		m_UploadedScore = 0;
-		m_UploadedGlobalRankNew = 0;
-		m_UploadedGlobalRankPrevious = 0;
+		m_LeaderboardScoreChanged = false;
+		m_LeaderboardUploadedScore = 0;
+		m_LeaderboardGlobalRankNew = 0;
+		m_LeaderboardGlobalRankPrevious = 0;
 		m_DownloadingLeaderboardEntries = false;
 		m_NumLeaderboardEntries = 0;
 	}
@@ -348,13 +348,10 @@ void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOF
 {
 	m_UploadingLeaderboardScore = false;
 	m_LeaderboardScoreStored = (pCallback->m_bSuccess && !bIOFailure);
-	if (m_LeaderboardScoreStored)
-	{
-		m_UploadedScoreChanged = (pCallback->m_bScoreChanged != 0);
-		m_UploadedScore = pCallback->m_nScore;
-		m_UploadedGlobalRankNew = pCallback->m_nGlobalRankNew;
-		m_UploadedGlobalRankPrevious = pCallback->m_nGlobalRankPrevious;
-	}
+	m_LeaderboardScoreChanged = (pCallback->m_bScoreChanged != 0);
+	m_LeaderboardUploadedScore = pCallback->m_nScore;
+	m_LeaderboardGlobalRankNew = pCallback->m_nGlobalRankNew;
+	m_LeaderboardGlobalRankPrevious = pCallback->m_nGlobalRankPrevious;
 }
 
 bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score)
@@ -370,10 +367,10 @@ bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int sc
 	}
 	m_UploadingLeaderboardScore = true;
 	m_LeaderboardScoreStored = false;
-	m_UploadedScoreChanged = false;
-	m_UploadedScore = 0;
-	m_UploadedGlobalRankNew = 0;
-	m_UploadedGlobalRankPrevious = 0;
+	m_LeaderboardScoreChanged = false;
+	m_LeaderboardUploadedScore = 0;
+	m_LeaderboardGlobalRankNew = 0;
+	m_LeaderboardGlobalRankPrevious = 0;
 	SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score, NULL, 0);
 	m_callResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
 	return true;

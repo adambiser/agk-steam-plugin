@@ -454,38 +454,38 @@ int LeaderboardScoreStored()
 	return false;
 }
 
-int UploadedScoreChanged()
+int LeaderboardScoreChanged()
 {
 	if (Steam)
 	{
-		return Steam->UploadedScoreChanged();
+		return Steam->LeaderboardScoreChanged();
 	}
 	return false;
 }
 
-int UploadedScore()
+int GetLeaderboardUploadedScore()
 {
 	if (Steam)
 	{
-		return Steam->UploadedScore();
+		return Steam->GetLeaderboardUploadedScore();
 	}
 	return 0;
 }
 
-int UploadedGlobalRankNew()
+int GetLeaderboardGlobalRankNew()
 {
 	if (Steam)
 	{
-		return Steam->UploadedGlobalRankNew();
+		return Steam->GetLeaderboardGlobalRankNew();
 	}
 	return 0;
 }
 
-int UploadedGlobalRankPrevious()
+int GetLeaderboardGlobalRankPrevious()
 {
 	if (Steam)
 	{
-		return Steam->UploadedGlobalRankPrevious();
+		return Steam->GetLeaderboardGlobalRankPrevious();
 	}
 	return 0;
 }
