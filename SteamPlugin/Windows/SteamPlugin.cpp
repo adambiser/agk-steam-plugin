@@ -32,20 +32,20 @@ THE SOFTWARE.
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
-	m_RequestingStats(false),
+	m_RequestStatsCallbackState(Idle),
 	m_StatsInitialized(false),
-	m_StoringStats(false),
+	m_StoreStatsCallbackState(Idle),
 	m_StatsStored(false),
 	m_AchievementStored(false),
 	m_hSteamLeaderboard(0),
-	m_FindingLeaderboard(false),
-	m_UploadingLeaderboardScore(false),
+	m_FindLeaderboardCallbackState(Idle),
+	m_UploadLeaderboardScoreCallbackState(Idle),
 	m_LeaderboardScoreStored(false),
 	m_LeaderboardScoreChanged(false),
 	m_LeaderboardUploadedScore(0),
 	m_LeaderboardGlobalRankNew(0),
 	m_LeaderboardGlobalRankPrevious(0),
-	m_DownloadingLeaderboardEntries(false),
+	m_DownloadLeaderboardEntriesCallbackState(Idle),
 	m_NumLeaderboardEntries(0),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
@@ -80,20 +80,20 @@ void SteamPlugin::Shutdown()
 		// Reset member variables.
 		m_AppID = 0;
 		m_SteamInitialized = false;
-		m_RequestingStats = false;
+		m_RequestStatsCallbackState = Idle;
 		m_StatsInitialized = false;
-		m_StoringStats = false;
+		m_StoreStatsCallbackState = Idle;
 		m_StatsStored = false;
 		m_AchievementStored = false;
 		m_hSteamLeaderboard = 0;
-		m_FindingLeaderboard = false;
-		m_UploadingLeaderboardScore = false;
+		m_FindLeaderboardCallbackState = Idle;
+		m_UploadLeaderboardScoreCallbackState = Idle;
 		m_LeaderboardScoreStored = false;
 		m_LeaderboardScoreChanged = false;
 		m_LeaderboardUploadedScore = 0;
 		m_LeaderboardGlobalRankNew = 0;
 		m_LeaderboardGlobalRankPrevious = 0;
-		m_DownloadingLeaderboardEntries = false;
+		m_DownloadLeaderboardEntriesCallbackState = Idle;
 		m_NumLeaderboardEntries = 0;
 	}
 }
@@ -151,8 +151,18 @@ bool SteamPlugin::RequestStats()
 	{
 		return false;
 	}
-	m_RequestingStats = SteamUserStats()->RequestCurrentStats();
-	return m_RequestingStats;
+	// Fail when the callback is currently running.
+	if (m_RequestStatsCallbackState == Running)
+	{
+		return false;
+	}
+	if (!SteamUserStats()->RequestCurrentStats())
+	{
+		m_RequestStatsCallbackState = ClientError;
+		return false;
+	}
+	m_RequestStatsCallbackState = Running;
+	return true;
 }
 
 // Callback for RequestStats.
@@ -160,10 +170,14 @@ void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
-		m_RequestingStats = false;
 		if (pCallback->m_eResult == k_EResultOK)
 		{
+			m_RequestStatsCallbackState = Done;
 			m_StatsInitialized = true;
+		}
+		else
+		{
+			m_RequestStatsCallbackState = ServerError;
 		}
 	}
 }
@@ -174,8 +188,18 @@ bool SteamPlugin::StoreStats()
 	{
 		return false;
 	}
-	m_StoringStats = SteamUserStats()->StoreStats();
-	return m_StoringStats;
+	// Fail when the callback is currently running.
+	if (m_StoreStatsCallbackState == Running)
+	{
+		return false;
+	}
+	if (!SteamUserStats()->StoreStats())
+	{
+		m_StoreStatsCallbackState = ClientError;
+		return false;
+	}
+	m_StoreStatsCallbackState = Running;
+	return true;
 }
 
 bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
@@ -184,8 +208,18 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 	{
 		return false;
 	}
-	m_StoringStats = SteamUserStats()->ResetAllStats(bAchievementsToo);
-	return m_StoringStats;
+	// Fail when the callback is currently running.
+	if (m_StoreStatsCallbackState == Running)
+	{
+		return false;
+	}
+	if (!SteamUserStats()->ResetAllStats(bAchievementsToo))
+	{
+		m_StoreStatsCallbackState = ClientError;
+		return false;
+	}
+	m_StoreStatsCallbackState = Running;
+	return true;
 }
 
 // Callback for StoreStats.
@@ -193,10 +227,14 @@ void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
-		m_StoringStats = false;
 		if (pCallback->m_eResult == k_EResultOK)
 		{
+			m_StoreStatsCallbackState = Done;
 			m_StatsStored = true;
+		}
+		else
+		{
+			m_StoreStatsCallbackState = ServerError;
 		}
 	}
 }
@@ -317,93 +355,135 @@ bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSessio
 // Leaderboards
 void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
 {
-	m_FindingLeaderboard = false;
-	if (!pCallback->m_bLeaderboardFound || bIOFailure)
+	if (pCallback->m_bLeaderboardFound && !bIOFailure)
+	{
+		m_FindLeaderboardCallbackState = Done;
+		m_hSteamLeaderboard = pCallback->m_hSteamLeaderboard;
+	}
+	else
 	{
 		// Did not find the leaderboard.
-		return;
+		m_FindLeaderboardCallbackState = ServerError;
 	}
-	m_hSteamLeaderboard = pCallback->m_hSteamLeaderboard;
 }
 
 bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
-	if (m_FindingLeaderboard)
-	{
-		// Already waiting for the callback.
-		return false;
-	}
 	if (!m_StatsInitialized)
 	{
 		return false;
 	}
-	m_FindingLeaderboard = true;
-	m_hSteamLeaderboard = 0;
-	SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
-	m_callResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
-	return true;
+	// Fail when the callback is currently running.
+	if (m_FindLeaderboardCallbackState == Running)
+	{
+		return false;
+	}
+	try
+	{
+		m_hSteamLeaderboard = 0;
+		SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+		m_callResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
+		m_FindLeaderboardCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_FindLeaderboardCallbackState = ClientError;
+		return false;
+	}
 }
 
 void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOFailure)
 {
-	m_UploadingLeaderboardScore = false;
-	m_LeaderboardScoreStored = (pCallback->m_bSuccess && !bIOFailure);
+	if (pCallback->m_bSuccess && !bIOFailure)
+	{
+		m_UploadLeaderboardScoreCallbackState = Done;
+		m_LeaderboardScoreStored = true;
+	}
+	else
+	{
+		m_UploadLeaderboardScoreCallbackState = ServerError;
+	}
+	// Report these values as Steam reports them.
 	m_LeaderboardScoreChanged = (pCallback->m_bScoreChanged != 0);
 	m_LeaderboardUploadedScore = pCallback->m_nScore;
 	m_LeaderboardGlobalRankNew = pCallback->m_nGlobalRankNew;
 	m_LeaderboardGlobalRankPrevious = pCallback->m_nGlobalRankPrevious;
 }
 
-bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score)
+bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
 {
-	if (m_UploadingLeaderboardScore)
-	{
-		// Already waiting for the callback.
-		return false;
-	}
 	if (!hLeaderboard)
 	{
+		m_UploadLeaderboardScoreCallbackState = ClientError;
 		return false;
 	}
-	m_UploadingLeaderboardScore = true;
-	m_LeaderboardScoreStored = false;
-	m_LeaderboardScoreChanged = false;
-	m_LeaderboardUploadedScore = 0;
-	m_LeaderboardGlobalRankNew = 0;
-	m_LeaderboardGlobalRankPrevious = 0;
-	SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score, NULL, 0);
-	m_callResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
-	return true;
+	// Fail when the callback is currently running.
+	if (m_UploadLeaderboardScoreCallbackState == Running)
+	{
+		return false;
+	}
+	try
+	{
+		m_LeaderboardScoreStored = false;
+		m_LeaderboardScoreChanged = false;
+		m_LeaderboardUploadedScore = 0;
+		m_LeaderboardGlobalRankNew = 0;
+		m_LeaderboardGlobalRankPrevious = 0;
+		SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, eLeaderboardUploadScoreMethod, score, NULL, 0);
+		m_callResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
+		m_UploadLeaderboardScoreCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_UploadLeaderboardScoreCallbackState = ClientError;
+		return false;
+	}
 }
 
 void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool bIOFailure)
 {
-	m_DownloadingLeaderboardEntries = false;
 	if (!bIOFailure)
 	{
+		m_DownloadLeaderboardEntriesCallbackState = Done;
 		m_NumLeaderboardEntries = min(pCallback->m_cEntryCount, MAX_LEADERBOARD_ENTRIES);
 		for (int index = 0; index < m_NumLeaderboardEntries; index++)
 		{
 			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallback->m_hSteamLeaderboardEntries, index, &m_leaderboardEntries[index], NULL, 0);
 		}
 	}
+	else
+	{
+		m_DownloadLeaderboardEntriesCallbackState = ServerError;
+	}
 }
 
 bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
-	if (m_DownloadingLeaderboardEntries)
-	{
-		// Already waiting for the callback.
-		return false;
-	}
 	if (!hLeaderboard)
 	{
+		m_DownloadLeaderboardEntriesCallbackState = ClientError;
 		return false;
 	}
-	m_DownloadingLeaderboardEntries = true;
-	SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-	m_callResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
-	return true;
+	// Fail when the callback is currently running.
+	if (m_DownloadLeaderboardEntriesCallbackState == Running)
+	{
+		return false;
+	}
+	try
+	{
+		m_NumLeaderboardEntries = 0;
+		SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+		m_callResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
+		m_DownloadLeaderboardEntriesCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_DownloadLeaderboardEntriesCallbackState = ClientError;
+		return false;
+	}
 }
 
 int SteamPlugin::GetLeaderboardEntryGlobalRank(int index)

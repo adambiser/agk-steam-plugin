@@ -13,11 +13,11 @@ RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 # General user stats methods.
 #
 RequestStats,I,0,RequestStats,0,0,0,0,0
-RequestingStats,I,0,RequestingStats,0,0,0,0,0
+RequestStatsCallbackState,I,0,RequestStatsCallbackState,0,0,0,0,0
 StatsInitialized,I,0,StatsInitialized,0,0,0,0,0
 StoreStats,I,0,StoreStats,0,0,0,0,0
 ResetAllStats,I,I,ResetAllStats,0,0,0,0,0
-StoringStats,I,0,StoringStats,0,0,0,0,0
+StoreStatsCallbackState,I,0,StoreStatsCallbackState,0,0,0,0,0
 StatsStored,I,0,StatsStored,0,0,0,0,0
 AchievementStored,I,0,AchievementStored,0,0,0,0,0
 #
@@ -41,17 +41,18 @@ UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,0
 # Leaderboard methods
 #
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,0
-FindingLeaderboard,I,0,FindingLeaderboard,0,0,0,0,0
+FindLeaderboardCallbackState,I,0,FindLeaderboardCallbackState,0,0,0,0,0
 GetLeaderboardHandle,I,0,GetLeaderboardHandle,0,0,0,0,0
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,0
-UploadingLeaderboardScore,I,0,UploadingLeaderboardScore,0,0,0,0,0
+UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,0
+UploadLeaderboardScoreCallbackState,I,0,UploadLeaderboardScoreCallbackState,0,0,0,0,0
 LeaderboardScoreStored,I,0,LeaderboardScoreStored,0,0,0,0,0
 LeaderboardScoreChanged,I,0,LeaderboardScoreChanged,0,0,0,0,0
 GetLeaderboardUploadedScore,I,0,GetLeaderboardUploadedScore,0,0,0,0,0
 GetLeaderboardGlobalRankNew,I,0,GetLeaderboardGlobalRankNew,0,0,0,0,0
 GetLeaderboardGlobalRankPrevious,I,0,GetLeaderboardGlobalRankPrevious,0,0,0,0,0
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,0
-DownloadingLeaderboardEntries,I,0,DownloadingLeaderboardEntries,0,0,0,0,0
+DownloadLeaderboardEntriesCallbackState,I,0,DownloadLeaderboardEntriesCallbackState,0,0,0,0,0
 GetNumLeaderboardEntries,I,0,GetNumLeaderboardEntries,0,0,0,0,0
 GetLeaderboardEntryGlobalRank,I,I,GetLeaderboardEntryGlobalRank,0,0,0,0,0
 GetLeaderboardEntryScore,I,I,GetLeaderboardEntryScore,0,0,0,0,0

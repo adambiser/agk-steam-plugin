@@ -27,24 +27,33 @@ THE SOFTWARE.
 
 #define MAX_LEADERBOARD_ENTRIES 10
 
+enum ECallbackState
+{
+	ServerError = -2,
+	ClientError = -1,
+	Idle = 0,
+	Running = 1,
+	Done = 2
+};
+
 class SteamPlugin {
 private:
 	uint64 m_AppID;
 	bool m_SteamInitialized;
-	bool m_RequestingStats;
+	ECallbackState m_RequestStatsCallbackState;
 	bool m_StatsInitialized;
-	bool m_StoringStats;
+	ECallbackState m_StoreStatsCallbackState;
 	bool m_StatsStored;
 	bool m_AchievementStored;
 	SteamLeaderboard_t m_hSteamLeaderboard;
-	bool m_FindingLeaderboard;
-	bool m_UploadingLeaderboardScore;
+	ECallbackState m_FindLeaderboardCallbackState;
+	ECallbackState m_UploadLeaderboardScoreCallbackState;
 	bool m_LeaderboardScoreStored;
 	bool m_LeaderboardScoreChanged;
 	int m_LeaderboardUploadedScore;
 	int m_LeaderboardGlobalRankNew;
 	int m_LeaderboardGlobalRankPrevious;
-	bool m_DownloadingLeaderboardEntries;
+	ECallbackState m_DownloadLeaderboardEntriesCallbackState;
 	int m_NumLeaderboardEntries;
 	LeaderboardEntry_t m_leaderboardEntries[MAX_LEADERBOARD_ENTRIES];
 	// User stats callbacks
@@ -59,6 +68,16 @@ private:
 	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
 	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_callResultDownloadScore;
 
+	// Return to Idle after reporting Done.
+	ECallbackState getCallbackState(ECallbackState *callbackState)
+	{
+		if (*callbackState == Done)
+		{
+			*callbackState = Idle;
+			return Done;
+		}
+		return *callbackState;
+	}
 public:
 	SteamPlugin();
 	virtual ~SteamPlugin(void);
@@ -72,11 +91,11 @@ public:
 	void RunCallbacks();
 	// General user stats methods.
 	bool RequestStats();
-	bool RequestingStats() { return m_RequestingStats; }
+	ECallbackState RequestStatsCallbackState() { return getCallbackState(&m_RequestStatsCallbackState); }
 	bool StatsInitialized() { return m_StatsInitialized; }
 	bool StoreStats();
 	bool ResetAllStats(bool bAchievementsToo);
-	bool StoringStats() { return m_StoringStats; }
+	ECallbackState StoreStatsCallbackState() { return getCallbackState(&m_StoreStatsCallbackState); }
 	bool StatsStored() { return m_StatsStored; }
 	bool AchievementStored() { return m_AchievementStored; }
 	// Achievements methods.
@@ -94,11 +113,11 @@ public:
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 	// Leaderboards
 	bool FindLeaderboard(const char *pchLeaderboardName);
-	bool FindingLeaderboard() { return m_FindingLeaderboard; }
+	ECallbackState FindLeaderboardCallbackState() { return getCallbackState(&m_FindLeaderboardCallbackState); }
 	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
 	// Uploading scores
-	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, int score);
-	bool UploadingLeaderboardScore() { return m_UploadingLeaderboardScore; }
+	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
+	ECallbackState UploadLeaderboardScoreCallbackState() { return getCallbackState(&m_UploadLeaderboardScoreCallbackState); }
 	bool LeaderboardScoreStored() { return m_LeaderboardScoreStored; }
 	bool LeaderboardScoreChanged() { return m_LeaderboardScoreChanged; }
 	int GetLeaderboardUploadedScore() { return m_LeaderboardUploadedScore; }
@@ -106,7 +125,7 @@ public:
 	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardGlobalRankPrevious; }
 	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
-	bool DownloadingLeaderboardEntries() { return m_DownloadingLeaderboardEntries; }
+	ECallbackState DownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
 	int GetNumLeaderboardEntries() { return m_NumLeaderboardEntries; }
 	int GetLeaderboardEntryGlobalRank(int index);
 	int GetLeaderboardEntryScore(int index);

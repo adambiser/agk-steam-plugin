@@ -156,13 +156,13 @@ int RequestStats()
 	return false;
 }
 
-int RequestingStats()
+int RequestStatsCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->RequestingStats();
+		return Steam->RequestStatsCallbackState();
 	}
-	return false;
+	return STATE_CLIENT_ERROR;
 }
 
 /*
@@ -204,13 +204,13 @@ int ResetAllStats(int bAchievementsToo)
 	return false;
 }
 
-int StoringStats()
+int StoreStatsCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->StoringStats();
+		return Steam->StoreStatsCallbackState();
 	}
-	return false;
+	return STATE_CLIENT_ERROR;
 }
 
 /*
@@ -409,13 +409,13 @@ int FindLeaderboard(const char *pchLeaderboardName)
 	return false;
 }
 
-int FindingLeaderboard()
+int FindLeaderboardCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->FindingLeaderboard();
+		return Steam->FindLeaderboardCallbackState();
 	}
-	return false;
+	return STATE_CLIENT_ERROR;
 }
 
 int GetLeaderboardHandle()
@@ -431,18 +431,27 @@ int UploadLeaderboardScore(int hLeaderboard, int score)
 {
 	if (Steam)
 	{
-		return Steam->UploadLeaderboardScore((SteamLeaderboard_t) hLeaderboard, score);
+		return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score);
 	}
 	return false;
 }
 
-int UploadingLeaderboardScore()
+int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 {
 	if (Steam)
 	{
-		return Steam->UploadingLeaderboardScore();
+		return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
 	}
 	return false;
+}
+
+int UploadLeaderboardScoreCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->UploadLeaderboardScoreCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
 }
 
 int LeaderboardScoreStored()
@@ -499,13 +508,13 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 	return false;
 }
 
-int DownloadingLeaderboardEntries()
+int DownloadLeaderboardEntriesCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->DownloadingLeaderboardEntries();
+		return Steam->DownloadLeaderboardEntriesCallbackState();
 	}
-	return false;
+	return STATE_CLIENT_ERROR;
 }
 
 int GetNumLeaderboardEntries()
