@@ -193,6 +193,8 @@ bool SteamPlugin::StoreStats()
 	{
 		return false;
 	}
+	m_StatsStored = false;
+	m_AchievementStored = false;
 	if (!SteamUserStats()->StoreStats())
 	{
 		m_StoreStatsCallbackState = ClientError;
@@ -213,6 +215,8 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 	{
 		return false;
 	}
+	m_StatsStored = false;
+	m_AchievementStored = false;
 	if (!SteamUserStats()->ResetAllStats(bAchievementsToo))
 	{
 		m_StoreStatsCallbackState = ClientError;
@@ -277,7 +281,6 @@ bool SteamPlugin::GetAchievement(const char *pchName, bool *pbAchieved)
 
 bool SteamPlugin::SetAchievement(const char *pchName)
 {
-	m_AchievementStored = false;
 	if (!m_StatsInitialized)
 	{
 		return false;
@@ -296,7 +299,6 @@ bool SteamPlugin::IndicateAchievementProgress(const char *pchName, uint32 nCurPr
 
 bool SteamPlugin::ClearAchievement(const char *pchName)
 {
-	m_AchievementStored = false;
 	if (!m_StatsInitialized)
 	{
 		return false;
@@ -324,7 +326,6 @@ bool SteamPlugin::GetStat(const char *pchName, float *pData)
 
 bool SteamPlugin::SetStat(const char *pchName, int32 nData)
 {
-	m_StatsStored = false;
 	if (!m_StatsInitialized)
 	{
 		return false;
@@ -334,7 +335,6 @@ bool SteamPlugin::SetStat(const char *pchName, int32 nData)
 
 bool SteamPlugin::SetStat(const char *pchName, float fData)
 {
-	m_StatsStored = false;
 	if (!m_StatsInitialized)
 	{
 		return false;
@@ -344,7 +344,6 @@ bool SteamPlugin::SetStat(const char *pchName, float fData)
 
 bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength)
 {
-	m_StatsStored = false;
 	if (!m_StatsInitialized)
 	{
 		return false;
