@@ -97,6 +97,26 @@ int SteamInitialized()
 	return false;
 }
 
+int RestartAppIfNecessary(int unOwnAppID)
+{
+	bool doDelete = false;
+	bool result = false;
+	if (!Steam)
+	{
+		doDelete = true;
+		Steam = new SteamPlugin();
+	}
+	if (Steam)
+	{
+		result = Steam->RestartAppIfNecessary(unOwnAppID);
+	}
+	if (doDelete)
+	{
+		delete[] Steam;
+	}
+	return result;
+}
+
 /*
 Returns the AppID or 0 if the Steam API has not been not initialized or the AppID cannot be found.
 */
@@ -156,11 +176,11 @@ int RequestStats()
 	return false;
 }
 
-int RequestStatsCallbackState()
+int GetRequestStatsCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->RequestStatsCallbackState();
+		return Steam->GetRequestStatsCallbackState();
 	}
 	return STATE_CLIENT_ERROR;
 }
@@ -204,11 +224,11 @@ int ResetAllStats(int bAchievementsToo)
 	return false;
 }
 
-int StoreStatsCallbackState()
+int GetStoreStatsCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->StoreStatsCallbackState();
+		return Steam->GetStoreStatsCallbackState();
 	}
 	return STATE_CLIENT_ERROR;
 }
@@ -409,11 +429,11 @@ int FindLeaderboard(const char *pchLeaderboardName)
 	return false;
 }
 
-int FindLeaderboardCallbackState()
+int GetFindLeaderboardCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->FindLeaderboardCallbackState();
+		return Steam->GetFindLeaderboardCallbackState();
 	}
 	return STATE_CLIENT_ERROR;
 }
@@ -445,11 +465,11 @@ int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 	return false;
 }
 
-int UploadLeaderboardScoreCallbackState()
+int GetUploadLeaderboardScoreCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->UploadLeaderboardScoreCallbackState();
+		return Steam->GetUploadLeaderboardScoreCallbackState();
 	}
 	return STATE_CLIENT_ERROR;
 }
@@ -508,11 +528,11 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 	return false;
 }
 
-int DownloadLeaderboardEntriesCallbackState()
+int GetDownloadLeaderboardEntriesCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->DownloadLeaderboardEntriesCallbackState();
+		return Steam->GetDownloadLeaderboardEntriesCallbackState();
 	}
 	return STATE_CLIENT_ERROR;
 }

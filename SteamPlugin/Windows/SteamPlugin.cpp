@@ -103,6 +103,11 @@ bool SteamPlugin::SteamInitialized()
 	return m_SteamInitialized;
 }
 
+bool SteamPlugin::RestartAppIfNecessary(uint32 unOwnAppID)
+{
+	return SteamAPI_RestartAppIfNecessary(unOwnAppID);
+}
+
 int SteamPlugin::GetAppID()
 {
 	if (!m_SteamInitialized)

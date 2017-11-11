@@ -86,16 +86,17 @@ public:
 	void Shutdown();
 	bool SteamInitialized();
 	int GetAppID();
+	bool RestartAppIfNecessary(uint32 unOwnAppID);
 	bool LoggedOn();
 	const char *GetPersonaName();
 	void RunCallbacks();
 	// General user stats methods.
 	bool RequestStats();
-	ECallbackState RequestStatsCallbackState() { return getCallbackState(&m_RequestStatsCallbackState); }
+	ECallbackState GetRequestStatsCallbackState() { return getCallbackState(&m_RequestStatsCallbackState); }
 	bool StatsInitialized() { return m_StatsInitialized; }
 	bool StoreStats();
 	bool ResetAllStats(bool bAchievementsToo);
-	ECallbackState StoreStatsCallbackState() { return getCallbackState(&m_StoreStatsCallbackState); }
+	ECallbackState GetStoreStatsCallbackState() { return getCallbackState(&m_StoreStatsCallbackState); }
 	bool StatsStored() { return m_StatsStored; }
 	bool AchievementStored() { return m_AchievementStored; }
 	// Achievements methods.
@@ -113,11 +114,11 @@ public:
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 	// Leaderboards
 	bool FindLeaderboard(const char *pchLeaderboardName);
-	ECallbackState FindLeaderboardCallbackState() { return getCallbackState(&m_FindLeaderboardCallbackState); }
+	ECallbackState GetFindLeaderboardCallbackState() { return getCallbackState(&m_FindLeaderboardCallbackState); }
 	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
 	// Uploading scores
 	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
-	ECallbackState UploadLeaderboardScoreCallbackState() { return getCallbackState(&m_UploadLeaderboardScoreCallbackState); }
+	ECallbackState GetUploadLeaderboardScoreCallbackState() { return getCallbackState(&m_UploadLeaderboardScoreCallbackState); }
 	bool LeaderboardScoreStored() { return m_LeaderboardScoreStored; }
 	bool LeaderboardScoreChanged() { return m_LeaderboardScoreChanged; }
 	int GetLeaderboardUploadedScore() { return m_LeaderboardUploadedScore; }
@@ -125,7 +126,7 @@ public:
 	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardGlobalRankPrevious; }
 	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
-	ECallbackState DownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
+	ECallbackState GetDownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
 	int GetNumLeaderboardEntries() { return m_NumLeaderboardEntries; }
 	int GetLeaderboardEntryGlobalRank(int index);
 	int GetLeaderboardEntryScore(int index);

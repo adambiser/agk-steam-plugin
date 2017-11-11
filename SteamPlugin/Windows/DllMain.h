@@ -40,17 +40,18 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 extern "C" DLL_EXPORT int Init();
 extern "C" DLL_EXPORT void Shutdown();
 extern "C" DLL_EXPORT int SteamInitialized();
+extern "C" DLL_EXPORT int RestartAppIfNecessary(int unOwnAppID);
 extern "C" DLL_EXPORT int GetAppID();
 extern "C" DLL_EXPORT int LoggedOn();
 extern "C" DLL_EXPORT char *GetPersonaName();
 extern "C" DLL_EXPORT void RunCallbacks();
 // General user stats methods.
 extern "C" DLL_EXPORT int RequestStats();
-extern "C" DLL_EXPORT int RequestStatsCallbackState();
+extern "C" DLL_EXPORT int GetRequestStatsCallbackState();
 extern "C" DLL_EXPORT int StatsInitialized();
 extern "C" DLL_EXPORT int StoreStats();
 extern "C" DLL_EXPORT int ResetAllStats(int bAchievementsToo);
-extern "C" DLL_EXPORT int StoreStatsCallbackState();
+extern "C" DLL_EXPORT int GetStoreStatsCallbackState();
 extern "C" DLL_EXPORT int StatsStored();
 extern "C" DLL_EXPORT int AchievementStored();
 // Achievements methods.
@@ -68,11 +69,11 @@ extern "C" DLL_EXPORT int SetStatFloat(const char *pchName, float fData);
 extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *pchName, float flCountThisSession, float dSessionLength);
 // Leaderboards
 extern "C" DLL_EXPORT int FindLeaderboard(const char *pchLeaderboardName);
-extern "C" DLL_EXPORT int FindLeaderboardCallbackState();
+extern "C" DLL_EXPORT int GetFindLeaderboardCallbackState();
 extern "C" DLL_EXPORT int GetLeaderboardHandle();
 extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
-extern "C" DLL_EXPORT int UploadLeaderboardScoreCallbackState();
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreCallbackState();
 extern "C" DLL_EXPORT int LeaderboardScoreStored();
 extern "C" DLL_EXPORT int LeaderboardScoreChanged();
 extern "C" DLL_EXPORT int GetLeaderboardUploadedScore();
@@ -80,7 +81,7 @@ extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew();
 extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious();
 // https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
-extern "C" DLL_EXPORT int DownloadLeaderboardEntriesCallbackState();
+extern "C" DLL_EXPORT int GetDownloadLeaderboardEntriesCallbackState();
 extern "C" DLL_EXPORT int GetNumLeaderboardEntries();
 extern "C" DLL_EXPORT int GetLeaderboardEntryGlobalRank(int index);
 extern "C" DLL_EXPORT int GetLeaderboardEntryScore(int index);

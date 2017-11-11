@@ -13,12 +13,15 @@ SetSyncRate(30, 0)
 UseNewDefaultFonts(1)
 SetPrintSize(20)
 
-CreateUI()
-global feet as float
-
-// This section demonstrates the SteamPlugin functionality.
-
 #import_plugin SteamPlugin As Steam
+
+// Uncommenting these lines forces the app to be run through the Steam client (a simple DRM).
+// Note that the existence of the steam_appid.txt file will cause this to always return 0 (useful for development).
+//~ if Steam.RestartAppIfNecessary(480) // 480 is this game's appid.
+	//~ end
+//~ endif
+
+CreateUI()
 
 // Plugin Callback State Value
 #constant STATE_SERVER_ERROR	-2
@@ -28,9 +31,9 @@ global feet as float
 #constant STATE_DONE			2 // Reported once as soon as the callback finishes and then changes to IDLE.
 
 // Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
-#constant k_ELeaderboardDataRequestGlobal			0
-#constant k_ELeaderboardDataRequestGlobalAroundUser	1
-#constant k_ELeaderboardDataRequestFriends			2
+#constant LEADERBOARD_DATA_GLOBAL		0
+#constant LEADERBOARD_DATA_AROUND_USER	1
+#constant LEADERBOARD_DATA_FRIENDS		2
 
 global server as SteamServerInfo
 // A type to hold all of the Steam server information used.
@@ -69,6 +72,8 @@ loop
 
 Steam.Shutdown()
 Quit()
+
+global feet as float
 
 //
 // Check and handle virtual buttons.
@@ -151,7 +156,7 @@ Function ProcessCallbacks()
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
 	//
-	select Steam.RequestStatsCallbackState()
+	select Steam.GetRequestStatsCallbackState()
 		case STATE_DONE
 			AddStatus("User status initialized.")
 			// Enable stats buttons.
@@ -176,137 +181,143 @@ Function ProcessCallbacks()
 	//
 	// Nothing else can be done until user stats are loaded.
 	//
-	if Steam.StatsInitialized()
-		//
-		// Process StoreStats/ResetStats callback.
-		//
-		select Steam.StoreStatsCallbackState()
-			case STATE_IDLE // Only StoreStats when in these states.
-				if server.needToStoreStats
-					Steam.StoreStats()
-					AddStatus("Storing user stats.")
-				endif
-			endcase
-			case STATE_DONE
-				server.needToStoreStats = 0
-				AddStatus("StatsStored: " + TF(Steam.StatsStored()))
-				AddStatus("AchievementStored: " + TF(Steam.AchievementStored()))
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-				if not errorReported[ERROR_STORESTATS]
-					errorReported[ERROR_STORESTATS] = 1
-					AddStatus("Error storing user stats.")
-				endif
-			endcase
-		endselect
-		//
-		// Process FindLeaderboard callback.
-		//
-		select Steam.FindLeaderboardCallbackState()
-			case STATE_IDLE
-				if server.leaderboardHandle = 0
-					Steam.FindLeaderboard("Feet Traveled")
-					AddStatus("Finding 'Feet Traveled' leaderboard handle")
-				endif
-			endcase
-			case STATE_DONE
-				server.leaderboardHandle = Steam.GetLeaderboardHandle()
-				// If the leaderboard is not found, the handle is 0.
-				if server.leaderboardHandle <> 0
-					AddStatus("Leaderboard handle: " + str(server.leaderboardHandle))
-					// Set these flags to demonstrate downloading rank and uploading a score.
-					server.downloadRank = 1
-					server.downloadTop10 = 1
-					server.needToUploadScore = 1
-				else
-					// Technically the callback will go to STATE_SERVER_ERROR when the handle is 0.
-					AddStatus("GetLeaderboardHandle error!")
-				endif
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-				if not errorReported[ERROR_FINDLEADERBOARD]
-					errorReported[ERROR_FINDLEADERBOARD] = 1
-					AddStatus("ERROR: FindLeaderboard.")
-				endif
-			endcase
-		endselect
-		if server.leaderboardHandle <> 0
-			//
-			// Process UploadLeaderboardScore callback.
-			//
-			select Steam.UploadLeaderboardScoreCallbackState()
-				case STATE_IDLE
-					if server.needToUploadScore
-						score as integer
-						score = Val(GetEditBoxText(1))
-						if str(score) <> GetEditBoxText(1)
-							Message("Score needs to be a number.")
-							server.needToUploadScore = 0
-						else
-							// NOTE: Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
-							Steam.UploadLeaderboardScoreForceUpdate(server.leaderboardHandle, score)
-							AddStatus("Uploading leaderboard score (force update).")
-						endif
-					endif
-				endcase
-				case STATE_DONE
-					// Steam.LeaderboardScoreStored() will return 1 when STATE_DONE and 0 for STATE_SERVER_ERROR.
-					server.needToUploadScore = 0
-					AddStatus("-------------------Upload Results-------------------")
-					AddStatus("LeaderboardScoreStored")
-					AddStatus("LeaderboardScoreChanged: " + TF(Steam.LeaderboardScoreChanged()))
-					AddStatus("GetLeaderboardUploadedScore: " + str(Steam.GetLeaderboardUploadedScore()))
-					// These matter only when LeaderboardScoreChanged is true.
-					AddStatus("GetLeaderboardGlobalRank - New: " + str(Steam.GetLeaderboardGlobalRankNew()) + ", Previous: " + str(Steam.GetLeaderboardGlobalRankPrevious()))
-					AddStatus("--------------------------------------")
-				endcase
-				case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-					if not errorReported[ERROR_UPLOADSCORE]
-						errorReported[ERROR_UPLOADSCORE] = 1
-						AddStatus("ERROR: UploadLeaderboardScore.")
-					endif
-				endcase
-			endselect
-			//
-			// Process DownloadLeaderboardEntries callback.
-			//
-			select Steam.DownloadLeaderboardEntriesCallbackState()
-				case STATE_IDLE
-					if server.downloadRank
-						// 0 to 0 around user will give only the user's entry.
-						Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
-						AddStatus("Downloading user rank.")
-					elseif server.downloadTop10
-						Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobal, 1, 10)
-						AddStatus("Downloading top 10.")
-					endif
-				endcase
-				case STATE_DONE
-					if server.downloadRank
-						server.downloadRank = 0 // Clear flag
-						if Steam.GetNumLeaderboardEntries()
-							AddStatus("User rank: #" + str(Steam.GetLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetLeaderboardEntryScore(0)) + ", User: " + Steam.GetLeaderboardEntryPersonaName(0))
-						else
-							AddStatus("User has no global rank.")
-						endif
-					elseif server.downloadTop10
-						server.downloadTop10 = 0 // Clear flag
-						AddStatus("--- Global leaders ---")
-						AddStatus("GetNumLeaderboardEntries: " + str(Steam.GetNumLeaderboardEntries()))
-						for x = 0 to Steam.GetNumLeaderboardEntries() - 1
-							AddStatus("#" + str(Steam.GetLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetLeaderboardEntryScore(x)) + ", User: " + Steam.GetLeaderboardEntryPersonaName(x))
-						next
-					endif
-				endcase
-				case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-					if not errorReported[ERROR_DOWNLOADENTRIES]
-						errorReported[ERROR_DOWNLOADENTRIES] = 1
-						AddStatus("ERROR: DownloadLeaderboardEntries.")
-					endif
-				endcase
-			endselect
-		endif
+	if not Steam.StatsInitialized()
+		ExitFunction
 	endif
+	//
+	// Process StoreStats/ResetStats callback.
+	//
+	select Steam.GetStoreStatsCallbackState()
+		case STATE_IDLE // Only StoreStats when in these states.
+			if server.needToStoreStats
+				Steam.StoreStats()
+				AddStatus("Storing user stats.")
+			endif
+		endcase
+		case STATE_DONE
+			server.needToStoreStats = 0
+			AddStatus("StatsStored: " + TF(Steam.StatsStored()))
+			AddStatus("AchievementStored: " + TF(Steam.AchievementStored()))
+		endcase
+		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			if not errorReported[ERROR_STORESTATS]
+				errorReported[ERROR_STORESTATS] = 1
+				AddStatus("Error storing user stats.")
+			endif
+		endcase
+	endselect
+	//
+	// Process FindLeaderboard callback.
+	//
+	select Steam.GetFindLeaderboardCallbackState()
+		case STATE_IDLE
+			if server.leaderboardHandle = 0
+				// Leaderboard names are NOT case sensitive.
+				Steam.FindLeaderboard("Feet Traveled")
+				AddStatus("Finding 'Feet Traveled' leaderboard handle")
+			endif
+		endcase
+		case STATE_DONE
+			server.leaderboardHandle = Steam.GetLeaderboardHandle()
+			// If the leaderboard is not found, the handle is 0.
+			if server.leaderboardHandle <> 0
+				AddStatus("Leaderboard handle: " + str(server.leaderboardHandle))
+				// Set these flags to demonstrate downloading rank and uploading a score.
+				server.downloadRank = 1
+				server.downloadTop10 = 1
+				server.needToUploadScore = 1
+			else
+				// Technically the callback will go to STATE_SERVER_ERROR when the handle is 0.
+				AddStatus("GetLeaderboardHandle error!")
+			endif
+		endcase
+		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			if not errorReported[ERROR_FINDLEADERBOARD]
+				errorReported[ERROR_FINDLEADERBOARD] = 1
+				AddStatus("ERROR: FindLeaderboard.")
+			endif
+		endcase
+	endselect
+	//
+	// The rest of this function requires a valid leaderboard handle.
+	//
+	if server.leaderboardHandle = 0
+		ExitFunction
+	endif
+	//
+	// Process UploadLeaderboardScore callback.
+	//
+	select Steam.GetUploadLeaderboardScoreCallbackState()
+		case STATE_IDLE
+			if server.needToUploadScore
+				score as integer
+				score = Val(GetEditBoxText(1))
+				if str(score) <> GetEditBoxText(1)
+					Message("Score needs to be a number.")
+					server.needToUploadScore = 0
+				else
+					// NOTE: Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
+					Steam.UploadLeaderboardScoreForceUpdate(server.leaderboardHandle, score)
+					AddStatus("Uploading leaderboard score (force update).")
+				endif
+			endif
+		endcase
+		case STATE_DONE
+			// Steam.LeaderboardScoreStored() will return 1 when STATE_DONE and 0 for STATE_SERVER_ERROR.
+			server.needToUploadScore = 0
+			AddStatus("-------------------Upload Results-------------------")
+			AddStatus("LeaderboardScoreStored")
+			AddStatus("LeaderboardScoreChanged: " + TF(Steam.LeaderboardScoreChanged()))
+			AddStatus("GetLeaderboardUploadedScore: " + str(Steam.GetLeaderboardUploadedScore()))
+			// These matter only when LeaderboardScoreChanged is true.
+			AddStatus("GetLeaderboardGlobalRank - New: " + str(Steam.GetLeaderboardGlobalRankNew()) + ", Previous: " + str(Steam.GetLeaderboardGlobalRankPrevious()))
+			AddStatus("--------------------------------------")
+		endcase
+		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			if not errorReported[ERROR_UPLOADSCORE]
+				errorReported[ERROR_UPLOADSCORE] = 1
+				AddStatus("ERROR: UploadLeaderboardScore.")
+			endif
+		endcase
+	endselect
+	//
+	// Process DownloadLeaderboardEntries callback.
+	//
+	select Steam.GetDownloadLeaderboardEntriesCallbackState()
+		case STATE_IDLE
+			if server.downloadRank
+				// 0 to 0 around user will give only the user's entry.
+				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, LEADERBOARD_DATA_AROUND_USER, 0, 0)
+				AddStatus("Downloading user rank.")
+			elseif server.downloadTop10
+				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, LEADERBOARD_DATA_GLOBAL, 1, 10)
+				AddStatus("Downloading top 10.")
+			endif
+		endcase
+		case STATE_DONE
+			if server.downloadRank
+				server.downloadRank = 0 // Clear flag
+				if Steam.GetNumLeaderboardEntries()
+					AddStatus("User rank: #" + str(Steam.GetLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetLeaderboardEntryScore(0)) + ", User: " + Steam.GetLeaderboardEntryPersonaName(0))
+				else
+					AddStatus("User has no global rank.")
+				endif
+			elseif server.downloadTop10
+				server.downloadTop10 = 0 // Clear flag
+				AddStatus("--- Global leaders ---")
+				AddStatus("GetNumLeaderboardEntries: " + str(Steam.GetNumLeaderboardEntries()))
+				for x = 0 to Steam.GetNumLeaderboardEntries() - 1
+					AddStatus("#" + str(Steam.GetLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetLeaderboardEntryScore(x)) + ", User: " + Steam.GetLeaderboardEntryPersonaName(x))
+				next
+			endif
+		endcase
+		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			if not errorReported[ERROR_DOWNLOADENTRIES]
+				errorReported[ERROR_DOWNLOADENTRIES] = 1
+				AddStatus("ERROR: DownloadLeaderboardEntries.")
+			endif
+		endcase
+	endselect
 EndFunction
 
 Function LoadAchievements()
