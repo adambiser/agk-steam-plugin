@@ -188,7 +188,7 @@ Function ProcessCallbacks()
 	// Process StoreStats/ResetStats callback.
 	//
 	select Steam.GetStoreStatsCallbackState()
-		case STATE_IDLE // Only StoreStats when in these states.
+		case STATE_IDLE // Only StoreStats when in this state.
 			if server.needToStoreStats
 				Steam.StoreStats()
 				AddStatus("Storing user stats.")
