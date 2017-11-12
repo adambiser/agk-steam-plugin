@@ -10,20 +10,9 @@ A plugin to give basic steam_api.dll access to games developed using AppGameKit'
 * [Visual Studio 2015 Community Edition](https://www.visualstudio.com/vs/older-downloads/) was used to compile the plugin.
 * [Steamworks SDK](https://partner.steamgames.com) v1.41 was used when compiling.
 
-### Adding the Plugin to the AGK IDE
+### Installing and Using the Plugin
 
-To allow AGK to use the plugin, copy the SteamPlugin folder from inside the AGKPlugin folder of this project into the "Tier 1\Compiler\Plugins" folder where App Game Kit 2 is installed on your system.
-
-### Important Note
-
-In order to develop with this plugin, the AGK IDE should be run directly rather than from the Steam client or the Steam API will use the IDE's appid instead of the project's appid.
-
-When running a project from within the AGK IDE, the IDE will delete the "steam_api.dll" and "steam_appid.txt" files.
-To prevent this, set both as Read-only in their file properties.
-This does not happen when running the game directly from the project's EXE file.
-
-Also, when running from within the IDE, the plugin might grab the appid for AppGameKit instead of the project itself.
-Renaming the "steam_api.dll" and "steam_appid.txt" files found in "App Game Kit 2\Tier 1\Editor\bin" is one way around this.
+See the [Wiki](https://github.com/adambiser/agk-steam-plugin/wiki) for this information.
 
 ### Compiling the Plugin
 
