@@ -30,6 +30,7 @@ GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,0
 GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,0
 GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,0
 GetAchievement,I,S,GetAchievement,0,0,0,0,0
+GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,0
 SetAchievement,I,S,SetAchievement,0,0,0,0,0
 IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,0
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,0
@@ -73,11 +74,3 @@ GetAvatar,I,I,GetAvatar,0,0,0,0,0
 LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,0
 LoadImageFromHandle,0,II,LoadImageIDFromHandle,0,0,0,0,0
 GetAchievementIcon,I,S,GetAchievementIcon,0,0,0,0,0
-# TODO
-# bool GetAchievementAndUnlockTime( const char *pchName, bool *pbAchieved, uint32 *punUnlockTime );
-# 	The time is provided in Unix epoch format, seconds since January 1, 1970 UTC.
-# const char * GetAchievementDisplayAttribute( const char *pchName, const char *pchKey );
-#     The 'key' to get a value for.
-#     "name" to retrive the localized achievement name in UTF8
-#     "desc" to retrive the localized achievement description in UTF8
-#     "hidden" for retrieving if an achievement is hidden. Returns "0" when not hidden, "1" when hidden

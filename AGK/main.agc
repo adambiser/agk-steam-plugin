@@ -441,6 +441,9 @@ Function ShowUserStats()
 	x as integer
 	for x = 0 to server.achievements.length
 		AddStatus("GetAchievementID " + str(x) + ": " + server.achievements[x] + ", set = " + TF(Steam.GetAchievement(server.achievements[x])))
+		if Steam.GetAchievement(server.achievements[x])
+			AddStatus("GetAchievementUnlockTime: " + GetDateFromUnix(Steam.GetAchievementUnlockTime(server.achievements[x])))
+		endif
 		// Achievement display attributes.
 		AddStatus(Steam.GetAchievementDisplayName(server.achievements[x]) + ": " + Steam.GetAchievementDisplayDesc(server.achievements[x]))
 		AddStatus("Hidden: " + str(Steam.GetAchievementDisplayHidden(server.achievements[x])))
@@ -547,6 +550,12 @@ Function AddStatus(status as string)
 	endif
 	SetTextPosition(text.status, GetTextX(text.status), STATUS_HEIGHT - height)
 EndFunction
+
+Function GetDateFromUnix(unix as integer)
+	text as string
+	text = str(GetYearFromUnix(unix)) + "-" + str(GetMonthFromUnix(unix)) + "-" + str(GetDaysFromUnix(unix))
+	text = text + " " + str(GetHoursFromUnix(unix)) + ":" + str(GetMinutesFromUnix(unix)) + ":" + str(GetSecondsFromUnix(unix))
+EndFunction text
 
 Function TF(value as integer)
 	if value

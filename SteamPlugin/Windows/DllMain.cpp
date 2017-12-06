@@ -331,6 +331,25 @@ int GetAchievement(const char *pchName)
 	return false;
 }
 
+int GetAchievementUnlockTime(const char *pchName)
+{
+	if (Steam)
+	{
+		bool pbAchieved;
+		uint32 punUnlockTime;
+		if (SteamUserStats()->GetAchievementAndUnlockTime(pchName, &pbAchieved, &punUnlockTime))
+		{
+			if (pbAchieved)
+			{
+				return punUnlockTime;
+			}
+		}
+	}
+	return 0;
+}
+
+
+
 /*
 Marks an achievement as achieved.
 Returns 1 if the process succeeds.  Otherwise, returns 0.

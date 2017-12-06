@@ -118,6 +118,7 @@ public:
 	const char* GetAchievementID(int index);
 	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
 	bool GetAchievement(const char *name, bool *pbAchieved);
+	bool GetAchievementAndUnlockTime(const char *pchName, bool *pbAchieved, uint32 *punUnlockTime);
 	bool SetAchievement(const char *pchName);
 	bool IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress);
 	bool ClearAchievement(const char *pchName);

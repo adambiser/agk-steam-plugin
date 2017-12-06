@@ -307,6 +307,15 @@ bool SteamPlugin::SetAchievement(const char *pchName)
 	return SteamUserStats()->SetAchievement(pchName);
 }
 
+bool SteamPlugin::GetAchievementAndUnlockTime(const char *pchName, bool *pbAchieved, uint32 *punUnlockTime)
+{
+	if (!m_StatsInitialized)
+	{
+		return false;
+	}
+	return SteamUserStats()->GetAchievementAndUnlockTime(pchName, pbAchieved, punUnlockTime);
+}
+
 bool SteamPlugin::IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress)
 {
 	if (!m_StatsInitialized)
