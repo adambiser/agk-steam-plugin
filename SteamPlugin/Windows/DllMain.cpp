@@ -447,6 +447,42 @@ int GetLeaderboardHandle()
 	return 0;
 }
 
+char * GetLeaderboardName(int hLeaderboard)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetLeaderboardName(hLeaderboard));
+	}
+	return CreateString(0);
+}
+
+int GetLeaderboardEntryCount(int hLeaderboard)
+{
+	if (Steam)
+	{
+		return Steam->GetLeaderboardEntryCount(hLeaderboard);
+	}
+	return 0;
+}
+
+int GetLeaderboardDisplayType(int hLeaderboard)
+{
+	if (Steam)
+	{
+		return Steam->GetLeaderboardDisplayType(hLeaderboard);
+	}
+	return 0;
+}
+
+int GetLeaderboardSortMethod(int hLeaderboard)
+{
+	if (Steam)
+	{
+		return Steam->GetLeaderboardSortMethod(hLeaderboard);
+	}
+	return 0;
+}
+
 int UploadLeaderboardScore(int hLeaderboard, int score)
 {
 	if (Steam)
@@ -537,38 +573,82 @@ int GetDownloadLeaderboardEntriesCallbackState()
 	return STATE_CLIENT_ERROR;
 }
 
-int GetNumLeaderboardEntries()
+int GetDownloadedLeaderboardEntryCount()
 {
 	if (Steam)
 	{
-		return Steam->GetNumLeaderboardEntries();
+		return Steam->GetDownloadedLeaderboardEntryCount();
 	}
 	return 0;
 }
 
-int GetLeaderboardEntryGlobalRank(int index)
+int GetDownloadedLeaderboardEntryGlobalRank(int index)
 {
 	if (Steam)
 	{
-		return Steam->GetLeaderboardEntryGlobalRank(index);
+		return Steam->GetDownloadedLeaderboardEntryGlobalRank(index);
 	}
 	return 0;
 }
 
-int GetLeaderboardEntryScore(int index)
+int GetDownloadedLeaderboardEntryScore(int index)
 {
 	if (Steam)
 	{
-		return Steam->GetLeaderboardEntryScore(index);
+		return Steam->GetDownloadedLeaderboardEntryScore(index);
 	}
 	return 0;
 }
 
-char *GetLeaderboardEntryPersonaName(int index)
+char *GetDownloadedLeaderboardEntryPersonaName(int index)
 {
 	if (Steam)
 	{
-		return CreateString(Steam->GetLeaderboardEntryPersonaName(index));
+		return CreateString(Steam->GetDownloadedLeaderboardEntryPersonaName(index));
 	}
 	return CreateString(0);
+}
+
+int GetDownloadedLeaderboardEntryAvatar(int index, int size)
+{
+	if (Steam)
+	{
+		return Steam->GetDownloadedLeaderboardEntryAvatar(index, (EAvatarSize)size);
+	}
+	return 0;
+}
+
+int GetAvatar(int size)
+{
+	if (Steam)
+	{
+		return Steam->GetAvatar((EAvatarSize) size);
+	}
+	return 0;
+}
+
+int LoadImageFromHandle(int hImage)
+{
+	if (Steam)
+	{
+		return Steam->LoadImageFromHandle(hImage);
+	}
+	return 0;
+}
+
+void LoadImageIDFromHandle(int imageID, int hImage)
+{
+	if (Steam)
+	{
+		Steam->LoadImageFromHandle(imageID, hImage);
+	}
+}
+
+int GetAchievementIcon(const char *pchName)
+{
+	if (Steam)
+	{
+		return Steam->GetAchievementIcon(pchName);
+	}
+	return 0;
 }
