@@ -262,7 +262,7 @@ Function ProcessCallbacks()
 			// A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
 			if server.achievementIcons[x] = -1
 				server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
-				AddStatus("GetAchievementIcon for " + str(x) + " = " + str(server.achievementIcons[x]))
+				//~ AddStatus("GetAchievementIcon for " + str(x) + " = " + str(server.achievementIcons[x]))
 				if server.achievementIcons[x] = 0
 					SetSpriteVisible(server.achievementSpriteIDs[x], 0)
 				elseif server.achievementIcons[x] > 0
@@ -441,6 +441,9 @@ Function ShowUserStats()
 	x as integer
 	for x = 0 to server.achievements.length
 		AddStatus("GetAchievementID " + str(x) + ": " + server.achievements[x] + ", set = " + TF(Steam.GetAchievement(server.achievements[x])))
+		// Achievement display attributes.
+		AddStatus(Steam.GetAchievementDisplayName(server.achievements[x]) + ": " + Steam.GetAchievementDisplayDesc(server.achievements[x]))
+		AddStatus("Hidden: " + str(Steam.GetAchievementDisplayHidden(server.achievements[x])))
 	next
 	AddStatus("-------------------Stats-------------------")
 	// Game should know the stat names.

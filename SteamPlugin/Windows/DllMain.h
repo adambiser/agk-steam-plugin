@@ -57,6 +57,9 @@ extern "C" DLL_EXPORT int AchievementStored();
 // Achievements methods.
 extern "C" DLL_EXPORT int GetNumAchievements();
 extern "C" DLL_EXPORT char *GetAchievementID(int index);
+extern "C" DLL_EXPORT char *GetAchievementDisplayName(const char *pchName);
+extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *pchName);
+extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *pchName);
 extern "C" DLL_EXPORT int GetAchievement(const char *pchName);
 extern "C" DLL_EXPORT int SetAchievement(const char *pchName);
 extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *pchName, int nCurProgress, int nMaxProgress);

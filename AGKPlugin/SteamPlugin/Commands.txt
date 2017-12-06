@@ -26,6 +26,9 @@ AchievementStored,I,0,AchievementStored,0,0,0,0,0
 #
 GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,0
 GetAchievementID,S,I,GetAchievementID,0,0,0,0,0
+GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,0
+GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,0
+GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,0
 GetAchievement,I,S,GetAchievement,0,0,0,0,0
 SetAchievement,I,S,SetAchievement,0,0,0,0,0
 IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,0

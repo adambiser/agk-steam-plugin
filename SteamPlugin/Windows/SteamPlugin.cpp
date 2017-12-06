@@ -280,6 +280,15 @@ const char *SteamPlugin::GetAchievementID(int index)
 	return SteamUserStats()->GetAchievementName(index);
 }
 
+const char *SteamPlugin::GetAchievementDisplayAttribute(const char *pchName, const char *pchKey)
+{
+	if (!m_StatsInitialized)
+	{
+		return 0;
+	}
+	return SteamUserStats()->GetAchievementDisplayAttribute(pchName, pchKey);
+}
+
 bool SteamPlugin::GetAchievement(const char *pchName, bool *pbAchieved)
 {
 	if (!m_StatsInitialized)
@@ -710,7 +719,7 @@ void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 
 /*
 In the Steam API, GetAchievementIcon reports failure and "no icon" the same way.
-Instead this pre-checks some failure conditions and returns -1 when waiting on a callback.
+Instead this checks some failure conditions so that it can return 0 for failure and -1 when waiting on a callback.
 */
 int SteamPlugin::GetAchievementIcon(const char *pchName)
 {
@@ -718,23 +727,12 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 	{
 		return 0;
 	}
-	std::string msg = "GetAchievementIcon: ";
-	msg += pchName;
-	agk::Log(msg.c_str());
-	//bool pbAchieved;
-	//if (!SteamUserStats()->GetAchievement(pchName, &pbAchieved))
-	//{
-	//	return 0;
-	//}
 	// See if we're waiting for a callback result for this icon.
 	std::string name = pchName;
 	auto search = achievementIconsMap.find(name);
 	if (search != achievementIconsMap.end())
 	{
-		msg = "Found icon in callback map: ";
-		msg += std::to_string(search->second);
-		agk::Log(msg.c_str());
-		// If we have got a result from the callback, remove it from the wait list.
+		// If we have a result from the callback, remove it from the wait list.
 		if ((search->second) != -1)
 		{
 			achievementIconsMap.erase(search);
@@ -742,11 +740,15 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 		return search->second;
 	}
 	int hImage = SteamUserStats()->GetAchievementIcon(pchName);
-	msg = "GetAchievementIcon returned ";
-	msg += std::to_string(hImage);
-	agk::Log(msg.c_str());
 	if (hImage == 0)
 	{
+		// Check to see if this is a valid achievement name.
+		bool pbAchieved;
+		if (!SteamUserStats()->GetAchievement(pchName, &pbAchieved))
+		{
+			// Not valid, return 0 for no icon.
+			return 0;
+		}
 		hImage = -1; // Use -1 to indicate that we're waiting on a callback to provide the handle.
 		achievementIconsMap.insert_or_assign(name, hImage);
 	}

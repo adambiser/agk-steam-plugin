@@ -116,6 +116,7 @@ public:
 	// Achievements methods.
 	int GetNumAchievements();
 	const char* GetAchievementID(int index);
+	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
 	bool GetAchievement(const char *name, bool *pbAchieved);
 	bool SetAchievement(const char *pchName);
 	bool IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress);

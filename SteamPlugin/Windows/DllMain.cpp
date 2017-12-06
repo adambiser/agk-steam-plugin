@@ -275,13 +275,40 @@ Gets the achievement ID for the given achievement index.
 If user stats have not been initialized, an empty string is returned.
 Use StatsInitialized() to determine when user stats are initialized before calling this method.
 */
-char* GetAchievementID(int index)
+char *GetAchievementID(int index)
 {
 	if (Steam)
 	{
 		return CreateString(Steam->GetAchievementID(index));
 	}
 	return CreateString(0);
+}
+
+char *GetAchievementDisplayName(const char *pchName)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetAchievementDisplayAttribute(pchName, "name"));
+	}
+	return CreateString(0);
+}
+
+char *GetAchievementDisplayDesc(const char *pchName)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetAchievementDisplayAttribute(pchName, "desc"));
+	}
+	return CreateString(0);
+}
+
+int GetAchievementDisplayHidden(const char *pchName)
+{
+	if (Steam)
+	{
+		return (strcmp(Steam->GetAchievementDisplayAttribute(pchName, "hidden"), "1") == 0);
+	}
+	return 0;
 }
 
 /*
