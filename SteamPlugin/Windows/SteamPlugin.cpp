@@ -716,11 +716,6 @@ void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 		auto search = achievementIconsMap.find(name);
 		if (search != achievementIconsMap.end())
 		{
-			std::string msg = "Callback for ";
-			msg += pParam->m_rgchAchievementName;
-			msg += " = ";
-			msg += std::to_string(pParam->m_nIconHandle);
-			agk::Log(msg.c_str());
 			search->second = pParam->m_nIconHandle;
 		}
 	}

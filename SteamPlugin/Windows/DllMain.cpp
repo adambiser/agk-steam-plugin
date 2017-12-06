@@ -311,6 +311,15 @@ int GetAchievementDisplayHidden(const char *pchName)
 	return 0;
 }
 
+int GetAchievementIcon(const char *pchName)
+{
+	if (Steam)
+	{
+		return Steam->GetAchievementIcon(pchName);
+	}
+	return 0;
+}
+
 /*
 Returns 1 if the user has achieved this achievement.
 If user stats have not been initialized 0 is returned.
@@ -688,13 +697,4 @@ void LoadImageIDFromHandle(int imageID, int hImage)
 	{
 		Steam->LoadImageFromHandle(imageID, hImage);
 	}
-}
-
-int GetAchievementIcon(const char *pchName)
-{
-	if (Steam)
-	{
-		return Steam->GetAchievementIcon(pchName);
-	}
-	return 0;
 }

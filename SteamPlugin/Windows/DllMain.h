@@ -60,6 +60,7 @@ extern "C" DLL_EXPORT char *GetAchievementID(int index);
 extern "C" DLL_EXPORT char *GetAchievementDisplayName(const char *pchName);
 extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *pchName);
 extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *pchName);
+extern "C" DLL_EXPORT int GetAchievementIcon(const char *pchName);
 extern "C" DLL_EXPORT int GetAchievement(const char *pchName);
 extern "C" DLL_EXPORT int GetAchievementUnlockTime(const char *pchName);
 extern "C" DLL_EXPORT int SetAchievement(const char *pchName);
@@ -99,12 +100,5 @@ extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryAvatar(int index, int siz
 extern "C" DLL_EXPORT int GetAvatar(int size);
 extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
 extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
-extern "C" DLL_EXPORT int GetAchievementIcon(const char *pchName);
-
-// Error reporting methods.
-//extern "C" DLL_EXPORT void SetErrorMode(int mode);
-//extern "C" DLL_EXPORT int HadError();
-//extern "C" DLL_EXPORT char *GetLastError();
-//extern "C" DLL_EXPORT char *ClearError();
 
 #endif // DLLMAIN_H_
