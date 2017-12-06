@@ -95,7 +95,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Copy "$(TargetDir)$(TargetFileName)" "..\..\AGKPlugin\SteamPlugin\Windows.dll"</Command>
+      <Command>..\..\PostBuild.bat "$(TargetDir)$(TargetFileName)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Move DLL to AGKPlugin Folder</Message>

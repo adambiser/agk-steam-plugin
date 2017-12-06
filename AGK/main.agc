@@ -35,18 +35,40 @@ CreateUI()
 #constant LEADERBOARD_DATA_AROUND_USER	1
 #constant LEADERBOARD_DATA_FRIENDS		2
 
+// Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDisplayType
+#constant LEADERBOARD_DISPLAY_NONE			0
+#constant LEADERBOARD_DISPLAY_NUMERIC		1
+#constant LEADERBOARD_DISPLAY_SECONDS		2
+#constant LEADERBOARD_DISPLAY_MILLISECONDS	3
+
+// Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardSortMethod
+#constant LEADERBOARD_SORT_NONE			0
+#constant LEADERBOARD_SORT_ASCENDING	1
+#constant LEADERBOARD_SORT_DESCENDING	2
+
+// Avatar sizes
+#constant AVATAR_SMALL	0
+#constant AVATAR_MEDIUM	1
+#constant AVATAR_LARGE	2
+
 global server as SteamServerInfo
 // A type to hold all of the Steam server information used.
 // Your game should probably keep track of things using a similar method.
 Type SteamServerInfo
 	achievements as string[]
+	achievementIcons as integer[]
+	achievementImageIDs as integer[]
+	achievementSpriteIDs as integer[]
 	leaderboardHandle as integer
 	// Instructions
 	needToStoreStats as integer
 	needToUploadScore as integer
 	downloadRank as integer
 	downloadTop10 as integer
+	downloadTop10Avatars as integer
+	avatarHandle as integer
 EndType
+server.avatarHandle = -1 // Use -1 to indicate that the avatar needs to be loaded.
 
 // Note: RequestStats is called within Init().
 if not Steam.Init()
@@ -90,7 +112,10 @@ Function CheckButtons()
 		AddStatus("BUTTON: Resetting stats and achievements")
 		// Note: This calls StoreStats itself, so just wait for the callback.
 		Steam.ResetAllStats(1)
-		//~ server.storeStatsState = STATE_RUNNING
+		// Refresh all achievement icons.
+		for x = 0 to server.achievements.length
+			server.achievementIcons[x] = -1 // Set to -1 to indicate that the icon needs loaded.
+		next
 	endif
 	if GetVirtualButtonPressed(SHOW_GLOBAL_RANK_BUTTON)
 		server.downloadRank = 1
@@ -135,6 +160,8 @@ Function CheckButtons()
 			// These two lines grant the achievement for the user and then notifies Steam.
 			Steam.SetAchievement(server.achievements[x])
 			server.needToStoreStats = 1
+			// Also refresh the achievement icon.
+			server.achievementIcons[x] = -1 // Set to -1 to indicate that the icon needs loaded.
 		endif
 	next
 EndFunction
@@ -179,6 +206,26 @@ Function ProcessCallbacks()
 		endcase
 	endselect
 	//
+	// Download the large avatar for the current user.
+	// This is a little different from regular callbacks.
+	// If the image is already cached, GetAvatar returns a handle and the DONE state is never reported.
+	// If the image needs to be cached (large avatars), then a callback is started and behaves like other callbacks.
+	//
+	if server.avatarHandle = -1
+		server.avatarHandle = Steam.GetAvatar(AVATAR_LARGE)
+		AddStatus("GetAvatar = " + str(server.avatarHandle))
+		if server.avatarHandle > 0
+			avatarImageID as integer
+			avatarImageID = Steam.LoadImageFromHandle(server.avatarHandle)
+			AddStatus("Avatar ImageID: " + str(avatarImageID))
+			if avatarImageID
+				sprite as integer
+				sprite = CreateSprite(avatarImageID)
+				SetSpritePosition(sprite, 0, 768 - GetImageHeight(avatarImageID))
+			endif
+		endif
+	endif
+	//
 	// Nothing else can be done until user stats are loaded.
 	//
 	if not Steam.StatsInitialized()
@@ -207,6 +254,27 @@ Function ProcessCallbacks()
 		endcase
 	endselect
 	//
+	// Process achievement icon callback.
+	//
+	// Don't load the achievement icon while stats need to be stored!  Might reload the old icon state.
+	if server.needToStoreStats = 0
+		for x = 0 to server.achievementIcons.length
+			// A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
+			if server.achievementIcons[x] = -1
+				server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
+				AddStatus("GetAchievementIcon for " + str(x) + " = " + str(server.achievementIcons[x]))
+				if server.achievementIcons[x] = 0
+					SetSpriteVisible(server.achievementSpriteIDs[x], 0)
+				elseif server.achievementIcons[x] > 0
+					Steam.LoadImageFromHandle(server.achievementImageIDs[x], server.achievementIcons[x])
+					SetSpritePosition(server.achievementSpriteIDs[x], 0 + x * GetImageWidth(server.achievementImageIDs[x]), 300)
+					SetSpriteSize(server.achievementSpriteIDs[x], GetImageWidth(server.achievementImageIDs[x]), GetImageHeight(server.achievementImageIDs[x]))
+					SetSpriteVisible(server.achievementSpriteIDs[x], 1)
+				endif
+			endif
+		next
+	endif
+	//
 	// Process FindLeaderboard callback.
 	//
 	select Steam.GetFindLeaderboardCallbackState()
@@ -222,10 +290,15 @@ Function ProcessCallbacks()
 			// If the leaderboard is not found, the handle is 0.
 			if server.leaderboardHandle <> 0
 				AddStatus("Leaderboard handle: " + str(server.leaderboardHandle))
+				AddStatus("Leaderboard name: " + Steam.GetLeaderboardName(server.leaderboardHandle))
+				AddStatus("Leaderboard entry count: " + str(Steam.GetLeaderboardEntryCount(server.leaderboardHandle)))
+				AddStatus("Leaderboard display type: " + str(Steam.GetLeaderboardDisplayType(server.leaderboardHandle)))
+				AddStatus("Leaderboard sort: " + str(Steam.GetLeaderboardSortMethod(server.leaderboardHandle)))
 				// Set these flags to demonstrate downloading rank and uploading a score.
 				server.downloadRank = 1
 				server.downloadTop10 = 1
 				server.needToUploadScore = 1
+				server.downloadTop10Avatars = 1
 			else
 				// Technically the callback will go to STATE_SERVER_ERROR when the handle is 0.
 				AddStatus("GetLeaderboardHandle error!")
@@ -297,18 +370,34 @@ Function ProcessCallbacks()
 		case STATE_DONE
 			if server.downloadRank
 				server.downloadRank = 0 // Clear flag
-				if Steam.GetNumLeaderboardEntries()
-					AddStatus("User rank: #" + str(Steam.GetLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetLeaderboardEntryScore(0)) + ", User: " + Steam.GetLeaderboardEntryPersonaName(0))
+				if Steam.GetDownloadedLeaderboardEntryCount()
+					AddStatus("User rank: #" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(0)) + ", User: " + Steam.GetDownloadedLeaderboardEntryPersonaName(0))
 				else
 					AddStatus("User has no global rank.")
 				endif
 			elseif server.downloadTop10
 				server.downloadTop10 = 0 // Clear flag
 				AddStatus("--- Global leaders ---")
-				AddStatus("GetNumLeaderboardEntries: " + str(Steam.GetNumLeaderboardEntries()))
-				for x = 0 to Steam.GetNumLeaderboardEntries() - 1
-					AddStatus("#" + str(Steam.GetLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetLeaderboardEntryScore(x)) + ", User: " + Steam.GetLeaderboardEntryPersonaName(x))
+				AddStatus("GetDownloadedLeaderboardEntryCount: " + str(Steam.GetDownloadedLeaderboardEntryCount()))
+				for x = 0 to Steam.GetDownloadedLeaderboardEntryCount() - 1
+					AddStatus("#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(x)) + ", User: " + Steam.GetDownloadedLeaderboardEntryPersonaName(x))
 				next
+				// Load an avatar from the leaderboard.
+				// From how Steam docs read, small and medium images are already cached when the leaderboard is requested
+				if server.downloadTop10Avatars
+					leaderAvatarHandle as integer
+					leaderAvatarImageID as integer
+					for x = 0 to Steam.GetDownloadedLeaderboardEntryCount() - 1
+						leaderAvatarHandle = Steam.GetDownloadedLeaderboardEntryAvatar(x, AVATAR_MEDIUM)
+						if leaderAvatarHandle > 0
+							leaderAvatarImageID = Steam.LoadImageFromHandle(leaderAvatarHandle)
+							if leaderAvatarImageID
+								sprite = CreateSprite(leaderAvatarImageID)
+								SetSpritePosition(sprite, 205 + mod(x, 4) * GetImageWidth(leaderAvatarImageID), 768 - GetImageHeight(leaderAvatarImageID) * (3 - x / 4))
+							endif
+						endif
+					next
+				endif
 			endif
 		endcase
 		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
@@ -325,12 +414,24 @@ Function LoadAchievements()
 	AddStatus("GetNumAchievements: " + str(Steam.GetNumAchievements()))
 	index as integer
 	for index = 0 to Steam.GetNumAchievements() - 1
+		name as string
+		name = Steam.GetAchievementID(index)
 		// NOTE: Apps should already have these names.  GetAchievementID is generally just for this demo.
-		server.achievements.insert(Steam.GetAchievementID(index))
+		server.achievements.insert(name)
 		// Create achievement buttons here.
-		CreateButton(FIRST_ACHIEVEMENT_BUTTON + index, buttonColumns[mod(index, 3)], 500 + (index / 3) * 60, Steam.GetAchievementID(index))
+		CreateButton(FIRST_ACHIEVEMENT_BUTTON + index, buttonColumns[mod(index, 3)], 485 + (index / 3) * 60, name)
 		SetVirtualButtonSize(FIRST_ACHIEVEMENT_BUTTON + index, 150, 60)
 		SetButtonEnabled(FIRST_ACHIEVEMENT_BUTTON + index, 1)
+		// Load achievement icon.
+		imageID as integer
+		imageID = CreateImageColor(0, 0, 0, 0)
+		spriteID as integer
+		spriteID = CreateSprite(imageID)
+		//~ SetSpriteSize(spriteID, 48, 48) // achievement icons are 48x48
+		//~ SetSpritePosition(spriteID, 0 + index * 48, 300)
+		server.achievementIcons.insert(-1) // Set to -1 to indicate that the icon needs loaded.
+		server.achievementImageIDs.insert(imageID)
+		server.achievementSpriteIDs.insert(spriteID)
 	next
 EndFunction
 

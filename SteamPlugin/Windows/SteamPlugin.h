@@ -24,6 +24,7 @@ THE SOFTWARE.
 #define STEAMPLUGIN_H_
 
 #include <steam_api.h>
+#include <map>
 
 #define MAX_LEADERBOARD_ENTRIES 10
 
@@ -34,6 +35,13 @@ enum ECallbackState
 	Idle = 0,
 	Running = 1,
 	Done = 2
+};
+
+enum EAvatarSize
+{
+	Small = 0,
+	Medium = 1,
+	Large = 2
 };
 
 class SteamPlugin {
@@ -54,12 +62,15 @@ private:
 	int m_LeaderboardGlobalRankNew;
 	int m_LeaderboardGlobalRankPrevious;
 	ECallbackState m_DownloadLeaderboardEntriesCallbackState;
-	int m_NumLeaderboardEntries;
-	LeaderboardEntry_t m_leaderboardEntries[MAX_LEADERBOARD_ENTRIES];
+	int m_DownloadedLeaderboardEntryCount;
+	LeaderboardEntry_t m_DownloadedLeaderboardEntries[MAX_LEADERBOARD_ENTRIES];
+	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
 	// User stats callbacks
 	STEAM_CALLBACK(SteamPlugin, OnAchievementStored, UserAchievementStored_t, m_CallbackAchievementStored);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsStored, UserStatsStored_t, m_CallbackUserStatsStored);
+	STEAM_CALLBACK(SteamPlugin, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded);
+	STEAM_CALLBACK(SteamPlugin, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
 	// Leaderboard callbacks
 	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
 	CCallResult<SteamPlugin, LeaderboardFindResult_t> m_callResultFindLeaderboard;
@@ -67,6 +78,9 @@ private:
 	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_callResultUploadScore;
 	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
 	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_callResultDownloadScore;
+
+	std::map<CSteamID, int> avatarsMap;
+	std::map<std::string, int> achievementIconsMap;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -116,6 +130,11 @@ public:
 	bool FindLeaderboard(const char *pchLeaderboardName);
 	ECallbackState GetFindLeaderboardCallbackState() { return getCallbackState(&m_FindLeaderboardCallbackState); }
 	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
+	// General information
+	const char *GetLeaderboardName(SteamLeaderboard_t hLeaderboard);
+	int GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard);
+	ELeaderboardDisplayType GetLeaderboardDisplayType(SteamLeaderboard_t hLeaderboard);
+	ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hLeaderboard);
 	// Uploading scores
 	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
 	ECallbackState GetUploadLeaderboardScoreCallbackState() { return getCallbackState(&m_UploadLeaderboardScoreCallbackState); }
@@ -127,10 +146,17 @@ public:
 	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 	ECallbackState GetDownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
-	int GetNumLeaderboardEntries() { return m_NumLeaderboardEntries; }
-	int GetLeaderboardEntryGlobalRank(int index);
-	int GetLeaderboardEntryScore(int index);
-	const char *GetLeaderboardEntryPersonaName(int index);
+	int GetDownloadedLeaderboardEntryCount() { return m_DownloadedLeaderboardEntryCount; }
+	int GetDownloadedLeaderboardEntryGlobalRank(int index);
+	int GetDownloadedLeaderboardEntryScore(int index);
+	const char *GetDownloadedLeaderboardEntryPersonaName(int index);
+	int GetDownloadedLeaderboardEntryAvatar(int index, EAvatarSize size);
+	// Avatars and images.
+	// While GetAvatar, GetAchievementIcon, and GetDownloadedLeaderboardEntryAvatar have internal callbacks, there's no need to make them external.
+	int GetAvatar(EAvatarSize size);
+	int LoadImageFromHandle(int hImage);
+	int LoadImageFromHandle(int imageID, int hImage);
+	int GetAchievementIcon(const char *pchName);
 };
 
 #endif // STEAMPLUGIN_H_

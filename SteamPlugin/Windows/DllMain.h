@@ -71,6 +71,10 @@ extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *pchName, float flCountTh
 extern "C" DLL_EXPORT int FindLeaderboard(const char *pchLeaderboardName);
 extern "C" DLL_EXPORT int GetFindLeaderboardCallbackState();
 extern "C" DLL_EXPORT int GetLeaderboardHandle();
+extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard);
+extern "C" DLL_EXPORT int GetLeaderboardEntryCount(int hLeaderboard);
+extern "C" DLL_EXPORT int GetLeaderboardDisplayType(int hLeaderboard);
+extern "C" DLL_EXPORT int GetLeaderboardSortMethod(int hLeaderboard);
 extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreCallbackState();
@@ -82,11 +86,16 @@ extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious();
 // https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntriesCallbackState();
-extern "C" DLL_EXPORT int GetNumLeaderboardEntries();
-extern "C" DLL_EXPORT int GetLeaderboardEntryGlobalRank(int index);
-extern "C" DLL_EXPORT int GetLeaderboardEntryScore(int index);
-extern "C" DLL_EXPORT char *GetLeaderboardEntryPersonaName(int index);
-
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount();
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int index);
+extern "C" DLL_EXPORT char *GetDownloadedLeaderboardEntryPersonaName(int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryAvatar(int index, int size);
+// Avatars and images
+extern "C" DLL_EXPORT int GetAvatar(int size);
+extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
+extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
+extern "C" DLL_EXPORT int GetAchievementIcon(const char *pchName);
 
 // Error reporting methods.
 //extern "C" DLL_EXPORT void SetErrorMode(int mode);
