@@ -9,6 +9,9 @@ RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,0
 GetAppID,I,0,GetAppID,0,0,0,0,0
 LoggedOn,I,0,LoggedOn,0,0,0,0,0
 GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
+GetAvatar,I,I,GetAvatar,0,0,0,0,0
+LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,0
+LoadImageFromHandle,0,II,LoadImageIDFromHandle,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 #
 # General user stats methods.
@@ -29,6 +32,7 @@ GetAchievementID,S,I,GetAchievementID,0,0,0,0,0
 GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,0
 GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,0
 GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,0
+GetAchievementIcon,I,S,GetAchievementIcon,0,0,0,0,0
 GetAchievement,I,S,GetAchievement,0,0,0,0,0
 GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,0
 SetAchievement,I,S,SetAchievement,0,0,0,0,0
@@ -67,10 +71,3 @@ GetDownloadedLeaderboardEntryGlobalRank,I,I,GetDownloadedLeaderboardEntryGlobalR
 GetDownloadedLeaderboardEntryScore,I,I,GetDownloadedLeaderboardEntryScore,0,0,0,0,0
 GetDownloadedLeaderboardEntryPersonaName,S,I,GetDownloadedLeaderboardEntryPersonaName,0,0,0,0,0
 GetDownloadedLeaderboardEntryAvatar,I,II,GetDownloadedLeaderboardEntryAvatar,0,0,0,0,0
-#
-# Avatars and icons
-#
-GetAvatar,I,I,GetAvatar,0,0,0,0,0
-LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,0
-LoadImageFromHandle,0,II,LoadImageIDFromHandle,0,0,0,0,0
-GetAchievementIcon,I,S,GetAchievementIcon,0,0,0,0,0
