@@ -813,6 +813,24 @@ char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData)
 	return CreateString(NULL);
 }
 
+int JoinLobby(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->JoinLobby(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+int GetLobbyEnterCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyEnterCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
+}
+
 int GetLobbyOwner(int hLobbySteamID)
 {
 	if (Steam)

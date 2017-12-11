@@ -115,6 +115,8 @@ extern "C" DLL_EXPORT int GetLobbyByIndex(int iLobby);
 extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
 // TODO Add command to get all GetLobbyData as a JSON array of key/value data.
 extern "C" DLL_EXPORT char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData); // Returns json of key/value data.
+extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
+extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);

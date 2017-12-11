@@ -55,7 +55,9 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackAvatarImageLoaded(this, &SteamPlugin::OnAvatarImageLoaded),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_LobbyMatchListCallbackState(Idle),
-	m_LobbyMatchListCount(0)
+	m_LobbyMatchListCount(0),
+	m_LobbyEnterCallbackState(Idle)
+	//m_CallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter)
 {
 	// Nothing for now
 }
@@ -104,6 +106,7 @@ void SteamPlugin::Shutdown()
 		m_DownloadedLeaderboardEntryCount = 0;
 		m_LobbyMatchListCallbackState = Idle;
 		m_LobbyMatchListCount = 0;
+		m_LobbyEnterCallbackState = Idle;
 	}
 }
 
@@ -833,6 +836,35 @@ bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, cha
 		return false;
 	}
 	return SteamMatchmaking()->GetLobbyDataByIndex(steamIDLobby, iLobbyData, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
+}
+
+// Callback for RequestLobbyList.
+void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
+{
+	m_LobbyEnterCallbackState = Done;
+	//pParam->m_bLocked;
+	//pParam->m_EChatRoomEnterResponse
+}
+
+bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized)
+	{
+		return false;
+	}
+	try
+	{
+		//SteamMatchmaking()->JoinLobby(steamIDLobby);
+		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->JoinLobby(steamIDLobby);
+		m_CallResultLobbyEnter.Set(hSteamAPICall, this, &SteamPlugin::OnLobbyEnter);
+		m_LobbyEnterCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_LobbyEnterCallbackState = ClientError;
+		return false;
+	}
 }
 
 CSteamID SteamPlugin::GetLobbyOwner(CSteamID steamIDLobby)

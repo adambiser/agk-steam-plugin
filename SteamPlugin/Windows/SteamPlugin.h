@@ -82,6 +82,10 @@ private:
 	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyMatchList_t> m_CallResultLobbyMatchList;
 	int m_LobbyMatchListCount;
+	ECallbackState m_LobbyEnterCallbackState;
+	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
+	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
+	//STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_CallResultLobbyEnter);
 
 	std::map<CSteamID, int> avatarsMap;
 	std::map<std::string, int> achievementIconsMap;
@@ -174,9 +178,12 @@ public:
 	int GetLobbyMatchListCount() { return m_LobbyMatchListCount; }
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
+	bool JoinLobby(CSteamID steamIDLobby);
+	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
+	
 };
 
 #endif // STEAMPLUGIN_H_

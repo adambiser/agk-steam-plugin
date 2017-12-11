@@ -192,7 +192,7 @@ global errorReported as integer[4]
 //
 Function ProcessCallbacks()
 	x as integer
-	y as integer
+	hLobby as integer
 	//
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
@@ -253,13 +253,9 @@ Function ProcessCallbacks()
 			AddStatus("-------------------Lobby Match List-------------------")
 			AddStatus("Lobbies Found: " + str(Steam.GetLobbyMatchListCount()))
 			if Steam.GetLobbyMatchListCount() > 0
-				AddStatus("Showing first")
-				hLobby as integer
+				AddStatus("Showing first...")
 				hLobby = Steam.GetLobbyByIndex(0)
-				AddStatus("Lobby #" + str(0) + ", handle = " + str(hLobby))
-				hOwner as integer
-				hOwner = Steam.GetLobbyOwner(hLobby)
-				AddStatus("Owner: " + str(hOwner) + " = " + Steam.GetFriendPersonaName(hOwner))
+				AddStatus("Members: " + str(Steam.GetNumLobbyMembers(hLobby)) + ", max: " + str(Steam.GetLobbyMemberLimit(hLobby)))
 				// NOTE: This should typically only ever be used for debugging purposes. Devs should already know lobby data keys.
 				count as integer
 				count = Steam.GetLobbyDataCount(hLobby)
@@ -270,6 +266,8 @@ Function ProcessCallbacks()
 					AddStatus("    " + kv.key + ": " + kv.value)
 					//AddStatus("---->" + Steam.GetLobbyDataByIndex(hLobby, y) + "<")
 				next
+				AddStatus("Joining lobby...")
+				Steam.JoinLobby(hLobby)
 			endif
 		endcase
 		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
@@ -277,6 +275,15 @@ Function ProcessCallbacks()
 				errorReported[ERROR_LOBBYMATCH] = 1
 				AddStatus("Error getting lobby match list.")
 			endif
+		endcase
+	endselect
+	select Steam.GetLobbyEnterCallbackState()
+		case STATE_DONE
+			AddStatus("Joined lobby.")
+			// Can only show owner and members after joining.
+			hOwner as integer
+			hOwner = Steam.GetLobbyOwner(hLobby)
+			AddStatus("Owner: " + str(hOwner) + " = " + Steam.GetFriendPersonaName(hOwner))
 		endcase
 	endselect
 	//

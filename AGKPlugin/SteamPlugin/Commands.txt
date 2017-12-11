@@ -90,6 +90,8 @@ GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,0
 GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,0
 GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
 GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
+JoinLobby,I,I,JoinLobby,0,0,0,0,0
+GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,0
 GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,0
 GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,0
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,0
