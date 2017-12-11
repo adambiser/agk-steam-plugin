@@ -841,8 +841,23 @@ CSteamID SteamPlugin::GetLobbyOwner(CSteamID steamIDLobby)
 	{
 		return k_steamIDNil;
 	}
-	CSteamID owner = SteamMatchmaking()->GetLobbyOwner(steamIDLobby);
-	if (owner.IsValid())
-		agk::Message(GetFriendPersonaName(owner));
 	return SteamMatchmaking()->GetLobbyOwner(steamIDLobby);
+}
+
+int SteamPlugin::GetLobbyMemberLimit(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return 0;
+	}
+	return SteamMatchmaking()->GetLobbyMemberLimit(steamIDLobby);
+}
+
+int SteamPlugin::GetNumLobbyMembers(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return 0;
+	}
+	return SteamMatchmaking()->GetNumLobbyMembers(steamIDLobby);
 }

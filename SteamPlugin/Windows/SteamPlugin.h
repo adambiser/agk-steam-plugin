@@ -175,6 +175,8 @@ public:
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
+	int GetLobbyMemberLimit(CSteamID steamIDLobby);
+	int GetNumLobbyMembers(CSteamID steamIDLobby);
 };
 
 #endif // STEAMPLUGIN_H_

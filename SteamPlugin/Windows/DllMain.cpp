@@ -55,9 +55,9 @@ std::vector <CSteamID> m_CSteamIDs;
 CSteamID GetSteamID(int handle)
 {
 	// Handles are 1-based!
-	if (handle > 0 && handle <= (int)m_CSteamIDs.size())
+	if (handle >= 0 && handle < (int)m_CSteamIDs.size())
 	{
-		return m_CSteamIDs[handle - 1];
+		return m_CSteamIDs[handle];
 	}
 	agk::PluginError("Invalid CSteamID handle.");
 	return k_steamIDNil;
@@ -69,10 +69,17 @@ int GetSteamIDHandle(CSteamID steamID)
 	if (index < (int) m_CSteamIDs.size())
 	{
 		// Handles are 1-based!
-		return index + 1;
+		return index;
 	}
 	m_CSteamIDs.push_back(steamID);
-	return m_CSteamIDs.size();
+	return m_CSteamIDs.size() - 1;
+}
+
+void ClearSteamIDHandleList()
+{
+	m_CSteamIDs.clear();
+	// Handle 0 is always k_steamIDNil.
+	m_CSteamIDs.push_back(k_steamIDNil);
 }
 
 /*
@@ -87,7 +94,7 @@ int Init()
 	{
 		Steam = new SteamPlugin();
 	}
-	m_CSteamIDs.clear();
+	ClearSteamIDHandleList();
 	if (Steam)
 	{
 		if (Steam->Init())
@@ -104,7 +111,7 @@ Shuts down the plugin and frees memory.
 */
 void Shutdown()
 {
-	m_CSteamIDs.clear();
+	ClearSteamIDHandleList();
 	if (Steam)
 	{
 		delete[] Steam;
@@ -811,6 +818,24 @@ int GetLobbyOwner(int hLobbySteamID)
 	if (Steam)
 	{
 		return GetSteamIDHandle(Steam->GetLobbyOwner(GetSteamID(hLobbySteamID)));
+	}
+	return 0;
+}
+
+int GetLobbyMemberLimit(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyMemberLimit(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+int GetNumLobbyMembers(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetNumLobbyMembers(GetSteamID(hLobbySteamID));
 	}
 	return 0;
 }
