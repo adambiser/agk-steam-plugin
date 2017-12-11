@@ -22,6 +22,7 @@ THE SOFTWARE.
 
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
+#include <vector>
 #include "DllMain.h"
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
@@ -49,6 +50,31 @@ char *CreateString(const char* text)
 	return result;
 }
 
+std::vector <CSteamID> m_CSteamIDs;
+
+CSteamID GetSteamID(int handle)
+{
+	// Handles are 1-based!
+	if (handle > 0 && handle <= (int)m_CSteamIDs.size())
+	{
+		return m_CSteamIDs[handle - 1];
+	}
+	agk::PluginError("Invalid CSteamID handle.");
+	return k_steamIDNil;
+}
+
+int GetSteamIDHandle(CSteamID steamID)
+{
+	int index = std::find(m_CSteamIDs.begin(), m_CSteamIDs.end(), steamID) - m_CSteamIDs.begin();
+	if (index < (int) m_CSteamIDs.size())
+	{
+		// Handles are 1-based!
+		return index + 1;
+	}
+	m_CSteamIDs.push_back(steamID);
+	return m_CSteamIDs.size();
+}
+
 /*
 This method should be called before attempting to do anything else with this plugin.
 Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
@@ -61,6 +87,7 @@ int Init()
 	{
 		Steam = new SteamPlugin();
 	}
+	m_CSteamIDs.clear();
 	if (Steam)
 	{
 		if (Steam->Init())
@@ -77,6 +104,7 @@ Shuts down the plugin and frees memory.
 */
 void Shutdown()
 {
+	m_CSteamIDs.clear();
 	if (Steam)
 	{
 		delete[] Steam;
@@ -141,15 +169,6 @@ int LoggedOn()
 	return false;
 }
 
-char *GetPersonaName()
-{
-	if (Steam)
-	{
-		return CreateString(Steam->GetPersonaName());
-	}
-	return CreateString(0);
-}
-
 /*
 Call every frame to allow the Steam API callbacks to process.
 Should be used in conjunction with RequestStats and StoreStats to ensure the callbacks finish.
@@ -159,6 +178,67 @@ void RunCallbacks()
 	if (Steam)
 	{
 		Steam->RunCallbacks();
+	}
+}
+
+void ActivateGameOverlay(const char *pchDialog)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlay(pchDialog);
+	}
+}
+
+int GetAvatar(int size)
+{
+	if (Steam)
+	{
+		return Steam->GetAvatar((EAvatarSize)size);
+	}
+	return 0;
+}
+
+char *GetPersonaName()
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetPersonaName());
+	}
+	return CreateString(0);
+}
+
+int GetFriendAvatar(int hUserSteamID, int size)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendAvatar(GetSteamID(hUserSteamID), (EAvatarSize)size);
+	}
+	return 0;
+}
+
+char *GetFriendPersonaName(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
+	}
+	return CreateString(NULL);
+}
+
+int LoadImageFromHandle(int hImage)
+{
+	if (Steam)
+	{
+		return Steam->LoadImageFromHandle(hImage);
+	}
+	return 0;
+}
+
+void LoadImageIDFromHandle(int imageID, int hImage)
+{
+	if (Steam)
+	{
+		Steam->LoadImageFromHandle(imageID, hImage);
 	}
 }
 
@@ -474,7 +554,6 @@ int UpdateAvgRateStat(const char *pchName, float flCountThisSession, float dSess
 	return false;
 }
 
-
 int FindLeaderboard(const char *pchLeaderboardName)
 {
 	if (Steam)
@@ -502,7 +581,7 @@ int GetLeaderboardHandle()
 	return 0;
 }
 
-char * GetLeaderboardName(int hLeaderboard)
+char *GetLeaderboardName(int hLeaderboard)
 {
 	if (Steam)
 	{
@@ -655,46 +734,83 @@ int GetDownloadedLeaderboardEntryScore(int index)
 	return 0;
 }
 
-char *GetDownloadedLeaderboardEntryPersonaName(int index)
+int GetDownloadedLeaderboardEntryUser(int index)
 {
 	if (Steam)
 	{
-		return CreateString(Steam->GetDownloadedLeaderboardEntryPersonaName(index));
-	}
-	return CreateString(0);
-}
-
-int GetDownloadedLeaderboardEntryAvatar(int index, int size)
-{
-	if (Steam)
-	{
-		return Steam->GetDownloadedLeaderboardEntryAvatar(index, (EAvatarSize)size);
+		return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(index));
 	}
 	return 0;
 }
 
-int GetAvatar(int size)
+int RequestLobbyList()
 {
 	if (Steam)
 	{
-		return Steam->GetAvatar((EAvatarSize) size);
+		return Steam->RequestLobbyList();
 	}
 	return 0;
 }
 
-int LoadImageFromHandle(int hImage)
+int GetLobbyMatchListCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->LoadImageFromHandle(hImage);
+		return Steam->GetLobbyMatchListCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
+}
+
+int GetLobbyMatchListCount() {
+	if (Steam)
+	{
+		return Steam->GetLobbyMatchListCount();
 	}
 	return 0;
 }
 
-void LoadImageIDFromHandle(int imageID, int hImage)
+int GetLobbyByIndex(int iLobby)
 {
 	if (Steam)
 	{
-		Steam->LoadImageFromHandle(imageID, hImage);
+		return GetSteamIDHandle(Steam->GetLobbyByIndex(iLobby));
 	}
+	return 0;
+}
+
+int GetLobbyDataCount(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyDataCount(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData)
+{
+	if (Steam)
+	{
+		char key[k_nMaxLobbyKeyLength];
+		char value[k_cubChatMetadataMax];
+		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), iLobbyData, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
+		{
+			std::string json = "{\"key\": \"";
+			json.append(key);
+			json.append("\", \"value\": \"");
+			json.append(value);
+			json.append("\"}");
+			return CreateString(json.c_str());
+		}
+	}
+	return CreateString(NULL);
+}
+
+int GetLobbyOwner(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyOwner(GetSteamID(hLobbySteamID)));
+	}
+	return 0;
 }

@@ -8,11 +8,20 @@ SteamInitialized,I,0,SteamInitialized,0,0,0,0,0
 RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,0
 GetAppID,I,0,GetAppID,0,0,0,0,0
 LoggedOn,I,0,LoggedOn,0,0,0,0,0
-GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
+RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
+ActivateGameOverlay,0,S,ActivateGameOverlay,0,0,0,0,0
+#
+# User/Friend methods
+#
 GetAvatar,I,I,GetAvatar,0,0,0,0,0
+GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,0
+GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
+GetFriendPersonaName,S,I,GetFriendPersonaName,0,0,0,0,0
+#
+# Image methods
+#
 LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,0
 LoadImageFromHandle,0,II,LoadImageIDFromHandle,0,0,0,0,0
-RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 #
 # General user stats methods.
 #
@@ -69,5 +78,16 @@ GetDownloadLeaderboardEntriesCallbackState,I,0,GetDownloadLeaderboardEntriesCall
 GetDownloadedLeaderboardEntryCount,I,0,GetDownloadedLeaderboardEntryCount,0,0,0,0,0
 GetDownloadedLeaderboardEntryGlobalRank,I,I,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,0
 GetDownloadedLeaderboardEntryScore,I,I,GetDownloadedLeaderboardEntryScore,0,0,0,0,0
-GetDownloadedLeaderboardEntryPersonaName,S,I,GetDownloadedLeaderboardEntryPersonaName,0,0,0,0,0
-GetDownloadedLeaderboardEntryAvatar,I,II,GetDownloadedLeaderboardEntryAvatar,0,0,0,0,0
+GetDownloadedLeaderboardEntryUser,I,I,GetDownloadedLeaderboardEntryUser,0,0,0,0,0
+# TODO REMOVE GetDownloadedLeaderboardEntryPersonaName,S,I,GetDownloadedLeaderboardEntryPersonaName,0,0,0,0,0
+# TODO REMOVE GetDownloadedLeaderboardEntryAvatar,I,II,GetDownloadedLeaderboardEntryAvatar,0,0,0,0,0
+#
+# Lobby methods
+#
+RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,0
+GetLobbyMatchListCallbackState,I,0,GetLobbyMatchListCallbackState,0,0,0,0,0
+GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,0
+GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,0
+GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
+GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
+GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,0

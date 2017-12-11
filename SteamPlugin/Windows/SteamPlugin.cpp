@@ -53,7 +53,9 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
 	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored),
 	m_CallbackAvatarImageLoaded(this, &SteamPlugin::OnAvatarImageLoaded),
-	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched)
+	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
+	m_LobbyMatchListCallbackState(Idle),
+	m_LobbyMatchListCount(0)
 {
 	// Nothing for now
 }
@@ -100,12 +102,9 @@ void SteamPlugin::Shutdown()
 		m_LeaderboardGlobalRankPrevious = 0;
 		m_DownloadLeaderboardEntriesCallbackState = Idle;
 		m_DownloadedLeaderboardEntryCount = 0;
+		m_LobbyMatchListCallbackState = Idle;
+		m_LobbyMatchListCount = 0;
 	}
-}
-
-bool SteamPlugin::SteamInitialized()
-{
-	return m_SteamInitialized;
 }
 
 bool SteamPlugin::RestartAppIfNecessary(uint32 unOwnAppID)
@@ -131,6 +130,83 @@ bool SteamPlugin::LoggedOn()
 	return SteamUser()->BLoggedOn();
 }
 
+void SteamPlugin::RunCallbacks()
+{
+	if (!m_SteamInitialized)
+	{
+		return;
+	}
+	SteamAPI_RunCallbacks();
+}
+
+void SteamPlugin::ActivateGameOverlay(const char *pchDialog)
+{
+	if (!m_SteamInitialized)
+	{
+		return;
+	}
+	SteamFriends()->ActivateGameOverlay(pchDialog);
+}
+
+void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
+{
+	//avatarsMap.insert_or_assign(pParam->m_steamID, pParam->m_iImage);
+	// Only store results that are expected.
+	auto search = avatarsMap.find(pParam->m_steamID);
+	if (search != avatarsMap.end())
+	{
+		search->second = pParam->m_iImage;
+	}
+}
+
+int SteamPlugin::GetAvatar(EAvatarSize size)
+{
+	if (!m_SteamInitialized)
+	{
+		return 0;
+	}
+	return GetFriendAvatar(SteamUser()->GetSteamID(), size);
+}
+
+int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
+{
+	if (!m_SteamInitialized)
+	{
+		return 0;
+	}
+	auto search = avatarsMap.find(steamID);
+	if (search != avatarsMap.end())
+	{
+		// If we have got a result from the callback, remove it from the wait list.
+		if ((search->second) != -1)
+		{
+			avatarsMap.erase(search);
+		}
+		return search->second;
+	}
+	int hImage = 0;
+	switch (size)
+	{
+	case Small:
+		hImage = SteamFriends()->GetSmallFriendAvatar(steamID);
+		break;
+	case Medium:
+		hImage = SteamFriends()->GetMediumFriendAvatar(steamID);
+		break;
+	case Large:
+		hImage = SteamFriends()->GetLargeFriendAvatar(steamID);
+		break;
+	default:
+		agk::PluginError("Requested invalid avatar size.");
+		return 0;
+	}
+	if (hImage == -1)
+	{
+		avatarsMap.insert_or_assign(steamID, hImage);
+	}
+	return hImage;
+}
+
 const char *SteamPlugin::GetPersonaName()
 {
 	if (!m_SteamInitialized)
@@ -140,13 +216,81 @@ const char *SteamPlugin::GetPersonaName()
 	return SteamFriends()->GetPersonaName();
 }
 
-void SteamPlugin::RunCallbacks()
+const char *SteamPlugin::GetFriendPersonaName(CSteamID steamID)
 {
 	if (!m_SteamInitialized)
 	{
-		return;
+		return 0;
 	}
-	SteamAPI_RunCallbacks();
+	return SteamFriends()->GetFriendPersonaName(steamID);
+}
+
+int SteamPlugin::LoadImageFromHandle(int hImage)
+{
+	return SteamPlugin::LoadImageFromHandle(0, hImage);
+}
+
+int SteamPlugin::LoadImageFromHandle(int imageID, int hImage)
+{
+	if (hImage == -1 || hImage == 0)
+	{
+		return 0;
+	}
+	uint32 width;
+	uint32 height;
+	if (!SteamUtils()->GetImageSize(hImage, &width, &height))
+	{
+		agk::PluginError("GetImageSize failed.");
+		return 0;
+	}
+	// Get the actual raw RGBA data from Steam and turn it into a texture in our game engine
+	const int imageSizeInBytes = width * height * 4;
+	uint8 *imageBuffer = new uint8[imageSizeInBytes];
+	if (SteamUtils()->GetImageRGBA(hImage, imageBuffer, imageSizeInBytes))
+	{
+		unsigned int memID = agk::CreateMemblock(imageSizeInBytes + 4 * 3);
+		agk::SetMemblockInt(memID, 0, width);
+		agk::SetMemblockInt(memID, 4, height);
+		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
+		for (int index = 0, offset = 12; index < imageSizeInBytes; index++, offset++)
+		{
+			agk::SetMemblockByte(memID, offset, imageBuffer[index]);
+		}
+		if (imageID)
+		{
+			agk::CreateImageFromMemblock(imageID, memID);
+		}
+		else
+		{
+			imageID = agk::CreateImageFromMemblock(memID);
+		}
+		agk::DeleteMemblock(memID);
+	}
+	else
+	{
+		imageID = 0;
+		agk::PluginError("GetImageRGBA failed.");
+	}
+	// Free memory.
+	delete[] imageBuffer;
+	return imageID;
+}
+
+// Callback for RequestStats.
+void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
+{
+	if (pCallback->m_nGameID == m_AppID)
+	{
+		if (pCallback->m_eResult == k_EResultOK)
+		{
+			m_RequestStatsCallbackState = Done;
+			m_StatsInitialized = true;
+		}
+		else
+		{
+			m_RequestStatsCallbackState = ServerError;
+		}
+	}
 }
 
 bool SteamPlugin::RequestStats()
@@ -175,20 +319,29 @@ bool SteamPlugin::RequestStats()
 	return true;
 }
 
-// Callback for RequestStats.
-void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
+// Callback for StoreStats and ResetAllStats.
+void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
 		if (pCallback->m_eResult == k_EResultOK)
 		{
-			m_RequestStatsCallbackState = Done;
-			m_StatsInitialized = true;
+			m_StoreStatsCallbackState = Done;
+			m_StatsStored = true;
 		}
 		else
 		{
-			m_RequestStatsCallbackState = ServerError;
+			m_StoreStatsCallbackState = ServerError;
 		}
+	}
+}
+
+// Callback for StoreStats.
+void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
+{
+	if (pCallback->m_nGameID == m_AppID)
+	{
+		m_AchievementStored = true;
 	}
 }
 
@@ -236,32 +389,6 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 	return true;
 }
 
-// Callback for StoreStats.
-void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
-{
-	if (pCallback->m_nGameID == m_AppID)
-	{
-		if (pCallback->m_eResult == k_EResultOK)
-		{
-			m_StoreStatsCallbackState = Done;
-			m_StatsStored = true;
-		}
-		else
-		{
-			m_StoreStatsCallbackState = ServerError;
-		}
-	}
-}
-
-// Callback for StoreStats.
-void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
-{
-	if (pCallback->m_nGameID == m_AppID)
-	{
-		m_AchievementStored = true;
-	}
-}
-
 int SteamPlugin::GetNumAchievements()
 {
 	if (!m_StatsInitialized)
@@ -287,6 +414,59 @@ const char *SteamPlugin::GetAchievementDisplayAttribute(const char *pchName, con
 		return 0;
 	}
 	return SteamUserStats()->GetAchievementDisplayAttribute(pchName, pchKey);
+}
+
+// Callback for GetAchievementIcon.
+void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
+{
+	if (pParam->m_nGameID.AppID() == m_AppID)
+	{
+		// Only store the results for values that are expected.
+		std::string name = pParam->m_rgchAchievementName;
+		auto search = achievementIconsMap.find(name);
+		if (search != achievementIconsMap.end())
+		{
+			search->second = pParam->m_nIconHandle;
+		}
+	}
+}
+
+/*
+In the Steam API, GetAchievementIcon reports failure and "no icon" the same way.
+Instead this checks some failure conditions so that it can return 0 for failure and -1 when waiting on a callback.
+*/
+int SteamPlugin::GetAchievementIcon(const char *pchName)
+{
+	if (!m_StatsInitialized)
+	{
+		return 0;
+	}
+	// See if we're waiting for a callback result for this icon.
+	std::string name = pchName;
+	auto search = achievementIconsMap.find(name);
+	if (search != achievementIconsMap.end())
+	{
+		// If we have a result from the callback, remove it from the wait list.
+		if ((search->second) != -1)
+		{
+			achievementIconsMap.erase(search);
+		}
+		return search->second;
+	}
+	int hImage = SteamUserStats()->GetAchievementIcon(pchName);
+	if (hImage == 0)
+	{
+		// Check to see if this is a valid achievement name.
+		bool pbAchieved;
+		if (!SteamUserStats()->GetAchievement(pchName, &pbAchieved))
+		{
+			// Not valid, return 0 for no icon.
+			return 0;
+		}
+		hImage = -1; // Use -1 to indicate that we're waiting on a callback to provide the handle.
+		achievementIconsMap.insert_or_assign(name, hImage);
+	}
+	return hImage;
 }
 
 bool SteamPlugin::GetAchievement(const char *pchName, bool *pbAchieved)
@@ -379,7 +559,7 @@ bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSessio
 	return SteamUserStats()->UpdateAvgRateStat(pchName, flCountThisSession, dSessionLength);
 }
 
-// Leaderboards
+// Callback for FindLeaderboard.
 void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
 {
 	if (pCallback->m_bLeaderboardFound && !bIOFailure)
@@ -409,7 +589,7 @@ bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 	{
 		m_hSteamLeaderboard = 0;
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
-		m_callResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
+		m_CallResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
 		m_FindLeaderboardCallbackState = Running;
 		return true;
 	}
@@ -456,6 +636,7 @@ ELeaderboardSortMethod SteamPlugin::GetLeaderboardSortMethod(SteamLeaderboard_t 
 	return SteamUserStats()->GetLeaderboardSortMethod(hLeaderboard);
 }
 
+// Callback for UploadLeaderboardScore.
 void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOFailure)
 {
 	if (pCallback->m_bSuccess && !bIOFailure)
@@ -498,7 +679,7 @@ bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeade
 		m_LeaderboardGlobalRankNew = 0;
 		m_LeaderboardGlobalRankPrevious = 0;
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, eLeaderboardUploadScoreMethod, score, NULL, 0);
-		m_callResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
+		m_CallResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
 		m_UploadLeaderboardScoreCallbackState = Running;
 		return true;
 	}
@@ -509,6 +690,7 @@ bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeade
 	}
 }
 
+// Callback for DownloadLeaderboardEntries.
 void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool bIOFailure)
 {
 	if (!bIOFailure)
@@ -546,7 +728,7 @@ bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, EL
 	{
 		m_DownloadedLeaderboardEntryCount = 0;
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-		m_callResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
+		m_CallResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
 		m_DownloadLeaderboardEntriesCallbackState = Running;
 		return true;
 	}
@@ -577,184 +759,90 @@ int SteamPlugin::GetDownloadedLeaderboardEntryScore(int index)
 	return m_DownloadedLeaderboardEntries[index].m_nScore;
 }
 
-const char *SteamPlugin::GetDownloadedLeaderboardEntryPersonaName(int index)
-{
-	if (index < 0 || index >= m_DownloadedLeaderboardEntryCount)
-	{
-		agk::PluginError("GetDownloadedLeaderboardEntryPersonaName index out of bounds.");
-		return 0;
-	}
-	return SteamFriends()->GetFriendPersonaName(m_DownloadedLeaderboardEntries[index].m_steamIDUser);;
-}
-
-int SteamPlugin::GetDownloadedLeaderboardEntryAvatar(int index, EAvatarSize size)
+CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int index)
 {
 	if (index < 0 || index >= m_DownloadedLeaderboardEntryCount)
 	{
 		agk::PluginError("GetDownloadedLeaderboardEntryAvatar index out of bounds.");
-		return 0;
+		return k_steamIDNil;
 	}
-	return GetFriendAvatar(m_DownloadedLeaderboardEntries[index].m_steamIDUser, size);
+	return m_DownloadedLeaderboardEntries[index].m_steamIDUser;
 }
 
-void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
+// Callback for RequestLobbyList.
+void SteamPlugin::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure)
 {
-	//avatarsMap.insert_or_assign(pParam->m_steamID, pParam->m_iImage);
-	// Only store results that are expected.
-	auto search = avatarsMap.find(pParam->m_steamID);
-	if (search != avatarsMap.end())
+	if (bIOFailure)
 	{
-		search->second = pParam->m_iImage;
-	}
-}
-
-int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
-{
-	if (!m_SteamInitialized)
-	{
-		return 0;
-	}
-	auto search = avatarsMap.find(steamID);
-	if (search != avatarsMap.end())
-	{
-		// If we have got a result from the callback, remove it from the wait list.
-		if ((search->second) != -1)
-		{
-			avatarsMap.erase(search);
-		}
-		return search->second;
-	}
-	int hImage = 0;
-	switch (size)
-	{
-	case Small:
-		hImage = SteamFriends()->GetSmallFriendAvatar(steamID);
-		break;
-	case Medium:
-		hImage = SteamFriends()->GetMediumFriendAvatar(steamID);
-		break;
-	case Large:
-		hImage = SteamFriends()->GetLargeFriendAvatar(steamID);
-		break;
-	default:
-		agk::PluginError("Requested invalid avatar size.");
-		return 0;
-	}
-	if (hImage == -1)
-	{
-		avatarsMap.insert_or_assign(steamID, hImage);
-	}
-	return hImage;
-}
-
-int SteamPlugin::GetAvatar(EAvatarSize size)
-{
-	if (!m_SteamInitialized)
-	{
-		return 0;
-	}
-	return GetFriendAvatar(SteamUser()->GetSteamID(), size);
-}
-
-int SteamPlugin::LoadImageFromHandle(int hImage)
-{
-	return SteamPlugin::LoadImageFromHandle(0, hImage);
-}
-
-int SteamPlugin::LoadImageFromHandle(int imageID, int hImage)
-{
-	if (hImage == -1 || hImage == 0)
-	{
-		return 0;
-	}
-	uint32 width;
-	uint32 height;
-	if (!SteamUtils()->GetImageSize(hImage, &width, &height))
-	{
-		agk::PluginError("GetImageSize failed.");
-		return 0;
-	}
-	// Get the actual raw RGBA data from Steam and turn it into a texture in our game engine
-	const int imageSizeInBytes = width * height * 4;
-	uint8 *imageBuffer = new uint8[imageSizeInBytes];
-	if (SteamUtils()->GetImageRGBA(hImage, imageBuffer, imageSizeInBytes))
-	{
-		unsigned int memID = agk::CreateMemblock(imageSizeInBytes + 4 * 3);
-		agk::SetMemblockInt(memID, 0, width);
-		agk::SetMemblockInt(memID, 4, height);
-		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
-		for (int index = 0, offset = 12; index < imageSizeInBytes; index++, offset++)
-		{
-			agk::SetMemblockByte(memID, offset, imageBuffer[index]);
-		}
-		if (imageID)
-		{
-			agk::CreateImageFromMemblock(imageID, memID);
-		}
-		else
-		{
-			imageID = agk::CreateImageFromMemblock(memID);
-		}
-		agk::DeleteMemblock(memID);
+		m_LobbyMatchListCallbackState = ServerError;
 	}
 	else
 	{
-		imageID = 0;
-		agk::PluginError("GetImageRGBA failed.");
+		m_LobbyMatchListCallbackState = Done;
+		m_LobbyMatchListCount = pLobbyMatchList->m_nLobbiesMatching;
 	}
-	// Free memory.
-	delete[] imageBuffer;
-	return imageID;
 }
 
-void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
+bool SteamPlugin::RequestLobbyList()
 {
-	if (pParam->m_nGameID.AppID() == m_AppID)
+	m_LobbyMatchListCount = 0;
+	if (!m_SteamInitialized)
 	{
-		// Only store the results for values that are expected.
-		std::string name = pParam->m_rgchAchievementName;
-		auto search = achievementIconsMap.find(name);
-		if (search != achievementIconsMap.end())
-		{
-			search->second = pParam->m_nIconHandle;
-		}
+		return false;
+	}
+	try
+	{
+		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
+		m_CallResultLobbyMatchList.Set(hSteamAPICall, this, &SteamPlugin::OnLobbyMatchList);
+		m_LobbyMatchListCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_FindLeaderboardCallbackState = ClientError;
+		return false;
 	}
 }
 
-/*
-In the Steam API, GetAchievementIcon reports failure and "no icon" the same way.
-Instead this checks some failure conditions so that it can return 0 for failure and -1 when waiting on a callback.
-*/
-int SteamPlugin::GetAchievementIcon(const char *pchName)
+CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
 {
-	if (!m_StatsInitialized)
+	if (!m_SteamInitialized)
+	{
+		return k_steamIDNil;
+	}
+	if (m_LobbyMatchListCount == 0 || iLobby >= m_LobbyMatchListCount)
+	{
+		return k_steamIDNil;
+	}
+	return SteamMatchmaking()->GetLobbyByIndex(iLobby);
+}
+
+int SteamPlugin::GetLobbyDataCount(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
 		return 0;
 	}
-	// See if we're waiting for a callback result for this icon.
-	std::string name = pchName;
-	auto search = achievementIconsMap.find(name);
-	if (search != achievementIconsMap.end())
+	return SteamMatchmaking()->GetLobbyDataCount(steamIDLobby);
+}
+
+bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
-		// If we have a result from the callback, remove it from the wait list.
-		if ((search->second) != -1)
-		{
-			achievementIconsMap.erase(search);
-		}
-		return search->second;
+		return false;
 	}
-	int hImage = SteamUserStats()->GetAchievementIcon(pchName);
-	if (hImage == 0)
+	return SteamMatchmaking()->GetLobbyDataByIndex(steamIDLobby, iLobbyData, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
+}
+
+CSteamID SteamPlugin::GetLobbyOwner(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
-		// Check to see if this is a valid achievement name.
-		bool pbAchieved;
-		if (!SteamUserStats()->GetAchievement(pchName, &pbAchieved))
-		{
-			// Not valid, return 0 for no icon.
-			return 0;
-		}
-		hImage = -1; // Use -1 to indicate that we're waiting on a callback to provide the handle.
-		achievementIconsMap.insert_or_assign(name, hImage);
+		return k_steamIDNil;
 	}
-	return hImage;
+	CSteamID owner = SteamMatchmaking()->GetLobbyOwner(steamIDLobby);
+	if (owner.IsValid())
+		agk::Message(GetFriendPersonaName(owner));
+	return SteamMatchmaking()->GetLobbyOwner(steamIDLobby);
 }

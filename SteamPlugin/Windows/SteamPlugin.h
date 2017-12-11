@@ -64,7 +64,6 @@ private:
 	ECallbackState m_DownloadLeaderboardEntriesCallbackState;
 	int m_DownloadedLeaderboardEntryCount;
 	LeaderboardEntry_t m_DownloadedLeaderboardEntries[MAX_LEADERBOARD_ENTRIES];
-	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
 	// User stats callbacks
 	STEAM_CALLBACK(SteamPlugin, OnAchievementStored, UserAchievementStored_t, m_CallbackAchievementStored);
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
@@ -73,11 +72,16 @@ private:
 	STEAM_CALLBACK(SteamPlugin, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
 	// Leaderboard callbacks
 	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
-	CCallResult<SteamPlugin, LeaderboardFindResult_t> m_callResultFindLeaderboard;
+	CCallResult<SteamPlugin, LeaderboardFindResult_t> m_CallResultFindLeaderboard;
 	void OnUploadScore(LeaderboardScoreUploaded_t *pResult, bool bIOFailure);
-	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_callResultUploadScore;
+	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_CallResultUploadScore;
 	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
-	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_callResultDownloadScore;
+	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_CallResultDownloadScore;
+	// Lobby
+	ECallbackState m_LobbyMatchListCallbackState;
+	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
+	CCallResult<SteamPlugin, LobbyMatchList_t> m_CallResultLobbyMatchList;
+	int m_LobbyMatchListCount;
 
 	std::map<CSteamID, int> avatarsMap;
 	std::map<std::string, int> achievementIconsMap;
@@ -98,12 +102,20 @@ public:
 	// General methods.
 	bool Init();
 	void Shutdown();
-	bool SteamInitialized();
-	int GetAppID();
+	bool SteamInitialized() { return m_SteamInitialized; }
 	bool RestartAppIfNecessary(uint32 unOwnAppID);
+	int GetAppID();
 	bool LoggedOn();
-	const char *GetPersonaName();
 	void RunCallbacks();
+	void ActivateGameOverlay(const char *pchDialog);
+	// User/Friend methods
+	int GetAvatar(EAvatarSize size);
+	const char *GetPersonaName();
+	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
+	const char *GetFriendPersonaName(CSteamID steamID);
+	// Image methods
+	int LoadImageFromHandle(int hImage);
+	int LoadImageFromHandle(int imageID, int hImage);
 	// General user stats methods.
 	bool RequestStats();
 	ECallbackState GetRequestStatsCallbackState() { return getCallbackState(&m_RequestStatsCallbackState); }
@@ -151,14 +163,18 @@ public:
 	int GetDownloadedLeaderboardEntryCount() { return m_DownloadedLeaderboardEntryCount; }
 	int GetDownloadedLeaderboardEntryGlobalRank(int index);
 	int GetDownloadedLeaderboardEntryScore(int index);
-	const char *GetDownloadedLeaderboardEntryPersonaName(int index);
-	int GetDownloadedLeaderboardEntryAvatar(int index, EAvatarSize size);
+	CSteamID GetDownloadedLeaderboardEntryUser(int index);
 	// Avatars and images.
 	// While GetAvatar, GetAchievementIcon, and GetDownloadedLeaderboardEntryAvatar have internal callbacks, there's no need to make them external.
-	int GetAvatar(EAvatarSize size);
-	int LoadImageFromHandle(int hImage);
-	int LoadImageFromHandle(int imageID, int hImage);
 	int GetAchievementIcon(const char *pchName);
+	// Lobby
+	bool RequestLobbyList();
+	CSteamID GetLobbyByIndex(int iLobby);
+	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
+	int GetLobbyMatchListCount() { return m_LobbyMatchListCount; }
+	int GetLobbyDataCount(CSteamID steamIDLobby);
+	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
+	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 };
 
 #endif // STEAMPLUGIN_H_

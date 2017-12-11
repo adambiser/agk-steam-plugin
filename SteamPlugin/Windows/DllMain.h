@@ -43,8 +43,18 @@ extern "C" DLL_EXPORT int SteamInitialized();
 extern "C" DLL_EXPORT int RestartAppIfNecessary(int unOwnAppID);
 extern "C" DLL_EXPORT int GetAppID();
 extern "C" DLL_EXPORT int LoggedOn();
-extern "C" DLL_EXPORT char *GetPersonaName();
 extern "C" DLL_EXPORT void RunCallbacks();
+extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
+//void ActivateGameOverlayToStore( AppId_t nAppID, EOverlayToStoreFlag eFlag );
+//void ActivateGameOverlayToWebPage( const char *pchURL );
+// User/Friend methods
+extern "C" DLL_EXPORT int GetAvatar(int size);
+extern "C" DLL_EXPORT char *GetPersonaName();
+extern "C" DLL_EXPORT int GetFriendAvatar(int hUserSteamID, int size);
+extern "C" DLL_EXPORT char *GetFriendPersonaName(int hUserSteamID);
+// Image methods
+extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
+extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
 // General user stats methods.
 extern "C" DLL_EXPORT int RequestStats();
 extern "C" DLL_EXPORT int GetRequestStatsCallbackState();
@@ -94,11 +104,82 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntriesCallbackState();
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount();
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int index);
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int index);
-extern "C" DLL_EXPORT char *GetDownloadedLeaderboardEntryPersonaName(int index);
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryAvatar(int index, int size);
-// Avatars and images
-extern "C" DLL_EXPORT int GetAvatar(int size);
-extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
-extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
+//extern "C" DLL_EXPORT char *GetDownloadedLeaderboardEntryPersonaName(int index);
+//extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryAvatar(int index, int size);
+// Lobbies
+extern "C" DLL_EXPORT int RequestLobbyList(); //  LobbyMatchList_t call result.
+extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
+extern "C" DLL_EXPORT int GetLobbyMatchListCount();
+extern "C" DLL_EXPORT int GetLobbyByIndex(int iLobby);
+extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
+// TODO Add command to get all GetLobbyData as a JSON array of key/value data.
+extern "C" DLL_EXPORT char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData); // Returns json of key/value data.
+extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
+//int GetLobbyMemberLimit(CSteamID steamIDLobby);
+//int GetNumLobbyMembers(CSteamID steamIDLobby);
+//CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
+
+
+/*
+int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
+bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
+bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
+int GetFavoriteGameCount();
+
+void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
+*/
+/*
+k_ELobbyDistanceFilterClose	0	Only lobbies in the same immediate region will be returned.
+k_ELobbyDistanceFilterDefault	1	Only lobbies in the same region or nearby regions will be returned.
+k_ELobbyDistanceFilterFar	2	For games that don't have many latency requirements, will return lobbies about half-way around the globe.
+k_ELobbyDistanceFilterWorldwide	3	No filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients).
+*/
+/*
+void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
+void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
+void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
+void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
+*/
+/*
+k_ELobbyComparisonEqualToOrLessThan	-2	The lobbies value must be equal to or less than this one.
+k_ELobbyComparisonLessThan	-1	The lobbies value must be less than this one.
+k_ELobbyComparisonEqual	0	The lobbies value must match this this one exactly.
+k_ELobbyComparisonGreaterThan	1	The lobbies value must be greater than this one.
+k_ELobbyComparisonEqualToOrGreaterThan	2	The lobbies value must be equal to or greater than this one.
+k_ELobbyComparisonNotEqual	3	The lobbies value must not match this this.
+*/
+/*
+void AddRequestLobbyListResultCountFilter(int cMaxResults);
+SteamAPICall_t CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
+*/
+/*
+k_ELobbyTypePrivate	0	The only way to join the lobby is from an invite.
+k_ELobbyTypeFriendsOnly	1	Joinable by friends and invitees, but does not show up in the lobby list.
+k_ELobbyTypePublic	2	Returned by search and visible to friends.
+k_ELobbyTypeInvisible	3	Returned by search, but not visible to other friends.
+This is useful if you want a user in two lobbies, for example matching groups together. A user can be in only one regular lobby, and up to two invisible lobbies.
+*/
+/*
+bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
+*/
+//CSteamID GetLobbyByIndex(int iLobby);
+/*
+const char * GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
+bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
+const char * GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
+bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?
+SteamAPICall_t JoinLobby(CSteamID steamIDLobby);
+bool SendLobbyChatMsg(CSteamID steamIDLobby, const void *pvMsgBody, int cubMsgBody); // All users receive a LobbyChatMsg_t callback.
+
+bool SetLinkedLobby( CSteamID steamIDLobby, CSteamID steamIDLobbyDependent ); // Can this be done?
+bool SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue); // Triggers a LobbyGameCreated_t callback for all lobby users.
+void SetLobbyGameServer( CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer ); // Triggers a LobbyGameCreated_t callback.
+bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
+void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue); // Triggers a LobbyDataUpdate_t callback.
+bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
+bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Can this be done? // Triggers a LobbyDataUpdate_t callback.
+bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
+*/
 
 #endif // DLLMAIN_H_

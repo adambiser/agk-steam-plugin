@@ -67,8 +67,17 @@ Type SteamServerInfo
 	downloadTop10 as integer
 	downloadTop10Avatars as integer
 	avatarHandle as integer
+	needToFindLobbies as integer
 EndType
 server.avatarHandle = -1 // Use -1 to indicate that the avatar needs to be loaded.
+server.needToFindLobbies = 1
+
+global dict as KeyValuePair[]
+Type KeyValuePair
+	key as string
+	value as string
+EndType
+
 
 // Note: RequestStats is called within Init().
 if not Steam.Init()
@@ -116,6 +125,9 @@ Function CheckButtons()
 		for x = 0 to server.achievements.length
 			server.achievementIcons[x] = -1 // Set to -1 to indicate that the icon needs loaded.
 		next
+	endif
+	if GetVirtualButtonPressed(ACTIVATE_OVERLAY_BUTTON)
+		Steam.ActivateGameOverlay("achievements") // NOTE: Spacewar doesn't have an achievements page.
 	endif
 	if GetVirtualButtonPressed(SHOW_GLOBAL_RANK_BUTTON)
 		server.downloadRank = 1
@@ -173,12 +185,14 @@ global errorReported as integer[4]
 #constant ERROR_FINDLEADERBOARD	2
 #constant ERROR_UPLOADSCORE		3
 #constant ERROR_DOWNLOADENTRIES	4
+#constant ERROR_LOBBYMATCH		5
 
 //
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
 	x as integer
+	y as integer
 	//
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
@@ -226,11 +240,52 @@ Function ProcessCallbacks()
 		endif
 	endif
 	//
+	// Lobby Match-making
+	//
+	select Steam.GetLobbyMatchListCallbackState()
+		case STATE_IDLE
+			if server.needToFindLobbies
+				Steam.RequestLobbyList()
+			endif
+		endcase
+		case STATE_DONE
+			server.needToFindLobbies = 0
+			AddStatus("-------------------Lobby Match List-------------------")
+			AddStatus("Lobbies Found: " + str(Steam.GetLobbyMatchListCount()))
+			if Steam.GetLobbyMatchListCount() > 0
+				AddStatus("Showing first")
+				hLobby as integer
+				hLobby = Steam.GetLobbyByIndex(0)
+				AddStatus("Lobby #" + str(0) + ", handle = " + str(hLobby))
+				hOwner as integer
+				hOwner = Steam.GetLobbyOwner(hLobby)
+				AddStatus("Owner: " + str(hOwner) + " = " + Steam.GetFriendPersonaName(hOwner))
+				// NOTE: This should typically only ever be used for debugging purposes. Devs should already know lobby data keys.
+				count as integer
+				count = Steam.GetLobbyDataCount(hLobby)
+				AddStatus("Data Count = " + str(count))
+				for x = 0 to count - 1
+					kv as KeyValuePair
+					kv.fromJson(Steam.GetLobbyDataByIndex(hLobby, x))
+					AddStatus("    " + kv.key + ": " + kv.value)
+					//AddStatus("---->" + Steam.GetLobbyDataByIndex(hLobby, y) + "<")
+				next
+			endif
+		endcase
+		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			if not errorReported[ERROR_LOBBYMATCH]
+				errorReported[ERROR_LOBBYMATCH] = 1
+				AddStatus("Error getting lobby match list.")
+			endif
+		endcase
+	endselect
+	//
 	// Nothing else can be done until user stats are loaded.
 	//
-	if not Steam.StatsInitialized()
+	// TODO commented for testing
+	//~ if not Steam.StatsInitialized()
 		ExitFunction
-	endif
+	//~ endif
 	//
 	// Process StoreStats/ResetStats callback.
 	//
@@ -356,6 +411,7 @@ Function ProcessCallbacks()
 	//
 	// Process DownloadLeaderboardEntries callback.
 	//
+	steamID as integer
 	select Steam.GetDownloadLeaderboardEntriesCallbackState()
 		case STATE_IDLE
 			if server.downloadRank
@@ -371,7 +427,8 @@ Function ProcessCallbacks()
 			if server.downloadRank
 				server.downloadRank = 0 // Clear flag
 				if Steam.GetDownloadedLeaderboardEntryCount()
-					AddStatus("User rank: #" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(0)) + ", User: " + Steam.GetDownloadedLeaderboardEntryPersonaName(0))
+					steamID = Steam.GetDownloadedLeaderboardEntryUser(0)
+					AddStatus("User rank: #" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(0)) + ", User: " + Steam.GetFriendPersonaName(steamID))
 				else
 					AddStatus("User has no global rank.")
 				endif
@@ -380,7 +437,8 @@ Function ProcessCallbacks()
 				AddStatus("--- Global leaders ---")
 				AddStatus("GetDownloadedLeaderboardEntryCount: " + str(Steam.GetDownloadedLeaderboardEntryCount()))
 				for x = 0 to Steam.GetDownloadedLeaderboardEntryCount() - 1
-					AddStatus("#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(x)) + ", User: " + Steam.GetDownloadedLeaderboardEntryPersonaName(x))
+					steamID = Steam.GetDownloadedLeaderboardEntryUser(x)
+					AddStatus("#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(x)) + ", User: " + Steam.GetFriendPersonaName(steamID))
 				next
 				// Load an avatar from the leaderboard.
 				// From how Steam docs read, small and medium images are already cached when the leaderboard is requested
@@ -388,7 +446,8 @@ Function ProcessCallbacks()
 					leaderAvatarHandle as integer
 					leaderAvatarImageID as integer
 					for x = 0 to Steam.GetDownloadedLeaderboardEntryCount() - 1
-						leaderAvatarHandle = Steam.GetDownloadedLeaderboardEntryAvatar(x, AVATAR_MEDIUM)
+						steamID = Steam.GetDownloadedLeaderboardEntryUser(x)
+						leaderAvatarHandle = Steam.GetFriendAvatar(steamID, AVATAR_MEDIUM)
 						if leaderAvatarHandle > 0
 							leaderAvatarImageID = Steam.LoadImageFromHandle(leaderAvatarHandle)
 							if leaderAvatarImageID
@@ -481,6 +540,7 @@ EndType
 #constant ADD_WINS_BUTTON			7
 #constant ADD_LOSSES_BUTTON			8
 #constant ADD_DISTANCE_BUTTON		9
+#constant ACTIVATE_OVERLAY_BUTTON	10
 #constant FIRST_ACHIEVEMENT_BUTTON	20
 
 global buttonColumns as integer [2] = [75, 225, 375]
@@ -506,17 +566,19 @@ Function CreateUI()
 	SetTextPosition(text.steamID, 0, 40)
 	SetTextSize(text.steamID, 20)
 	// Buttons
-	CreateButton(CLEAR_STATUS_BUTTON, buttonColumns[2], 50, "Clear Status")
+	CreateButton(CLEAR_STATUS_BUTTON, buttonColumns[2], 40, "Clear Status")
 	SetButtonEnabled(CLEAR_STATUS_BUTTON, 1)
 	
-	CreateButton(SHOW_STATS_BUTTON, buttonColumns[0], 150, "Show Stats")
-	CreateButton(RESET_STATS_BUTTON, buttonColumns[1], 150, "Reset Stats")
+	CreateButton(SHOW_STATS_BUTTON, buttonColumns[0], 120, "Show Stats")
+	CreateButton(RESET_STATS_BUTTON, buttonColumns[1], 120, "Reset Stats")
+	CreateButton(ACTIVATE_OVERLAY_BUTTON, buttonColumns[2], 120, "Overlay")
+	SetButtonEnabled(ACTIVATE_OVERLAY_BUTTON, 1)
 	
-	CreateButton(SHOW_GLOBAL_RANK_BUTTON, buttonColumns[0], 250, "Global Rank")
-	CreateButton(SHOW_TOP10_BUTTON, buttonColumns[1], 250, "Top 10")
-	CreateButton(UPLOAD_SCORE_BUTTON, buttonColumns[2], 250, "Upload Score")
+	CreateButton(SHOW_GLOBAL_RANK_BUTTON, buttonColumns[0], 200, "Global Rank")
+	CreateButton(SHOW_TOP10_BUTTON, buttonColumns[1], 200, "Top 10")
+	CreateButton(UPLOAD_SCORE_BUTTON, buttonColumns[2], 200, "Upload Score")
 	CreateEditBox(1)
-	SetEditBoxPosition(1, buttonColumns[2] - 75, 300)
+	SetEditBoxPosition(1, buttonColumns[2] - 75, 250)
 	SetEditBoxText(1, "100")
 
 	CreateButton(ADD_WINS_BUTTON, buttonColumns[0], 400, "Add 25 Wins")
