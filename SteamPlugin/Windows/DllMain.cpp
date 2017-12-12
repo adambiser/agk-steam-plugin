@@ -851,6 +851,33 @@ char *GetLobbyData(int hLobbySteamID, char *key)
 	return CreateString(NULL);
 }
 
+int HasLobbyDataUpdated()
+{
+	if (Steam)
+	{
+		return Steam->HasLobbyDataUpdated();
+	}
+	return FALSE;
+}
+
+int GetLobbyDataUpdatedLobby()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyDataUpdatedLobby());
+	}
+	return 0;
+}
+
+int GetLobbyDataUpdatedID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyDataUpdatedID());
+	}
+	return 0;
+}
+
 int CreateLobby(int eLobbyType, int maxMembers)
 {
 	if (Steam)

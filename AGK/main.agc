@@ -344,6 +344,9 @@ Function ProcessCallbacks()
 			endif
 		endcase
 	endselect
+	while Steam.HasLobbyDataUpdated()
+		AddStatus("Lobby data updated.  Lobby handle: " + str(Steam.GetLobbyDataUpdatedLobby()) + ", updated handle: " + str(Steam.GetLobbyDataUpdatedID()))
+	endwhile
 	while Steam.HasLobbyChatMessage()
 		AddStatus(Steam.GetFriendPersonaName(Steam.GetLobbyChatMessageUser()) + ": " + Steam.GetLobbyChatMessageText())
 	endwhile

@@ -56,6 +56,7 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_LobbyMatchListCallbackState(Idle),
 	m_LobbyMatchListCount(0),
+	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
 	m_LobbyEnterCallbackState(Idle),
 	m_MainCallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter),
 	m_LobbyEnterBlocked(false),
@@ -859,6 +860,39 @@ const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
 	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
 }
 
+void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
+{
+	if (!pParam->m_bSuccess)
+	{
+		//m_LobbyDataUpdateCallbackState = ServerError;
+	}
+	else
+	{
+		//m_LobbyDataUpdateCallbackState = Done;
+		LobbyDataUpdateInfo_t info;
+		info.lobby = pParam->m_ulSteamIDLobby;
+		info.changedID = pParam->m_ulSteamIDMember;
+		m_LobbyDataUpdated.push_back(info);
+		//m_LobbyDataUpdatedLobby = pParam->m_ulSteamIDLobby;
+		//m_LobbyDataUpdatedID = pParam->m_ulSteamIDMember;
+	}
+}
+
+bool SteamPlugin::HasLobbyDataUpdated()
+{
+	if (m_LobbyDataUpdated.size() > 0)
+	{
+		LobbyDataUpdateInfo_t info = m_LobbyDataUpdated.front();
+		m_LobbyDataUpdatedLobby = info.lobby;
+		m_LobbyDataUpdatedID = info.changedID;
+		m_LobbyDataUpdated.pop_front();
+		return true;
+	}
+	m_LobbyDataUpdatedLobby = k_steamIDNil;
+	m_LobbyDataUpdatedID = k_steamIDNil;
+	return false;
+}
+
 // Callback for CreateLobby.
 void SteamPlugin::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
 {
@@ -1016,7 +1050,6 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 
 void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
 {
-	//m_LobbyChatUpdateCallbackState = Done;
 	ChatUpdateInfo_t info;
 	info.userChanged= pParam->m_ulSteamIDUserChanged;
 	info.userState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;

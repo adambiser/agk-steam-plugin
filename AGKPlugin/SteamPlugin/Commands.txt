@@ -104,6 +104,11 @@ GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
 GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
 GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,0
 GetLobbyData,S,IS,GetLobbyData,0,0,0,0,0
+RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,0
+#GetLobbyDataUpdateCallbackState,I,0,GetLobbyDataUpdateCallbackState,0,0,0,0,0
+HasLobbyDataUpdated,I,0,HasLobbyDataUpdated,0,0,0,0,0
+GetLobbyDataUpdatedLobby,I,0,GetLobbyDataUpdatedLobby,0,0,0,0,0
+GetLobbyDataUpdatedID,I,0,GetLobbyDataUpdatedID,0,0,0,0,0
 #
 # Lobby methods: Create
 #
@@ -130,12 +135,15 @@ GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,0
 GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,0
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,0
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,0
+#
+# Lobby methods: Member status
+#
 HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,0
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,0
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,0
 GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,0
 #
-# Lobby methods: Chat Messages
+# Lobby methods: Chat messages
 #
 HasLobbyChatMessage,I,0,HasLobbyChatMessage,0,0,0,0,0
 GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,0
