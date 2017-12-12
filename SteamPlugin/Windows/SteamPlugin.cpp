@@ -57,6 +57,7 @@ SteamPlugin::SteamPlugin() :
 	m_LobbyMatchListCallbackState(Idle),
 	m_LobbyMatchListCount(0),
 	m_LobbyEnterCallbackState(Idle),
+	m_MainCallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter),
 	m_LobbyEnterBlocked(false),
 	m_LobbyEnterResponse((EChatRoomEnterResponse)0),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
@@ -800,7 +801,7 @@ void SteamPlugin::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFa
 bool SteamPlugin::RequestLobbyList()
 {
 	m_LobbyMatchListCount = 0;
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
 		return false;
 	}
@@ -820,7 +821,7 @@ bool SteamPlugin::RequestLobbyList()
 
 CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
 		return k_steamIDNil;
 	}
@@ -849,20 +850,83 @@ bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, cha
 	return SteamMatchmaking()->GetLobbyDataByIndex(steamIDLobby, iLobbyData, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
 }
 
-// Callback for RequestLobbyList.
+const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return false;
+	}
+	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
+}
+
+// Callback for CreateLobby.
+void SteamPlugin::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
+{
+	if (m_LobbyCreateCallbackState == Done)
+	{
+		agk::PluginError("OnLobbyCreated called while in done state.");
+	}
+	if (bIOFailure)
+	{
+		m_LobbyCreateCallbackState = ServerError;
+	}
+	else
+	{
+		m_LobbyCreateCallbackState = Done;
+		m_LobbyCreatedID = pParam->m_ulSteamIDLobby;
+		m_LobbyCreatedResult = pParam->m_eResult;
+	}
+}
+
+bool SteamPlugin::CreateLobby(ELobbyType eLobbyType, int cMaxMembers)
+{
+	m_LobbyEnterBlocked = false;
+	m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
+	m_LobbyCreatedID = k_steamIDNil;
+	m_LobbyCreatedResult = (EResult)0;
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return false;
+	}
+	try
+	{
+		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->CreateLobby(eLobbyType, cMaxMembers);
+		m_CallResultLobbyCreate.Set(hSteamAPICall, this, &SteamPlugin::OnLobbyCreated);
+		m_LobbyCreateCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_LobbyCreateCallbackState = ClientError;
+		return false;
+	}
+}
+
+void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam)
+{
+	OnLobbyEnter(pParam, false);
+}
+
+// Callback for JoinLobby.
 void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
-	if (m_LobbyEnterCallbackState == Done)
-	{
-		agk::PluginError("OnLobbyEnter called while in done state.");
-	}
 	if (bIOFailure)
 	{
 		m_LobbyEnterCallbackState = ServerError;
 	}
 	else
 	{
+		if (m_LobbyEnterCallbackState == Done)
+		{
+			if (m_LobbyEnterID == pParam->m_ulSteamIDLobby)
+			{
+				// Already notified of entering this lobby. Ignore.
+				return;
+			}
+			agk::PluginError("OnLobbyEnter called while in done state.");
+		}
 		m_LobbyEnterCallbackState = Done;
+		m_LobbyEnterID = pParam->m_ulSteamIDLobby;
 		m_LobbyEnterBlocked = pParam->m_bLocked;
 		m_LobbyEnterResponse = (EChatRoomEnterResponse) pParam->m_EChatRoomEnterResponse;
 		if (!pParam->m_bLocked && pParam->m_EChatRoomEnterResponse == k_EChatRoomEnterResponseSuccess)
@@ -881,7 +945,7 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 {
 	m_LobbyEnterBlocked = false;
 	m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
 		return false;
 	}

@@ -66,6 +66,12 @@ CreateUI()
 #constant CHAT_USER_STATE_KICKED		0x0008	// The user has been kicked.
 #constant CHAT_USER_STATE_BANNED		0x0010	// The user has been kicked and banned.
 
+// Constants from 
+#constant LOBBY_TYPE_PRIVATE		0	// The only way to join the lobby is from an invite.
+#constant LOBBY_TYPE_FRIENDSONLY	1	// Joinable by friends and invitees, but does not show up in the lobby list.
+#constant LOBBY_TYPE_PUBLIC			2	// Returned by search and visible to friends.
+#constant LOBBY_TYPE_INVISIBLE		3	// Returned by search, but not visible to other friends.
+
 // Avatar sizes
 #constant AVATAR_SMALL	0
 #constant AVATAR_MEDIUM	1
@@ -280,20 +286,31 @@ Function ProcessCallbacks()
 				AddStatus("Showing first...")
 				server.hLobby = Steam.GetLobbyByIndex(0)
 				AddStatus("Members: " + str(Steam.GetNumLobbyMembers(server.hLobby)) + ", max: " + str(Steam.GetLobbyMemberLimit(server.hLobby)))
+				AddStatus("Name: " + Steam.GetLobbyData(server.hLobby, "name"))
 				// NOTE: This should typically only ever be used for debugging purposes. Devs should already know lobby data keys.
 				count as integer
 				count = Steam.GetLobbyDataCount(server.hLobby)
 				AddStatus("Data Count = " + str(count))
-				for x = 0 to count - 1
-					kv as KeyValuePair
-					kv.fromJson(Steam.GetLobbyDataByIndex(server.hLobby, x))
+				//~ for x = 0 to count - 1
+					//~ kv as KeyValuePair
+					//~ // GetLobbyDataByIndex returns a key/value pair as JSON.
+					//~ kv.fromJson(Steam.GetLobbyDataByIndex(server.hLobby, x))
 					//~ AddStatus("    " + kv.key + ": " + kv.value)
-					//AddStatus("---->" + Steam.GetLobbyDataByIndex(server.hLobby, y) + "<")
-				next
+					//~ //AddStatus("---->" + Steam.GetLobbyDataByIndex(server.hLobby, y) + "<")
+				//~ next
+				AddStatus("     " + Steam.GetLobbyDataJson(server.hLobby))
+				//~ dict.fromJson(Steam.GetLobbyDataJson(server.hLobby))
+				//~ for x = 0 to dict.length
+					//~ AddStatus("    " + dict[x].key + ": " + dict[x].value)
+				//~ next
 				if server.joinFirstLobby
 					server.joinFirstLobby = 0
-					AddStatus("Joining lobby...")
-					Steam.JoinLobby(server.hLobby)
+					//~ AddStatus("Joining lobby...")
+					//~ Steam.JoinLobby(server.hLobby)
+					AddStatus("Creating lobby...")
+					if Steam.CreateLobby(LOBBY_TYPE_PRIVATE, 4) = 0
+						AddStatus("Failed")
+					endif
 				endif
 			endif
 		endcase
@@ -308,6 +325,7 @@ Function ProcessCallbacks()
 		case STATE_DONE // Only care about the DONE state.
 			if Steam.GetLobbyEnterResponse() = LOBBY_ENTER_RESPONSE_SUCCESS
 				AddStatus("Joined lobby.")
+				server.hLobby = Steam.GetLobbyEnterID()
 				// Can only show owner and members after joining.
 				hOwner as integer
 				hOwner = Steam.GetLobbyOwner(server.hLobby)

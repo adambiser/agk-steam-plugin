@@ -90,8 +90,15 @@ GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,0
 GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,0
 GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
 GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
+GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,0
+GetLobbyData,S,IS,GetLobbyData,0,0,0,0,0
+CreateLobby,I,II,CreateLobby,0,0,0,0,0
+GetLobbyCreateCallbackState,I,0,GetLobbyCreateCallbackState,0,0,0,0,0
+GetLobbyCreatedID,I,0,GetLobbyCreatedID,0,0,0,0,0
+GetLobbyCreatedResult,I,0,GetLobbyCreatedResult,0,0,0,0,0
 JoinLobby,I,I,JoinLobby,0,0,0,0,0
 GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,0
+GetLobbyEnterID,I,0,GetLobbyEnterID,0,0,0,0,0
 GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,0
 GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,0
 LeaveLobby,0,I,LeaveLobby,0,0,0,0,0

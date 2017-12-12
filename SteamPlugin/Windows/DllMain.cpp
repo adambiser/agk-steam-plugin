@@ -776,11 +776,11 @@ int GetLobbyMatchListCount() {
 	return 0;
 }
 
-int GetLobbyByIndex(int iLobby)
+int GetLobbyByIndex(int index)
 {
 	if (Steam)
 	{
-		return GetSteamIDHandle(Steam->GetLobbyByIndex(iLobby));
+		return GetSteamIDHandle(Steam->GetLobbyByIndex(index));
 	}
 	return 0;
 }
@@ -794,13 +794,13 @@ int GetLobbyDataCount(int hLobbySteamID)
 	return 0;
 }
 
-char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData)
+char *GetLobbyDataByIndex(int hLobbySteamID, int index)
 {
 	if (Steam)
 	{
 		char key[k_nMaxLobbyKeyLength];
 		char value[k_cubChatMetadataMax];
-		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), iLobbyData, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
+		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
 		{
 			std::string json = "{\"key\": \"";
 			json.append(key);
@@ -811,6 +811,80 @@ char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData)
 		}
 	}
 	return CreateString(NULL);
+}
+
+char *GetLobbyDataJSON(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
+		std::string json = "[";
+		char key[k_nMaxLobbyKeyLength];
+		char value[k_cubChatMetadataMax];
+		for (int index = 0; index < Steam->GetLobbyDataCount(steamIDLobby); index++)
+		{
+			if (Steam->GetLobbyDataByIndex(steamIDLobby, index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
+			{
+				if (index > 0)
+				{
+					json.append(", ");
+				}
+				json.append("{\"key\": \"");
+				json.append(key);
+				json.append("\", \"value\": \"");
+				json.append(value);
+				json.append("\"}");
+			}
+		}
+		json.append("]");
+		return CreateString(json.c_str());
+	}
+	return CreateString(NULL);
+}
+
+char *GetLobbyData(int hLobbySteamID, char *key)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+	}
+	return CreateString(NULL);
+}
+
+int CreateLobby(int eLobbyType, int maxMembers)
+{
+	if (Steam)
+	{
+		return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
+	}
+	return false;
+}
+
+int GetLobbyCreateCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyCreateCallbackState();
+	}
+	return 0;
+}
+
+int GetLobbyCreatedID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyCreatedID());
+	}
+	return 0;
+}
+
+int GetLobbyCreatedResult()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyCreatedResult();
+	}
+	return 0;
 }
 
 int JoinLobby(int hLobbySteamID)
@@ -829,6 +903,15 @@ int GetLobbyEnterCallbackState()
 		return Steam->GetLobbyEnterCallbackState();
 	}
 	return STATE_CLIENT_ERROR;
+}
+
+int GetLobbyEnterID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyEnterID());
+	}
+	return 0;
 }
 
 int GetLobbyEnterBlocked()
@@ -920,11 +1003,11 @@ int GetNumLobbyMembers(int hLobbySteamID)
 	return 0;
 }
 
-int GetLobbyMemberByIndex(int hLobbySteamID, int iMember)
+int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 {
 	if (Steam)
 	{
-		return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), iMember));
+		return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), index));
 	}
 	return 0;
 }

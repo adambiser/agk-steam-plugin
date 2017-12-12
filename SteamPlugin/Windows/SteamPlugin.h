@@ -84,9 +84,18 @@ private:
 	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyMatchList_t> m_CallResultLobbyMatchList;
 	int m_LobbyMatchListCount;
+
+	ECallbackState m_LobbyCreateCallbackState;
+	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
+	CCallResult<SteamPlugin, LobbyCreated_t> m_CallResultLobbyCreate;
+	CSteamID m_LobbyCreatedID;
+	EResult m_LobbyCreatedResult;
+
 	ECallbackState m_LobbyEnterCallbackState;
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
+	STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_MainCallResultLobbyEnter);
+	CSteamID m_LobbyEnterID;
 	bool m_LobbyEnterBlocked;
 	EChatRoomEnterResponse m_LobbyEnterResponse;
 
@@ -141,6 +150,7 @@ public:
 	void RunCallbacks();
 	void ActivateGameOverlay(const char *pchDialog);
 	// User/Friend methods
+	// NOTE: While GetAvatar, GetAchievementIcon, and GetDownloadedLeaderboardEntryAvatar have internal callbacks, there's no need to make them external.
 	int GetAvatar(EAvatarSize size);
 	const char *GetPersonaName();
 	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
@@ -161,6 +171,7 @@ public:
 	int GetNumAchievements();
 	const char* GetAchievementID(int index);
 	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
+	int GetAchievementIcon(const char *pchName);
 	bool GetAchievement(const char *name, bool *pbAchieved);
 	bool GetAchievementAndUnlockTime(const char *pchName, bool *pbAchieved, uint32 *punUnlockTime);
 	bool SetAchievement(const char *pchName);
@@ -196,9 +207,6 @@ public:
 	int GetDownloadedLeaderboardEntryGlobalRank(int index);
 	int GetDownloadedLeaderboardEntryScore(int index);
 	CSteamID GetDownloadedLeaderboardEntryUser(int index);
-	// Avatars and images.
-	// While GetAvatar, GetAchievementIcon, and GetDownloadedLeaderboardEntryAvatar have internal callbacks, there's no need to make them external.
-	int GetAchievementIcon(const char *pchName);
 	// Lobby
 	bool RequestLobbyList();
 	CSteamID GetLobbyByIndex(int iLobby);
@@ -207,11 +215,19 @@ public:
 	// Lobby data
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
-	// Join, Create, Leave.
+	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
+	// Create, Join, Leave.
+	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
+	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
+	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
+	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
+	// Join
 	bool JoinLobby(CSteamID steamIDLobby);
 	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
+	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
+	// Leave
 	void LeaveLobby(CSteamID steamIDLobby);
 	// Lobby chat updates
 	bool HasLobbyChatUpdate();

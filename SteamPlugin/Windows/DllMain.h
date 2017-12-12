@@ -111,12 +111,18 @@ extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
 extern "C" DLL_EXPORT int RequestLobbyList(); //  LobbyMatchList_t call result.
 extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
 extern "C" DLL_EXPORT int GetLobbyMatchListCount();
-extern "C" DLL_EXPORT int GetLobbyByIndex(int iLobby);
+extern "C" DLL_EXPORT int GetLobbyByIndex(int index);
 extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
-// TODO Add command to get all GetLobbyData as a JSON array of key/value data.
-extern "C" DLL_EXPORT char *GetLobbyDataByIndex(int hLobbySteamID, int iLobbyData); // Returns json of key/value data.
+extern "C" DLL_EXPORT char *GetLobbyDataByIndex(int hLobbySteamID, int index); // Returns json of key/value data.
+extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
+extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
+extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
+extern "C" DLL_EXPORT int GetLobbyCreateCallbackState();
+extern "C" DLL_EXPORT int GetLobbyCreatedID();
+extern "C" DLL_EXPORT int GetLobbyCreatedResult();
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
+extern "C" DLL_EXPORT int GetLobbyEnterID();
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
@@ -127,7 +133,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);
-extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int iMember);
+extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index);
 //extern "C" DLL_EXPORT int GetLobbyChatMessageCallbackState();
 extern "C" DLL_EXPORT int HasLobbyChatMessage();
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
@@ -163,7 +169,6 @@ k_ELobbyComparisonNotEqual	3	The lobbies value must not match this this.
 */
 /*
 void AddRequestLobbyListResultCountFilter(int cMaxResults);
-SteamAPICall_t CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 */
 /*
 k_ELobbyTypePrivate	0	The only way to join the lobby is from an invite.
@@ -175,14 +180,10 @@ This is useful if you want a user in two lobbies, for example matching groups to
 /*
 bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
 */
-//CSteamID GetLobbyByIndex(int iLobby);
 /*
-const char * GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 const char * GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?
-SteamAPICall_t JoinLobby(CSteamID steamIDLobby);
-bool SendLobbyChatMsg(CSteamID steamIDLobby, const void *pvMsgBody, int cubMsgBody); // All users receive a LobbyChatMsg_t callback.
 
 bool SetLinkedLobby( CSteamID steamIDLobby, CSteamID steamIDLobbyDependent ); // Can this be done?
 bool SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue); // Triggers a LobbyGameCreated_t callback for all lobby users.
