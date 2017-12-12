@@ -120,10 +120,18 @@ extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
+extern "C" DLL_EXPORT int GetLobbyChatUpdateCallbackState();
+extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
+extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
+extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int iMember);
+extern "C" DLL_EXPORT int GetLobbyChatMessageReceivedCallbackState();
+extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
+extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
+
 /*
 int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
 bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);

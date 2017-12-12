@@ -58,8 +58,9 @@ SteamPlugin::SteamPlugin() :
 	m_LobbyMatchListCount(0),
 	m_LobbyEnterCallbackState(Idle),
 	m_LobbyEnterBlocked(false),
-	m_LobbyEnterResponse(0)
-
+	m_LobbyEnterResponse(0),
+	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
+	m_CallbackLobbyChatMessageReceived(this, &SteamPlugin::OnLobbyChatMessageReceived)
 {
 	// Nothing for now
 }
@@ -845,6 +846,10 @@ bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, cha
 // Callback for RequestLobbyList.
 void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
+	if (m_LobbyEnterCallbackState == Done)
+	{
+		agk::PluginError("OnLobbyEnter called while in done state.");
+	}
 	if (bIOFailure)
 	{
 		m_LobbyEnterCallbackState = ServerError;
@@ -852,8 +857,6 @@ void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 	else
 	{
 		m_LobbyEnterCallbackState = Done;
-		//pParam->m_bLocked;
-		//pParam->m_EChatRoomEnterResponse
 		m_LobbyEnterBlocked = pParam->m_bLocked;
 		m_LobbyEnterResponse = pParam->m_EChatRoomEnterResponse;
 	}
@@ -880,6 +883,18 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 		m_LobbyEnterCallbackState = ClientError;
 		return false;
 	}
+}
+
+void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
+{
+	if (m_LobbyChatUpdateCallbackState == Done)
+	{
+		agk::PluginError("OnLobbyChatUpdated called while in done state.");
+	}
+	m_LobbyChatUpdateCallbackState = Done;
+	m_LobbyChatUpdateUserChanged = pParam->m_ulSteamIDUserChanged;
+	m_LobbyChatUpdateUserState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
+	m_LobbyChatUpdateUserMakingChange = pParam->m_ulSteamIDMakingChange;
 }
 
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
@@ -926,3 +941,15 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 	}
 	return SteamMatchmaking()->GetLobbyMemberByIndex(steamIDLobby, iMember);
 }
+
+void SteamPlugin::OnLobbyChatMessageReceived(LobbyChatMsg_t *pParam)
+{
+	if (m_LobbyChatMessageReceivedCallbackState == Done)
+	{
+		agk::PluginError("OnLobbyChatMessageReceived called while in done state.");
+	}
+	m_LobbyChatMessageReceivedCallbackState = Done;
+	m_LobbyChatMessageUser = pParam->m_ulSteamIDUser;
+	SteamMatchmaking()->GetLobbyChatEntry(pParam->m_ulSteamIDLobby, pParam->m_iChatID, NULL, m_LobbyChatMessageText, 4096, NULL);
+}
+

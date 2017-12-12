@@ -857,6 +857,42 @@ void LeaveLobby(int hLobbySteamID)
 	}
 }
 
+int GetLobbyChatUpdateCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyChatUpdateCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
+}
+
+int GetLobbyChatUpdateUserChanged()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserChanged());
+	}
+	return 0;
+}
+
+int GetLobbyChatUpdateUserState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyChatUpdateUserState();
+	}
+	return 0;
+}
+
+int GetLobbyChatUpdateUserMakingChange()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
+	}
+	return 0;
+}
+
 int GetLobbyOwner(int hLobbySteamID)
 {
 	if (Steam)
@@ -891,4 +927,33 @@ int GetLobbyMemberByIndex(int hLobbySteamID, int iMember)
 		return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), iMember));
 	}
 	return 0;
+}
+
+int GetLobbyChatMessageReceivedCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyChatMessageReceivedCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
+}
+
+int GetLobbyChatMessageUser()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatMessageUser());
+	}
+	return 0;
+}
+
+char *GetLobbyChatMessageText()
+{
+	if (Steam)
+	{
+		char msg[4096];
+		Steam->GetLobbyChatMessageText(msg);
+		return CreateString(msg);
+	}
+	return CreateString(NULL);
 }

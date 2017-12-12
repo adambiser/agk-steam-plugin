@@ -95,7 +95,14 @@ GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,0
 GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,0
 GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,0
 LeaveLobby,0,I,LeaveLobby,0,0,0,0,0
+GetLobbyChatUpdateCallbackState,I,0,GetLobbyChatUpdateCallbackState,0,0,0,0,0
+GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,0
+GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,0
+GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,0
 GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,0
 GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,0
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,0
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,0
+GetLobbyChatMessageReceivedCallbackState,I,0,GetLobbyChatMessageReceivedCallbackState,0,0,0,0,0
+GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,0
+GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,0

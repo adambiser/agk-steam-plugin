@@ -87,6 +87,15 @@ private:
 	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
 	bool m_LobbyEnterBlocked;
 	uint32 m_LobbyEnterResponse;
+	ECallbackState m_LobbyChatUpdateCallbackState;
+	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
+	CSteamID m_LobbyChatUpdateUserChanged;
+	EChatMemberStateChange m_LobbyChatUpdateUserState;
+	CSteamID m_LobbyChatUpdateUserMakingChange;
+	ECallbackState m_LobbyChatMessageReceivedCallbackState;
+	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessageReceived, LobbyChatMsg_t, m_CallbackLobbyChatMessageReceived);
+	CSteamID m_LobbyChatMessageUser;
+	char m_LobbyChatMessageText[4096];
 
 	std::map<CSteamID, int> avatarsMap;
 	std::map<std::string, int> achievementIconsMap;
@@ -184,10 +193,17 @@ public:
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
 	void LeaveLobby(CSteamID steamIDLobby);
+	ECallbackState GetLobbyChatUpdateCallbackState() { return getCallbackState(&m_LobbyChatUpdateCallbackState); }
+	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
+	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
+	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
+	ECallbackState GetLobbyChatMessageReceivedCallbackState() { return getCallbackState(&m_LobbyChatMessageReceivedCallbackState); }
+	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
+	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, strlen(m_LobbyChatMessageText) + 1, m_LobbyChatMessageText); }
 };
 
 #endif // STEAMPLUGIN_H_
