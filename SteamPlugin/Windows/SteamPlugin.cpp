@@ -56,8 +56,10 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_LobbyMatchListCallbackState(Idle),
 	m_LobbyMatchListCount(0),
-	m_LobbyEnterCallbackState(Idle)
-	//m_CallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter)
+	m_LobbyEnterCallbackState(Idle),
+	m_LobbyEnterBlocked(false),
+	m_LobbyEnterResponse(0)
+
 {
 	// Nothing for now
 }
@@ -107,6 +109,8 @@ void SteamPlugin::Shutdown()
 		m_LobbyMatchListCallbackState = Idle;
 		m_LobbyMatchListCount = 0;
 		m_LobbyEnterCallbackState = Idle;
+		m_LobbyEnterBlocked = false;
+		m_LobbyEnterResponse = 0;
 	}
 }
 
@@ -841,13 +845,24 @@ bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, cha
 // Callback for RequestLobbyList.
 void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
-	m_LobbyEnterCallbackState = Done;
-	//pParam->m_bLocked;
-	//pParam->m_EChatRoomEnterResponse
+	if (bIOFailure)
+	{
+		m_LobbyEnterCallbackState = ServerError;
+	}
+	else
+	{
+		m_LobbyEnterCallbackState = Done;
+		//pParam->m_bLocked;
+		//pParam->m_EChatRoomEnterResponse
+		m_LobbyEnterBlocked = pParam->m_bLocked;
+		m_LobbyEnterResponse = pParam->m_EChatRoomEnterResponse;
+	}
 }
 
 bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 {
+	m_LobbyEnterBlocked = false;
+	m_LobbyEnterResponse = 0;
 	if (!m_SteamInitialized)
 	{
 		return false;
@@ -865,6 +880,15 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 		m_LobbyEnterCallbackState = ClientError;
 		return false;
 	}
+}
+
+void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return;
+	}
+	SteamMatchmaking()->LeaveLobby(steamIDLobby);
 }
 
 CSteamID SteamPlugin::GetLobbyOwner(CSteamID steamIDLobby)
@@ -892,4 +916,13 @@ int SteamPlugin::GetNumLobbyMembers(CSteamID steamIDLobby)
 		return 0;
 	}
 	return SteamMatchmaking()->GetNumLobbyMembers(steamIDLobby);
+}
+
+CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return k_steamIDNil;
+	}
+	return SteamMatchmaking()->GetLobbyMemberByIndex(steamIDLobby, iMember);
 }

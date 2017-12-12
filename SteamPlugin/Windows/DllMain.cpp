@@ -831,6 +831,32 @@ int GetLobbyEnterCallbackState()
 	return STATE_CLIENT_ERROR;
 }
 
+int GetLobbyEnterBlocked()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyEnterBlocked();
+	}
+	return 0;
+}
+
+int GetLobbyEnterResponse()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyEnterResponse();
+	}
+	return 0;
+}
+
+void LeaveLobby(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		Steam->LeaveLobby(GetSteamID(hLobbySteamID));
+	}
+}
+
 int GetLobbyOwner(int hLobbySteamID)
 {
 	if (Steam)
@@ -854,6 +880,15 @@ int GetNumLobbyMembers(int hLobbySteamID)
 	if (Steam)
 	{
 		return Steam->GetNumLobbyMembers(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+int GetLobbyMemberByIndex(int hLobbySteamID, int iMember)
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), iMember));
 	}
 	return 0;
 }

@@ -85,7 +85,8 @@ private:
 	ECallbackState m_LobbyEnterCallbackState;
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
-	//STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_CallResultLobbyEnter);
+	bool m_LobbyEnterBlocked;
+	uint32 m_LobbyEnterResponse;
 
 	std::map<CSteamID, int> avatarsMap;
 	std::map<std::string, int> achievementIconsMap;
@@ -180,10 +181,13 @@ public:
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
 	bool JoinLobby(CSteamID steamIDLobby);
 	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
+	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
+	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
+	void LeaveLobby(CSteamID steamIDLobby);
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
-	
+	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
 };
 
 #endif // STEAMPLUGIN_H_
