@@ -25,6 +25,8 @@ THE SOFTWARE.
 
 #include <steam_api.h>
 #include <map>
+#include <list>
+#include <vector>
 
 #define MAX_LEADERBOARD_ENTRIES 10
 
@@ -86,16 +88,32 @@ private:
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
 	bool m_LobbyEnterBlocked;
-	uint32 m_LobbyEnterResponse;
-	ECallbackState m_LobbyChatUpdateCallbackState;
+	EChatRoomEnterResponse m_LobbyEnterResponse;
+
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
 	CSteamID m_LobbyChatUpdateUserChanged;
 	EChatMemberStateChange m_LobbyChatUpdateUserState;
 	CSteamID m_LobbyChatUpdateUserMakingChange;
-	ECallbackState m_LobbyChatMessageReceivedCallbackState;
-	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessageReceived, LobbyChatMsg_t, m_CallbackLobbyChatMessageReceived);
-	CSteamID m_LobbyChatMessageUser;
+	struct ChatUpdateInfo_t
+	{
+		CSteamID userChanged;
+		EChatMemberStateChange userState;
+		CSteamID userMakingChange;
+	};
+	std::list<ChatUpdateInfo_t> m_ChatUpdates;
+
+	std::vector<CSteamID> m_JoinedLobbies;
+
+	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
+	CSteamID m_LobbyChatMessageUser; // Holds next chat message user after HasLobbyChatMessage call.
 	char m_LobbyChatMessageText[4096];
+
+	struct ChatMessageInfo_t
+	{
+		CSteamID user;
+		char text[4096];
+	};
+	std::list<ChatMessageInfo_t> m_ChatMessages;
 
 	std::map<CSteamID, int> avatarsMap;
 	std::map<std::string, int> achievementIconsMap;
@@ -186,24 +204,30 @@ public:
 	CSteamID GetLobbyByIndex(int iLobby);
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
 	int GetLobbyMatchListCount() { return m_LobbyMatchListCount; }
+	// Lobby data
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
+	// Join, Create, Leave.
 	bool JoinLobby(CSteamID steamIDLobby);
 	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
 	void LeaveLobby(CSteamID steamIDLobby);
-	ECallbackState GetLobbyChatUpdateCallbackState() { return getCallbackState(&m_LobbyChatUpdateCallbackState); }
+	// Lobby chat updates
+	bool HasLobbyChatUpdate();
 	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
 	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
 	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
+	// Lobby members
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
-	ECallbackState GetLobbyChatMessageReceivedCallbackState() { return getCallbackState(&m_LobbyChatMessageReceivedCallbackState); }
+	// Lobby chat messages
+	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
 	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, strlen(m_LobbyChatMessageText) + 1, m_LobbyChatMessageText); }
+	bool SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody);
 };
 
 #endif // STEAMPLUGIN_H_

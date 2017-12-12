@@ -58,9 +58,9 @@ SteamPlugin::SteamPlugin() :
 	m_LobbyMatchListCount(0),
 	m_LobbyEnterCallbackState(Idle),
 	m_LobbyEnterBlocked(false),
-	m_LobbyEnterResponse(0),
+	m_LobbyEnterResponse((EChatRoomEnterResponse)0),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
-	m_CallbackLobbyChatMessageReceived(this, &SteamPlugin::OnLobbyChatMessageReceived)
+	m_CallbackLobbyChatMessage(this, &SteamPlugin::OnLobbyChatMessage)
 {
 	// Nothing for now
 }
@@ -87,6 +87,12 @@ void SteamPlugin::Shutdown()
 {
 	if (m_SteamInitialized)
 	{
+		// Disconnect from any lobbies.
+		while (m_JoinedLobbies.size() > 0)
+		{
+			LeaveLobby(m_JoinedLobbies.back());
+			m_JoinedLobbies.pop_back();
+		}
 		SteamAPI_Shutdown();
 		// Reset member variables.
 		m_AppID = 0;
@@ -111,7 +117,7 @@ void SteamPlugin::Shutdown()
 		m_LobbyMatchListCount = 0;
 		m_LobbyEnterCallbackState = Idle;
 		m_LobbyEnterBlocked = false;
-		m_LobbyEnterResponse = 0;
+		m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
 	}
 }
 
@@ -858,21 +864,29 @@ void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 	{
 		m_LobbyEnterCallbackState = Done;
 		m_LobbyEnterBlocked = pParam->m_bLocked;
-		m_LobbyEnterResponse = pParam->m_EChatRoomEnterResponse;
+		m_LobbyEnterResponse = (EChatRoomEnterResponse) pParam->m_EChatRoomEnterResponse;
+		if (!pParam->m_bLocked && pParam->m_EChatRoomEnterResponse == k_EChatRoomEnterResponseSuccess)
+		{
+			// Add to list of joined lobbies.
+			auto it = std::find(m_JoinedLobbies.begin(), m_JoinedLobbies.end(), pParam->m_ulSteamIDLobby);
+			if (it != m_JoinedLobbies.end())
+			{
+				m_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
+			}
+		}
 	}
 }
 
 bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 {
 	m_LobbyEnterBlocked = false;
-	m_LobbyEnterResponse = 0;
+	m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
 	if (!m_SteamInitialized)
 	{
 		return false;
 	}
 	try
 	{
-		//SteamMatchmaking()->JoinLobby(steamIDLobby);
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->JoinLobby(steamIDLobby);
 		m_CallResultLobbyEnter.Set(hSteamAPICall, this, &SteamPlugin::OnLobbyEnter);
 		m_LobbyEnterCallbackState = Running;
@@ -887,14 +901,29 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 
 void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
 {
-	if (m_LobbyChatUpdateCallbackState == Done)
+	//m_LobbyChatUpdateCallbackState = Done;
+	ChatUpdateInfo_t info;
+	info.userChanged= pParam->m_ulSteamIDUserChanged;
+	info.userState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
+	info.userMakingChange = pParam->m_ulSteamIDMakingChange;
+	m_ChatUpdates.push_back(info);
+}
+
+bool SteamPlugin::HasLobbyChatUpdate()
+{
+	if (m_ChatUpdates.size() > 0)
 	{
-		agk::PluginError("OnLobbyChatUpdated called while in done state.");
+		ChatUpdateInfo_t info = m_ChatUpdates.front();
+		m_LobbyChatUpdateUserChanged = info.userChanged;
+		m_LobbyChatUpdateUserState = info.userState;
+		m_LobbyChatUpdateUserMakingChange = info.userMakingChange;
+		m_ChatUpdates.pop_front();
+		return true;
 	}
-	m_LobbyChatUpdateCallbackState = Done;
-	m_LobbyChatUpdateUserChanged = pParam->m_ulSteamIDUserChanged;
-	m_LobbyChatUpdateUserState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
-	m_LobbyChatUpdateUserMakingChange = pParam->m_ulSteamIDMakingChange;
+	m_LobbyChatUpdateUserChanged = k_steamIDNil;
+	m_LobbyChatUpdateUserState = (EChatMemberStateChange) 0;
+	m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
+	return false;
 }
 
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
@@ -904,6 +933,12 @@ void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
 		return;
 	}
 	SteamMatchmaking()->LeaveLobby(steamIDLobby);
+	// Remove from list of joined lobbies.
+	auto it = std::find(m_JoinedLobbies.begin(), m_JoinedLobbies.end(), steamIDLobby);
+	if (it != m_JoinedLobbies.end())
+	{
+		m_JoinedLobbies.erase(it);
+	}
 }
 
 CSteamID SteamPlugin::GetLobbyOwner(CSteamID steamIDLobby)
@@ -942,14 +977,35 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 	return SteamMatchmaking()->GetLobbyMemberByIndex(steamIDLobby, iMember);
 }
 
-void SteamPlugin::OnLobbyChatMessageReceived(LobbyChatMsg_t *pParam)
+void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
-	if (m_LobbyChatMessageReceivedCallbackState == Done)
-	{
-		agk::PluginError("OnLobbyChatMessageReceived called while in done state.");
-	}
-	m_LobbyChatMessageReceivedCallbackState = Done;
-	m_LobbyChatMessageUser = pParam->m_ulSteamIDUser;
-	SteamMatchmaking()->GetLobbyChatEntry(pParam->m_ulSteamIDLobby, pParam->m_iChatID, NULL, m_LobbyChatMessageText, 4096, NULL);
+	//m_LobbyChatMessageCallbackState = Done;
+	ChatMessageInfo_t info;
+	info.user = pParam->m_ulSteamIDUser;
+	SteamMatchmaking()->GetLobbyChatEntry(pParam->m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.text, 4096, NULL);
+	m_ChatMessages.push_back(info);
 }
 
+bool SteamPlugin::HasLobbyChatMessage()
+{
+	if (m_ChatMessages.size() > 0)
+	{
+		ChatMessageInfo_t info = m_ChatMessages.front();
+		m_LobbyChatMessageUser = info.user;
+		strcpy_s(m_LobbyChatMessageText, strlen(info.text) + 1, info.text);
+		m_ChatMessages.pop_front();
+		return true;
+	}
+	m_LobbyChatMessageUser = k_steamIDNil;
+	*m_LobbyChatMessageText = NULL;
+	return false;
+}
+
+bool SteamPlugin::SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return false;
+	}
+	return SteamMatchmaking()->SendLobbyChatMsg(steamIDLobby, pvMsgBody, strlen(pvMsgBody) + 1);
+}

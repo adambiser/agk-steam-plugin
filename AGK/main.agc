@@ -46,6 +46,26 @@ CreateUI()
 #constant LEADERBOARD_SORT_ASCENDING	1
 #constant LEADERBOARD_SORT_DESCENDING	2
 
+// Constants from https://partner.steamgames.com/doc/api/steam_api#EChatRoomEnterResponse
+#constant LOBBY_ENTER_RESPONSE_SUCCESS				1	// Success.
+#constant LOBBY_ENTER_RESPONSE_DOESNT_EXIST			2	// Chat doesn't exist (probably closed).
+#constant LOBBY_ENTER_RESPONSE_NOT_ALLOWED			3	// General Denied - You don't have the permissions needed to join the chat.
+#constant LOBBY_ENTER_RESPONSE_FULL					4	// Chat room has reached its maximum size.
+#constant LOBBY_ENTER_RESPONSE_ERROR				5	// Unexpected Error.
+#constant LOBBY_ENTER_RESPONSE_BANNED				6	// You are banned from this chat room and may not join.
+#constant LOBBY_ENTER_RESPONSE_LIMITED				7	// Joining this chat is not allowed because you are a limited user (no value on account).
+#constant LOBBY_ENTER_RESPONSE_CLAN_DISABLED		8	// Attempt to join a clan chat when the clan is locked or disabled.
+#constant LOBBY_ENTER_RESPONSE_COMMUNITY_BAN		9	// Attempt to join a chat when the user has a community lock on their account.
+#constant LOBBY_ENTER_RESPONSE_MEMBER_BLOCKED_YOU	10	// Join failed - a user that is in the chat has blocked you from joining.
+#constant LOBBY_ENTER_RESPONSE_YOU_BLOCKED_MEMBER	11	// Join failed - you have blocked a user that is already in the chat.
+
+// Constants from https://partner.steamgames.com/doc/api/ISteamMatchmaking#EChatMemberStateChange
+#constant CHAT_USER_STATE_ENTERED		0x0001	// This user has joined or is joining the lobby.
+#constant CHAT_USER_STATE_LEFT			0x0002	// This user has left or is leaving the lobby.
+#constant CHAT_USER_STATE_DISCONNECTED	0x0004	// User disconnected without leaving the lobby first.
+#constant CHAT_USER_STATE_KICKED		0x0008	// The user has been kicked.
+#constant CHAT_USER_STATE_BANNED		0x0010	// The user has been kicked and banned.
+
 // Avatar sizes
 #constant AVATAR_SMALL	0
 #constant AVATAR_MEDIUM	1
@@ -68,9 +88,12 @@ Type SteamServerInfo
 	downloadTop10Avatars as integer
 	avatarHandle as integer
 	needToFindLobbies as integer
+	joinFirstLobby as integer
+	hLobby as integer
 EndType
 server.avatarHandle = -1 // Use -1 to indicate that the avatar needs to be loaded.
 server.needToFindLobbies = 1
+server.joinFirstLobby = 1
 
 global dict as KeyValuePair[]
 Type KeyValuePair
@@ -187,12 +210,13 @@ global errorReported as integer[4]
 #constant ERROR_DOWNLOADENTRIES	4
 #constant ERROR_LOBBYMATCH		5
 
+global frame as integer
 //
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
 	x as integer
-	hLobby as integer
+	hSteamID as integer
 	//
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
@@ -254,20 +278,23 @@ Function ProcessCallbacks()
 			AddStatus("Lobbies Found: " + str(Steam.GetLobbyMatchListCount()))
 			if Steam.GetLobbyMatchListCount() > 0
 				AddStatus("Showing first...")
-				hLobby = Steam.GetLobbyByIndex(0)
-				AddStatus("Members: " + str(Steam.GetNumLobbyMembers(hLobby)) + ", max: " + str(Steam.GetLobbyMemberLimit(hLobby)))
+				server.hLobby = Steam.GetLobbyByIndex(0)
+				AddStatus("Members: " + str(Steam.GetNumLobbyMembers(server.hLobby)) + ", max: " + str(Steam.GetLobbyMemberLimit(server.hLobby)))
 				// NOTE: This should typically only ever be used for debugging purposes. Devs should already know lobby data keys.
 				count as integer
-				count = Steam.GetLobbyDataCount(hLobby)
+				count = Steam.GetLobbyDataCount(server.hLobby)
 				AddStatus("Data Count = " + str(count))
 				for x = 0 to count - 1
 					kv as KeyValuePair
-					kv.fromJson(Steam.GetLobbyDataByIndex(hLobby, x))
-					AddStatus("    " + kv.key + ": " + kv.value)
-					//AddStatus("---->" + Steam.GetLobbyDataByIndex(hLobby, y) + "<")
+					kv.fromJson(Steam.GetLobbyDataByIndex(server.hLobby, x))
+					//~ AddStatus("    " + kv.key + ": " + kv.value)
+					//AddStatus("---->" + Steam.GetLobbyDataByIndex(server.hLobby, y) + "<")
 				next
-				AddStatus("Joining lobby...")
-				Steam.JoinLobby(hLobby)
+				if server.joinFirstLobby
+					server.joinFirstLobby = 0
+					AddStatus("Joining lobby...")
+					Steam.JoinLobby(server.hLobby)
+				endif
 			endif
 		endcase
 		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
@@ -278,14 +305,55 @@ Function ProcessCallbacks()
 		endcase
 	endselect
 	select Steam.GetLobbyEnterCallbackState()
-		case STATE_DONE
-			AddStatus("Joined lobby.")
-			// Can only show owner and members after joining.
-			hOwner as integer
-			hOwner = Steam.GetLobbyOwner(hLobby)
-			AddStatus("Owner: " + str(hOwner) + " = " + Steam.GetFriendPersonaName(hOwner))
+		case STATE_DONE // Only care about the DONE state.
+			if Steam.GetLobbyEnterResponse() = LOBBY_ENTER_RESPONSE_SUCCESS
+				AddStatus("Joined lobby.")
+				// Can only show owner and members after joining.
+				hOwner as integer
+				hOwner = Steam.GetLobbyOwner(server.hLobby)
+				AddStatus("Owner: " + Steam.GetFriendPersonaName(hOwner))
+				AddStatus("Members:")
+				for x = 0 to Steam.GetNumLobbyMembers(server.hLobby) - 1
+					hSteamID = Steam.GetLobbyMemberByIndex(server.hLobby, x)
+					AddStatus("    " + Steam.GetFriendPersonaName(hSteamID))
+				next
+				Steam.SendLobbyChatMessage(server.hLobby, "Test 1")
+				Steam.SendLobbyChatMessage(server.hLobby, "Test 2")
+				//~ AddStatus("Leaving  lobby...")
+				//~ Steam.LeaveLobby(server.hLobby)
+			else
+				AddStatus("Failed to join lobby.  Response = " + str(Steam.GetLobbyEnterResponse()))
+			endif
 		endcase
 	endselect
+	while Steam.HasLobbyChatMessage()
+		AddStatus(Steam.GetFriendPersonaName(Steam.GetLobbyChatMessageUser()) + ": " + Steam.GetLobbyChatMessageText())
+	endwhile
+	while Steam.HasLobbyChatUpdate()
+		text as string
+		text = "Lobby update: " + Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserChanged())
+		select Steam.GetLobbyChatUpdateUserState()
+			case CHAT_USER_STATE_ENTERED
+				text = text + " entered the lobby."
+			endcase
+			case CHAT_USER_STATE_LEFT
+				text = text + " left the lobby."
+			endcase
+			case CHAT_USER_STATE_DISCONNECTED
+				text = text + " disconnected."
+			endcase
+			case CHAT_USER_STATE_KICKED
+				text = text + " was kicked by " + Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserMakingChange()) + "."
+			endcase
+			case CHAT_USER_STATE_BANNED
+				text = text + " was banned by " + Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserMakingChange()) + "."
+			endcase
+			case default
+				text = text + " has unknown state: " + str(Steam.GetLobbyChatUpdateUserState())
+			endcase
+		endselect
+		AddStatus(text)
+	endwhile
 	//
 	// Nothing else can be done until user stats are loaded.
 	//
@@ -418,7 +486,6 @@ Function ProcessCallbacks()
 	//
 	// Process DownloadLeaderboardEntries callback.
 	//
-	steamID as integer
 	select Steam.GetDownloadLeaderboardEntriesCallbackState()
 		case STATE_IDLE
 			if server.downloadRank
@@ -434,8 +501,8 @@ Function ProcessCallbacks()
 			if server.downloadRank
 				server.downloadRank = 0 // Clear flag
 				if Steam.GetDownloadedLeaderboardEntryCount()
-					steamID = Steam.GetDownloadedLeaderboardEntryUser(0)
-					AddStatus("User rank: #" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(0)) + ", User: " + Steam.GetFriendPersonaName(steamID))
+					hSteamID = Steam.GetDownloadedLeaderboardEntryUser(0)
+					AddStatus("User rank: #" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(0)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(0)) + ", User: " + Steam.GetFriendPersonaName(hSteamID))
 				else
 					AddStatus("User has no global rank.")
 				endif
@@ -444,8 +511,8 @@ Function ProcessCallbacks()
 				AddStatus("--- Global leaders ---")
 				AddStatus("GetDownloadedLeaderboardEntryCount: " + str(Steam.GetDownloadedLeaderboardEntryCount()))
 				for x = 0 to Steam.GetDownloadedLeaderboardEntryCount() - 1
-					steamID = Steam.GetDownloadedLeaderboardEntryUser(x)
-					AddStatus("#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(x)) + ", User: " + Steam.GetFriendPersonaName(steamID))
+					hSteamID = Steam.GetDownloadedLeaderboardEntryUser(x)
+					AddStatus("#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(x)) + ", Score: " + str(Steam.GetDownloadedLeaderboardEntryScore(x)) + ", User: " + Steam.GetFriendPersonaName(hSteamID))
 				next
 				// Load an avatar from the leaderboard.
 				// From how Steam docs read, small and medium images are already cached when the leaderboard is requested
@@ -453,8 +520,8 @@ Function ProcessCallbacks()
 					leaderAvatarHandle as integer
 					leaderAvatarImageID as integer
 					for x = 0 to Steam.GetDownloadedLeaderboardEntryCount() - 1
-						steamID = Steam.GetDownloadedLeaderboardEntryUser(x)
-						leaderAvatarHandle = Steam.GetFriendAvatar(steamID, AVATAR_MEDIUM)
+						hSteamID = Steam.GetDownloadedLeaderboardEntryUser(x)
+						leaderAvatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_MEDIUM)
 						if leaderAvatarHandle > 0
 							leaderAvatarImageID = Steam.LoadImageFromHandle(leaderAvatarHandle)
 							if leaderAvatarImageID
