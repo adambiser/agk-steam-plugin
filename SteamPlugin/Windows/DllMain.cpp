@@ -940,42 +940,6 @@ void LeaveLobby(int hLobbySteamID)
 	}
 }
 
-int HasLobbyChatUpdate()
-{
-	if (Steam)
-	{
-		return Steam->HasLobbyChatUpdate();
-	}
-	return false;
-}
-
-int GetLobbyChatUpdateUserChanged()
-{
-	if (Steam)
-	{
-		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserChanged());
-	}
-	return 0;
-}
-
-int GetLobbyChatUpdateUserState()
-{
-	if (Steam)
-	{
-		return Steam->GetLobbyChatUpdateUserState();
-	}
-	return 0;
-}
-
-int GetLobbyChatUpdateUserMakingChange()
-{
-	if (Steam)
-	{
-		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
-	}
-	return 0;
-}
-
 int GetLobbyOwner(int hLobbySteamID)
 {
 	if (Steam)
@@ -1008,6 +972,42 @@ int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 	if (Steam)
 	{
 		return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), index));
+	}
+	return 0;
+}
+
+int HasLobbyChatUpdate()
+{
+	if (Steam)
+	{
+		return Steam->HasLobbyChatUpdate();
+	}
+	return false;
+}
+
+int GetLobbyChatUpdateUserChanged()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserChanged());
+	}
+	return 0;
+}
+
+int GetLobbyChatUpdateUserState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyChatUpdateUserState();
+	}
+	return 0;
+}
+
+int GetLobbyChatUpdateUserMakingChange()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
 	}
 	return 0;
 }

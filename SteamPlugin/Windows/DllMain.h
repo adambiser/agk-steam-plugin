@@ -126,15 +126,14 @@ extern "C" DLL_EXPORT int GetLobbyEnterID();
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
-extern "C" DLL_EXPORT int HasLobbyChatUpdate();
-extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
-extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
-extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index);
-//extern "C" DLL_EXPORT int GetLobbyChatMessageCallbackState();
+extern "C" DLL_EXPORT int HasLobbyChatUpdate();
+extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
+extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
+extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 extern "C" DLL_EXPORT int HasLobbyChatMessage();
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
@@ -146,41 +145,14 @@ bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQu
 int GetFavoriteGameCount();
 
 void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
-*/
-/*
-k_ELobbyDistanceFilterClose	0	Only lobbies in the same immediate region will be returned.
-k_ELobbyDistanceFilterDefault	1	Only lobbies in the same region or nearby regions will be returned.
-k_ELobbyDistanceFilterFar	2	For games that don't have many latency requirements, will return lobbies about half-way around the globe.
-k_ELobbyDistanceFilterWorldwide	3	No filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients).
-*/
-/*
 void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
 void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
 void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
 void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
-*/
-/*
-k_ELobbyComparisonEqualToOrLessThan	-2	The lobbies value must be equal to or less than this one.
-k_ELobbyComparisonLessThan	-1	The lobbies value must be less than this one.
-k_ELobbyComparisonEqual	0	The lobbies value must match this this one exactly.
-k_ELobbyComparisonGreaterThan	1	The lobbies value must be greater than this one.
-k_ELobbyComparisonEqualToOrGreaterThan	2	The lobbies value must be equal to or greater than this one.
-k_ELobbyComparisonNotEqual	3	The lobbies value must not match this this.
-*/
-/*
 void AddRequestLobbyListResultCountFilter(int cMaxResults);
-*/
-/*
-k_ELobbyTypePrivate	0	The only way to join the lobby is from an invite.
-k_ELobbyTypeFriendsOnly	1	Joinable by friends and invitees, but does not show up in the lobby list.
-k_ELobbyTypePublic	2	Returned by search and visible to friends.
-k_ELobbyTypeInvisible	3	Returned by search, but not visible to other friends.
-This is useful if you want a user in two lobbies, for example matching groups together. A user can be in only one regular lobby, and up to two invisible lobbies.
-*/
-/*
+
 bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
-*/
-/*
+
 bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 const char * GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?

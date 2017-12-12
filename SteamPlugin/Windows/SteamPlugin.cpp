@@ -963,33 +963,6 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 	}
 }
 
-void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
-{
-	//m_LobbyChatUpdateCallbackState = Done;
-	ChatUpdateInfo_t info;
-	info.userChanged= pParam->m_ulSteamIDUserChanged;
-	info.userState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
-	info.userMakingChange = pParam->m_ulSteamIDMakingChange;
-	m_ChatUpdates.push_back(info);
-}
-
-bool SteamPlugin::HasLobbyChatUpdate()
-{
-	if (m_ChatUpdates.size() > 0)
-	{
-		ChatUpdateInfo_t info = m_ChatUpdates.front();
-		m_LobbyChatUpdateUserChanged = info.userChanged;
-		m_LobbyChatUpdateUserState = info.userState;
-		m_LobbyChatUpdateUserMakingChange = info.userMakingChange;
-		m_ChatUpdates.pop_front();
-		return true;
-	}
-	m_LobbyChatUpdateUserChanged = k_steamIDNil;
-	m_LobbyChatUpdateUserState = (EChatMemberStateChange) 0;
-	m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
-	return false;
-}
-
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
 {
 	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
@@ -1039,6 +1012,33 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 		return k_steamIDNil;
 	}
 	return SteamMatchmaking()->GetLobbyMemberByIndex(steamIDLobby, iMember);
+}
+
+void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
+{
+	//m_LobbyChatUpdateCallbackState = Done;
+	ChatUpdateInfo_t info;
+	info.userChanged= pParam->m_ulSteamIDUserChanged;
+	info.userState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
+	info.userMakingChange = pParam->m_ulSteamIDMakingChange;
+	m_ChatUpdates.push_back(info);
+}
+
+bool SteamPlugin::HasLobbyChatUpdate()
+{
+	if (m_ChatUpdates.size() > 0)
+	{
+		ChatUpdateInfo_t info = m_ChatUpdates.front();
+		m_LobbyChatUpdateUserChanged = info.userChanged;
+		m_LobbyChatUpdateUserState = info.userState;
+		m_LobbyChatUpdateUserMakingChange = info.userMakingChange;
+		m_ChatUpdates.pop_front();
+		return true;
+	}
+	m_LobbyChatUpdateUserChanged = k_steamIDNil;
+	m_LobbyChatUpdateUserState = (EChatMemberStateChange) 0;
+	m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
+	return false;
 }
 
 void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)

@@ -207,39 +207,39 @@ public:
 	int GetDownloadedLeaderboardEntryGlobalRank(int index);
 	int GetDownloadedLeaderboardEntryScore(int index);
 	CSteamID GetDownloadedLeaderboardEntryUser(int index);
-	// Lobby
+	// Lobby methods: List
 	bool RequestLobbyList();
 	CSteamID GetLobbyByIndex(int iLobby);
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
 	int GetLobbyMatchListCount() { return m_LobbyMatchListCount; }
-	// Lobby data
+	// Lobby methods: Data
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
-	// Create, Join, Leave.
+	// Lobby methods: Create
 	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
 	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
 	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
-	// Join
+	// Lobby methods: Join
 	bool JoinLobby(CSteamID steamIDLobby);
 	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
 	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
-	// Leave
+	// Lobby methods: Leave
 	void LeaveLobby(CSteamID steamIDLobby);
-	// Lobby chat updates
-	bool HasLobbyChatUpdate();
-	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
-	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
-	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
-	// Lobby members
+	// Lobby methods:  members
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
-	// Lobby chat messages
+	// Lobby methods: Member status
+	bool HasLobbyChatUpdate();
+	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
+	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
+	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
+	// Lobby methods: Chat messages
 	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
 	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, strlen(m_LobbyChatMessageText) + 1, m_LobbyChatMessageText); }

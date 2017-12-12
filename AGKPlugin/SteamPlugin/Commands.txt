@@ -56,15 +56,21 @@ SetStatInt,I,SI,SetStatInt,0,0,0,0,0
 SetStatFloat,I,SF,SetStatFloat,0,0,0,0,0
 UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,0
 #
-# Leaderboard methods
+# Leaderboard methods: Find
 #
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,0
 GetFindLeaderboardCallbackState,I,0,GetFindLeaderboardCallbackState,0,0,0,0,0
 GetLeaderboardHandle,I,0,GetLeaderboardHandle,0,0,0,0,0
+#
+# Leaderboard methods: Information
+#
 GetLeaderboardName,S,I,GetLeaderboardName,0,0,0,0,0
 GetLeaderboardEntryCount,I,I,GetLeaderboardEntryCount,0,0,0,0,0
 GetLeaderboardDisplayType,I,I,GetLeaderboardDisplayType,0,0,0,0,0
 GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,0
+#
+# Leaderboard methods: Upload
+#
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,0
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,0
 GetUploadLeaderboardScoreCallbackState,I,0,GetUploadLeaderboardScoreCallbackState,0,0,0,0,0
@@ -73,6 +79,9 @@ LeaderboardScoreChanged,I,0,LeaderboardScoreChanged,0,0,0,0,0
 GetLeaderboardUploadedScore,I,0,GetLeaderboardUploadedScore,0,0,0,0,0
 GetLeaderboardGlobalRankNew,I,0,GetLeaderboardGlobalRankNew,0,0,0,0,0
 GetLeaderboardGlobalRankPrevious,I,0,GetLeaderboardGlobalRankPrevious,0,0,0,0,0
+#
+# Leaderboard methods: Download
+#
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,0
 GetDownloadLeaderboardEntriesCallbackState,I,0,GetDownloadLeaderboardEntriesCallbackState,0,0,0,0,0
 GetDownloadedLeaderboardEntryCount,I,0,GetDownloadedLeaderboardEntryCount,0,0,0,0,0
@@ -82,34 +91,52 @@ GetDownloadedLeaderboardEntryUser,I,I,GetDownloadedLeaderboardEntryUser,0,0,0,0,
 # TODO REMOVE GetDownloadedLeaderboardEntryPersonaName,S,I,GetDownloadedLeaderboardEntryPersonaName,0,0,0,0,0
 # TODO REMOVE GetDownloadedLeaderboardEntryAvatar,I,II,GetDownloadedLeaderboardEntryAvatar,0,0,0,0,0
 #
-# Lobby methods
+# Lobby methods: List
 #
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,0
 GetLobbyMatchListCallbackState,I,0,GetLobbyMatchListCallbackState,0,0,0,0,0
 GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,0
 GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,0
+#
+# Lobby methods: Data
+#
 GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
 GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
 GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,0
 GetLobbyData,S,IS,GetLobbyData,0,0,0,0,0
+#
+# Lobby methods: Create
+#
 CreateLobby,I,II,CreateLobby,0,0,0,0,0
 GetLobbyCreateCallbackState,I,0,GetLobbyCreateCallbackState,0,0,0,0,0
 GetLobbyCreatedID,I,0,GetLobbyCreatedID,0,0,0,0,0
 GetLobbyCreatedResult,I,0,GetLobbyCreatedResult,0,0,0,0,0
+#
+# Lobby methods: Join
+#
 JoinLobby,I,I,JoinLobby,0,0,0,0,0
 GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,0
 GetLobbyEnterID,I,0,GetLobbyEnterID,0,0,0,0,0
 GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,0
 GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,0
+#
+# Lobby methods: Leave
+#
 LeaveLobby,0,I,LeaveLobby,0,0,0,0,0
-HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,0
-GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,0
-GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,0
-GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,0
+#
+# Lobby methods: Members
+#
 GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,0
 GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,0
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,0
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,0
+HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,0
+GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,0
+GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,0
+GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,0
+#
+# Lobby methods: Chat Messages
+#
 HasLobbyChatMessage,I,0,HasLobbyChatMessage,0,0,0,0,0
 GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,0
 GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,0
