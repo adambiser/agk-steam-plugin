@@ -33,6 +33,7 @@ splash_960_path=
 uses_ads=0
 version_number=
 firebase_config_path=
+splash_2436_path=
 
 [html5_settings]
 commands_used=0
@@ -43,7 +44,7 @@ output_path=
 FILE_0=main.agc;-1
 
 [files]
-FILE_NAME_0=1;main.agc;9386;1
+FILE_NAME_0=1;main.agc;1172;0
 
 [project]
 description=

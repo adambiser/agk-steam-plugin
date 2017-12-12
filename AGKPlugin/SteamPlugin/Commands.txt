@@ -105,10 +105,22 @@ GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
 GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,0
 GetLobbyData,S,IS,GetLobbyData,0,0,0,0,0
 RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,0
-#GetLobbyDataUpdateCallbackState,I,0,GetLobbyDataUpdateCallbackState,0,0,0,0,0
 HasLobbyDataUpdated,I,0,HasLobbyDataUpdated,0,0,0,0,0
 GetLobbyDataUpdatedLobby,I,0,GetLobbyDataUpdatedLobby,0,0,0,0,0
 GetLobbyDataUpdatedID,I,0,GetLobbyDataUpdatedID,0,0,0,0,0
+GetLobbyMemberData,S,IIS,GetLobbyMemberData,0,0,0,0,0
+SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,0
+#
+# Lobby methods: Owner methods
+#
+#DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,0
+SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,0
+#SetLinkedLobby,I,II,SetLinkedLobby,0,0,0,0,0
+#SetLobbyGameServer,0,IIII,SetLobbyGameServer,0,0,0,0,0
+#SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,0
+#SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0
+#SetLobbyOwner,I,II,SetLobbyOwner,0,0,0,0,0
+#SetLobbyType,I,II,SetLobbyType,0,0,0,0,0
 #
 # Lobby methods: Create
 #

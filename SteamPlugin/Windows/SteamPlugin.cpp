@@ -860,11 +860,25 @@ const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
 	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
 }
 
+bool SteamPlugin::RequestLobbyData(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return false;
+	}
+	return SteamMatchmaking()->RequestLobbyData(steamIDLobby);
+}
+
 void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 {
 	if (!pParam->m_bSuccess)
 	{
 		//m_LobbyDataUpdateCallbackState = ServerError;
+		// Report nil steam ids for failure.
+		LobbyDataUpdateInfo_t info;
+		info.lobby = k_steamIDNil;
+		info.changedID = k_steamIDNil;
+		m_LobbyDataUpdated.push_back(info);
 	}
 	else
 	{
@@ -873,8 +887,6 @@ void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 		info.lobby = pParam->m_ulSteamIDLobby;
 		info.changedID = pParam->m_ulSteamIDMember;
 		m_LobbyDataUpdated.push_back(info);
-		//m_LobbyDataUpdatedLobby = pParam->m_ulSteamIDLobby;
-		//m_LobbyDataUpdatedID = pParam->m_ulSteamIDMember;
 	}
 }
 
@@ -891,6 +903,33 @@ bool SteamPlugin::HasLobbyDataUpdated()
 	m_LobbyDataUpdatedLobby = k_steamIDNil;
 	m_LobbyDataUpdatedID = k_steamIDNil;
 	return false;
+}
+
+const char *SteamPlugin::GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return NULL;
+	}
+	return SteamMatchmaking()->GetLobbyMemberData(steamIDLobby, steamIDUser, pchKey);
+}
+
+void SteamPlugin::SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return;
+	}
+	SteamMatchmaking()->SetLobbyMemberData(steamIDLobby, pchKey, pchValue);
+}
+
+void SteamPlugin::SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return;
+	}
+	SteamMatchmaking()->SetLobbyData(steamIDLobby, pchKey, pchValue);
 }
 
 // Callback for CreateLobby.

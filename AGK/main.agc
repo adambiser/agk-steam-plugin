@@ -337,6 +337,9 @@ Function ProcessCallbacks()
 				next
 				Steam.SendLobbyChatMessage(server.hLobby, "Test 1")
 				Steam.SendLobbyChatMessage(server.hLobby, "Test 2")
+				AddStatus("Setting some lobby and member data...")
+				Steam.SetLobbyData(server.hLobby, "lobby_data", "Here's some lobby data.")
+				Steam.SetLobbyMemberData(server.hLobby, "member_data", "And here's some member data.")
 				//~ AddStatus("Leaving  lobby...")
 				//~ Steam.LeaveLobby(server.hLobby)
 			else
@@ -346,6 +349,11 @@ Function ProcessCallbacks()
 	endselect
 	while Steam.HasLobbyDataUpdated()
 		AddStatus("Lobby data updated.  Lobby handle: " + str(Steam.GetLobbyDataUpdatedLobby()) + ", updated handle: " + str(Steam.GetLobbyDataUpdatedID()))
+		if Steam.GetLobbyDataUpdatedLobby() = Steam.GetLobbyDataUpdatedID()
+			AddStatus("    Lobby data:" + Steam.GetLobbyData(server.hLobby, "lobby_data"))
+		else
+			AddStatus("    Member " + Steam.GetFriendPersonaName(Steam.GetLobbyDataUpdatedID()) + " data:" + Steam.GetLobbyMemberData(server.hLobby, Steam.GetLobbyDataUpdatedID(), "member_data"))
+		endif
 	endwhile
 	while Steam.HasLobbyChatMessage()
 		AddStatus(Steam.GetFriendPersonaName(Steam.GetLobbyChatMessageUser()) + ": " + Steam.GetLobbyChatMessageText())

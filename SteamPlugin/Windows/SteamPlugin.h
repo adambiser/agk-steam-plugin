@@ -227,11 +227,22 @@ public:
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
-	//bool RequestLobbyData(CSteamID steamIDLobby);
-	//ECallbackState GetLobbyDataUpdateCallbackState() { return getCallbackState(&m_LobbyDataUpdateCallbackState); }
+	bool RequestLobbyData(CSteamID steamIDLobby);
 	bool HasLobbyDataUpdated();
 	CSteamID GetLobbyDataUpdatedLobby() { return m_LobbyDataUpdatedLobby; }
 	CSteamID GetLobbyDataUpdatedID() { return m_LobbyDataUpdatedID; }
+	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
+	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
+	// Lobby methods: Owner methods
+	//bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
+	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
+	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
+	//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer);
+	//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
+	//void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
+	//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
+	//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Triggers a LobbyDataUpdate_t callback.
+	//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 	// Lobby methods: Create
 	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
@@ -260,16 +271,6 @@ public:
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
 	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, strlen(m_LobbyChatMessageText) + 1, m_LobbyChatMessageText); }
 	bool SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody);
-	// Lobby methods: Owner methods
-	//bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
-	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
-	//bool SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue); // Triggers a LobbyGameCreated_t callback for all lobby users.
-	//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer);
-	//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
-	//void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
-	//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
-	//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Triggers a LobbyDataUpdate_t callback.
-	//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 };
 
 #endif // STEAMPLUGIN_H_

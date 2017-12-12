@@ -851,6 +851,15 @@ char *GetLobbyData(int hLobbySteamID, char *key)
 	return CreateString(NULL);
 }
 
+int RequestLobbyData(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->RequestLobbyData(GetSteamID(hLobbySteamID));
+	}
+	return FALSE;
+}
+
 int HasLobbyDataUpdated()
 {
 	if (Steam)
@@ -876,6 +885,31 @@ int GetLobbyDataUpdatedID()
 		return GetSteamIDHandle(Steam->GetLobbyDataUpdatedID());
 	}
 	return 0;
+}
+
+char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
+	}
+	return CreateString(NULL);
+}
+
+void SetLobbyMemberData(int hLobbySteamID, char *key, char *value)
+{
+	if (Steam)
+	{
+		return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
+	}
+}
+
+void SetLobbyData(int hLobbySteamID, char *key, char *value)
+{
+	if (Steam)
+	{
+		return Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
+	}
 }
 
 int CreateLobby(int eLobbyType, int maxMembers)

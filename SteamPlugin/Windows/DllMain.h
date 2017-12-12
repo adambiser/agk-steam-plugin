@@ -115,14 +115,34 @@ extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
 extern "C" DLL_EXPORT char *GetLobbyDataByIndex(int hLobbySteamID, int index); // Returns json of key/value data.
 extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
+extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID);
 extern "C" DLL_EXPORT int HasLobbyDataUpdated();
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedLobby();
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
+extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key);
+extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char *value);
+// Lobby methods: Owner methods
+//bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
+extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, char *key, char *value);
+//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
+//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
+//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
+//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
+//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
+//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 // Lobby methods: Create
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
 extern "C" DLL_EXPORT int GetLobbyCreateCallbackState();
 extern "C" DLL_EXPORT int GetLobbyCreatedID();
 extern "C" DLL_EXPORT int GetLobbyCreatedResult();
+/*
+k_EResultOK - The lobby was successfully created.
+k_EResultFail - The server responded, but with an unknown internal error.
+k_EResultTimeout - The message was sent to the Steam servers, but it didn't respond.
+k_EResultNoConnection - Your game client has created too many lobbies and is being rate limited.
+k_EResultAccessDenied - Your game isn't set to allow lobbies, or your client does haven't rights to play the game
+k_EResultNoConnection - Your Steam client doesn't have a connection to the back-end.
+*/
 // Lobby methods: Join
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
@@ -146,16 +166,6 @@ extern "C" DLL_EXPORT int HasLobbyChatMessage();
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
 extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, char *msg);
-// Lobby methods: Owner methods
-//bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
-//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent); // Can this be done?
-//bool SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue); // Triggers a LobbyGameCreated_t callback for all lobby users.
-//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
-//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
-//void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue); // Triggers a LobbyDataUpdate_t callback.
-//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
-//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Can this be done? // Triggers a LobbyDataUpdate_t callback.
-//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 
 /*
 int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
@@ -171,7 +181,6 @@ void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchV
 void AddRequestLobbyListResultCountFilter(int cMaxResults);
 
 bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
-const char * GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?
 */
 
