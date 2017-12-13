@@ -122,7 +122,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
 extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key);
 extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char *value);
 // Lobby methods: Owner methods
-//bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
+extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, char *key);
 extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, char *key, char *value);
 //bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 //void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.

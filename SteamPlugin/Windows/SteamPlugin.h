@@ -27,6 +27,8 @@ THE SOFTWARE.
 #include <map>
 #include <list>
 #include <vector>
+//#include <thread>
+#include <mutex>
 
 #define MAX_LEADERBOARD_ENTRIES 10
 
@@ -148,6 +150,9 @@ private:
 		}
 		return *callbackState;
 	}
+	// mutex
+	std::mutex lobbyDataUpdateMutex;
+
 public:
 	SteamPlugin();
 	virtual ~SteamPlugin(void);
@@ -234,12 +239,11 @@ public:
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	// Lobby methods: Owner methods
-	//bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
+	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer);
 	//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
-	//void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
 	//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Triggers a LobbyDataUpdate_t callback.
 	//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);

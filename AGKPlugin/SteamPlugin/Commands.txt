@@ -113,7 +113,7 @@ SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,0
 #
 # Lobby methods: Owner methods
 #
-#DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,0
+DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,0
 SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,0
 #SetLinkedLobby,I,II,SetLinkedLobby,0,0,0,0,0
 #SetLobbyGameServer,0,IIII,SetLobbyGameServer,0,0,0,0,0

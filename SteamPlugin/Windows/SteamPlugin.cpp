@@ -57,12 +57,22 @@ SteamPlugin::SteamPlugin() :
 	m_LobbyMatchListCallbackState(Idle),
 	m_LobbyMatchListCount(0),
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
+	m_LobbyDataUpdatedLobby(k_steamIDNil),
+	m_LobbyDataUpdatedID(k_steamIDNil),
+	m_LobbyCreateCallbackState(Idle),
+	m_LobbyCreatedID(k_steamIDNil),
+	m_LobbyCreatedResult((EResult)0),
 	m_LobbyEnterCallbackState(Idle),
 	m_MainCallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter),
+	m_LobbyEnterID(k_steamIDNil),
 	m_LobbyEnterBlocked(false),
 	m_LobbyEnterResponse((EChatRoomEnterResponse)0),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
-	m_CallbackLobbyChatMessage(this, &SteamPlugin::OnLobbyChatMessage)
+	m_LobbyChatUpdateUserChanged(k_steamIDNil),
+	m_LobbyChatUpdateUserState((EChatMemberStateChange)0),
+	m_LobbyChatUpdateUserMakingChange(k_steamIDNil),
+	m_CallbackLobbyChatMessage(this, &SteamPlugin::OnLobbyChatMessage),
+	m_LobbyChatMessageUser(k_steamIDNil)
 {
 	// Nothing for now
 }
@@ -117,9 +127,19 @@ void SteamPlugin::Shutdown()
 		m_DownloadedLeaderboardEntryCount = 0;
 		m_LobbyMatchListCallbackState = Idle;
 		m_LobbyMatchListCount = 0;
+		m_LobbyDataUpdatedLobby = k_steamIDNil;
+		m_LobbyDataUpdatedID = k_steamIDNil;
+		m_LobbyCreateCallbackState = Idle;
+		m_LobbyCreatedID = k_steamIDNil;
+		m_LobbyCreatedResult = (EResult)0;
 		m_LobbyEnterCallbackState = Idle;
+		m_LobbyEnterID = k_steamIDNil;
 		m_LobbyEnterBlocked = false;
 		m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
+		m_LobbyChatUpdateUserChanged = k_steamIDNil;
+		m_LobbyChatUpdateUserState = (EChatMemberStateChange)0;
+		m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
+		m_LobbyChatMessageUser = k_steamIDNil;
 	}
 }
 
@@ -871,6 +891,7 @@ bool SteamPlugin::RequestLobbyData(CSteamID steamIDLobby)
 
 void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 {
+	lobbyDataUpdateMutex.lock();
 	if (!pParam->m_bSuccess)
 	{
 		//m_LobbyDataUpdateCallbackState = ServerError;
@@ -888,20 +909,24 @@ void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 		info.changedID = pParam->m_ulSteamIDMember;
 		m_LobbyDataUpdated.push_back(info);
 	}
+	lobbyDataUpdateMutex.unlock();
 }
 
 bool SteamPlugin::HasLobbyDataUpdated()
 {
+	lobbyDataUpdateMutex.lock();
 	if (m_LobbyDataUpdated.size() > 0)
 	{
 		LobbyDataUpdateInfo_t info = m_LobbyDataUpdated.front();
 		m_LobbyDataUpdatedLobby = info.lobby;
 		m_LobbyDataUpdatedID = info.changedID;
 		m_LobbyDataUpdated.pop_front();
+		lobbyDataUpdateMutex.unlock();
 		return true;
 	}
 	m_LobbyDataUpdatedLobby = k_steamIDNil;
 	m_LobbyDataUpdatedID = k_steamIDNil;
+	lobbyDataUpdateMutex.unlock();
 	return false;
 }
 
@@ -921,6 +946,15 @@ void SteamPlugin::SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, 
 		return;
 	}
 	SteamMatchmaking()->SetLobbyMemberData(steamIDLobby, pchKey, pchValue);
+}
+
+bool SteamPlugin::DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey)
+{
+	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
+	{
+		return false;
+	}
+	return SteamMatchmaking()->DeleteLobbyData(steamIDLobby, pchKey);
 }
 
 void SteamPlugin::SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)

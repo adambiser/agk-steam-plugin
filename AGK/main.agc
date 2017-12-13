@@ -96,6 +96,7 @@ Type SteamServerInfo
 	needToFindLobbies as integer
 	joinFirstLobby as integer
 	hLobby as integer
+	deleteLobbyData as integer
 EndType
 server.avatarHandle = -1 // Use -1 to indicate that the avatar needs to be loaded.
 server.needToFindLobbies = 1
@@ -335,11 +336,12 @@ Function ProcessCallbacks()
 					hSteamID = Steam.GetLobbyMemberByIndex(server.hLobby, x)
 					AddStatus("    " + Steam.GetFriendPersonaName(hSteamID))
 				next
-				Steam.SendLobbyChatMessage(server.hLobby, "Test 1")
-				Steam.SendLobbyChatMessage(server.hLobby, "Test 2")
+				//~ Steam.SendLobbyChatMessage(server.hLobby, "Test 1")
+				//~ Steam.SendLobbyChatMessage(server.hLobby, "Test 2")
 				AddStatus("Setting some lobby and member data...")
-				Steam.SetLobbyData(server.hLobby, "lobby_data", "Here's some lobby data.")
+				//~ Steam.SetLobbyData(server.hLobby, "lobby_data", "Here's some lobby data.")
 				Steam.SetLobbyMemberData(server.hLobby, "member_data", "And here's some member data.")
+				server.deleteLobbyData = 1 // flag to demo lobby data removal later.
 				//~ AddStatus("Leaving  lobby...")
 				//~ Steam.LeaveLobby(server.hLobby)
 			else
@@ -347,14 +349,43 @@ Function ProcessCallbacks()
 			endif
 		endcase
 	endselect
+	frame as integer
 	while Steam.HasLobbyDataUpdated()
+		frame = 1
 		AddStatus("Lobby data updated.  Lobby handle: " + str(Steam.GetLobbyDataUpdatedLobby()) + ", updated handle: " + str(Steam.GetLobbyDataUpdatedID()))
+		// When GetLobbyDataUpdatedLobby matches GetLobbyDataUpdatedID, the lobby data updated,
+		//   otherwise GetLobbyDataUpdatedID is a member and that member's data updated.
 		if Steam.GetLobbyDataUpdatedLobby() = Steam.GetLobbyDataUpdatedID()
-			AddStatus("    Lobby data:" + Steam.GetLobbyData(server.hLobby, "lobby_data"))
+			//~ lobbyData as string
+			//~ lobbyData = Steam.GetLobbyData(server.hLobby, "lobby_data")
+			//~ AddStatus("    Lobby data: " + lobbyData)
+			AddStatus("    Lobby data: " + Steam.GetLobbyDataJson(server.hLobby))
+			//~ if lobbyData <> ""
+				//~ server.deleteLobbyData = 1
+				//~ if server.deleteLobbyData
+					//~ server.deleteLobbyData = 0
+					//~ AddStatus("    Deleting lobby data")
+					//~ if Steam.DeleteLobbyData(server.hLobby, "lobby_data")
+						//~ AddStatus("    Deleted")
+					//~ endif
+				//~ endif
+			//~ endif
 		else
-			AddStatus("    Member " + Steam.GetFriendPersonaName(Steam.GetLobbyDataUpdatedID()) + " data:" + Steam.GetLobbyMemberData(server.hLobby, Steam.GetLobbyDataUpdatedID(), "member_data"))
+			AddStatus("    Member " + Steam.GetFriendPersonaName(Steam.GetLobbyDataUpdatedID()) + " data: " + Steam.GetLobbyMemberData(server.hLobby, Steam.GetLobbyDataUpdatedID(), "member_data"))
 		endif
 	endwhile
+	if frame
+		AddStatus("Frame")
+	endif
+	// Don't delete or set lobby data in the HasLobbyDataUpdated loop!
+	//~ if server.deleteLobbyData
+		//~ server.deleteLobbyData = 0
+		//~ AddStatus("    Deleting lobby data")
+		//~ if Steam.DeleteLobbyData(server.hLobby, "lobby_data")
+			//~ AddStatus("    Deleted")
+		//~ endif
+	//~ endif
+	//~ AddStatus("    Lobby data: " + Steam.GetLobbyData(server.hLobby, "lobby_data"))
 	while Steam.HasLobbyChatMessage()
 		AddStatus(Steam.GetFriendPersonaName(Steam.GetLobbyChatMessageUser()) + ": " + Steam.GetLobbyChatMessageText())
 	endwhile

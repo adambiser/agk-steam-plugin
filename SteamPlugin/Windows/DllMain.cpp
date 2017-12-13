@@ -904,11 +904,20 @@ void SetLobbyMemberData(int hLobbySteamID, char *key, char *value)
 	}
 }
 
+int DeleteLobbyData(int hLobbySteamID, char *key)
+{
+	if (Steam)
+	{
+		return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
+	}
+	return false;
+}
+
 void SetLobbyData(int hLobbySteamID, char *key, char *value)
 {
 	if (Steam)
 	{
-		return Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
+		Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
 	}
 }
 
