@@ -196,15 +196,6 @@ void ActivateGameOverlay(const char *pchDialog)
 	}
 }
 
-int GetAvatar(int size)
-{
-	if (Steam)
-	{
-		return Steam->GetAvatar((EAvatarSize)size);
-	}
-	return 0;
-}
-
 char *GetPersonaName()
 {
 	if (Steam)
@@ -212,6 +203,32 @@ char *GetPersonaName()
 		return CreateString(Steam->GetPersonaName());
 	}
 	return CreateString(0);
+}
+
+int GetSteamID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetSteamID());
+	}
+	return 0;
+}
+
+int HasAvatarImageLoaded() {
+	if (Steam)
+	{
+		return Steam->HasAvatarImageLoaded();
+	}
+	return false;
+}
+
+int GetAvatarImageLoadedUser()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetAvatarImageLoadedUser());
+	}
+	return 0;
 }
 
 int GetFriendAvatar(int hUserSteamID, int size)

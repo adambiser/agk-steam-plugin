@@ -53,6 +53,7 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
 	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored),
 	m_CallbackAvatarImageLoaded(this, &SteamPlugin::OnAvatarImageLoaded),
+	m_CallbackPersonaStateChanged(this, &SteamPlugin::OnPersonaStateChanged),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_LobbyMatchListCallbackState(Idle),
 	m_LobbyMatchListCount(0),
@@ -184,24 +185,64 @@ void SteamPlugin::ActivateGameOverlay(const char *pchDialog)
 	SteamFriends()->ActivateGameOverlay(pchDialog);
 }
 
-void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
-{
-	//avatarsMap.insert_or_assign(pParam->m_steamID, pParam->m_iImage);
-	// Only store results that are expected.
-	auto search = avatarsMap.find(pParam->m_steamID);
-	if (search != avatarsMap.end())
-	{
-		search->second = pParam->m_iImage;
-	}
-}
-
-int SteamPlugin::GetAvatar(EAvatarSize size)
+const char *SteamPlugin::GetPersonaName()
 {
 	if (!m_SteamInitialized)
 	{
 		return 0;
 	}
-	return GetFriendAvatar(SteamUser()->GetSteamID(), size);
+	return SteamFriends()->GetPersonaName();
+}
+
+CSteamID SteamPlugin::GetSteamID()
+{
+	if (!m_SteamInitialized)
+	{
+		return k_steamIDNil;
+	}
+	return SteamUser()->GetSteamID();
+}
+
+void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
+{
+	/*
+	k_EPersonaChangeName
+	k_EPersonaChangeStatus
+	k_EPersonaChangeComeOnline
+	k_EPersonaChangeGoneOffline
+	k_EPersonaChangeGamePlayed
+	k_EPersonaChangeGameServer
+	k_EPersonaChangeAvatar
+	k_EPersonaChangeJoinedSource
+	k_EPersonaChangeLeftSource
+	k_EPersonaChangeRelationshipChanged
+	k_EPersonaChangeNameFirstSet
+	k_EPersonaChangeFacebookInfo
+	k_EPersonaChangeNickname
+	k_EPersonaChangeSteamLevel
+	*/
+	if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
+	{
+		// Allow HasAvatarImageLoaded to report avatar changes as well.
+		m_AvatarImageLoadedUsers.push_back(pParam->m_ulSteamID);
+	}
+}
+
+void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
+{
+	m_AvatarImageLoadedUsers.push_back(pParam->m_steamID);
+}
+
+bool SteamPlugin::HasAvatarImageLoaded()
+{
+	if (m_AvatarImageLoadedUsers.size() > 0)
+	{
+		m_AvatarUser = m_AvatarImageLoadedUsers.front();
+		m_AvatarImageLoadedUsers.pop_front();
+		return true;
+	}
+	m_AvatarUser = k_steamIDNil;
+	return false;
 }
 
 int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
@@ -209,16 +250,6 @@ int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 	if (!m_SteamInitialized)
 	{
 		return 0;
-	}
-	auto search = avatarsMap.find(steamID);
-	if (search != avatarsMap.end())
-	{
-		// If we have got a result from the callback, remove it from the wait list.
-		if ((search->second) != -1)
-		{
-			avatarsMap.erase(search);
-		}
-		return search->second;
 	}
 	int hImage = 0;
 	switch (size)
@@ -236,20 +267,7 @@ int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 		agk::PluginError("Requested invalid avatar size.");
 		return 0;
 	}
-	if (hImage == -1)
-	{
-		avatarsMap.insert_or_assign(steamID, hImage);
-	}
 	return hImage;
-}
-
-const char *SteamPlugin::GetPersonaName()
-{
-	if (!m_SteamInitialized)
-	{
-		return 0;
-	}
-	return SteamFriends()->GetPersonaName();
 }
 
 const char *SteamPlugin::GetFriendPersonaName(CSteamID steamID)

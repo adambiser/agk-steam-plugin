@@ -48,8 +48,10 @@ extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
 //void ActivateGameOverlayToStore( AppId_t nAppID, EOverlayToStoreFlag eFlag );
 //void ActivateGameOverlayToWebPage( const char *pchURL );
 // User/Friend methods
-extern "C" DLL_EXPORT int GetAvatar(int size);
 extern "C" DLL_EXPORT char *GetPersonaName();
+extern "C" DLL_EXPORT int GetSteamID();
+extern "C" DLL_EXPORT int HasAvatarImageLoaded();
+extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 extern "C" DLL_EXPORT int GetFriendAvatar(int hUserSteamID, int size);
 extern "C" DLL_EXPORT char *GetFriendPersonaName(int hUserSteamID);
 // Image methods

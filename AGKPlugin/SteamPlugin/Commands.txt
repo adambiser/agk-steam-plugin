@@ -13,9 +13,11 @@ ActivateGameOverlay,0,S,ActivateGameOverlay,0,0,0,0,0
 #
 # User/Friend methods
 #
-GetAvatar,I,I,GetAvatar,0,0,0,0,0
-GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,0
 GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
+GetSteamID,I,0,GetSteamID,0,0,0,0,0
+HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,0
+GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,0
+GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,0
 GetFriendPersonaName,S,I,GetFriendPersonaName,0,0,0,0,0
 #
 # Image methods
