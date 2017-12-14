@@ -107,6 +107,37 @@ Function AddStatus(status as string)
 	SetTextPosition(text.status, STATUS_X, STATUS_Y - (height - STATUS_HEIGHT))
 EndFunction
 
+// Scrollable status window.
+Function CheckMouseWheel()
+	delta as float
+	delta = GetRawMouseWheelDelta()
+	if delta <> 0
+		mouseX as float
+		mouseY as float
+		mouseX = GetPointerX()
+		mouseY = GetPointerY()
+		if mouseX < STATUS_X or mouseY < STATUS_Y or mouseX >= STATUS_X + STATUS_WIDTH or mouseY >= STATUS_Y + STATUS_HEIGHT
+			ExitFunction
+		endif
+		newY as float
+		newY = GetTextY(text.status) + GetTextSize(text.status) * delta
+		if newY >= STATUS_Y //WINDOW_HEIGHT
+			newY = STATUS_Y
+		else
+			height as float
+			height = GetTextTotalHeight(text.status)
+			if height < STATUS_HEIGHT
+				height = STATUS_HEIGHT
+			endif
+			//~ if newY - GetTextSize(text.status) + height < STATUS_Y
+			if newY + height < WINDOW_HEIGHT
+				newY = WINDOW_HEIGHT - height
+			endif
+		endif
+		SetTextY(text.status, newY)
+	endif
+EndFunction
+
 Function GetDateFromUnix(unix as integer)
 	text as string
 	text = PadStr(GetYearFromUnix(unix), 4)

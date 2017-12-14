@@ -49,6 +49,7 @@ next
 //
 do
 	Sync()
+	CheckMouseWheel()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
 	Steam.RunCallbacks()
@@ -86,6 +87,7 @@ Function CheckInput()
 		next
 	endif
 	if GetVirtualButtonPressed(RESET_BUTTON)
+		AddStatus("BUTTON: " + buttonText[RESET_BUTTON - 1])
 		// ResetAllStats is generally just for testing purposes.
 		AddStatus("Resetting all achievements and user stats.")
 		// Note: This calls StoreStats itself, so just wait for the callback.
@@ -96,20 +98,34 @@ Function CheckInput()
 		next
 	endif
 	if GetVirtualButtonPressed(ADD_WINS_BUTTON)
+		AddStatus("BUTTON: " + buttonText[ADD_WINS_BUTTON - 1])
 		AddStatus("Increment NumGames: " + TF(Steam.SetStatInt("NumGames", Steam.GetStatInt("NumGames") + 5)))
 		AddStatus("Increment NumWins: " + TF(Steam.SetStatInt("NumWins", Steam.GetStatInt("NumWins") + 5)))
 		// Note that notification only shows when current progress is less than the max.
-		if mod(Steam.GetStatInt("NumWins"), 25) = 0
-			Steam.IndicateAchievementProgress("ACH_WIN_100_GAMES", Steam.GetStatInt("NumWins"), 100)
+		numWins as integer
+		numWins = Steam.GetStatInt("NumWins")
+		if numWins < 100
+			if mod(Steam.GetStatInt("NumWins"), 25) = 0
+				AddStatus("Multiple of 25. Indicating progress.")
+				Steam.IndicateAchievementProgress("ACH_WIN_100_GAMES", Steam.GetStatInt("NumWins"), 100)
+			endif
+		elseif numWins = 100
+			AddStatus("Setting achievement: ACH_WIN_100_GAMES")
+			Steam.SetAchievement("ACH_WIN_100_GAMES")
+			// Need to request the achievement icon again.
+			// Ideally this would not use a array index magic number...
+			server.achievementIcons[2] = -1
 		endif
 		server.needToStoreStats = 1
 	endif
 	if GetVirtualButtonPressed(ADD_LOSSES_BUTTON)
+		AddStatus("BUTTON: " + buttonText[ADD_LOSSES_BUTTON - 1])
 		AddStatus("Increment NumGames: " + TF(Steam.SetStatInt("NumGames", Steam.GetStatInt("NumGames") + 1)))
 		AddStatus("Increment NumLosses: " + TF(Steam.SetStatInt("NumLosses", Steam.GetStatInt("NumLosses") + 1)))
 		server.needToStoreStats = 1
 	endif
 	if GetVirtualButtonPressed(ADD_DISTANCE_BUTTON)
+		AddStatus("BUTTON: " + buttonText[ADD_DISTANCE_BUTTON - 1])
 		feet = feet + 100
 		AddStatus("Adding to FeetTraveled, +" + str(feet) + ": " + TF(Steam.SetStatFloat("FeetTraveled", Steam.GetStatFloat("FeetTraveled") + feet)))
 		AddStatus("New FeetTraveled: " + str(Steam.GetStatFloat("FeetTraveled")))
@@ -174,6 +190,17 @@ Function ProcessCallbacks()
 			server.needToStoreStats = 0
 			AddStatus("StatsStored: " + TF(Steam.StatsStored()) + ", AchievementStored: " + TF(Steam.AchievementStored()))
 			RefreshInformation()
+			for x = 0 to server.achievementIcons.length
+				// A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
+				server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
+				AddStatus("GetAchievementIcon for " + server.achievements[x] + " = " + str(server.achievementIcons[x]))
+				if server.achievementIcons[x] = 0
+					SetSpriteVisible(server.achievementSpriteIDs[x], 0)
+				elseif server.achievementIcons[x] > 0
+					Steam.LoadImageFromHandle(server.achievementImageIDs[x], server.achievementIcons[x])
+					SetSpriteVisible(server.achievementSpriteIDs[x], 1)
+				endif
+			next
 		endcase
 		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 			if not errorReported[ERROR_STORESTATS]
@@ -186,21 +213,21 @@ Function ProcessCallbacks()
 	// Process achievement icon loading.
 	//
 	// Don't load the achievement icon while stats need to be stored!  Otherwise it might reload the old icon state.
-	if server.needToStoreStats = 0
-		for x = 0 to server.achievementIcons.length
-			// A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
-			if server.achievementIcons[x] = -1
-				server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
-				//~ AddStatus("GetAchievementIcon for " + str(x) + " = " + str(server.achievementIcons[x]))
-				if server.achievementIcons[x] = 0
-					SetSpriteVisible(server.achievementSpriteIDs[x], 0)
-				elseif server.achievementIcons[x] > 0
-					Steam.LoadImageFromHandle(server.achievementImageIDs[x], server.achievementIcons[x])
-					SetSpriteVisible(server.achievementSpriteIDs[x], 1)
-				endif
-			endif
-		next
-	endif
+	//~ if server.needToStoreStats = 0
+		//~ for x = 0 to server.achievementIcons.length
+			//~ // A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
+			//~ if server.achievementIcons[x] = -1
+				//~ server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
+				//~ // AddStatus("GetAchievementIcon for " + str(x) + " = " + str(server.achievementIcons[x]))
+				//~ if server.achievementIcons[x] = 0
+					//~ SetSpriteVisible(server.achievementSpriteIDs[x], 0)
+				//~ elseif server.achievementIcons[x] > 0
+					//~ Steam.LoadImageFromHandle(server.achievementImageIDs[x], server.achievementIcons[x])
+					//~ SetSpriteVisible(server.achievementSpriteIDs[x], 1)
+				//~ endif
+			//~ endif
+		//~ next
+	//~ endif
 EndFunction
 
 Function LoadAchievements()
