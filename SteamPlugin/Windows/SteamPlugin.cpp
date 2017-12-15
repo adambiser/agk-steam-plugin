@@ -39,14 +39,14 @@ SteamPlugin::SteamPlugin() :
 	m_StoreStatsCallbackState(Idle),
 	m_StatsStored(false),
 	m_AchievementStored(false),
-	m_hSteamLeaderboard(0),
+	//m_hSteamLeaderboard(0),
 	m_FindLeaderboardCallbackState(Idle),
 	m_UploadLeaderboardScoreCallbackState(Idle),
-	m_LeaderboardScoreStored(false),
-	m_LeaderboardScoreChanged(false),
-	m_LeaderboardUploadedScore(0),
-	m_LeaderboardGlobalRankNew(0),
-	m_LeaderboardGlobalRankPrevious(0),
+	//m_LeaderboardScoreStored(false),
+	//m_LeaderboardScoreChanged(false),
+	//m_LeaderboardUploadedScore(0),
+	//m_LeaderboardGlobalRankNew(0),
+	//m_LeaderboardGlobalRankPrevious(0),
 	m_DownloadLeaderboardEntriesCallbackState(Idle),
 	m_DownloadedLeaderboardEntryCount(0),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
@@ -56,7 +56,7 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackPersonaStateChanged(this, &SteamPlugin::OnPersonaStateChanged),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_LobbyMatchListCallbackState(Idle),
-	m_LobbyMatchListCount(0),
+	//m_LobbyMatchListCount(0),
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
 	m_LobbyDataUpdatedLobby(k_steamIDNil),
 	m_LobbyDataUpdatedID(k_steamIDNil),
@@ -116,18 +116,18 @@ void SteamPlugin::Shutdown()
 		m_StoreStatsCallbackState = Idle;
 		m_StatsStored = false;
 		m_AchievementStored = false;
-		m_hSteamLeaderboard = 0;
+		//m_hSteamLeaderboard = 0;
 		m_FindLeaderboardCallbackState = Idle;
 		m_UploadLeaderboardScoreCallbackState = Idle;
-		m_LeaderboardScoreStored = false;
-		m_LeaderboardScoreChanged = false;
-		m_LeaderboardUploadedScore = 0;
-		m_LeaderboardGlobalRankNew = 0;
-		m_LeaderboardGlobalRankPrevious = 0;
+		//m_LeaderboardScoreStored = false;
+		//m_LeaderboardScoreChanged = false;
+		//m_LeaderboardUploadedScore = 0;
+		//m_LeaderboardGlobalRankNew = 0;
+		//m_LeaderboardGlobalRankPrevious = 0;
 		m_DownloadLeaderboardEntriesCallbackState = Idle;
 		m_DownloadedLeaderboardEntryCount = 0;
 		m_LobbyMatchListCallbackState = Idle;
-		m_LobbyMatchListCount = 0;
+		//m_LobbyMatchListCount = 0;
 		m_LobbyDataUpdatedLobby = k_steamIDNil;
 		m_LobbyDataUpdatedID = k_steamIDNil;
 		m_LobbyCreateCallbackState = Idle;
@@ -619,13 +619,13 @@ void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIO
 	if (pCallback->m_bLeaderboardFound && !bIOFailure)
 	{
 		m_FindLeaderboardCallbackState = Done;
-		m_hSteamLeaderboard = pCallback->m_hSteamLeaderboard;
 	}
 	else
 	{
 		// Did not find the leaderboard.
 		m_FindLeaderboardCallbackState = ServerError;
 	}
+	m_LeaderboardFindResult = *pCallback;
 }
 
 bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
@@ -641,7 +641,9 @@ bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 	}
 	try
 	{
-		m_hSteamLeaderboard = 0;
+		// Clear result structure.
+		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
+		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
 		m_CallResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
 		m_FindLeaderboardCallbackState = Running;
@@ -696,17 +698,14 @@ void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOF
 	if (pCallback->m_bSuccess && !bIOFailure)
 	{
 		m_UploadLeaderboardScoreCallbackState = Done;
-		m_LeaderboardScoreStored = true;
 	}
 	else
 	{
 		m_UploadLeaderboardScoreCallbackState = ServerError;
 	}
-	// Report these values as Steam reports them.
-	m_LeaderboardScoreChanged = (pCallback->m_bScoreChanged != 0);
-	m_LeaderboardUploadedScore = pCallback->m_nScore;
-	m_LeaderboardGlobalRankNew = pCallback->m_nGlobalRankNew;
-	m_LeaderboardGlobalRankPrevious = pCallback->m_nGlobalRankPrevious;
+	m_LeaderboardScoreUploaded = *pCallback;
+	// Factor in bIOFailure.
+	m_LeaderboardScoreUploaded.m_bSuccess = m_LeaderboardScoreUploaded.m_bSuccess && !bIOFailure;
 }
 
 bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
@@ -727,11 +726,14 @@ bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeade
 	}
 	try
 	{
-		m_LeaderboardScoreStored = false;
-		m_LeaderboardScoreChanged = false;
-		m_LeaderboardUploadedScore = 0;
-		m_LeaderboardGlobalRankNew = 0;
-		m_LeaderboardGlobalRankPrevious = 0;
+		// Clear result structure.
+		m_LeaderboardScoreUploaded.m_bScoreChanged = false;
+		m_LeaderboardScoreUploaded.m_bSuccess = false;
+		m_LeaderboardScoreUploaded.m_hSteamLeaderboard = 0;
+		m_LeaderboardScoreUploaded.m_nGlobalRankNew = 0;
+		m_LeaderboardScoreUploaded.m_nGlobalRankPrevious = 0;
+		m_LeaderboardScoreUploaded.m_nScore = 0;
+		// Call it.
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, eLeaderboardUploadScoreMethod, score, NULL, 0);
 		m_CallResultUploadScore.Set(hSteamAPICall, this, &SteamPlugin::OnUploadScore);
 		m_UploadLeaderboardScoreCallbackState = Running;
@@ -833,13 +835,14 @@ void SteamPlugin::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFa
 	else
 	{
 		m_LobbyMatchListCallbackState = Done;
-		m_LobbyMatchListCount = pLobbyMatchList->m_nLobbiesMatching;
+		m_LobbyMatchList = *pLobbyMatchList;
 	}
 }
 
 bool SteamPlugin::RequestLobbyList()
 {
-	m_LobbyMatchListCount = 0;
+	// Clear result structure.
+	m_LobbyMatchList.m_nLobbiesMatching = 0;
 	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
 	{
 		return false;
@@ -853,7 +856,7 @@ bool SteamPlugin::RequestLobbyList()
 	}
 	catch (...)
 	{
-		m_FindLeaderboardCallbackState = ClientError;
+		m_LobbyMatchListCallbackState = ClientError;
 		return false;
 	}
 }
@@ -864,7 +867,7 @@ CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
 	{
 		return k_steamIDNil;
 	}
-	if (m_LobbyMatchListCount == 0 || iLobby >= m_LobbyMatchListCount)
+	if (m_LobbyMatchList.m_nLobbiesMatching == 0 || iLobby >= (int)m_LobbyMatchList.m_nLobbiesMatching)
 	{
 		return k_steamIDNil;
 	}

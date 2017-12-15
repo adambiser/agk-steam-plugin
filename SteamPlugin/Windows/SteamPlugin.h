@@ -73,20 +73,16 @@ private:
 	std::map<std::string, int> achievementIconsMap;
 	// User stats methods.
 	// Leaderboard methods: Find
-	SteamLeaderboard_t m_hSteamLeaderboard;
 	ECallbackState m_FindLeaderboardCallbackState;
 	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
 	CCallResult<SteamPlugin, LeaderboardFindResult_t> m_CallResultFindLeaderboard;
+	LeaderboardFindResult_t m_LeaderboardFindResult;
 	// Leaderboard methods: Information
 	// Leaderboard methods: Upload
 	ECallbackState m_UploadLeaderboardScoreCallbackState;
 	void OnUploadScore(LeaderboardScoreUploaded_t *pResult, bool bIOFailure);
 	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_CallResultUploadScore;
-	bool m_LeaderboardScoreStored;
-	bool m_LeaderboardScoreChanged;
-	int m_LeaderboardUploadedScore;
-	int m_LeaderboardGlobalRankNew;
-	int m_LeaderboardGlobalRankPrevious;
+	LeaderboardScoreUploaded_t m_LeaderboardScoreUploaded;
 	// Leaderboard methods: Download
 	ECallbackState m_DownloadLeaderboardEntriesCallbackState;
 	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
@@ -97,7 +93,7 @@ private:
 	ECallbackState m_LobbyMatchListCallbackState;
 	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyMatchList_t> m_CallResultLobbyMatchList;
-	int m_LobbyMatchListCount;
+	LobbyMatchList_t m_LobbyMatchList;
 	// Lobby methods: Data
 	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdated, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
 	CSteamID m_LobbyDataUpdatedLobby;
@@ -213,7 +209,7 @@ public:
 	// Leaderboards
 	bool FindLeaderboard(const char *pchLeaderboardName);
 	ECallbackState GetFindLeaderboardCallbackState() { return getCallbackState(&m_FindLeaderboardCallbackState); }
-	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
+	SteamLeaderboard_t GetLeaderboardHandle() { return m_LeaderboardFindResult.m_hSteamLeaderboard; }
 	// General information
 	const char *GetLeaderboardName(SteamLeaderboard_t hLeaderboard);
 	int GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard);
@@ -222,11 +218,11 @@ public:
 	// Uploading scores
 	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
 	ECallbackState GetUploadLeaderboardScoreCallbackState() { return getCallbackState(&m_UploadLeaderboardScoreCallbackState); }
-	bool LeaderboardScoreStored() { return m_LeaderboardScoreStored; }
-	bool LeaderboardScoreChanged() { return m_LeaderboardScoreChanged; }
-	int GetLeaderboardUploadedScore() { return m_LeaderboardUploadedScore; }
-	int GetLeaderboardGlobalRankNew() { return m_LeaderboardGlobalRankNew; }
-	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardGlobalRankPrevious; }
+	bool LeaderboardScoreStored() { return m_LeaderboardScoreUploaded.m_bSuccess != 0; }
+	bool LeaderboardScoreChanged() { return m_LeaderboardScoreUploaded.m_bScoreChanged != 0; }
+	int GetLeaderboardUploadedScore() { return m_LeaderboardScoreUploaded.m_nScore; }
+	int GetLeaderboardGlobalRankNew() { return m_LeaderboardScoreUploaded.m_nGlobalRankNew; }
+	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious; }
 	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 	ECallbackState GetDownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
@@ -238,7 +234,7 @@ public:
 	bool RequestLobbyList();
 	CSteamID GetLobbyByIndex(int iLobby);
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
-	int GetLobbyMatchListCount() { return m_LobbyMatchListCount; }
+	int GetLobbyMatchListCount() { return m_LobbyMatchList.m_nLobbiesMatching; }
 	// Lobby methods: Data
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
