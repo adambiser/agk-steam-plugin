@@ -323,7 +323,7 @@ Function ProcessCallbacks()
 					server.currentStartEntryNumber = 1
 					server.downloadPage = 1
 				endif
-				LoadEntryAvatar(server.steamID, GetSpriteImageID(server.avatarSpriteID))
+				LoadEntryAvatar(server.steamID, server.avatarSpriteID)
 			elseif server.downloadPage
 				server.downloadPage = 0 // Clear flag
 				RefreshLeaderboardUI()
@@ -344,12 +344,12 @@ Function ProcessCallbacks()
 		AddStatus("Received avatar for steam handle " + str(hSteamID))
 		if hSteamID = server.steamID
 			// Current user's avatar image.
-			LoadEntryAvatar(hSteamID, GetSpriteImageID(server.avatarSpriteID))
+			LoadEntryAvatar(hSteamID, server.avatarSpriteID)
 		else
 			// See if this steam id is on the current leaderboard page.  If not, ignore it.
 			for x = 0 to server.entrySteamID.length
 				if server.entrySteamID[x] = hSteamID
-					LoadEntryAvatar(hSteamID, GetSpriteImageID(server.entryAvatarSpriteIDs[x]))
+					LoadEntryAvatar(hSteamID, server.entryAvatarSpriteIDs[x])
 				endif
 			next
 		endif
@@ -402,7 +402,7 @@ Function RefreshLeaderboardUI()
 		SetTextString(server.entryRankTextIDs[index], "#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(index)))
 		SetTextString(server.entryNameTextIDs[index], Steam.GetFriendPersonaName(hSteamID))
 		SetTextString(server.entryScoreTextIDs[index], str(Steam.GetDownloadedLeaderboardEntryScore(index)))
-		LoadEntryAvatar(Steam.GetDownloadedLeaderboardEntryUser(index), GetSpriteImageID(server.entryAvatarSpriteIDs[index]))
+		LoadEntryAvatar(Steam.GetDownloadedLeaderboardEntryUser(index), server.entryAvatarSpriteIDs[index])
 		SetLeaderboardEntryVisible(index, 1)
 	next
 EndFunction
@@ -427,10 +427,10 @@ EndFunction
 	//~ endif
 //~ EndFunction
 //~ 
-Function LoadEntryAvatar(hSteamID as integer, imageID as integer)
+Function LoadEntryAvatar(hSteamID as integer, spriteID as integer)
 	avatarHandle as integer
 	avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
 	if avatarHandle > 0
-		Steam.LoadImageFromHandle(imageID, avatarHandle)
+		Steam.LoadImageFromHandle(GetSpriteImageID(spriteID), avatarHandle)
 	endif
 EndFunction
