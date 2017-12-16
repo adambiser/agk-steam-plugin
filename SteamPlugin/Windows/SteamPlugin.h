@@ -70,7 +70,7 @@ private:
 	bool m_AchievementStored;
 	// Achievements methods.
 	STEAM_CALLBACK(SteamPlugin, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
-	std::map<std::string, int> achievementIconsMap;
+	std::map<std::string, int> m_AchievementIconsMap;
 	// User stats methods.
 	// Leaderboard methods: Find
 	ECallbackState m_FindLeaderboardCallbackState;

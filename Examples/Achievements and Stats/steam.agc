@@ -19,7 +19,7 @@ global server as SteamServerInfo
 Type SteamServerInfo
 	achievements as string[]
 	achievementIcons as integer[] // When this is -1, check the Steam plugin to see if the icon has been loaded.
-	achievementImageIDs as integer[]
+	//~ achievementImageIDs as integer[]
 	achievementSpriteIDs as integer[]
 	achievementTextIDs as integer[]
 	// Instructions
@@ -43,6 +43,7 @@ x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 552 + x * 100, 440, buttonText[x])
 next
+
 
 //
 // The main loop
@@ -114,7 +115,7 @@ Function CheckInput()
 			Steam.SetAchievement("ACH_WIN_100_GAMES")
 			// Need to request the achievement icon again.
 			// Ideally this would not use a array index magic number...
-			server.achievementIcons[2] = -1
+			server.achievementIcons[GetAchievementIndex("ACH_WIN_100_GAMES")] = -1
 		endif
 		server.needToStoreStats = 1
 	endif
@@ -190,17 +191,6 @@ Function ProcessCallbacks()
 			server.needToStoreStats = 0
 			AddStatus("StatsStored: " + TF(Steam.StatsStored()) + ", AchievementStored: " + TF(Steam.AchievementStored()))
 			RefreshInformation()
-			for x = 0 to server.achievementIcons.length
-				// A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
-				server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
-				AddStatus("GetAchievementIcon for " + server.achievements[x] + " = " + str(server.achievementIcons[x]))
-				if server.achievementIcons[x] = 0
-					SetSpriteVisible(server.achievementSpriteIDs[x], 0)
-				elseif server.achievementIcons[x] > 0
-					Steam.LoadImageFromHandle(server.achievementImageIDs[x], server.achievementIcons[x])
-					SetSpriteVisible(server.achievementSpriteIDs[x], 1)
-				endif
-			next
 		endcase
 		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 			if not errorReported[ERROR_STORESTATS]
@@ -213,21 +203,15 @@ Function ProcessCallbacks()
 	// Process achievement icon loading.
 	//
 	// Don't load the achievement icon while stats need to be stored!  Otherwise it might reload the old icon state.
-	//~ if server.needToStoreStats = 0
-		//~ for x = 0 to server.achievementIcons.length
-			//~ // A value of 0-1 indicates that we're waiting for the icon to download, so try getting the handle again.
-			//~ if server.achievementIcons[x] = -1
-				//~ server.achievementIcons[x] = Steam.GetAchievementIcon(server.achievements[x])
-				//~ // AddStatus("GetAchievementIcon for " + str(x) + " = " + str(server.achievementIcons[x]))
-				//~ if server.achievementIcons[x] = 0
-					//~ SetSpriteVisible(server.achievementSpriteIDs[x], 0)
-				//~ elseif server.achievementIcons[x] > 0
-					//~ Steam.LoadImageFromHandle(server.achievementImageIDs[x], server.achievementIcons[x])
-					//~ SetSpriteVisible(server.achievementSpriteIDs[x], 1)
-				//~ endif
-			//~ endif
-		//~ next
-	//~ endif
+	if server.needToStoreStats = 0
+		for x = 0 to server.achievementIcons.length
+			// A value of -1 indicates that we're waiting for the icon to download, so try getting the handle again.
+			if server.achievementIcons[x] = -1
+				server.achievementIcons[x] = LoadAchievementIcon(server.achievements[x], server.achievementSpriteIDs[x])
+				AddStatus("GetAchievementIcon for " + server.achievements[x] + " = " + str(server.achievementIcons[x]))
+			endif
+		next
+	endif
 EndFunction
 
 Function LoadAchievements()
@@ -248,7 +232,7 @@ Function LoadAchievements()
 		lineY = 100 + (ICON_SIZE + 8) * index
 		SetSpriteSize(spriteID, ICON_SIZE, ICON_SIZE)
 		SetSpritePosition(spriteID, 10, lineY)
-		server.achievementImageIDs.insert(imageID)
+		//~ server.achievementImageIDs.insert(imageID)
 		server.achievementSpriteIDs.insert(spriteID)
 		text as string
 		text = "ID: " + name + ", Hidden: " + TF(Steam.GetAchievementDisplayHidden(name)) + NEWLINE
@@ -276,7 +260,11 @@ Function RefreshInformation()
 			lockStatus = "Locked"
 		endif
 		SetTextString(server.achievementTextIDs[x], "Status: " + lockStatus)
-	next	
+		// A value of -1 indicates that we're waiting for the icon to download, so try getting the handle again.
+		//~ if server.achievementIcons[x] = -1
+			//~ server.achievementIcons[x] = LoadAchievementIcon(server.achievements[x], server.achievementSpriteIDs[x])
+		//~ endif
+	next
 	// Update user stats display
 	text as string
 	// Game should know the stat names.
@@ -288,3 +276,23 @@ Function RefreshInformation()
 	text = text + "AverageSpeed: " + str(Steam.GetStatFloat("AverageSpeed")) + NEWLINE
 	SetTextString(userStatsTextID, text)
 EndFunction
+
+Function GetAchievementIndex(achID as string)
+	x as integer
+	for x = 0 to server.achievements.length
+		if server.achievements[x] = achID
+			ExitFunction x
+		endif
+	next
+EndFunction -1
+
+Function LoadAchievementIcon(achID as string, spriteID as integer)
+	imageHandle as integer
+	imageHandle = Steam.GetAchievementIcon(achID)
+	if imageHandle = 0
+		SetSpriteVisible(spriteID, 0)
+	elseif imageHandle > 0
+		Steam.LoadImageFromHandle(GetSpriteImageID(spriteID), imageHandle)
+		SetSpriteVisible(spriteID, 1)
+	endif
+EndFunction imageHandle

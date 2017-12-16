@@ -110,12 +110,13 @@ void SteamPlugin::Shutdown()
 		// Reset member variables.
 		m_AppID = 0;
 		m_SteamInitialized = false;
-		//m_AvatarCallbackState = Idle;
+		m_AvatarImageLoadedUsers.clear();
 		m_RequestStatsCallbackState = Idle;
 		m_StatsInitialized = false;
 		m_StoreStatsCallbackState = Idle;
 		m_StatsStored = false;
 		m_AchievementStored = false;
+		m_AchievementIconsMap.clear();
 		//m_hSteamLeaderboard = 0;
 		m_FindLeaderboardCallbackState = Idle;
 		m_UploadLeaderboardScoreCallbackState = Idle;
@@ -130,6 +131,7 @@ void SteamPlugin::Shutdown()
 		//m_LobbyMatchListCount = 0;
 		m_LobbyDataUpdatedLobby = k_steamIDNil;
 		m_LobbyDataUpdatedID = k_steamIDNil;
+		m_LobbyDataUpdated.clear();
 		m_LobbyCreateCallbackState = Idle;
 		m_LobbyCreatedID = k_steamIDNil;
 		m_LobbyCreatedResult = (EResult)0;
@@ -245,6 +247,7 @@ bool SteamPlugin::HasAvatarImageLoaded()
 	return false;
 }
 
+// NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 {
 	if (!m_SteamInitialized)
@@ -477,8 +480,8 @@ void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 	{
 		// Only store the results for values that are expected.
 		std::string name = pParam->m_rgchAchievementName;
-		auto search = achievementIconsMap.find(name);
-		if (search != achievementIconsMap.end())
+		auto search = m_AchievementIconsMap.find(name);
+		if (search != m_AchievementIconsMap.end())
 		{
 			search->second = pParam->m_nIconHandle;
 		}
@@ -497,13 +500,13 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 	}
 	// See if we're waiting for a callback result for this icon.
 	std::string name = pchName;
-	auto search = achievementIconsMap.find(name);
-	if (search != achievementIconsMap.end())
+	auto search = m_AchievementIconsMap.find(name);
+	if (search != m_AchievementIconsMap.end())
 	{
 		// If we have a result from the callback, remove it from the wait list.
 		if ((search->second) != -1)
 		{
-			achievementIconsMap.erase(search);
+			m_AchievementIconsMap.erase(search);
 		}
 		return search->second;
 	}
@@ -518,7 +521,7 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 			return 0;
 		}
 		hImage = -1; // Use -1 to indicate that we're waiting on a callback to provide the handle.
-		achievementIconsMap.insert_or_assign(name, hImage);
+		m_AchievementIconsMap.insert_or_assign(name, hImage);
 	}
 	return hImage;
 }
