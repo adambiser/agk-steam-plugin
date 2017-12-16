@@ -214,6 +214,17 @@ int GetSteamID()
 	return 0;
 }
 
+char *GetSteamID64(int hUserSteamID)
+{
+	if (Steam)
+	{
+		char id64[21]; // Max value is 18,446,744,073,709,551,615
+		_i64toa(GetSteamID(hUserSteamID).ConvertToUint64(), id64, 10);
+		return CreateString(id64);
+	}
+	return CreateString(NULL);
+}
+
 int HasAvatarImageLoaded() {
 	if (Steam)
 	{

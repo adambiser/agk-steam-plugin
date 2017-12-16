@@ -126,6 +126,15 @@ Function CheckInput()
 			// Open leaderboard to rank page.
 			server.currentStartEntryNumber = server.currentRank - Mod(server.currentRank - 1, ENTRIES_PER_PAGE) // entries are 1-based
 			server.downloadPage = 1
+		else
+			// Click an entry avatar or name to open the user profile.
+			x as integer
+			for x = 0 to server.entryAvatarSpriteIDs.length
+				if GetSpriteHitTest(server.entryAvatarSpriteIDs[x], mouseX, mouseY) or GetTextHitTest(server.entryNameTextIDs[x], mouseX, mouseY)
+					OpenBrowser("http://steamcommunity.com/profiles/" + Steam.GetSteamID64(server.entrySteamID[x]))
+					continue
+				endif
+			next x
 		endif
 	endif
 	// Navigation buttons.
@@ -402,7 +411,7 @@ Function RefreshLeaderboardUI()
 		SetTextString(server.entryRankTextIDs[index], "#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(index)))
 		SetTextString(server.entryNameTextIDs[index], Steam.GetFriendPersonaName(hSteamID))
 		SetTextString(server.entryScoreTextIDs[index], str(Steam.GetDownloadedLeaderboardEntryScore(index)))
-		LoadEntryAvatar(Steam.GetDownloadedLeaderboardEntryUser(index), server.entryAvatarSpriteIDs[index])
+		LoadEntryAvatar(hSteamID, server.entryAvatarSpriteIDs[index])
 		SetLeaderboardEntryVisible(index, 1)
 	next
 EndFunction

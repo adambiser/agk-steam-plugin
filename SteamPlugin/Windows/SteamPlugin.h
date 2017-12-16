@@ -54,6 +54,7 @@ private:
 	uint64 m_AppID;
 	bool m_SteamInitialized;
 	// User/Friend methods
+	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
 	std::list<CSteamID> m_AvatarImageLoadedUsers;
 	CSteamID m_AvatarUser;
 	STEAM_CALLBACK(SteamPlugin, OnPersonaStateChanged, PersonaStateChange_t, m_CallbackPersonaStateChanged);

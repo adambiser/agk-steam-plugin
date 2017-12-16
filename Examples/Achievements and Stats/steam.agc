@@ -19,7 +19,6 @@ global server as SteamServerInfo
 Type SteamServerInfo
 	achievements as string[]
 	achievementIcons as integer[] // When this is -1, check the Steam plugin to see if the icon has been loaded.
-	//~ achievementImageIDs as integer[]
 	achievementSpriteIDs as integer[]
 	achievementTextIDs as integer[]
 	// Instructions
@@ -43,7 +42,6 @@ x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 552 + x * 100, 440, buttonText[x])
 next
-
 
 //
 // The main loop
@@ -114,7 +112,6 @@ Function CheckInput()
 			AddStatus("Setting achievement: ACH_WIN_100_GAMES")
 			Steam.SetAchievement("ACH_WIN_100_GAMES")
 			// Need to request the achievement icon again.
-			// Ideally this would not use a array index magic number...
 			server.achievementIcons[GetAchievementIndex("ACH_WIN_100_GAMES")] = -1
 		endif
 		server.needToStoreStats = 1
@@ -232,7 +229,6 @@ Function LoadAchievements()
 		lineY = 100 + (ICON_SIZE + 8) * index
 		SetSpriteSize(spriteID, ICON_SIZE, ICON_SIZE)
 		SetSpritePosition(spriteID, 10, lineY)
-		//~ server.achievementImageIDs.insert(imageID)
 		server.achievementSpriteIDs.insert(spriteID)
 		text as string
 		text = "ID: " + name + ", Hidden: " + TF(Steam.GetAchievementDisplayHidden(name)) + NEWLINE
@@ -260,10 +256,6 @@ Function RefreshInformation()
 			lockStatus = "Locked"
 		endif
 		SetTextString(server.achievementTextIDs[x], "Status: " + lockStatus)
-		// A value of -1 indicates that we're waiting for the icon to download, so try getting the handle again.
-		//~ if server.achievementIcons[x] = -1
-			//~ server.achievementIcons[x] = LoadAchievementIcon(server.achievements[x], server.achievementSpriteIDs[x])
-		//~ endif
 	next
 	// Update user stats display
 	text as string

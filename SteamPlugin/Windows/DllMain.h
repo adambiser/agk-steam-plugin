@@ -50,6 +50,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
 // User/Friend methods
 extern "C" DLL_EXPORT char *GetPersonaName();
 extern "C" DLL_EXPORT int GetSteamID();
+extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
 extern "C" DLL_EXPORT int HasAvatarImageLoaded();
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 extern "C" DLL_EXPORT int GetFriendAvatar(int hUserSteamID, int size);

@@ -33,7 +33,7 @@ THE SOFTWARE.
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
-	//m_AvatarCallbackState(Idle),
+	m_AvatarImageLoadedEnabled(false),
 	m_RequestStatsCallbackState(Idle),
 	m_StatsInitialized(false),
 	m_StoreStatsCallbackState(Idle),
@@ -110,6 +110,7 @@ void SteamPlugin::Shutdown()
 		// Reset member variables.
 		m_AppID = 0;
 		m_SteamInitialized = false;
+		m_AvatarImageLoadedEnabled = false;
 		m_AvatarImageLoadedUsers.clear();
 		m_RequestStatsCallbackState = Idle;
 		m_StatsInitialized = false;
@@ -153,7 +154,7 @@ bool SteamPlugin::RestartAppIfNecessary(uint32 unOwnAppID)
 
 int SteamPlugin::GetAppID()
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamUtils())
 	{
 		return 0;
 	}
@@ -162,7 +163,7 @@ int SteamPlugin::GetAppID()
 
 bool SteamPlugin::LoggedOn()
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamUser())
 	{
 		return false;
 	}
@@ -180,7 +181,7 @@ void SteamPlugin::RunCallbacks()
 
 void SteamPlugin::ActivateGameOverlay(const char *pchDialog)
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamFriends())
 	{
 		return;
 	}
@@ -189,7 +190,7 @@ void SteamPlugin::ActivateGameOverlay(const char *pchDialog)
 
 const char *SteamPlugin::GetPersonaName()
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamFriends())
 	{
 		return 0;
 	}
@@ -198,7 +199,7 @@ const char *SteamPlugin::GetPersonaName()
 
 CSteamID SteamPlugin::GetSteamID()
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamUser())
 	{
 		return k_steamIDNil;
 	}
@@ -225,13 +226,20 @@ void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 	*/
 	if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
 	{
-		// Allow HasAvatarImageLoaded to report avatar changes as well.
-		m_AvatarImageLoadedUsers.push_back(pParam->m_ulSteamID);
+		if (m_AvatarImageLoadedEnabled)
+		{
+			// Allow HasAvatarImageLoaded to report avatar changes from here as well.
+			m_AvatarImageLoadedUsers.push_back(pParam->m_ulSteamID);
+		}
 	}
 }
 
 void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 {
+	if (!m_AvatarImageLoadedEnabled)
+	{
+		return;
+	}
 	m_AvatarImageLoadedUsers.push_back(pParam->m_steamID);
 }
 
@@ -250,10 +258,12 @@ bool SteamPlugin::HasAvatarImageLoaded()
 // NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamFriends())
 	{
 		return 0;
 	}
+	m_AvatarImageLoadedEnabled = true;
+	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
 	switch (size)
 	{
@@ -275,7 +285,7 @@ int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 
 const char *SteamPlugin::GetFriendPersonaName(CSteamID steamID)
 {
-	if (!m_SteamInitialized)
+	if (!m_SteamInitialized || NULL == SteamFriends())
 	{
 		return 0;
 	}
