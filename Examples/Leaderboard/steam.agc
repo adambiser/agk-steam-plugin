@@ -3,34 +3,6 @@
 // Copyright 2017 Adam Biser
 #option_explicit
 
-// Plugin Callback State Value
-#constant STATE_SERVER_ERROR	-2
-#constant STATE_CLIENT_ERROR	-1
-#constant STATE_IDLE			0 // This is the initial state of the callback.
-#constant STATE_RUNNING			1 // Generally don't need to check for this state.
-#constant STATE_DONE			2 // Reported once as soon as the callback finishes and then changes to IDLE.
-
-// Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
-#constant LEADERBOARD_DATA_GLOBAL		0
-#constant LEADERBOARD_DATA_AROUND_USER	1
-#constant LEADERBOARD_DATA_FRIENDS		2
-
-// Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDisplayType
-#constant LEADERBOARD_DISPLAY_NONE			0
-#constant LEADERBOARD_DISPLAY_NUMERIC		1
-#constant LEADERBOARD_DISPLAY_SECONDS		2
-#constant LEADERBOARD_DISPLAY_MILLISECONDS	3
-
-// Constants from https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardSortMethod
-#constant LEADERBOARD_SORT_NONE			0
-#constant LEADERBOARD_SORT_ASCENDING	1
-#constant LEADERBOARD_SORT_DESCENDING	2
-
-// Avatar sizes
-#constant AVATAR_SMALL	0 // 32x32
-#constant AVATAR_MEDIUM	1 // 64x64
-#constant AVATAR_LARGE	2 // 128x128
-
 // Holds everything related to the Steam server data.
 global server as SteamServerInfo
 
@@ -67,6 +39,7 @@ global leaderboardNameTextID as integer
 leaderboardNameTextID = CreateTextEx(512, 80, "")
 SetTextAlignment(leaderboardNameTextID, 1)
 CreateTextEx(180, 10, "Current rank:")
+CreateTextEx(0, 70, "Click an entry avatar or name to view the profile.")
 
 #constant FIRST_BUTTON			1
 #constant PREV_BUTTON			2
@@ -77,17 +50,13 @@ CreateTextEx(180, 10, "Current rank:")
 #constant MAX_SCORE_BUTTON		7
 #constant MIN_SCORE_BUTTON		8
 
-global buttonText as string[7] = ["|<", "<<", ">>", ">|", "", "", "", ""]
-buttonText[RANDOM_PAGE_BUTTON - 1] = "RANDOM" + NEWLINE + "PAGE"
-buttonText[RANDOM_SCORE_BUTTON - 1] = "RANDOM" + NEWLINE + "SCORE"
-buttonText[MAX_SCORE_BUTTON - 1] = "MAX" + NEWLINE + "SCORE"
-buttonText[MIN_SCORE_BUTTON - 1] = "MIN" + NEWLINE + "SCORE"
+global buttonText as string[7] = ["|<", "<<", ">>", ">|", "RANDOM_PAGE", "RANDOM_SCORE", "MAX_SCORE", "MIN_SCORE"]
 x as integer
 for x = 0 to 4
-	CreateButton(x + 1, 352 + x * 100, 540, buttonText[x])
+	CreateButton(x + 1, 352 + x * 100, 540, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 for x = 5 to 7
-	CreateButton(x + 1, 752 + (x - 5) * 100, 40, buttonText[x])
+	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 
 CreateLeaderboardUI()
@@ -131,7 +100,8 @@ Function CheckInput()
 			x as integer
 			for x = 0 to server.entryAvatarSpriteIDs.length
 				if GetSpriteHitTest(server.entryAvatarSpriteIDs[x], mouseX, mouseY) or GetTextHitTest(server.entryNameTextIDs[x], mouseX, mouseY)
-					OpenBrowser("http://steamcommunity.com/profiles/" + Steam.GetSteamID64(server.entrySteamID[x]))
+					//~ OpenBrowser("http://steamcommunity.com/profiles/" + Steam.GetSteamID64(server.entrySteamID[x]))
+					Steam.ActivateGameOverlayToUser("steamid", server.entrySteamID[x])
 					continue
 				endif
 			next x
@@ -308,10 +278,10 @@ Function ProcessCallbacks()
 		case STATE_IDLE
 			if server.downloadRank
 				// 0 to 0 around user will give only the user's entry.
-				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, LEADERBOARD_DATA_AROUND_USER, 0, 0)
+				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
 				//~ AddStatus("Downloading user rank.")
 			elseif server.downloadPage
-				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, LEADERBOARD_DATA_GLOBAL, server.currentStartEntryNumber, server.currentStartEntryNumber + 10 - 1)
+				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobal, server.currentStartEntryNumber, server.currentStartEntryNumber + 10 - 1)
 				//~ AddStatus("Downloading page of entries.")
 			endif
 		endcase

@@ -41,6 +41,7 @@ CreateTextEx(0, 00, "AppID: " + str(Steam.GetAppID()))
 CreateTextEx(0, 20, "LoggedOn: " + TF(Steam.LoggedOn()))
 CreateTextEx(0, 40, "SteamID: " + Steam.GetPersonaName())
 
+#insert "../steam_constants.agc"
 // The main plugin usage is in this file.
 #insert "steam.agc"
 

@@ -41,6 +41,7 @@ CreateTextEx(0, 00, "AppID: " + str(Steam.GetAppID()))
 CreateTextEx(0, 20, "LoggedOn: " + TF(Steam.LoggedOn()))
 CreateTextEx(0, 40, "SteamID: " + Steam.GetPersonaName())
 
+#insert "../steam_constants.agc"
 // The main plugin usage is in this file.
 #insert "steam.agc"
 
@@ -60,7 +61,7 @@ EndType
 global buttonColumns as integer [2] = [75, 225, 375]
 
 Function CreateUI()
-	CreateTextEx(STATUS_X, STATUS_Y - 25, "Status Messages")
+	CreateTextEx(STATUS_X, STATUS_Y - 25, "Status Messages (Scrollable)")
 	spriteID as integer
 	spriteID = CreateSprite(CreateImageColor(32, 32, 32, 255))
 	SetSpritePosition(spriteID, STATUS_X, STATUS_Y)

@@ -5,13 +5,6 @@
 
 #constant ICON_SIZE		64
 
-// Plugin Callback State Value
-#constant STATE_SERVER_ERROR	-2
-#constant STATE_CLIENT_ERROR	-1
-#constant STATE_IDLE			0 // This is the initial state of the callback.
-#constant STATE_RUNNING			1 // Generally don't need to check for this state.
-#constant STATE_DONE			2 // Reported once as soon as the callback finishes and then changes to IDLE.
-
 // Holds everything related to the Steam server data.
 global server as SteamServerInfo
 
@@ -40,7 +33,7 @@ userStatsTextID = CreateTextEx(512, 100, "")
 global buttonText as string[3] = ["RESET", "+5 Wins", "+1 Loss", "+100 Feet"]
 x as integer
 for x = 0 to buttonText.length
-	CreateButton(x + 1, 552 + x * 100, 440, buttonText[x])
+	CreateButton(x + 1, 552 + x * 100, 440, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 
 //

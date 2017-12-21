@@ -42,12 +42,11 @@ output_path=
 
 [projectfiles]
 FILE_0=main.agc;-1
-FILE_1=main2.agc;-1
-FILE_2=steam.agc;-1
+FILE_1=steam.agc;-1
 
 [files]
-FILE_NAME_0=0;main.agc;4088;0
-FILE_NAME_1=0;steam.agc;15860;1
+FILE_NAME_0=1;main.agc;1248;0
+FILE_NAME_1=0;steam.agc;94;1
 
 [project]
 description=
