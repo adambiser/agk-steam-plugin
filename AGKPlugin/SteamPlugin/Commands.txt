@@ -9,13 +9,24 @@ RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,0
 GetAppID,I,0,GetAppID,0,0,0,0,0
 LoggedOn,I,0,LoggedOn,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
+#
+# Overlay methods
+#
 ActivateGameOverlay,0,S,ActivateGameOverlay,0,0,0,0,0
+ActivateGameOverlayInviteDialog,0,I,ActivateGameOverlayInviteDialog,0,0,0,0,0
+ActivateGameOverlayToStore,0,II,ActivateGameOverlayToStore,0,0,0,0,0
+ActivateGameOverlayToUser,0,SI,ActivateGameOverlayToUser,0,0,0,0,0
+ActivateGameOverlayToWebPage,0,S,ActivateGameOverlayToWebPage,0,0,0,0,0
 #
 # User/Friend methods
 #
 GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
 GetSteamID,I,0,GetSteamID,0,0,0,0,0
 GetSteamID64,S,I,GetSteamID64,0,0,0,0,0
+HasPersonaStateChanged,I,0,HasPersonaStateChanged,0,0,0,0,0
+GetPersonaStateChangedUser,I,0,GetPersonaStateChangedUser,0,0,0,0,0
+GetPersonaStateChangedFlags,I,0,GetPersonaStateChangedFlags,0,0,0,0,0
+RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,0
 HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,0
 GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,0
 GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,0

@@ -196,6 +196,38 @@ void ActivateGameOverlay(const char *pchDialog)
 	}
 }
 
+void ActivateGameOverlayInviteDialog(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayInviteDialog(GetSteamID(hLobbySteamID));
+	}
+}
+
+void ActivateGameOverlayToStore(int appID, int flag)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayToStore(appID, (EOverlayToStoreFlag)flag);
+	}
+}
+
+void ActivateGameOverlayToUser(const char *pchDialog, int hSteamID)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayToUser(pchDialog, GetSteamID(hSteamID));
+	}
+}
+
+void ActivateGameOverlayToWebPage(const char *url)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayToWebPage(url);
+	}
+}
+
 char *GetPersonaName()
 {
 	if (Steam)
@@ -223,6 +255,42 @@ char *GetSteamID64(int hUserSteamID)
 		return CreateString(id64);
 	}
 	return CreateString(NULL);
+}
+
+int HasPersonaStateChanged()
+{
+	if (Steam)
+	{
+		return Steam->HasPersonaStateChanged();
+	}
+	return false;
+}
+
+int GetPersonaStateChangedUser()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetPersonaStateChangedUser());
+	}
+	return 0;
+}
+
+int GetPersonaStateChangedFlags()
+{
+	if (Steam)
+	{
+		return Steam->GetPersonaStateChangedFlags();
+	}
+	return 0;
+}
+
+int RequestUserInformation(int hUserSteamID, int requireNameOnly)
+{
+	if (Steam)
+	{
+		return Steam->RequestUserInformation(GetSteamID(hUserSteamID), requireNameOnly != 0);
+	}
+	return false;
 }
 
 int HasAvatarImageLoaded() {

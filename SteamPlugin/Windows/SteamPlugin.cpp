@@ -34,19 +34,15 @@ SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
 	m_AvatarImageLoadedEnabled(false),
+	m_AvatarUser(k_steamIDNil),
+	m_PersonaStateChangedEnabled(false),
 	m_RequestStatsCallbackState(Idle),
 	m_StatsInitialized(false),
 	m_StoreStatsCallbackState(Idle),
 	m_StatsStored(false),
 	m_AchievementStored(false),
-	//m_hSteamLeaderboard(0),
 	m_FindLeaderboardCallbackState(Idle),
 	m_UploadLeaderboardScoreCallbackState(Idle),
-	//m_LeaderboardScoreStored(false),
-	//m_LeaderboardScoreChanged(false),
-	//m_LeaderboardUploadedScore(0),
-	//m_LeaderboardGlobalRankNew(0),
-	//m_LeaderboardGlobalRankPrevious(0),
 	m_DownloadLeaderboardEntriesCallbackState(Idle),
 	m_DownloadedLeaderboardEntryCount(0),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
@@ -56,7 +52,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackPersonaStateChanged(this, &SteamPlugin::OnPersonaStateChanged),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_LobbyMatchListCallbackState(Idle),
-	//m_LobbyMatchListCount(0),
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
 	m_LobbyDataUpdatedLobby(k_steamIDNil),
 	m_LobbyDataUpdatedID(k_steamIDNil),
@@ -112,30 +107,31 @@ void SteamPlugin::Shutdown()
 		m_SteamInitialized = false;
 		m_AvatarImageLoadedEnabled = false;
 		m_AvatarImageLoadedUsers.clear();
+		m_AvatarUser = k_steamIDNil;
+		m_PersonaStateChangedEnabled = false;
+		m_PersonaStateChangeList.clear();
+		//m_PersonaStateChange
 		m_RequestStatsCallbackState = Idle;
 		m_StatsInitialized = false;
 		m_StoreStatsCallbackState = Idle;
 		m_StatsStored = false;
 		m_AchievementStored = false;
 		m_AchievementIconsMap.clear();
-		//m_hSteamLeaderboard = 0;
 		m_FindLeaderboardCallbackState = Idle;
+		//m_LeaderboardFindResult
 		m_UploadLeaderboardScoreCallbackState = Idle;
-		//m_LeaderboardScoreStored = false;
-		//m_LeaderboardScoreChanged = false;
-		//m_LeaderboardUploadedScore = 0;
-		//m_LeaderboardGlobalRankNew = 0;
-		//m_LeaderboardGlobalRankPrevious = 0;
+		//m_LeaderboardScoreUploaded
 		m_DownloadLeaderboardEntriesCallbackState = Idle;
 		m_DownloadedLeaderboardEntryCount = 0;
 		m_LobbyMatchListCallbackState = Idle;
-		//m_LobbyMatchListCount = 0;
+		//m_LobbyMatchList
 		m_LobbyDataUpdatedLobby = k_steamIDNil;
 		m_LobbyDataUpdatedID = k_steamIDNil;
 		m_LobbyDataUpdated.clear();
 		m_LobbyCreateCallbackState = Idle;
 		m_LobbyCreatedID = k_steamIDNil;
 		m_LobbyCreatedResult = (EResult)0;
+		m_JoinedLobbies.clear();
 		m_LobbyEnterCallbackState = Idle;
 		m_LobbyEnterID = k_steamIDNil;
 		m_LobbyEnterBlocked = false;
@@ -143,6 +139,7 @@ void SteamPlugin::Shutdown()
 		m_LobbyChatUpdateUserChanged = k_steamIDNil;
 		m_LobbyChatUpdateUserState = (EChatMemberStateChange)0;
 		m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
+		m_ChatUpdates.clear();
 		m_LobbyChatMessageUser = k_steamIDNil;
 	}
 }
@@ -188,6 +185,42 @@ void SteamPlugin::ActivateGameOverlay(const char *pchDialog)
 	SteamFriends()->ActivateGameOverlay(pchDialog);
 }
 
+void SteamPlugin::ActivateGameOverlayInviteDialog(CSteamID steamIDLobby)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return;
+	}
+	SteamFriends()->ActivateGameOverlayInviteDialog(steamIDLobby);
+}
+
+void SteamPlugin::ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return;
+	}
+	SteamFriends()->ActivateGameOverlayToStore(nAppID, eFlag);
+}
+
+void SteamPlugin::ActivateGameOverlayToUser(const char *pchDialog, CSteamID steamID)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return;
+	}
+	SteamFriends()->ActivateGameOverlayToUser(pchDialog, steamID);
+}
+
+void SteamPlugin::ActivateGameOverlayToWebPage(const char *pchURL)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return;
+	}
+	SteamFriends()->ActivateGameOverlayToWebPage(pchURL);
+}
+
 const char *SteamPlugin::GetPersonaName()
 {
 	if (!m_SteamInitialized || NULL == SteamFriends())
@@ -206,32 +239,43 @@ CSteamID SteamPlugin::GetSteamID()
 	return SteamUser()->GetSteamID();
 }
 
+// Callback for RequestUserInformation and more.
 void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 {
-	/*
-	k_EPersonaChangeName
-	k_EPersonaChangeStatus
-	k_EPersonaChangeComeOnline
-	k_EPersonaChangeGoneOffline
-	k_EPersonaChangeGamePlayed
-	k_EPersonaChangeGameServer
-	k_EPersonaChangeAvatar
-	k_EPersonaChangeJoinedSource
-	k_EPersonaChangeLeftSource
-	k_EPersonaChangeRelationshipChanged
-	k_EPersonaChangeNameFirstSet
-	k_EPersonaChangeFacebookInfo
-	k_EPersonaChangeNickname
-	k_EPersonaChangeSteamLevel
-	*/
-	if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
+	if (m_PersonaStateChangedEnabled)
 	{
-		if (m_AvatarImageLoadedEnabled)
+		m_PersonaStateChangeList.push_back(*pParam);
+	}
+	if (m_AvatarImageLoadedEnabled)
+	{
+		if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
 		{
 			// Allow HasAvatarImageLoaded to report avatar changes from here as well.
 			m_AvatarImageLoadedUsers.push_back(pParam->m_ulSteamID);
 		}
 	}
+}
+
+bool SteamPlugin::HasPersonaStateChanged()
+{
+	if (m_PersonaStateChangeList.size() > 0)
+	{
+		m_PersonaStateChange = m_PersonaStateChangeList.front();
+		m_PersonaStateChangeList.pop_front();
+		return true;
+	}
+	m_PersonaStateChange.m_ulSteamID = NULL;
+	m_PersonaStateChange.m_nChangeFlags = 0;
+	return false;
+}
+
+bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return false;
+	}
+	return SteamFriends()->RequestUserInformation(steamIDUser, bRequireNameOnly);
 }
 
 void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
@@ -240,6 +284,8 @@ void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 	{
 		return;
 	}
+	// "Turn on" this callback.
+	m_PersonaStateChangedEnabled = true;
 	m_AvatarImageLoadedUsers.push_back(pParam->m_steamID);
 }
 
@@ -1158,7 +1204,7 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
 {
 	ChatUpdateInfo_t info;
-	info.userChanged= pParam->m_ulSteamIDUserChanged;
+	info.userChanged = pParam->m_ulSteamIDUserChanged;
 	info.userState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
 	info.userMakingChange = pParam->m_ulSteamIDMakingChange;
 	m_ChatUpdates.push_back(info);

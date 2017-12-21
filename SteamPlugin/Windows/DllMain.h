@@ -44,13 +44,20 @@ extern "C" DLL_EXPORT int RestartAppIfNecessary(int unOwnAppID);
 extern "C" DLL_EXPORT int GetAppID();
 extern "C" DLL_EXPORT int LoggedOn();
 extern "C" DLL_EXPORT void RunCallbacks();
+// Overlay methods
 extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
-//void ActivateGameOverlayToStore( AppId_t nAppID, EOverlayToStoreFlag eFlag );
-//void ActivateGameOverlayToWebPage( const char *pchURL );
+extern "C" DLL_EXPORT void ActivateGameOverlayInviteDialog(int hLobbySteamID);
+extern "C" DLL_EXPORT void ActivateGameOverlayToStore(int appID, int flag);
+extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *pchDialog, int hSteamID);
+extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url);
 // User/Friend methods
 extern "C" DLL_EXPORT char *GetPersonaName();
 extern "C" DLL_EXPORT int GetSteamID();
 extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
+extern "C" DLL_EXPORT int HasPersonaStateChanged();
+extern "C" DLL_EXPORT int GetPersonaStateChangedUser();
+extern "C" DLL_EXPORT int GetPersonaStateChangedFlags();
+extern "C" DLL_EXPORT int RequestUserInformation(int hUserSteamID, int requireNameOnly);
 extern "C" DLL_EXPORT int HasAvatarImageLoaded();
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 extern "C" DLL_EXPORT int GetFriendAvatar(int hUserSteamID, int size);

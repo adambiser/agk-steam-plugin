@@ -57,6 +57,9 @@ private:
 	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
 	std::list<CSteamID> m_AvatarImageLoadedUsers;
 	CSteamID m_AvatarUser;
+	bool m_PersonaStateChangedEnabled;
+	std::list<PersonaStateChange_t> m_PersonaStateChangeList;
+	PersonaStateChange_t m_PersonaStateChange;
 	STEAM_CALLBACK(SteamPlugin, OnPersonaStateChanged, PersonaStateChange_t, m_CallbackPersonaStateChanged);
 	STEAM_CALLBACK(SteamPlugin, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded);
 	// Image methods
@@ -97,6 +100,7 @@ private:
 	LobbyMatchList_t m_LobbyMatchList;
 	// Lobby methods: Data
 	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdated, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
+	// TODO Replace with LobbyDataUpdateInfo_t variable.
 	CSteamID m_LobbyDataUpdatedLobby;
 	CSteamID m_LobbyDataUpdatedID;
 	struct LobbyDataUpdateInfo_t
@@ -125,6 +129,7 @@ private:
 	// Lobby methods: Members
 	// Lobby methods: Member status
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
+	// TODO Replace with ChatUpdateInfo_t variable.
 	CSteamID m_LobbyChatUpdateUserChanged;
 	EChatMemberStateChange m_LobbyChatUpdateUserState;
 	CSteamID m_LobbyChatUpdateUserMakingChange;
@@ -137,6 +142,7 @@ private:
 	std::list<ChatUpdateInfo_t> m_ChatUpdates;
 	// Lobby methods: Chat messages
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
+	// TODO Replace with ChatMessageInfo_t variable.
 	CSteamID m_LobbyChatMessageUser; // Holds next chat message user after HasLobbyChatMessage call.
 	char m_LobbyChatMessageText[4096];
 	struct ChatMessageInfo_t
@@ -170,10 +176,20 @@ public:
 	int GetAppID();
 	bool LoggedOn();
 	void RunCallbacks();
+	// Overlay methods
 	void ActivateGameOverlay(const char *pchDialog);
+	void ActivateGameOverlayInviteDialog(CSteamID steamIDLobby);
+	void ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag);
+	void ActivateGameOverlayToUser(const char *pchDialog, CSteamID steamID);
+	void ActivateGameOverlayToWebPage(const char *pchURL);
 	// User/Friend methods
 	const char *GetPersonaName();
 	CSteamID GetSteamID();
+	//m_PersonaStateChange
+	bool HasPersonaStateChanged();
+	CSteamID GetPersonaStateChangedUser() { return m_PersonaStateChange.m_ulSteamID; }
+	EPersonaChange GetPersonaStateChangedFlags() { return (EPersonaChange)m_PersonaStateChange.m_nChangeFlags; }
+	bool RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly);
 	bool HasAvatarImageLoaded();
 	CSteamID GetAvatarImageLoadedUser() { return m_AvatarUser; }
 	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);

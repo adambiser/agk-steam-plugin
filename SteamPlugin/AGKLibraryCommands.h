@@ -1775,6 +1775,131 @@ extern void(*AGKCommand1760)(  );
 extern void(*AGKCommand1761)( const char * );
 extern unsigned int(*AGKCommand1762)(  );
 extern void(*AGKCommand1763)( int );
+extern void(*AGKCommand1764)(  );
+extern void(*AGKCommand1765)( unsigned int );
+extern void(*AGKCommand1766)( unsigned int, unsigned int );
+extern void(*AGKCommand1767)( int, int );
+extern void(*AGKCommand1768)( int, int );
+extern int(*AGKCommand1769)( int );
+extern int(*AGKCommand1770)( int );
+extern int(*AGKCommand1771)(  );
+extern void(*AGKCommand1772)( int );
+extern int(*AGKCommand1773)(  );
+extern void(*AGKCommand1774)( int, int );
+extern void(*AGKCommand1775)( float );
+extern void(*AGKCommand1776)( float );
+extern void(*AGKCommand1777)( float );
+extern void(*AGKCommand1778)( int );
+extern unsigned int(*AGKCommand1779)(  );
+extern unsigned int(*AGKCommand1780)( const char*, const char* );
+extern void(*AGKCommand1781)( unsigned int, const char*, const char* );
+extern void(*AGKCommand1782)( unsigned int, float, float, float );
+extern unsigned int(*AGKCommand1783)( float, float, float );
+extern int(*AGKCommand1784)( unsigned int );
+extern void(*AGKCommand1785)( unsigned int );
+extern void(*AGKCommand1786)( unsigned int, float, float, float );
+extern void(*AGKCommand1787)( unsigned int, float );
+extern void(*AGKCommand1788)( unsigned int, float, float, float, float, float, float );
+extern void(*AGKCommand1789)( unsigned int, float, float, float, float );
+extern void(*AGKCommand1790)( unsigned int, float, float );
+extern void(*AGKCommand1791)( unsigned int, float, float );
+extern void(*AGKCommand1792)( unsigned int, float );
+extern void(*AGKCommand1793)( unsigned int, float );
+extern void(*AGKCommand1794)( unsigned int, int );
+extern void(*AGKCommand1795)( unsigned int );
+extern void(*AGKCommand1796)( unsigned int, unsigned int );
+extern void(*AGKCommand1797)( unsigned int, int );
+extern void(*AGKCommand1798)( unsigned int, int );
+extern void(*AGKCommand1799)( unsigned int, int );
+extern void(*AGKCommand1800)( unsigned int, int );
+extern float(*AGKCommand1801)( unsigned int );
+extern float(*AGKCommand1802)( unsigned int );
+extern float(*AGKCommand1803)( unsigned int );
+extern int(*AGKCommand1804)( unsigned int );
+extern int(*AGKCommand1805)( unsigned int );
+extern float(*AGKCommand1806)( unsigned int );
+extern float(*AGKCommand1807)( unsigned int );
+extern float(*AGKCommand1808)( unsigned int );
+extern float(*AGKCommand1809)( unsigned int );
+extern float(*AGKCommand1810)( unsigned int );
+extern float(*AGKCommand1811)( unsigned int );
+extern float(*AGKCommand1812)( unsigned int );
+extern float(*AGKCommand1813)( unsigned int );
+extern int(*AGKCommand1814)( unsigned int );
+extern void(*AGKCommand1815)( unsigned int, float, float, float, float, float );
+extern void(*AGKCommand1816)( unsigned int );
+extern void(*AGKCommand1817)( unsigned int, float, unsigned int, unsigned int, unsigned int, unsigned int );
+extern void(*AGKCommand1818)( unsigned int );
+extern void(*AGKCommand1819)( unsigned int, float, float );
+extern void(*AGKCommand1820)( unsigned int );
+extern void(*AGKCommand1821)( unsigned int, float );
+extern void(*AGKCommand1822)( unsigned int, float, float, float );
+extern void(*AGKCommand1823)( unsigned int, unsigned int, int, int, int, int );
+extern int(*AGKCommand1824)( unsigned int, unsigned int );
+extern int(*AGKCommand1825)( unsigned int, unsigned int );
+extern int(*AGKCommand1826)( unsigned int, unsigned int );
+extern int(*AGKCommand1827)( unsigned int, unsigned int );
+extern void(*AGKCommand1828)( unsigned int, unsigned int, unsigned int );
+extern void(*AGKCommand1829)( unsigned int, unsigned int );
+extern void(*AGKCommand1830)( unsigned int, float, float );
+extern void(*AGKCommand1831)( unsigned int, unsigned int, float, float );
+extern unsigned char*(*AGKCommand1832)( unsigned int );
+extern void(*AGKCommand1833)( const char *, int );
+extern void(*AGKCommand1834)(  );
+extern int(*AGKCommand1835)(  );
+extern void(*AGKCommand1836)( unsigned int );
+extern void(*AGKCommand1837)( const char * );
+extern int(*AGKCommand1838)(  );
+extern void(*AGKCommand1839)( const char* );
+extern char*(*AGKCommand1840)(  );
+extern void(*AGKCommand1841)(  );
+extern int(*AGKCommand1842)(  );
+extern void(*AGKCommand1843)( const char * );
+extern void(*AGKCommand1844)( float );
+extern void(*AGKCommand1845)( const char* );
+extern int(*AGKCommand1846)(  );
+extern void(*AGKCommand1847)(  );
+extern int(*AGKCommand1848)( unsigned int );
+extern void(*AGKCommand1849)( unsigned int, int, int );
+extern void(*AGKCommand1850)( unsigned int, float, float, float, float, float, int );
+extern void(*AGKCommand1851)( unsigned int, float, float, float, int );
+extern void(*AGKCommand1852)( unsigned int, unsigned int, unsigned int, float, float, int );
+extern void(*AGKCommand1853)( unsigned int, unsigned int, unsigned int, int, float, float, int );
+extern void(*AGKCommand1854)( unsigned int, unsigned int, unsigned int, int, float, float );
+extern int(*AGKCommand1855)( unsigned int );
+extern int(*AGKCommand1856)( unsigned int, int );
+extern float(*AGKCommand1857)( unsigned int, int, int );
+extern float(*AGKCommand1858)( unsigned int, int, int );
+extern float(*AGKCommand1859)( unsigned int );
+extern float(*AGKCommand1860)( unsigned int );
+extern void(*AGKCommand1861)( unsigned int, float, int );
+extern void(*AGKCommand1862)( unsigned int, float, int );
+extern void(*AGKCommand1863)( unsigned int, float, int );
+extern void(*AGKCommand1864)( unsigned int, int, int );
+extern void(*AGKCommand1865)( unsigned int, int, int );
+extern void(*AGKCommand1866)( unsigned int, unsigned int, int );
+extern void(*AGKCommand1867)( unsigned int, unsigned int, int, int );
+extern void(*AGKCommand1868)( unsigned int, unsigned int, int );
+extern void(*AGKCommand1869)( unsigned int, unsigned int, int, int );
+extern void(*AGKCommand1870)( unsigned int, unsigned int, unsigned int, float, float, float, float, float, int );
+extern unsigned int(*AGKCommand1871)( unsigned int, unsigned int, float, float, float, float, float, int );
+extern void(*AGKCommand1872)( unsigned int, float );
+extern void(*AGKCommand1873)( unsigned int, float, float );
+extern void(*AGKCommand1874)( unsigned int );
+extern void(*AGKCommand1875)( unsigned int );
+extern void(*AGKCommand1876)( unsigned int, unsigned int );
+extern void(*AGKCommand1877)( unsigned int, unsigned int );
+extern void(*AGKCommand1878)( unsigned int, unsigned int );
+extern void(*AGKCommand1879)( unsigned int, unsigned int );
+extern void(*AGKCommand1880)( unsigned int, unsigned int, unsigned int );
+extern void(*AGKCommand1881)( unsigned int, unsigned int, unsigned int );
+extern void(*AGKCommand1882)( unsigned int, unsigned int );
+extern void(*AGKCommand1883)( unsigned int, unsigned int );
+extern void(*AGKCommand1884)( unsigned int, unsigned int );
+extern void(*AGKCommand1885)( unsigned int, unsigned int );
+extern int(*AGKCommand1886)( unsigned int );
+extern void(*AGKCommand1887)( unsigned int, int, int );
+extern int(*AGKCommand1888)( unsigned int );
 
 class agk
 {
@@ -3339,10 +3464,10 @@ class agk
 		static inline int Get3DPhysicsJointRotationVector( unsigned int jointID ) { return AGKCommand1557( jointID ); }
 		static inline void Delete3DPhysicsJoint( unsigned int jointID ) { AGKCommand1558( jointID ); }
 		static inline void Set3DPhysicsHingeJointMotorIsEnabled( unsigned int jointID, int isEnabled ) { AGKCommand1559( jointID, isEnabled ); }
-		static inline void Set3DPhysicsHingeJointMaxMotorImpluse( unsigned int jointID, float maxImpluse ) { AGKCommand1560( jointID, maxImpluse ); }
+		static inline void Set3DPhysicsHingeJointMaxMotorImpulse( unsigned int jointID, float maxImpulse ) { AGKCommand1560( jointID, maxImpulse ); }
 		static inline void Set3DPhysicsHingeJointMotorVelocity( unsigned int jointID, float targetVelocity ) { AGKCommand1561( jointID, targetVelocity ); }
 		static inline void Set3DPhysicsTwistJointMotorIsEnabled( unsigned int jointID, int isEnabled ) { AGKCommand1562( jointID, isEnabled ); }
-		static inline void Set3DPhysicsTwistJointMaxMotorImpluse( unsigned int jointID, float maxImpluse ) { AGKCommand1563( jointID, maxImpluse ); }
+		static inline void Set3DPhysicsTwistJointMaxMotorImpulse( unsigned int jointID, float maxImpulse ) { AGKCommand1563( jointID, maxImpulse ); }
 		static inline void Set3DPhysicsTwistJointMotorRotationTarget( unsigned int jointID, int rotationVec3ID ) { AGKCommand1564( jointID, rotationVec3ID ); }
 		static inline void Set3DPhysicsSliderJointPoweredLinearMotorIsEnabled( unsigned int jointID, int isEnabled ) { AGKCommand1565( jointID, isEnabled ); }
 		static inline void Set3DPhysicsSliderJointMaxLinearMotorForce( unsigned int jointID, float maxLinearForce ) { AGKCommand1566( jointID, maxLinearForce ); }
@@ -3392,7 +3517,7 @@ class agk
 		static inline int Get3DPhysicsRagdollFromBoneObject( unsigned int objID ) { return AGKCommand1610( objID ); }
 		static inline int Is3dPhysicsRagdollStatic( unsigned int objID ) { return AGKCommand1611( objID ); }
 		static inline void Set3DphysicsRagdollStatic( unsigned int objID, int isStatic ) { AGKCommand1612( objID, isStatic ); }
-		static inline void Set3DPhysicsRadollBonesVisible( unsigned int objID, int isVisible ) { AGKCommand1613( objID, isVisible ); }
+		static inline void Set3DPhysicsRagdollBonesVisible( unsigned int objID, int isVisible ) { AGKCommand1613( objID, isVisible ); }
 		static inline void Set3DPhysicsRagdollDamping( float linear, float angular ) { AGKCommand1614( linear, angular ); }
 		static inline void Set3DPhysicsRagdollSleepingThresholds( float linear, float angular ) { AGKCommand1615( linear, angular ); }
 		static inline void Set3DPhysicsRagdollDeactivationTime( float time ) { AGKCommand1616( time ); }
@@ -3543,6 +3668,131 @@ class agk
 		static inline void FirebaseLogEvent( const char * event_name ) { AGKCommand1761( event_name ); }
 		static inline unsigned int IsSupportedDepthTexture(  ) { return AGKCommand1762(  ); }
 		static inline void SetAntialiasMode( int mode ) { AGKCommand1763( mode ); }
+		static inline void RenderShadowMap(  ) { AGKCommand1764(  ); }
+		static inline void SetNetworkAllowClients( unsigned int iNetID ) { AGKCommand1765( iNetID ); }
+		static inline void KickNetworkClient( unsigned int iNetID, unsigned int client ) { AGKCommand1766( iNetID, client ); }
+		static inline void SetObjectCastShadow( int objID, int mode ) { AGKCommand1767( objID, mode ); }
+		static inline void SetObjectReceiveShadow( int objID, int mode ) { AGKCommand1768( objID, mode ); }
+		static inline int GetObjectCastShadowMode( int objID ) { return AGKCommand1769( objID ); }
+		static inline int GetObjectReceiveShadowMode( int objID ) { return AGKCommand1770( objID ); }
+		static inline int GetShadowMappingSupported(  ) { return AGKCommand1771(  ); }
+		static inline void SetShadowMappingMode( int mode ) { AGKCommand1772( mode ); }
+		static inline int GetShadowMappingMode(  ) { return AGKCommand1773(  ); }
+		static inline void SetShadowMapSize( int width, int height ) { AGKCommand1774( width, height ); }
+		static inline void SetShadowRange( float range ) { AGKCommand1775( range ); }
+		static inline void SetShadowBias( float bias ) { AGKCommand1776( bias ); }
+		static inline void SetShadowLightStepSize( float step ) { AGKCommand1777( step ); }
+		static inline void SetShadowSmoothing( int mode ) { AGKCommand1778( mode ); }
+		static inline unsigned int GetShadowPolygonsDrawn(  ) { return AGKCommand1779(  ); }
+		static inline unsigned int LoadShaderFromString( const char* szVertexSource, const char* szPixelSource ) { return AGKCommand1780( szVertexSource, szPixelSource ); }
+		static inline void LoadShaderFromString( unsigned int shaderID, const char* szVertexSource, const char* szPixelSource ) { AGKCommand1781( shaderID, szVertexSource, szPixelSource ); }
+		static inline void Create3DParticles( unsigned int ID, float x, float y, float z ) { AGKCommand1782( ID, x, y, z ); }
+		static inline unsigned int Create3DParticles( float x, float y, float z ) { return AGKCommand1783( x, y, z ); }
+		static inline int Get3DParticlesExists( unsigned int ID ) { return AGKCommand1784( ID ); }
+		static inline void Delete3DParticles( unsigned int ID ) { AGKCommand1785( ID ); }
+		static inline void Set3DParticlesPosition( unsigned int ID, float x, float y, float z ) { AGKCommand1786( ID, x, y, z ); }
+		static inline void Set3DParticlesFrequency( unsigned int ID, float freq ) { AGKCommand1787( ID, freq ); }
+		static inline void Set3DParticlesStartZone( unsigned int ID, float x1, float y1, float z1, float x2, float y2, float z2 ) { AGKCommand1788( ID, x1, y1, z1, x2, y2, z2 ); }
+		static inline void Set3DParticlesDirection( unsigned int ID, float vx, float vy, float vz, float roll ) { AGKCommand1789( ID, vx, vy, vz, roll ); }
+		static inline void Set3DParticlesVelocityRange( unsigned int ID, float v1, float v2 ) { AGKCommand1790( ID, v1, v2 ); }
+		static inline void Set3DParticlesDirectionRange( unsigned int ID, float angle, float angle2 ) { AGKCommand1791( ID, angle, angle2 ); }
+		static inline void Set3DParticlesSize( unsigned int ID, float size ) { AGKCommand1792( ID, size ); }
+		static inline void Set3DParticlesLife( unsigned int ID, float time ) { AGKCommand1793( ID, time ); }
+		static inline void Set3DParticlesMax( unsigned int ID, int max ) { AGKCommand1794( ID, max ); }
+		static inline void Reset3DParticleCount( unsigned int ID ) { AGKCommand1795( ID ); }
+		static inline void Set3DParticlesImage( unsigned int ID, unsigned int imageID ) { AGKCommand1796( ID, imageID ); }
+		static inline void Set3DParticlesVisible( unsigned int ID, int visible ) { AGKCommand1797( ID, visible ); }
+		static inline void Set3DParticlesActive( unsigned int ID, int active ) { AGKCommand1798( ID, active ); }
+		static inline void Set3DParticlesTransparency( unsigned int ID, int active ) { AGKCommand1799( ID, active ); }
+		static inline void Set3DParticlesColorInterpolation( unsigned int ID, int mode ) { AGKCommand1800( ID, mode ); }
+		static inline float Get3DParticlesX( unsigned int ID ) { return AGKCommand1801( ID ); }
+		static inline float Get3DParticlesY( unsigned int ID ) { return AGKCommand1802( ID ); }
+		static inline float Get3DParticlesZ( unsigned int ID ) { return AGKCommand1803( ID ); }
+		static inline int Get3DParticlesVisible( unsigned int ID ) { return AGKCommand1804( ID ); }
+		static inline int Get3DParticlesActive( unsigned int ID ) { return AGKCommand1805( ID ); }
+		static inline float Get3DParticlesFrequency( unsigned int ID ) { return AGKCommand1806( ID ); }
+		static inline float Get3DParticlesDirectionX( unsigned int ID ) { return AGKCommand1807( ID ); }
+		static inline float Get3DParticlesDirectionY( unsigned int ID ) { return AGKCommand1808( ID ); }
+		static inline float Get3DParticlesDirectionZ( unsigned int ID ) { return AGKCommand1809( ID ); }
+		static inline float Get3DParticlesDirectionRange1( unsigned int ID ) { return AGKCommand1810( ID ); }
+		static inline float Get3DParticlesDirectionRange2( unsigned int ID ) { return AGKCommand1811( ID ); }
+		static inline float Get3DParticlesSize( unsigned int ID ) { return AGKCommand1812( ID ); }
+		static inline float Get3DParticlesLife( unsigned int ID ) { return AGKCommand1813( ID ); }
+		static inline int Get3DParticlesMaxReached( unsigned int ID ) { return AGKCommand1814( ID ); }
+		static inline void Add3DParticlesForce( unsigned int ID, float starttime, float endtime, float x, float y, float z ) { AGKCommand1815( ID, starttime, endtime, x, y, z ); }
+		static inline void Clear3DParticlesForces( unsigned int ID ) { AGKCommand1816( ID ); }
+		static inline void Add3DParticlesColorKeyFrame( unsigned int ID, float time, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha ) { AGKCommand1817( ID, time, red, green, blue, alpha ); }
+		static inline void Clear3DParticlesColors( unsigned int ID ) { AGKCommand1818( ID ); }
+		static inline void Add3DParticlesScaleKeyFrame( unsigned int ID, float time, float scale ) { AGKCommand1819( ID, time, scale ); }
+		static inline void Clear3DParticlesScales( unsigned int ID ) { AGKCommand1820( ID ); }
+		static inline void Update3DParticles( unsigned int ID, float time ) { AGKCommand1821( ID, time ); }
+		static inline void Offset3DParticles( unsigned int ID, float x, float y, float z ) { AGKCommand1822( ID, x, y, z ); }
+		static inline void SetMeshMemblockVertexColor( unsigned int memID, unsigned int vertexIndex, int red, int green, int blue, int alpha ) { AGKCommand1823( memID, vertexIndex, red, green, blue, alpha ); }
+		static inline int GetMeshMemblockVertexRed( unsigned int memID, unsigned int vertexIndex ) { return AGKCommand1824( memID, vertexIndex ); }
+		static inline int GetMeshMemblockVertexGreen( unsigned int memID, unsigned int vertexIndex ) { return AGKCommand1825( memID, vertexIndex ); }
+		static inline int GetMeshMemblockVertexBlue( unsigned int memID, unsigned int vertexIndex ) { return AGKCommand1826( memID, vertexIndex ); }
+		static inline int GetMeshMemblockVertexAlpha( unsigned int memID, unsigned int vertexIndex ) { return AGKCommand1827( memID, vertexIndex ); }
+		static inline void SetObjectMeshNormalMap( unsigned int objID, unsigned int meshIndex, unsigned int imageID ) { AGKCommand1828( objID, meshIndex, imageID ); }
+		static inline void SetObjectNormalMap( unsigned int objID, unsigned int imageID ) { AGKCommand1829( objID, imageID ); }
+		static inline void SetObjectNormalMapScale( unsigned int objID, float scaleU, float scaleV ) { AGKCommand1830( objID, scaleU, scaleV ); }
+		static inline void SetObjectMeshNormalMapScale( unsigned int objID, unsigned int meshIndex, float scaleU, float scaleV ) { AGKCommand1831( objID, meshIndex, scaleU, scaleV ); }
+		static inline unsigned char* GetMemblockPtr( unsigned int memID ) { return AGKCommand1832( memID ); }
+		static inline void StartScreenRecording( const char * szFilename, int microphone ) { AGKCommand1833( szFilename, microphone ); }
+		static inline void StopScreenRecording(  ) { AGKCommand1834(  ); }
+		static inline int IsScreenRecording(  ) { return AGKCommand1835(  ); }
+		static inline void DeleteShader( unsigned int shaderID ) { AGKCommand1836( shaderID ); }
+		static inline void ActivateSmartWatch( const char * szReserved ) { AGKCommand1837( szReserved ); }
+		static inline int GetSmartWatchState(  ) { return AGKCommand1838(  ); }
+		static inline void SendSmartWatchData( const char* szJson ) { AGKCommand1839( szJson ); }
+		static inline char* ReceiveSmartWatchData(  ) { return AGKCommand1840(  ); }
+		static inline void TextToSpeechSetup(  ) { AGKCommand1841(  ); }
+		static inline int GetTextToSpeechReady(  ) { return AGKCommand1842(  ); }
+		static inline void Speak( const char * text ) { AGKCommand1843( text ); }
+		static inline void SetSpeechRate( float rate ) { AGKCommand1844( rate ); }
+		static inline void SetSpeechLanguage( const char* lang ) { AGKCommand1845( lang ); }
+		static inline int IsSpeaking(  ) { return AGKCommand1846(  ); }
+		static inline void StopSpeaking(  ) { AGKCommand1847(  ); }
+		static inline int GetSpriteTransparency( unsigned int iSpriteIndex ) { return AGKCommand1848( iSpriteIndex ); }
+		static inline void SetSpriteShape( unsigned int iSpriteIndex, int shape, int shapeID ) { AGKCommand1849( iSpriteIndex, shape, shapeID ); }
+		static inline void SetSpriteShapeBox( unsigned int iSpriteIndex, float x, float y, float x2, float y2, float angle, int shapeID ) { AGKCommand1850( iSpriteIndex, x, y, x2, y2, angle, shapeID ); }
+		static inline void SetSpriteShapeCircle( unsigned int iSpriteIndex, float x, float y, float radius, int shapeID ) { AGKCommand1851( iSpriteIndex, x, y, radius, shapeID ); }
+		static inline void SetSpriteShapePolygon( unsigned int iSpriteIndex, unsigned int numPoints, unsigned int index, float x, float y, int shapeID ) { AGKCommand1852( iSpriteIndex, numPoints, index, x, y, shapeID ); }
+		static inline void SetSpriteShapeChain( unsigned int iSpriteIndex, unsigned int numPoints, unsigned int index, int loop, float x, float y, int shapeID ) { AGKCommand1853( iSpriteIndex, numPoints, index, loop, x, y, shapeID ); }
+		static inline void AddSpriteShapeChain( unsigned int iSpriteIndex, unsigned int numPoints, unsigned int index, int loop, float x, float y ) { AGKCommand1854( iSpriteIndex, numPoints, index, loop, x, y ); }
+		static inline int GetSpriteNumShapes( unsigned int iSpriteIndex ) { return AGKCommand1855( iSpriteIndex ); }
+		static inline int GetSpriteShapeNumVertices( unsigned int iSpriteIndex, int shapeID ) { return AGKCommand1856( iSpriteIndex, shapeID ); }
+		static inline float GetSpriteShapeVertexX( unsigned int iSpriteIndex, int shapeID, int vertex ) { return AGKCommand1857( iSpriteIndex, shapeID, vertex ); }
+		static inline float GetSpriteShapeVertexY( unsigned int iSpriteIndex, int shapeID, int vertex ) { return AGKCommand1858( iSpriteIndex, shapeID, vertex ); }
+		static inline float GetSpritePhysicsCOMX( unsigned int iSpriteIndex ) { return AGKCommand1859( iSpriteIndex ); }
+		static inline float GetSpritePhysicsCOMY( unsigned int iSpriteIndex ) { return AGKCommand1860( iSpriteIndex ); }
+		static inline void SetSpritePhysicsFriction( unsigned int iSpriteIndex, float friction, int shapeID ) { AGKCommand1861( iSpriteIndex, friction, shapeID ); }
+		static inline void SetSpritePhysicsRestitution( unsigned int iSpriteIndex, float restitution, int shapeID ) { AGKCommand1862( iSpriteIndex, restitution, shapeID ); }
+		static inline void SetSpritePhysicsDensity( unsigned int iSpriteIndex, float density, int shapeID ) { AGKCommand1863( iSpriteIndex, density, shapeID ); }
+		static inline void SetSpritePhysicsIsSensor( unsigned int iSpriteIndex, int sensor, int shapeID ) { AGKCommand1864( iSpriteIndex, sensor, shapeID ); }
+		static inline void SetSpriteGroup( unsigned int iSpriteIndex, int group, int shapeID ) { AGKCommand1865( iSpriteIndex, group, shapeID ); }
+		static inline void SetSpriteCategoryBits( unsigned int iSpriteIndex, unsigned int categories, int shapeID ) { AGKCommand1866( iSpriteIndex, categories, shapeID ); }
+		static inline void SetSpriteCategoryBit( unsigned int iSpriteIndex, unsigned int category, int flag, int shapeID ) { AGKCommand1867( iSpriteIndex, category, flag, shapeID ); }
+		static inline void SetSpriteCollideBits( unsigned int iSpriteIndex, unsigned int mask, int shapeID ) { AGKCommand1868( iSpriteIndex, mask, shapeID ); }
+		static inline void SetSpriteCollideBit( unsigned int iSpriteIndex, unsigned int category, int flag, int shapeID ) { AGKCommand1869( iSpriteIndex, category, flag, shapeID ); }
+		static inline void CreateRopeJoint( unsigned int iJointIndex, unsigned int iSpriteIndex1, unsigned int iSpriteIndex2, float x, float y, float x2, float y2, float maxLength, int colConnected ) { AGKCommand1870( iJointIndex, iSpriteIndex1, iSpriteIndex2, x, y, x2, y2, maxLength, colConnected ); }
+		static inline unsigned int CreateRopeJoint( unsigned int iSpriteIndex1, unsigned int iSpriteIndex2, float x, float y, float x2, float y2, float maxLength, int colConnected ) { return AGKCommand1871( iSpriteIndex1, iSpriteIndex2, x, y, x2, y2, maxLength, colConnected ); }
+		static inline void SetJointMouseMaxForce( unsigned int iJointIndex, float maxForce ) { AGKCommand1872( iJointIndex, maxForce ); }
+		static inline void SetJointDamping( unsigned int iJointIndex, float dampingRatio, float frequency ) { AGKCommand1873( iJointIndex, dampingRatio, frequency ); }
+		static inline void PauseTweenCustom( unsigned int tweenID ) { AGKCommand1874( tweenID ); }
+		static inline void ResumeTweenCustom( unsigned int tweenID ) { AGKCommand1875( tweenID ); }
+		static inline void PauseTweenSprite( unsigned int tweenID, unsigned int spriteID ) { AGKCommand1876( tweenID, spriteID ); }
+		static inline void ResumeTweenSprite( unsigned int tweenID, unsigned int spriteID ) { AGKCommand1877( tweenID, spriteID ); }
+		static inline void PauseTweenText( unsigned int tweenID, unsigned int textID ) { AGKCommand1878( tweenID, textID ); }
+		static inline void ResumeTweenText( unsigned int tweenID, unsigned int textID ) { AGKCommand1879( tweenID, textID ); }
+		static inline void PauseTweenChar( unsigned int tweenID, unsigned int textID, unsigned int charID ) { AGKCommand1880( tweenID, textID, charID ); }
+		static inline void ResumeTweenChar( unsigned int tweenID, unsigned int textID, unsigned int charID ) { AGKCommand1881( tweenID, textID, charID ); }
+		static inline void PauseTweenObject( unsigned int tweenID, unsigned int objectID ) { AGKCommand1882( tweenID, objectID ); }
+		static inline void ResumeTweenObject( unsigned int tweenID, unsigned int objectID ) { AGKCommand1883( tweenID, objectID ); }
+		static inline void PauseTweenCamera( unsigned int tweenID, unsigned int cameraID ) { AGKCommand1884( tweenID, cameraID ); }
+		static inline void ResumeTweenCamera( unsigned int tweenID, unsigned int cameraID ) { AGKCommand1885( tweenID, cameraID ); }
+		static inline int GetNetworkExists( unsigned int iNetID ) { return AGKCommand1886( iNetID ); }
+		static inline void SetObjectBlendModes( unsigned int objID, int src, int dst ) { AGKCommand1887( objID, src, dst ); }
+		static inline int GetShaderExists( unsigned int shaderID ) { return AGKCommand1888( shaderID ); }
 };
 
 #endif
