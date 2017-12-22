@@ -14,14 +14,21 @@ global server as SteamServerInfo
 Type SteamServerInfo
 	selectedGroup as integer
 	friendGroups as string[]
-	groupFriendIDs as integer[]
+	groupFriends as FriendInfo[]
 EndType
+
+Type FriendInfo
+	hSteamID as integer
+	name as string
+	state as integer
+	gameinfo as FriendGameInfo_t
+	avatarImageID as integer
+	avatarHandle as integer
+EndType
+
 
 // Additional UI for this demo.
 //~ #constant RESET_BUTTON			1
-//~ #constant ADD_WINS_BUTTON		2
-//~ #constant ADD_LOSSES_BUTTON		3
-//~ #constant ADD_DISTANCE_BUTTON	4
 //~ 
 //~ global buttonText as string[3] = ["RESET", "+5 Wins", "+1 Loss", "+100 Feet"]
 //~ x as integer
@@ -94,21 +101,19 @@ Function ProcessCallbacks()
 		hSteamID = Steam.GetPersonaStateChangedUser()
 		flags = Steam.GetPersonaStateChangedFlags()
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
-		UpdateFriendStatus(hSteamID)
+		// Take this friend out of the list and re-add in the sorted index.
+		index as integer
+		index = GetFriendSteamIDIndex(hSteamID)
+		if index >= 0
+			server.groupFriends.remove(index)
+			AddFriendInfoSorted(GetFriendInfo(hSteamID))
+			UpdateFriendListUI(0)
+		endif
 	endwhile
 	while Steam.HasAvatarImageLoaded()
 		hSteamID = Steam.GetAvatarImageLoadedUser()
-		// Update the avatar if shown.
-		index as integer
-		index = GetFriendSteamIDIndex(hSteamID)
-		if index = -1
-			ExitFunction
-		endif
-		uiindex as integer
-		uiindex = index - ui.topFriendIndex
-		if uiindex >= 0 and uiindex <= ui.friendListTextIDs.length
-			LoadUserAvatar(hSteamID, ui.friendListSpriteIDs[uiindex])
-		endif
+		AddStatus("Avatar loaded for " + Steam.GetFriendPersonaName(hSteamID))
+		UpdateFriendStatus(hSteamID)
 	endwhile
 EndFunction
 
@@ -127,7 +132,7 @@ Function CreateFriendListUI()
 	x as integer
 	y as integer
 	// Scrollable list of groups on the left.
-	CreateTextEx(GROUP_LIST_X, GROUP_LIST_Y - 20, "Groups (Scrollable)")
+	CreateTextEx(GROUP_LIST_X, GROUP_LIST_Y - 20, "Groups (Scrollable, Click to load list)")
 	ui.groupListSpriteID = CreateSprite(CreateImageColor(32, 32, 32, 255))
 	SetSpritePosition(ui.groupListSpriteID, GROUP_LIST_X, GROUP_LIST_Y)
 	SetSpriteSize(ui.groupListSpriteID, GROUP_LIST_WIDTH, LIST_HEIGHT)
@@ -152,16 +157,13 @@ Function CreateFriendListUI()
 EndFunction
 
 Function RefreshFriendGroupList()
-	x as integer
-	for x = 0 to ui.groupListTextIDs.length
-		SetTextVisible(ui.groupListTextIDs[x], 0)
-	next
 	// Reload the list of friend group names.
 	server.friendGroups.length = -1
 	// Make index 0 represent the "All friends" list.
 	server.friendGroups.insert("All Friends (" + str(Steam.GetFriendCount(k_EFriendFlagImmediate)) + ")")
 	groupCount as integer
 	groupCount = Steam.GetFriendsGroupCount()
+	x as integer
 	for x = 0 to groupCount - 1
 		groupID as integer
 		groupID = Steam.GetFriendsGroupIDByIndex(x)
@@ -183,10 +185,11 @@ Function UpdateGroupListUI(delta as integer)
 	x as integer
 	for x = ui.topGroupIndex to ui.topGroupIndex + ui.groupListTextIDs.length
 		if x > server.friendGroups.length
-			exit
+			SetTextVisible(ui.groupListTextIDs[x - ui.topGroupIndex], 0)
+		else
+			SetTextString(ui.groupListTextIDs[x - ui.topGroupIndex], server.friendGroups[x])
+			SetTextVisible(ui.groupListTextIDs[x - ui.topGroupIndex], 1)
 		endif
-		SetTextString(ui.groupListTextIDs[x - ui.topGroupIndex], server.friendGroups[x])
-		SetTextVisible(ui.groupListTextIDs[x - ui.topGroupIndex], 1)
 	next
 EndFunction
 
@@ -200,30 +203,88 @@ Function SelectFriendGroup(index as integer)
 		// Subtract 1 because in this app index 0 = all friends
 		friendListJSON = Steam.GetFriendsGroupMembersListJSON(Steam.GetFriendsGroupIDByIndex(index - 1))
 	endif
-	server.groupFriendIDs.fromJSON(friendListJSON)
+	server.groupFriends.length = -1
+	groupFriendIDs as integer[]
+	groupFriendIDs.fromJSON(friendListJSON)
+	x as integer
+	for x = 0 to groupFriendIDs.length
+		// Load the friend info and add it to the friend list (sorted)
+		AddFriendInfoSorted(GetFriendInfo(groupFriendIDs[x]))
+	next
 	UpdateFriendListUI(-ui.topFriendIndex) // Scroll to top of friend list.
 EndFunction
+
+Function GetFriendInfo(hSteamID as integer)
+	info as FriendInfo
+	info.hSteamID = hSteamID
+	info.name = Steam.GetFriendPersonaName(hSteamID)
+	info.state = Steam.GetFriendPersonaState(hSteamID)
+	info.gameinfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamID))
+	info.avatarImageID = CreateImageColor(0, 0, 0, 0)
+	info.avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
+	if info.avatarHandle > 0
+		Steam.LoadImageFromHandle(info.avatarImageID, info.avatarHandle)
+	endif
+EndFunction info
+
+Function AddFriendInfoSorted(info as FriendInfo)
+	// Sort order: In-game, online, offline, each group alphabetically.
+	index as integer
+	infoGroup as integer
+	infoGroup = GetFriendInfoSortGroup(info)
+	for index = 0 to server.groupFriends.length
+		check as FriendInfo
+		check = server.groupFriends[index]
+		// Online go first.
+		checkGroup as integer
+		checkGroup = GetFriendInfoSortGroup(check)
+		if checkGroup > infoGroup
+			// Found next group below, use this index.
+			exit
+		elseif checkGroup = infoGroup
+			// Same group, compare names.
+			if Upper(info.name) < Upper(check.name)
+				// Found name below, use this index
+				exit
+			endif
+		endif
+	next
+	if index < server.groupFriends.length
+		server.groupFriends.insert(info, index)
+	else
+		server.groupFriends.insert(info)
+	endif
+EndFunction
+
+Function GetFriendInfoSortGroup(info as FriendInfo)
+	if info.state <> k_EPersonaStateOffline
+		if info.gameinfo.InGame
+			ExitFunction 0 // ingame group
+		else
+			ExitFunction 1 // online group
+		endif
+	endif
+EndFunction 2 // offline group
 
 Function UpdateFriendListUI(delta as integer)
 	inc ui.topFriendIndex, delta
 	if ui.topFriendIndex < 0
 		ui.topFriendIndex = 0
-	elseif server.groupFriendIDs.length <= ui.friendListTextIDs.length
+	elseif server.groupFriends.length <= ui.friendListTextIDs.length
 		ui.topFriendIndex = 0
-	elseif ui.topFriendIndex + (ui.friendListTextIDs.length) > server.groupFriendIDs.length
-		ui.topFriendIndex = server.groupFriendIDs.length - ui.friendListTextIDs.length
+	elseif ui.topFriendIndex + (ui.friendListTextIDs.length) > server.groupFriends.length
+		ui.topFriendIndex = server.groupFriends.length - ui.friendListTextIDs.length
 	endif
 	x as integer
 	for x = 0 to ui.friendListTextIDs.length
 		friendIndex as integer
 		friendIndex = x + ui.topFriendIndex
-		if friendIndex > server.groupFriendIDs.length
+		if friendIndex > server.groupFriends.length
 			SetTextVisible(ui.friendListTextIDs[x], 0)
 			SetSpriteVisible(ui.friendListSpriteIDs[x], 0)
+			SetSpriteImage(ui.friendListSpriteIDs[x], 0)
 		else
-			UpdateFriendStatus(server.groupFriendIDs[friendIndex])
-			SetTextVisible(ui.friendListTextIDs[x], 1)
-			SetSpriteVisible(ui.friendListSpriteIDs[x], 1)
+			UpdateFriendStatus(server.groupFriends[friendIndex].hSteamID)
 		endif
 	next
 EndFunction
@@ -239,33 +300,35 @@ Function UpdateFriendStatus(hSteamID as integer)
 	uiindex as integer
 	uiindex = index - ui.topFriendIndex
 	if uiindex >= 0 and uiindex <= ui.friendListTextIDs.length
-		name as string
-		state as integer
-		gameinfo as FriendGameInfo_t
-		name = Steam.GetFriendPersonaName(hSteamID)
-		state = Steam.GetFriendPersonaState(hSteamID)
-		gameinfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamID))
+		info as friendInfo
+		info = server.groupFriends[index]
 		text as string
-		text = name
-		if state = k_EPersonaStateOffline
+		text = info.name
+		if info.state = k_EPersonaStateOffline
 			SetTextColor(ui.friendListTextIDs[uiindex], OFFLINE_COLOR)
-		elseif gameinfo.InGame
+		elseif info.gameinfo.InGame
 			SetTextColor(ui.friendListTextIDs[uiindex], INGAME_COLOR)
-			text = text + " [In-Game: " + Steam.GetAppName(gameinfo.GameAppID) + "]"
+			text = text + " [In-Game: " + Steam.GetAppName(info.gameinfo.GameAppID) + "]"
 		else
 			SetTextColor(ui.friendListTextIDs[uiindex], ONLINE_COLOR)
-			text = text + " [" + GetFriendPersonaStateText(state) + "]"
+			text = text + " [" + GetFriendPersonaStateText(info.state) + "]"
 		endif
 		SetTextString(ui.friendListTextIDs[uiindex], text)
-		// TODO: It would be better to cache the friend avatars.
-		LoadUserAvatar(hSteamID, ui.friendListSpriteIDs[uiindex])
+		SetTextVisible(ui.friendListTextIDs[uiindex], 1)
+		if info.avatarHandle > 0
+			Steam.LoadImageFromHandle(info.avatarImageID, info.avatarHandle)
+			SetSpriteImage(ui.friendListSpriteIDs[uiindex], info.avatarImageID)
+			SetSpriteVisible(ui.friendListSpriteIDs[uiindex], 1)
+		else
+			SetSpriteVisible(ui.friendListSpriteIDs[uiindex], 0)
+		endif
 	endif	
 EndFunction
 
 Function GetFriendSteamIDIndex(hSteamID as integer)
 	x as integer
-	for x = 0 to server.groupFriendIDs.length
-		if server.groupFriendIDs[x] = hSteamID
+	for x = 0 to server.groupFriends.length
+		if server.groupFriends[x].hSteamID = hSteamID
 			ExitFunction x
 		endif
 	next
@@ -356,10 +419,10 @@ Function GetFriendPersonaStateText(personaState as integer)
 	endselect	
 EndFunction "Unknown"
 
-Function LoadUserAvatar(hSteamID as integer, spriteID as integer)
-	avatarHandle as integer
-	avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
-	if avatarHandle > 0
-		Steam.LoadImageFromHandle(GetSpriteImageID(spriteID), avatarHandle)
-	endif
-EndFunction
+//~ Function LoadUserAvatar(hSteamID as integer, spriteID as integer)
+	//~ avatarHandle as integer
+	//~ avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
+	//~ if avatarHandle > 0
+		//~ Steam.LoadImageFromHandle(GetSpriteImageID(spriteID), avatarHandle)
+	//~ endif
+//~ EndFunction
