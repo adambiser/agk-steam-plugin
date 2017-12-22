@@ -7,6 +7,7 @@ Shutdown,0,0,Shutdown,0,0,0,0,0
 SteamInitialized,I,0,SteamInitialized,0,0,0,0,0
 RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,0
 GetAppID,I,0,GetAppID,0,0,0,0,0
+GetAppName,S,I,GetAppName,0,0,0,0,0
 LoggedOn,I,0,LoggedOn,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 #
@@ -30,7 +31,20 @@ RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,0
 HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,0
 GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,0
 GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,0
+GetFriendCount,I,I,GetFriendCount,0,0,0,0,0
+GetFriendByIndex,I,II,GetFriendByIndex,0,0,0,0,0
+GetFriendListJSON,S,I,GetFriendListJSON,0,0,0,0,0
+GetFriendGamePlayedJSON,S,I,GetFriendGamePlayedJSON,0,0,0,0,0
 GetFriendPersonaName,S,I,GetFriendPersonaName,0,0,0,0,0
+GetFriendPersonaState,I,I,GetFriendPersonaState,0,0,0,0,0
+#
+# Friends group methods
+#
+GetFriendsGroupCount,I,0,GetFriendsGroupCount,0,0,0,0,0
+GetFriendsGroupIDByIndex,I,I,GetFriendsGroupIDByIndex,0,0,0,0,0
+GetFriendsGroupMembersCount,I,I,GetFriendsGroupMembersCount,0,0,0,0,0
+GetFriendsGroupMembersListJSON,S,I,GetFriendsGroupMembersListJSON,0,0,0,0,0
+GetFriendsGroupName,S,I,GetFriendsGroupName,0,0,0,0,0
 #
 # Image methods
 #

@@ -158,6 +158,16 @@ int SteamPlugin::GetAppID()
 	return SteamUtils()->GetAppID();
 }
 
+int SteamPlugin::GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
+{
+	if (!m_SteamInitialized || NULL == SteamUtils())
+	{
+		return 0;
+	}
+	return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
+	
+}
+
 bool SteamPlugin::LoggedOn()
 {
 	if (!m_SteamInitialized || NULL == SteamUser())
@@ -329,13 +339,99 @@ int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 	return hImage;
 }
 
-const char *SteamPlugin::GetFriendPersonaName(CSteamID steamID)
+int SteamPlugin::GetFriendCount(EFriendFlags iFriendFlags)
 {
 	if (!m_SteamInitialized || NULL == SteamFriends())
 	{
 		return 0;
 	}
-	return SteamFriends()->GetFriendPersonaName(steamID);
+	m_PersonaStateChangedEnabled = true;
+	return SteamFriends()->GetFriendCount(iFriendFlags);
+}
+CSteamID SteamPlugin::GetFriendByIndex(int iFriend, EFriendFlags iFriendFlags)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return k_steamIDNil;
+	}
+	return SteamFriends()->GetFriendByIndex(iFriend, iFriendFlags);
+}
+
+bool SteamPlugin::GetFriendGamePlayed(CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return false;
+	}
+	m_PersonaStateChangedEnabled = true;
+	return SteamFriends()->GetFriendGamePlayed(steamIDFriend, pFriendGameInfo);
+}
+
+const char *SteamPlugin::GetFriendPersonaName(CSteamID steamIDFriend)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return 0;
+	}
+	m_PersonaStateChangedEnabled = true;
+	return SteamFriends()->GetFriendPersonaName(steamIDFriend);
+}
+
+EPersonaState SteamPlugin::GetFriendPersonaState(CSteamID steamIDFriend)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return k_EPersonaStateOffline;
+	}
+	m_PersonaStateChangedEnabled = true;
+	return SteamFriends()->GetFriendPersonaState(steamIDFriend);
+}
+
+// Friend group methods
+int SteamPlugin::GetFriendsGroupCount()
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return 0;
+	}
+	return SteamFriends()->GetFriendsGroupCount();
+}
+
+FriendsGroupID_t SteamPlugin::GetFriendsGroupIDByIndex(int iFriendGroup)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return k_FriendsGroupID_Invalid;
+	}
+	return SteamFriends()->GetFriendsGroupIDByIndex(iFriendGroup);
+}
+
+int SteamPlugin::GetFriendsGroupMembersCount(FriendsGroupID_t friendsGroupID)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return 0;
+	}
+	return SteamFriends()->GetFriendsGroupMembersCount(friendsGroupID);
+}
+
+void SteamPlugin::GetFriendsGroupMembersList(FriendsGroupID_t friendsGroupID, CSteamID *pOutSteamIDMembers, int nMembersCount)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		pOutSteamIDMembers = NULL;
+		return;
+	}
+	SteamFriends()->GetFriendsGroupMembersList(friendsGroupID, pOutSteamIDMembers, nMembersCount);
+}
+
+const char *SteamPlugin::GetFriendsGroupName(FriendsGroupID_t friendsGroupID)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return NULL;
+	}
+	return SteamFriends()->GetFriendsGroupName(friendsGroupID);
 }
 
 int SteamPlugin::LoadImageFromHandle(int hImage)

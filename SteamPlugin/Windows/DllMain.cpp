@@ -23,6 +23,7 @@ THE SOFTWARE.
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 #include <vector>
+#include <sstream>
 #include "DllMain.h"
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
@@ -48,6 +49,11 @@ char *CreateString(const char* text)
 	char *result = agk::CreateString(1);
 	strcpy_s(result, 1, "");
 	return result;
+}
+
+char *CreateString(std::string text)
+{
+	return CreateString(text.c_str());
 }
 
 std::vector <CSteamID> m_CSteamIDs;
@@ -162,6 +168,19 @@ int GetAppID()
 		return Steam->GetAppID();
 	}
 	return 0;
+}
+
+char *GetAppName(int appID)
+{
+	if (Steam)
+	{
+		char name[256];
+		if (Steam->GetAppName(appID, name, sizeof(name)))
+		{
+			return CreateString(name);
+		}
+	}
+	return CreateString("NULL");
 }
 
 /*
@@ -319,11 +338,141 @@ int GetFriendAvatar(int hUserSteamID, int size)
 	return 0;
 }
 
+int GetFriendCount(int friendFlags)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendCount((EFriendFlags)friendFlags);
+	}
+	return -1;
+}
+
+int GetFriendByIndex(int index, int friendFlags)
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetFriendByIndex(index, (EFriendFlags)friendFlags));
+	}
+	return 0;
+}
+
+char *GetFriendListJSON(int friendFlags)
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		int friendCount = Steam->GetFriendCount((EFriendFlags)friendFlags);
+		for (int x = 0; x < friendCount; x++)
+		{
+			if (x > 0)
+			{
+				json << ",";
+			}
+			json << GetSteamIDHandle(Steam->GetFriendByIndex(x, (EFriendFlags)friendFlags));
+		}
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetFriendGamePlayedJSON(int hUserSteamID)
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		FriendGameInfo_t pFriendGameInfo;
+		bool ingame = Steam->GetFriendGamePlayed(GetSteamID(hUserSteamID), &pFriendGameInfo);
+		json << "\"InGame\": " << (int)ingame;
+		if (ingame)
+		{
+			json << ",\"GameAppID\": " << pFriendGameInfo.m_gameID.AppID();
+			json << ",\"GameIP\": " << pFriendGameInfo.m_unGameIP;
+			json << ",\"GamePort\": " << pFriendGameInfo.m_usGamePort;
+			json << ",\"QueryPort\": " << pFriendGameInfo.m_usQueryPort;
+			json << ",\"SteamIDLobby\": " << GetSteamIDHandle(pFriendGameInfo.m_steamIDLobby);
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
 char *GetFriendPersonaName(int hUserSteamID)
 {
 	if (Steam)
 	{
 		return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
+	}
+	return CreateString(NULL);
+}
+
+int GetFriendPersonaState(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendPersonaState(GetSteamID(hUserSteamID));
+	}
+	return -1;
+}
+
+int GetFriendsGroupCount()
+{
+	if (Steam)
+	{
+		return Steam->GetFriendsGroupCount();
+	}
+	return 0;
+}
+
+int GetFriendsGroupIDByIndex(int index)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendsGroupIDByIndex(index);
+	}
+	return k_FriendsGroupID_Invalid;
+}
+
+int GetFriendsGroupMembersCount(int friendsGroupID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendsGroupMembersCount(friendsGroupID);
+	}
+	return 0;
+}
+
+char *GetFriendsGroupMembersListJSON(int friendsGroupID) // return a json array of SteamID handles
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		int memberCount = Steam->GetFriendsGroupMembersCount(friendsGroupID);
+		if (memberCount > 0)
+		{
+			std::vector<CSteamID> friends(memberCount);
+			Steam->GetFriendsGroupMembersList(friendsGroupID, friends.data(), memberCount);
+			for (int x = 0; x < memberCount; x++)
+			{
+				if (x > 0)
+				{
+					json << ",";
+				}
+				json << GetSteamIDHandle(friends[x]);
+			}
+		}
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetFriendsGroupName(int friendsGroupID)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetFriendsGroupName(friendsGroupID));
 	}
 	return CreateString(NULL);
 }
@@ -903,7 +1052,7 @@ char *GetLobbyDataByIndex(int hLobbySteamID, int index)
 			json.append("\", \"value\": \"");
 			json.append(value);
 			json.append("\"}");
-			return CreateString(json.c_str());
+			return CreateString(json);
 		}
 	}
 	return CreateString(NULL);
@@ -933,7 +1082,7 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 			}
 		}
 		json.append("]");
-		return CreateString(json.c_str());
+		return CreateString(json);
 	}
 	return CreateString(NULL);
 }

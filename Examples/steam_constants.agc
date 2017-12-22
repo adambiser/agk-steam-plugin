@@ -102,6 +102,19 @@
 #constant k_nUserRestrictionGameInvites	32	// User cannot send or recv game invites, for example if they are on mobile.
 #constant k_nUserRestrictionTrading		64	// User cannot participate in trading, for example if they are on a console or mobile.
 
+// Structs
+//--------------------------------------------------------------
+// Information about the game a friend is playing.
+// Obtainable from: GetFriendGamePlayed.
+Type FriendGameInfo_t
+	InGame as integer // boolean
+	GameAppID as integer // CGameID handle
+	GameIP as integer
+	GamePort as integer
+	QueryPort as integer
+	SteamIDLobby as integer // CSteamID handle
+EndType
+
 // Constants
 //--------------------------------------------------------------
 //~ #constant k_cchMaxFriendsGroupName			64		// The maximum length that a friends group name can be (not including the null-terminator!)

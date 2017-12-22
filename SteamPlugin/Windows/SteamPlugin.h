@@ -174,6 +174,7 @@ public:
 	bool SteamInitialized() { return m_SteamInitialized; }
 	bool RestartAppIfNecessary(uint32 unOwnAppID);
 	int GetAppID();
+	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax);
 	bool LoggedOn();
 	void RunCallbacks();
 	// Overlay methods
@@ -184,6 +185,8 @@ public:
 	void ActivateGameOverlayToWebPage(const char *pchURL);
 	// User/Friend methods
 	const char *GetPersonaName();
+	//EPersonaState GetPersonaState();
+	//uint32 GetUserRestrictions();
 	CSteamID GetSteamID();
 	//m_PersonaStateChange
 	bool HasPersonaStateChanged();
@@ -193,7 +196,22 @@ public:
 	bool HasAvatarImageLoaded();
 	CSteamID GetAvatarImageLoadedUser() { return m_AvatarUser; }
 	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
+	int GetFriendCount(EFriendFlags iFriendFlags);
+	CSteamID GetFriendByIndex(int iFriend, EFriendFlags iFriendFlags);
+	bool GetFriendGamePlayed(CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo);
 	const char *GetFriendPersonaName(CSteamID steamID);
+	EPersonaState GetFriendPersonaState(CSteamID steamIDFriend);
+	//EFriendRelationship GetFriendRelationship(CSteamID steamIDFriend);
+	//int GetFriendSteamLevel(CSteamID steamIDFriend);
+	//const char * GetPlayerNickname(CSteamID steamIDPlayer);
+	//bool HasFriend(CSteamID steamIDFriend, int iFriendFlags);
+	//bool InviteUserToGame(CSteamID steamIDFriend, const char *pchConnectString);
+	// Friend group methods
+	int GetFriendsGroupCount();
+	FriendsGroupID_t GetFriendsGroupIDByIndex(int iFriendGroup);
+	int GetFriendsGroupMembersCount(FriendsGroupID_t friendsGroupID);
+	void GetFriendsGroupMembersList(FriendsGroupID_t friendsGroupID, CSteamID *pOutSteamIDMembers, int nMembersCount);
+	const char * GetFriendsGroupName(FriendsGroupID_t friendsGroupID);
 	// Image methods
 	int LoadImageFromHandle(int hImage);
 	int LoadImageFromHandle(int imageID, int hImage);

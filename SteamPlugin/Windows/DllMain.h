@@ -42,6 +42,7 @@ extern "C" DLL_EXPORT void Shutdown();
 extern "C" DLL_EXPORT int SteamInitialized();
 extern "C" DLL_EXPORT int RestartAppIfNecessary(int unOwnAppID);
 extern "C" DLL_EXPORT int GetAppID();
+extern "C" DLL_EXPORT char *GetAppName(int appID);
 extern "C" DLL_EXPORT int LoggedOn();
 extern "C" DLL_EXPORT void RunCallbacks();
 // Overlay methods
@@ -61,7 +62,19 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hUserSteamID, int requireNa
 extern "C" DLL_EXPORT int HasAvatarImageLoaded();
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 extern "C" DLL_EXPORT int GetFriendAvatar(int hUserSteamID, int size);
+extern "C" DLL_EXPORT int GetFriendCount(int friendFlags);
+extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags);
+extern "C" DLL_EXPORT char *GetFriendListJSON(int friendFlags);
+extern "C" DLL_EXPORT char *GetFriendGamePlayedJSON(int hUserSteamID);
 extern "C" DLL_EXPORT char *GetFriendPersonaName(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendPersonaState(int hUserSteamID);
+//const char * GetPlayerNickname( CSteamID steamIDPlayer );
+// Friends group methods
+extern "C" DLL_EXPORT int GetFriendsGroupCount();
+extern "C" DLL_EXPORT int GetFriendsGroupIDByIndex(int index);
+extern "C" DLL_EXPORT int GetFriendsGroupMembersCount(int friendsGroupID);
+extern "C" DLL_EXPORT char *GetFriendsGroupMembersListJSON(int friendsGroupID); // return a json array of SteamID handles
+extern "C" DLL_EXPORT char *GetFriendsGroupName(int friendsGroupID);
 // Image methods
 extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
 extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
