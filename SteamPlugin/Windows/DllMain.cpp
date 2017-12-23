@@ -416,6 +416,42 @@ int GetFriendPersonaState(int hUserSteamID)
 	return -1;
 }
 
+int GetFriendRelationship(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendRelationship(GetSteamID(hUserSteamID));
+	}
+	return -1;
+}
+
+int GetFriendSteamLevel(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendSteamLevel(GetSteamID(hUserSteamID));
+	}
+	return 0;
+}
+
+char *GetPlayerNickname(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
+	}
+	return CreateString(NULL);
+}
+
+int HasFriend(int hUserSteamID, int iFriendFlags)
+{
+	if (Steam)
+	{
+		return Steam->HasFriend(GetSteamID(hUserSteamID), (EFriendFlags)iFriendFlags);
+	}
+	return false;
+}
+
 int GetFriendsGroupCount()
 {
 	if (Steam)

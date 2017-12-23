@@ -188,6 +188,7 @@ public:
 	//EPersonaState GetPersonaState();
 	//uint32 GetUserRestrictions();
 	CSteamID GetSteamID();
+	//steamUser->GetPlayerSteamLevel()
 	//m_PersonaStateChange
 	bool HasPersonaStateChanged();
 	CSteamID GetPersonaStateChangedUser() { return m_PersonaStateChange.m_ulSteamID; }
@@ -201,10 +202,10 @@ public:
 	bool GetFriendGamePlayed(CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo);
 	const char *GetFriendPersonaName(CSteamID steamID);
 	EPersonaState GetFriendPersonaState(CSteamID steamIDFriend);
-	//EFriendRelationship GetFriendRelationship(CSteamID steamIDFriend);
-	//int GetFriendSteamLevel(CSteamID steamIDFriend);
-	//const char * GetPlayerNickname(CSteamID steamIDPlayer);
-	//bool HasFriend(CSteamID steamIDFriend, int iFriendFlags);
+	EFriendRelationship GetFriendRelationship(CSteamID steamIDFriend);
+	int GetFriendSteamLevel(CSteamID steamIDFriend);
+	const char *GetPlayerNickname(CSteamID steamIDPlayer);
+	bool HasFriend(CSteamID steamIDFriend, EFriendFlags iFriendFlags);
 	//bool InviteUserToGame(CSteamID steamIDFriend, const char *pchConnectString);
 	// Friend group methods
 	int GetFriendsGroupCount();

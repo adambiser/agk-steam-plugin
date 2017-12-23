@@ -285,6 +285,7 @@ bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireName
 	{
 		return false;
 	}
+	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->RequestUserInformation(steamIDUser, bRequireNameOnly);
 }
 
@@ -294,8 +295,6 @@ void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 	{
 		return;
 	}
-	// "Turn on" this callback.
-	m_PersonaStateChangedEnabled = true;
 	m_AvatarImageLoadedUsers.push_back(pParam->m_steamID);
 }
 
@@ -385,6 +384,52 @@ EPersonaState SteamPlugin::GetFriendPersonaState(CSteamID steamIDFriend)
 	}
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->GetFriendPersonaState(steamIDFriend);
+}
+
+EFriendRelationship SteamPlugin::GetFriendRelationship(CSteamID steamIDFriend)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return k_EFriendRelationshipNone;
+	}
+	return SteamFriends()->GetFriendRelationship(steamIDFriend);
+}
+
+/*
+NOTE:
+Steam docs say
+"If the Steam level is not immediately available for the specified user then this returns 0 and queues it to be downloaded from the Steam servers. 
+When it gets downloaded a PersonaStateChange_t callback will be posted with m_nChangeFlags including k_EPersonaChangeSteamLevel."
+
+HOWEVER, this doesn't actually appear to be the case.  GetFriendSteamLevel returns 0, but the callback never seems to fire.
+Possible solution is to just keep requesting the level when 0 is returned.
+*/
+int SteamPlugin::GetFriendSteamLevel(CSteamID steamIDFriend)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return 0;
+	}
+	m_PersonaStateChangedEnabled = true;
+	return SteamFriends()->GetFriendSteamLevel(steamIDFriend);
+}
+
+const char *SteamPlugin::GetPlayerNickname(CSteamID steamIDPlayer)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return NULL;
+	}
+	return SteamFriends()->GetPlayerNickname(steamIDPlayer);
+}
+
+bool SteamPlugin::HasFriend(CSteamID steamIDFriend, EFriendFlags iFriendFlags)
+{
+	if (!m_SteamInitialized || NULL == SteamFriends())
+	{
+		return k_EPersonaStateOffline;
+	}
+	return SteamFriends()->HasFriend(steamIDFriend, iFriendFlags);
 }
 
 // Friend group methods

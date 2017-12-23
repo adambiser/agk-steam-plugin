@@ -21,6 +21,7 @@ Type FriendInfo
 	hSteamID as integer
 	name as string
 	state as integer
+	level as integer
 	gameinfo as FriendGameInfo_t
 	avatarImageID as integer
 	avatarHandle as integer
@@ -236,6 +237,8 @@ Function GetFriendInfo(hSteamID as integer)
 	info.hSteamID = hSteamID
 	info.name = Steam.GetFriendPersonaName(hSteamID)
 	info.state = Steam.GetFriendPersonaState(hSteamID)
+	Steam.RequestUserInformation(hSteamID, 0)
+	info.level = Steam.GetFriendSteamLevel(hSteamID)
 	info.gameinfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamID))
 	info.avatarImageID = CreateImageColor(0, 0, 0, 0)
 	info.avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
@@ -269,7 +272,7 @@ Function AddFriendInfoSorted(info as FriendInfo)
 			endif
 		endif
 	next
-	if index < server.groupFriends.length
+	if index <= server.groupFriends.length
 		server.groupFriends.insert(info, index)
 	else
 		server.groupFriends.insert(info)
@@ -308,7 +311,6 @@ Function UpdateFriendListUI(delta as integer)
 			SetSpriteVisible(ui.friendAvatarIDs[x], 0)
 			SetSpriteImage(ui.friendAvatarIDs[x], 0)
 		else
-			
 			UpdateFriendStatus(server.groupFriends[friendIndex].hSteamID)
 		endif
 	next
@@ -338,6 +340,7 @@ Function UpdateFriendStatus(hSteamID as integer)
 			SetTextColor(ui.friendNameIDs[uiindex], ONLINE_COLOR)
 			text = text + " [" + GetFriendPersonaStateText(info.state) + "]"
 		endif
+		text = text + " - Level " + str(info.level)
 		SetTextString(ui.friendNameIDs[uiindex], text)
 		SetTextVisible(ui.friendNameIDs[uiindex], 1)
 		if info.avatarHandle > 0

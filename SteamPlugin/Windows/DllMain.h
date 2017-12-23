@@ -68,7 +68,10 @@ extern "C" DLL_EXPORT char *GetFriendListJSON(int friendFlags);
 extern "C" DLL_EXPORT char *GetFriendGamePlayedJSON(int hUserSteamID);
 extern "C" DLL_EXPORT char *GetFriendPersonaName(int hUserSteamID);
 extern "C" DLL_EXPORT int GetFriendPersonaState(int hUserSteamID);
-//const char * GetPlayerNickname( CSteamID steamIDPlayer );
+extern "C" DLL_EXPORT int GetFriendRelationship(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendSteamLevel(int hUserSteamID);
+extern "C" DLL_EXPORT char *GetPlayerNickname(int hUserSteamID);
+extern "C" DLL_EXPORT int HasFriend(int hUserSteamID, int iFriendFlags);
 // Friends group methods
 extern "C" DLL_EXPORT int GetFriendsGroupCount();
 extern "C" DLL_EXPORT int GetFriendsGroupIDByIndex(int index);

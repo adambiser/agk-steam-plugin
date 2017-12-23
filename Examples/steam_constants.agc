@@ -50,7 +50,7 @@
 #constant k_EFriendRelationshipIgnored				5	// The current user has explicit blocked this other user from comments/chat/etc. This is stored.
 #constant k_EFriendRelationshipIgnoredFriend		6	// The user has ignored the current user.
 //~ #constant k_EFriendRelationshipSuggested_DEPRECATED	7	// Deprecated -- Unused.
-#constant k_EFriendRelationshipMax					8	// The total number of friend relationships used for looping and verification.
+//~ #constant k_EFriendRelationshipMax					8	// The total number of friend relationships used for looping and verification.
 
 // EOverlayToStoreFlag
 //--------------------------------------------------------------

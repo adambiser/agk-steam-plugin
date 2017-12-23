@@ -37,6 +37,10 @@ GetFriendListJSON,S,I,GetFriendListJSON,0,0,0,0,0
 GetFriendGamePlayedJSON,S,I,GetFriendGamePlayedJSON,0,0,0,0,0
 GetFriendPersonaName,S,I,GetFriendPersonaName,0,0,0,0,0
 GetFriendPersonaState,I,I,GetFriendPersonaState,0,0,0,0,0
+GetFriendRelationship,I,I,GetFriendRelationship,0,0,0,0,0
+GetFriendSteamLevel,I,I,GetFriendSteamLevel,0,0,0,0,0
+GetPlayerNickname,S,I,GetPlayerNickname,0,0,0,0,0
+HasFriend,I,II,HasFriend,0,0,0,0,0
 #
 # Friends group methods
 #
