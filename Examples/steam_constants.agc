@@ -108,7 +108,7 @@
 // Obtainable from: GetFriendGamePlayed.
 Type FriendGameInfo_t
 	InGame as integer // boolean
-	GameAppID as integer // CGameID handle
+	GameAppID as integer
 	GameIP as integer
 	GamePort as integer
 	QueryPort as integer
@@ -208,7 +208,7 @@ EndType
 // The display type used by the Steam Community web site to know how to format the leaderboard scores when displayed. You can set the display type when 
 // creating a leaderboard with FindOrCreateLeaderboard or in the Steamworks partner backend. You can retrieve the display type for a given leaderboard 
 // with GetLeaderboardDisplayType.
-#constant k_ELeaderboardDisplayTypeNone				0	// This is only ever used when a leaderboard is invalid, you should never set this yourself.
+//~ #constant k_ELeaderboardDisplayTypeNone				0	// This is only ever used when a leaderboard is invalid, you should never set this yourself.
 #constant k_ELeaderboardDisplayTypeNumeric			1	// The score is just a simple numerical value.
 #constant k_ELeaderboardDisplayTypeTimeSeconds		2	// The score represents a time, in seconds.
 #constant k_ELeaderboardDisplayTypeTimeMilliSeconds	3	// The score represents a time, in milliseconds.
@@ -217,13 +217,13 @@ EndType
 //--------------------------------------------------------------
 // The sort method used to set whether a higher or lower score is better. You can set the sort method when creating a leaderboard with FindOrCreateLeaderboard 
 // or in App Admin on the Steamworks website. You can retrieve the sort method for a given leaderboard with GetLeaderboardSortMethod.
-#constant k_ELeaderboardSortMethodNone			0	// Only ever used when a leaderboard is invalid, you should never set this yourself.
+//~ #constant k_ELeaderboardSortMethodNone			0	// Only ever used when a leaderboard is invalid, you should never set this yourself.
 #constant k_ELeaderboardSortMethodAscending		1	// The top-score is the lowest number.
 #constant k_ELeaderboardSortMethodDescending	2	// The top-score is the highest number.
 
 // ELeaderboardUploadScoreMethod
 //--------------------------------------------------------------
-#constant k_ELeaderboardUploadScoreMethodNone			0	
+//~ #constant k_ELeaderboardUploadScoreMethodNone			0	
 #constant k_ELeaderboardUploadScoreMethodKeepBest		1	// Leaderboard will keep user's best score
 #constant k_ELeaderboardUploadScoreMethodForceUpdate	2	// Leaderboard will always replace score with specified
 

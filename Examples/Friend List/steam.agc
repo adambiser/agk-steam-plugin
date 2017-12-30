@@ -97,11 +97,11 @@ EndFunction
 Function ProcessCallbacks()
 	hSteamID as integer
 	flags as integer
+	index as integer
 	while Steam.HasPersonaStateChanged()
 		hSteamID = Steam.GetPersonaStateChangedUser()
 		flags = Steam.GetPersonaStateChangedFlags()
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
-		index as integer
 		index = GetFriendSteamIDIndex(hSteamID)
 		if index >= 0
 			// Take this friend out of the list and re-add in the sorted index.
@@ -118,9 +118,14 @@ Function ProcessCallbacks()
 	while Steam.HasAvatarImageLoaded()
 		hSteamID = Steam.GetAvatarImageLoadedUser()
 		AddStatus("Avatar loaded for " + Steam.GetFriendPersonaName(hSteamID))
-		// Technically this should/could just load the new avatar but to keep
-		// this demo simple, reloading everything about the user instead.
-		UpdateFriendStatus(hSteamID)
+		// Load the new avatar.
+		index = GetFriendSteamIDIndex(hSteamID)
+		if index >= 0
+			server.groupFriends[index].avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
+			if server.groupFriends[index].avatarHandle > 0
+				Steam.LoadImageFromHandle(server.groupFriends[index].avatarImageID, server.groupFriends[index].avatarHandle)
+			endif
+		endif
 	endwhile
 EndFunction
 
@@ -341,7 +346,15 @@ Function UpdateFriendStatus(hSteamID as integer)
 		elseif info.gameinfo.InGame
 			SetTextColor(ui.friendNameIDs[uiindex], INGAME_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], INGAME_COLOR)
-			text = text + " [In-Game: " + Steam.GetAppName(info.gameinfo.GameAppID) + "]"
+			// Note: GetAppName is a restricted interface that can only be used by approved apps.
+			// Space War (480) is one such approved app.
+			appname as string
+			appname = Steam.GetAppName(info.gameinfo.GameAppID)
+			if len(appname)
+				text = text + " [In-Game: " + appname + "]"
+			else
+				text = text + " [In-Game]"
+			endif
 		else
 			SetTextColor(ui.friendNameIDs[uiindex], ONLINE_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], ONLINE_COLOR)

@@ -13,6 +13,7 @@ RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 #
 # Overlay methods
 #
+IsGameOverlayActive,I,0,IsGameOverlayActive,0,0,0,0,0
 ActivateGameOverlay,0,S,ActivateGameOverlay,0,0,0,0,0
 ActivateGameOverlayInviteDialog,0,I,ActivateGameOverlayInviteDialog,0,0,0,0,0
 ActivateGameOverlayToStore,0,II,ActivateGameOverlayToStore,0,0,0,0,0

@@ -33,6 +33,8 @@ THE SOFTWARE.
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
+	m_IsGameOverlayActive(false),
+	m_CallbackGameOverlayActivated(this, &SteamPlugin::OnGameOverlayActivated),
 	m_AvatarImageLoadedEnabled(false),
 	m_AvatarUser(k_steamIDNil),
 	m_PersonaStateChangedEnabled(false),
@@ -105,6 +107,7 @@ void SteamPlugin::Shutdown()
 		// Reset member variables.
 		m_AppID = 0;
 		m_SteamInitialized = false;
+		m_IsGameOverlayActive = false;
 		m_AvatarImageLoadedEnabled = false;
 		m_AvatarImageLoadedUsers.clear();
 		m_AvatarUser = k_steamIDNil;
@@ -165,7 +168,6 @@ int SteamPlugin::GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
 		return 0;
 	}
 	return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
-	
 }
 
 bool SteamPlugin::LoggedOn()
@@ -184,6 +186,11 @@ void SteamPlugin::RunCallbacks()
 		return;
 	}
 	SteamAPI_RunCallbacks();
+}
+
+void SteamPlugin::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
+{
+	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
 void SteamPlugin::ActivateGameOverlay(const char *pchDialog)

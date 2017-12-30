@@ -138,7 +138,7 @@ int SteamInitialized()
 	return false;
 }
 
-int RestartAppIfNecessary(int unOwnAppID)
+int RestartAppIfNecessary(int ownAppID)
 {
 	bool doDelete = false;
 	bool result = false;
@@ -149,7 +149,7 @@ int RestartAppIfNecessary(int unOwnAppID)
 	}
 	if (Steam)
 	{
-		result = Steam->RestartAppIfNecessary(unOwnAppID);
+		result = Steam->RestartAppIfNecessary(ownAppID);
 	}
 	if (doDelete)
 	{
@@ -205,6 +205,15 @@ void RunCallbacks()
 	{
 		Steam->RunCallbacks();
 	}
+}
+
+int IsGameOverlayActive()
+{
+	if (Steam)
+	{
+		return Steam->IsGameOverlayActive();
+	}
+	return false;
 }
 
 void ActivateGameOverlay(const char *pchDialog)

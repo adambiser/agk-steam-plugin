@@ -40,12 +40,13 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 extern "C" DLL_EXPORT int Init();
 extern "C" DLL_EXPORT void Shutdown();
 extern "C" DLL_EXPORT int SteamInitialized();
-extern "C" DLL_EXPORT int RestartAppIfNecessary(int unOwnAppID);
+extern "C" DLL_EXPORT int RestartAppIfNecessary(int ownAppID);
 extern "C" DLL_EXPORT int GetAppID();
 extern "C" DLL_EXPORT char *GetAppName(int appID);
 extern "C" DLL_EXPORT int LoggedOn();
 extern "C" DLL_EXPORT void RunCallbacks();
 // Overlay methods
+extern "C" DLL_EXPORT int IsGameOverlayActive();
 extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
 extern "C" DLL_EXPORT void ActivateGameOverlayInviteDialog(int hLobbySteamID);
 extern "C" DLL_EXPORT void ActivateGameOverlayToStore(int appID, int flag);

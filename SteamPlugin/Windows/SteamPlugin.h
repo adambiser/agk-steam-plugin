@@ -53,6 +53,9 @@ private:
 	// General methods.
 	uint64 m_AppID;
 	bool m_SteamInitialized;
+	// Overlay methods
+	bool m_IsGameOverlayActive;
+	STEAM_CALLBACK(SteamPlugin, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
 	// User/Friend methods
 	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
 	std::list<CSteamID> m_AvatarImageLoadedUsers;
@@ -178,6 +181,7 @@ public:
 	bool LoggedOn();
 	void RunCallbacks();
 	// Overlay methods
+	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 	void ActivateGameOverlay(const char *pchDialog);
 	void ActivateGameOverlayInviteDialog(CSteamID steamIDLobby);
 	void ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag);

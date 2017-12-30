@@ -67,6 +67,17 @@ server.steamID = Steam.GetSteamID() // Store the current user steam ID.
 // The main loop
 //
 do
+	if Steam.IsGameOverlayActive()
+		AddStatus("Game overlay activated.")
+		while Steam.IsGameOverlayActive()
+			Sync()
+			// Very important to remember RunCallbacks here or IsGameOverlayActive will never deactivate!
+			// There's no need to call ProcessCallbacks though because the plugin stores everything until
+			// called so ProcessCallbacks below will handle everything that happens while in this loop.
+			Steam.RunCallbacks()
+		endwhile
+		AddStatus("Game overlay deactivated.")
+	endif
 	Sync()
 	CheckMouseWheel()
 	CheckInput()
@@ -396,16 +407,6 @@ Function SetLeaderboardEntryVisible(index as integer, visible as integer)
 	SetTextVisible(server.entryScoreTextIDs[index], visible)
 EndFunction
 
-//~ Function LoadEntryAvatar(index as integer)
-	//~ hSteamID as integer
-	//~ hSteamID = Steam.GetDownloadedLeaderboardEntryUser(index)
-	//~ avatarHandle as integer
-	//~ avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
-	//~ if avatarHandle > 0
-		//~ Steam.LoadImageFromHandle(GetSpriteImageID(server.entryAvatarSpriteIDs[index]), avatarHandle)
-	//~ endif
-//~ EndFunction
-//~ 
 Function LoadEntryAvatar(hSteamID as integer, spriteID as integer)
 	avatarHandle as integer
 	avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
