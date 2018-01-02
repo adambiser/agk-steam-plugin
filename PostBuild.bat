@@ -6,6 +6,7 @@ IF EXIST "UpdateAGKFolder.bat" (
 	CALL UpdateAGKFolder.bat
 )
 
-ECHO Copying plugin to AGK sample folder.
-
-Copy "AGKPlugin\SteamPlugin\Windows.dll" "AGK\Plugins\SteamPlugin\Windows.dll"
+@ECHO Copy to each example project.
+FOR /D %%G in ("Examples\*") DO (
+	Copy "%1" "%%G\Plugins\SteamPlugin\Windows.dll"
+)
