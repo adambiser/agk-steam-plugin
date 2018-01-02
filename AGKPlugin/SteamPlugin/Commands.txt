@@ -121,8 +121,6 @@ GetDownloadedLeaderboardEntryCount,I,0,GetDownloadedLeaderboardEntryCount,0,0,0,
 GetDownloadedLeaderboardEntryGlobalRank,I,I,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,0
 GetDownloadedLeaderboardEntryScore,I,I,GetDownloadedLeaderboardEntryScore,0,0,0,0,0
 GetDownloadedLeaderboardEntryUser,I,I,GetDownloadedLeaderboardEntryUser,0,0,0,0,0
-# TODO REMOVE GetDownloadedLeaderboardEntryPersonaName,S,I,GetDownloadedLeaderboardEntryPersonaName,0,0,0,0,0
-# TODO REMOVE GetDownloadedLeaderboardEntryAvatar,I,II,GetDownloadedLeaderboardEntryAvatar,0,0,0,0,0
 #
 # Lobby methods: List
 #
