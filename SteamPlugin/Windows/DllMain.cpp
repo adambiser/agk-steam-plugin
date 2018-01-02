@@ -22,6 +22,8 @@ THE SOFTWARE.
 
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
+#include <vector>
+#include <sstream>
 #include "DllMain.h"
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
@@ -49,6 +51,43 @@ char *CreateString(const char* text)
 	return result;
 }
 
+char *CreateString(std::string text)
+{
+	return CreateString(text.c_str());
+}
+
+std::vector <CSteamID> m_CSteamIDs;
+
+CSteamID GetSteamID(int handle)
+{
+	// Handles are 1-based!
+	if (handle >= 0 && handle < (int)m_CSteamIDs.size())
+	{
+		return m_CSteamIDs[handle];
+	}
+	agk::PluginError("Invalid CSteamID handle.");
+	return k_steamIDNil;
+}
+
+int GetSteamIDHandle(CSteamID steamID)
+{
+	int index = std::find(m_CSteamIDs.begin(), m_CSteamIDs.end(), steamID) - m_CSteamIDs.begin();
+	if (index < (int) m_CSteamIDs.size())
+	{
+		// Handles are 1-based!
+		return index;
+	}
+	m_CSteamIDs.push_back(steamID);
+	return m_CSteamIDs.size() - 1;
+}
+
+void ClearSteamIDHandleList()
+{
+	m_CSteamIDs.clear();
+	// Handle 0 is always k_steamIDNil.
+	m_CSteamIDs.push_back(k_steamIDNil);
+}
+
 /*
 This method should be called before attempting to do anything else with this plugin.
 Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
@@ -61,6 +100,7 @@ int Init()
 	{
 		Steam = new SteamPlugin();
 	}
+	ClearSteamIDHandleList();
 	if (Steam)
 	{
 		if (Steam->Init())
@@ -77,6 +117,7 @@ Shuts down the plugin and frees memory.
 */
 void Shutdown()
 {
+	ClearSteamIDHandleList();
 	if (Steam)
 	{
 		delete[] Steam;
@@ -97,7 +138,7 @@ int SteamInitialized()
 	return false;
 }
 
-int RestartAppIfNecessary(int unOwnAppID)
+int RestartAppIfNecessary(int ownAppID)
 {
 	bool doDelete = false;
 	bool result = false;
@@ -108,7 +149,7 @@ int RestartAppIfNecessary(int unOwnAppID)
 	}
 	if (Steam)
 	{
-		result = Steam->RestartAppIfNecessary(unOwnAppID);
+		result = Steam->RestartAppIfNecessary(ownAppID);
 	}
 	if (doDelete)
 	{
@@ -129,6 +170,19 @@ int GetAppID()
 	return 0;
 }
 
+char *GetAppName(int appID)
+{
+	if (Steam)
+	{
+		char name[256];
+		if (Steam->GetAppName(appID, name, sizeof(name)))
+		{
+			return CreateString(name);
+		}
+	}
+	return CreateString("NULL");
+}
+
 /*
 Returns 1 when logged into Steam.  Otherise returns 0.
 */
@@ -141,15 +195,6 @@ int LoggedOn()
 	return false;
 }
 
-char *GetPersonaName()
-{
-	if (Steam)
-	{
-		return CreateString(Steam->GetPersonaName());
-	}
-	return CreateString(0);
-}
-
 /*
 Call every frame to allow the Steam API callbacks to process.
 Should be used in conjunction with RequestStats and StoreStats to ensure the callbacks finish.
@@ -159,6 +204,338 @@ void RunCallbacks()
 	if (Steam)
 	{
 		Steam->RunCallbacks();
+	}
+}
+
+int IsGameOverlayActive()
+{
+	if (Steam)
+	{
+		return Steam->IsGameOverlayActive();
+	}
+	return false;
+}
+
+void ActivateGameOverlay(const char *pchDialog)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlay(pchDialog);
+	}
+}
+
+void ActivateGameOverlayInviteDialog(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayInviteDialog(GetSteamID(hLobbySteamID));
+	}
+}
+
+void ActivateGameOverlayToStore(int appID, int flag)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayToStore(appID, (EOverlayToStoreFlag)flag);
+	}
+}
+
+void ActivateGameOverlayToUser(const char *pchDialog, int hSteamID)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayToUser(pchDialog, GetSteamID(hSteamID));
+	}
+}
+
+void ActivateGameOverlayToWebPage(const char *url)
+{
+	if (Steam)
+	{
+		Steam->ActivateGameOverlayToWebPage(url);
+	}
+}
+
+char *GetPersonaName()
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetPersonaName());
+	}
+	return CreateString(0);
+}
+
+int GetSteamID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetSteamID());
+	}
+	return 0;
+}
+
+char *GetSteamID64(int hUserSteamID)
+{
+	if (Steam)
+	{
+		char id64[21]; // Max value is 18,446,744,073,709,551,615
+		_i64toa(GetSteamID(hUserSteamID).ConvertToUint64(), id64, 10);
+		return CreateString(id64);
+	}
+	return CreateString(NULL);
+}
+
+int HasPersonaStateChanged()
+{
+	if (Steam)
+	{
+		return Steam->HasPersonaStateChanged();
+	}
+	return false;
+}
+
+int GetPersonaStateChangedUser()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetPersonaStateChangedUser());
+	}
+	return 0;
+}
+
+int GetPersonaStateChangedFlags()
+{
+	if (Steam)
+	{
+		return Steam->GetPersonaStateChangedFlags();
+	}
+	return 0;
+}
+
+int RequestUserInformation(int hUserSteamID, int requireNameOnly)
+{
+	if (Steam)
+	{
+		return Steam->RequestUserInformation(GetSteamID(hUserSteamID), requireNameOnly != 0);
+	}
+	return false;
+}
+
+int HasAvatarImageLoaded() {
+	if (Steam)
+	{
+		return Steam->HasAvatarImageLoaded();
+	}
+	return false;
+}
+
+int GetAvatarImageLoadedUser()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetAvatarImageLoadedUser());
+	}
+	return 0;
+}
+
+int GetFriendAvatar(int hUserSteamID, int size)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendAvatar(GetSteamID(hUserSteamID), (EAvatarSize)size);
+	}
+	return 0;
+}
+
+int GetFriendCount(int friendFlags)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendCount((EFriendFlags)friendFlags);
+	}
+	return -1;
+}
+
+int GetFriendByIndex(int index, int friendFlags)
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetFriendByIndex(index, (EFriendFlags)friendFlags));
+	}
+	return 0;
+}
+
+char *GetFriendListJSON(int friendFlags)
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		int friendCount = Steam->GetFriendCount((EFriendFlags)friendFlags);
+		for (int x = 0; x < friendCount; x++)
+		{
+			if (x > 0)
+			{
+				json << ",";
+			}
+			json << GetSteamIDHandle(Steam->GetFriendByIndex(x, (EFriendFlags)friendFlags));
+		}
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetFriendGamePlayedJSON(int hUserSteamID)
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		FriendGameInfo_t pFriendGameInfo;
+		bool ingame = Steam->GetFriendGamePlayed(GetSteamID(hUserSteamID), &pFriendGameInfo);
+		json << "\"InGame\": " << (int)ingame;
+		if (ingame)
+		{
+			json << ",\"GameAppID\": " << pFriendGameInfo.m_gameID.AppID();
+			json << ",\"GameIP\": " << pFriendGameInfo.m_unGameIP;
+			json << ",\"GamePort\": " << pFriendGameInfo.m_usGamePort;
+			json << ",\"QueryPort\": " << pFriendGameInfo.m_usQueryPort;
+			json << ",\"SteamIDLobby\": " << GetSteamIDHandle(pFriendGameInfo.m_steamIDLobby);
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+char *GetFriendPersonaName(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
+	}
+	return CreateString(NULL);
+}
+
+int GetFriendPersonaState(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendPersonaState(GetSteamID(hUserSteamID));
+	}
+	return -1;
+}
+
+int GetFriendRelationship(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendRelationship(GetSteamID(hUserSteamID));
+	}
+	return -1;
+}
+
+int GetFriendSteamLevel(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendSteamLevel(GetSteamID(hUserSteamID));
+	}
+	return 0;
+}
+
+char *GetPlayerNickname(int hUserSteamID)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
+	}
+	return CreateString(NULL);
+}
+
+int HasFriend(int hUserSteamID, int iFriendFlags)
+{
+	if (Steam)
+	{
+		return Steam->HasFriend(GetSteamID(hUserSteamID), (EFriendFlags)iFriendFlags);
+	}
+	return false;
+}
+
+int GetFriendsGroupCount()
+{
+	if (Steam)
+	{
+		return Steam->GetFriendsGroupCount();
+	}
+	return 0;
+}
+
+int GetFriendsGroupIDByIndex(int index)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendsGroupIDByIndex(index);
+	}
+	return k_FriendsGroupID_Invalid;
+}
+
+int GetFriendsGroupMembersCount(int friendsGroupID)
+{
+	if (Steam)
+	{
+		return Steam->GetFriendsGroupMembersCount(friendsGroupID);
+	}
+	return 0;
+}
+
+char *GetFriendsGroupMembersListJSON(int friendsGroupID) // return a json array of SteamID handles
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		int memberCount = Steam->GetFriendsGroupMembersCount(friendsGroupID);
+		if (memberCount > 0)
+		{
+			std::vector<CSteamID> friends(memberCount);
+			Steam->GetFriendsGroupMembersList(friendsGroupID, friends.data(), memberCount);
+			for (int x = 0; x < memberCount; x++)
+			{
+				if (x > 0)
+				{
+					json << ",";
+				}
+				json << GetSteamIDHandle(friends[x]);
+			}
+		}
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetFriendsGroupName(int friendsGroupID)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetFriendsGroupName(friendsGroupID));
+	}
+	return CreateString(NULL);
+}
+
+int LoadImageFromHandle(int hImage)
+{
+	if (Steam)
+	{
+		return Steam->LoadImageFromHandle(hImage);
+	}
+	return 0;
+}
+
+void LoadImageIDFromHandle(int imageID, int hImage)
+{
+	if (Steam)
+	{
+		Steam->LoadImageFromHandle(imageID, hImage);
 	}
 }
 
@@ -474,7 +851,6 @@ int UpdateAvgRateStat(const char *pchName, float flCountThisSession, float dSess
 	return false;
 }
 
-
 int FindLeaderboard(const char *pchLeaderboardName)
 {
 	if (Steam)
@@ -502,7 +878,7 @@ int GetLeaderboardHandle()
 	return 0;
 }
 
-char * GetLeaderboardName(int hLeaderboard)
+char *GetLeaderboardName(int hLeaderboard)
 {
 	if (Steam)
 	{
@@ -655,46 +1031,381 @@ int GetDownloadedLeaderboardEntryScore(int index)
 	return 0;
 }
 
-char *GetDownloadedLeaderboardEntryPersonaName(int index)
+int GetDownloadedLeaderboardEntryUser(int index)
 {
 	if (Steam)
 	{
-		return CreateString(Steam->GetDownloadedLeaderboardEntryPersonaName(index));
-	}
-	return CreateString(0);
-}
-
-int GetDownloadedLeaderboardEntryAvatar(int index, int size)
-{
-	if (Steam)
-	{
-		return Steam->GetDownloadedLeaderboardEntryAvatar(index, (EAvatarSize)size);
+		return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(index));
 	}
 	return 0;
 }
 
-int GetAvatar(int size)
+int RequestLobbyList()
 {
 	if (Steam)
 	{
-		return Steam->GetAvatar((EAvatarSize) size);
+		return Steam->RequestLobbyList();
 	}
 	return 0;
 }
 
-int LoadImageFromHandle(int hImage)
+int GetLobbyMatchListCallbackState()
 {
 	if (Steam)
 	{
-		return Steam->LoadImageFromHandle(hImage);
+		return Steam->GetLobbyMatchListCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
+}
+
+int GetLobbyMatchListCount() {
+	if (Steam)
+	{
+		return Steam->GetLobbyMatchListCount();
 	}
 	return 0;
 }
 
-void LoadImageIDFromHandle(int imageID, int hImage)
+int GetLobbyByIndex(int index)
 {
 	if (Steam)
 	{
-		Steam->LoadImageFromHandle(imageID, hImage);
+		return GetSteamIDHandle(Steam->GetLobbyByIndex(index));
 	}
+	return 0;
+}
+
+int GetLobbyDataCount(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyDataCount(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+char *GetLobbyDataByIndex(int hLobbySteamID, int index)
+{
+	if (Steam)
+	{
+		char key[k_nMaxLobbyKeyLength];
+		char value[k_cubChatMetadataMax];
+		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
+		{
+			std::string json = "{\"key\": \"";
+			json.append(key);
+			json.append("\", \"value\": \"");
+			json.append(value);
+			json.append("\"}");
+			return CreateString(json);
+		}
+	}
+	return CreateString(NULL);
+}
+
+char *GetLobbyDataJSON(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
+		std::string json = "[";
+		char key[k_nMaxLobbyKeyLength];
+		char value[k_cubChatMetadataMax];
+		for (int index = 0; index < Steam->GetLobbyDataCount(steamIDLobby); index++)
+		{
+			if (Steam->GetLobbyDataByIndex(steamIDLobby, index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
+			{
+				if (index > 0)
+				{
+					json.append(", ");
+				}
+				json.append("{\"key\": \"");
+				json.append(key);
+				json.append("\", \"value\": \"");
+				json.append(value);
+				json.append("\"}");
+			}
+		}
+		json.append("]");
+		return CreateString(json);
+	}
+	return CreateString(NULL);
+}
+
+char *GetLobbyData(int hLobbySteamID, char *key)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+	}
+	return CreateString(NULL);
+}
+
+int RequestLobbyData(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->RequestLobbyData(GetSteamID(hLobbySteamID));
+	}
+	return FALSE;
+}
+
+int HasLobbyDataUpdated()
+{
+	if (Steam)
+	{
+		return Steam->HasLobbyDataUpdated();
+	}
+	return FALSE;
+}
+
+int GetLobbyDataUpdatedLobby()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyDataUpdatedLobby());
+	}
+	return 0;
+}
+
+int GetLobbyDataUpdatedID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyDataUpdatedID());
+	}
+	return 0;
+}
+
+char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key)
+{
+	if (Steam)
+	{
+		return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
+	}
+	return CreateString(NULL);
+}
+
+void SetLobbyMemberData(int hLobbySteamID, char *key, char *value)
+{
+	if (Steam)
+	{
+		return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
+	}
+}
+
+int DeleteLobbyData(int hLobbySteamID, char *key)
+{
+	if (Steam)
+	{
+		return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
+	}
+	return false;
+}
+
+void SetLobbyData(int hLobbySteamID, char *key, char *value)
+{
+	if (Steam)
+	{
+		Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
+	}
+}
+
+int CreateLobby(int eLobbyType, int maxMembers)
+{
+	if (Steam)
+	{
+		return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
+	}
+	return false;
+}
+
+int GetLobbyCreateCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyCreateCallbackState();
+	}
+	return 0;
+}
+
+int GetLobbyCreatedID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyCreatedID());
+	}
+	return 0;
+}
+
+int GetLobbyCreatedResult()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyCreatedResult();
+	}
+	return 0;
+}
+
+int JoinLobby(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->JoinLobby(GetSteamID(hLobbySteamID));
+	}
+	return false;
+}
+
+int GetLobbyEnterCallbackState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyEnterCallbackState();
+	}
+	return STATE_CLIENT_ERROR;
+}
+
+int GetLobbyEnterID()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyEnterID());
+	}
+	return 0;
+}
+
+int GetLobbyEnterBlocked()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyEnterBlocked();
+	}
+	return false;
+}
+
+int GetLobbyEnterResponse()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyEnterResponse();
+	}
+	return 0;
+}
+
+void LeaveLobby(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		Steam->LeaveLobby(GetSteamID(hLobbySteamID));
+	}
+}
+
+int GetLobbyOwner(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyOwner(GetSteamID(hLobbySteamID)));
+	}
+	return 0;
+}
+
+int GetLobbyMemberLimit(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyMemberLimit(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+int GetNumLobbyMembers(int hLobbySteamID)
+{
+	if (Steam)
+	{
+		return Steam->GetNumLobbyMembers(GetSteamID(hLobbySteamID));
+	}
+	return 0;
+}
+
+int GetLobbyMemberByIndex(int hLobbySteamID, int index)
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), index));
+	}
+	return 0;
+}
+
+int HasLobbyChatUpdate()
+{
+	if (Steam)
+	{
+		return Steam->HasLobbyChatUpdate();
+	}
+	return false;
+}
+
+int GetLobbyChatUpdateUserChanged()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserChanged());
+	}
+	return 0;
+}
+
+int GetLobbyChatUpdateUserState()
+{
+	if (Steam)
+	{
+		return Steam->GetLobbyChatUpdateUserState();
+	}
+	return 0;
+}
+
+int GetLobbyChatUpdateUserMakingChange()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
+	}
+	return 0;
+}
+
+int HasLobbyChatMessage()
+{
+	if (Steam)
+	{
+		return Steam->HasLobbyChatMessage();
+	}
+	return false;
+}
+
+int GetLobbyChatMessageUser()
+{
+	if (Steam)
+	{
+		return GetSteamIDHandle(Steam->GetLobbyChatMessageUser());
+	}
+	return 0;
+}
+
+char *GetLobbyChatMessageText()
+{
+	if (Steam)
+	{
+		char msg[4096];
+		Steam->GetLobbyChatMessageText(msg);
+		return CreateString(msg);
+	}
+	return CreateString(NULL);
+}
+
+int SendLobbyChatMessage(int hLobbySteamID, char *msg)
+{
+	if (Steam)
+	{
+		return Steam->SendLobbyChatMessage(GetSteamID(hLobbySteamID), msg);
+	}
+	return 0;
 }
