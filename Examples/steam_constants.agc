@@ -19,6 +19,438 @@
 #constant AVATAR_LARGE	2 // 128x128
 
 ////////////////////////////////////////////////////////////////
+// steam_api.h
+// https://partner.steamgames.com/doc/api/steam_api
+////////////////////////////////////////////////////////////////
+
+// EAccountType
+//--------------------------------------------------------------
+// Steam account types. This is used internally in CSteamID.
+#constant k_EAccountTypeInvalid			0	// Used for invalid Steam IDs.
+#constant k_EAccountTypeIndividual		1	// Regular user account.
+#constant k_EAccountTypeMultiseat		2	// Multiseat (e.g. cybercafe) account.
+#constant k_EAccountTypeGameServer		3	// Persistent (not anonymous) game server account.
+#constant k_EAccountTypeAnonGameServer	4	// Anonymous game server account.
+#constant k_EAccountTypePending			5	// Pending.
+#constant k_EAccountTypeContentServer	6	// Valve internal content server account.
+#constant k_EAccountTypeClan			7	// Steam Group (clan).
+#constant k_EAccountTypeChat			8	// Steam group chat or lobby.
+#constant k_EAccountTypeConsoleUser		9	// Fake Steam ID for local PSN account on PS3 or Live account on 360, etc.
+#constant k_EAccountTypeAnonUser		10	// Anonymous user account. (Used to create an account or reset a password)
+#constant k_EAccountTypeMax				11	// Max of 16 items in this field
+
+// EAppOwnershipFlags
+//--------------------------------------------------------------
+// Flags that represent the ownership information of an App ID. (Steam Internal usage only)
+#constant k_EAppOwnershipFlags_None					0x0000	// Unknown.
+#constant k_EAppOwnershipFlags_OwnsLicense			0x0001	// Owns a license for this app.
+#constant k_EAppOwnershipFlags_FreeLicense			0x0002	// The user has not paid for the app.
+#constant k_EAppOwnershipFlags_RegionRestricted		0x0004	// Owns app, but not allowed to play in current region.
+#constant k_EAppOwnershipFlags_LowViolence			0x0008	// Only owns a low violence version.
+#constant k_EAppOwnershipFlags_InvalidPlatform		0x0010	// App not supported on current platform.
+#constant k_EAppOwnershipFlags_SharedLicense		0x0020	// License was shared by an authorized device via Steam Family Sharing.
+#constant k_EAppOwnershipFlags_FreeWeekend			0x0040	// Owned by a free weekend licenses.
+#constant k_EAppOwnershipFlags_RetailLicense		0x0080	// Has a retail license for game, (CD-Key etc) (Deprecated)
+#constant k_EAppOwnershipFlags_LicenseLocked		0x0100	// Shared license is locked (in use) by other user.
+#constant k_EAppOwnershipFlags_LicensePending		0x0200	// Owns app, but transaction is still pending. Can't install or play yet.
+#constant k_EAppOwnershipFlags_LicenseExpired		0x0400	// Doesn't own app anymore since license expired.
+#constant k_EAppOwnershipFlags_LicensePermanent		0x0800	// Permanent license, not borrowed, or guest or freeweekend etc.
+#constant k_EAppOwnershipFlags_LicenseRecurring		0x1000	// Recurring license, user is charged periodically.
+#constant k_EAppOwnershipFlags_LicenseCanceled		0x2000	// Mark as canceled, but might be still active if recurring.
+#constant k_EAppOwnershipFlags_AutoGrant			0x4000	// Ownership is based on any kind of autogrant license.
+#constant k_EAppOwnershipFlags_PendingGift			0x8000	// User has pending gift to redeem.
+#constant k_EAppOwnershipFlags_RentalNotActivated	0x10000	// Rental hasn't been activated yet.
+#constant k_EAppOwnershipFlags_Rental				0x20000	// Is a rental.
+#constant k_EAppOwnershipFlags_SiteLicense			0x40000	// Is from a site license
+
+// EAppReleaseState
+//--------------------------------------------------------------
+// Release state of an App ID. (Steam Internal usage only)
+#constant k_EAppReleaseState_Unknown		0	// Unknown, can't get application information, or license info is missing.
+#constant k_EAppReleaseState_Unavailable	1	// Even if user owns it, they can't see game at all.
+#constant k_EAppReleaseState_Prerelease		2	// Can be purchased and is visible in games list, nothing else.
+#constant k_EAppReleaseState_PreloadOnly	3	// Owners can preload app, not play it.
+#constant k_EAppReleaseState_Released		4	// Owners can download and play app.
+
+// EAppType
+//--------------------------------------------------------------
+// App ID type, more info is available on Types of Applications (Steam Internal usage only)
+#constant k_EAppType_Invalid		0x000		// Unknown / invalid.
+#constant k_EAppType_Game			0x001		// Playable game, default type.
+#constant k_EAppType_Application	0x002		// Software application.
+#constant k_EAppType_Tool			0x004		// SDKs, editors & dedicated servers.
+#constant k_EAppType_Demo			0x008		// Game demo.
+//~ #constant k_EAppType_Media_DEPRECATED	0x010	// Legacy - was used for game trailers, which are now just videos on the web.
+#constant k_EAppType_DLC			0x020		// Downloadable Content.
+#constant k_EAppType_Guide			0x040		// Game guide, PDF etc
+#constant k_EAppType_Driver			0x080		// Hardware driver updater (ATI, Razor etc.)
+#constant k_EAppType_Config			0x100		// Hidden app used to config Steam features (backpack, sales, etc.)
+#constant k_EAppType_Hardware		0x200		// S hardware device (Steam Machine, Steam Controller, Steam Link, etc.)
+#constant k_EAppType_Franchise		0x400		// A hub for collections of multiple apps, eg films, series, games.
+#constant k_EAppType_Video			0x800		// A video component of either a Film or TVSeries (may be the feature, an episode, preview, making-of, etc.)
+#constant k_EAppType_Plugin			0x1000		// Plug-in types for other Apps.
+#constant k_EAppType_Music			0x2000		// Music files.
+#constant k_EAppType_Series			0x4000		// Container app for video series.
+#constant k_EAppType_Shortcut		0x40000000	// Just a shortcut, client side only.
+#constant k_EAppType_DepotOnly		0x80000000	// Placeholder since depots and apps share the same namespace.
+
+// EAuthSessionResponse
+//--------------------------------------------------------------
+// Callback return values for the ValidateAuthTicketResponse_t callback which is posted as a response to ISteamUser::BeginAuthSession and ISteamGameServer::BeginAuthSession.
+#constant k_EAuthSessionResponseOK								0	// Steam has verified the user is online, the ticket is valid and ticket has not been reused.
+#constant k_EAuthSessionResponseUserNotConnectedToSteam			1	// The user in question is not connected to steam.
+#constant k_EAuthSessionResponseNoLicenseOrExpired				2	// The user doesn't have a license for this App ID or the ticket has expired.
+#constant k_EAuthSessionResponseVACBanned						3	// The user is VAC banned for this game.
+#constant k_EAuthSessionResponseLoggedInElseWhere				4	// The user account has logged in elsewhere and the session containing the game instance has been disconnected.
+#constant k_EAuthSessionResponseVACCheckTimedOut				5	// VAC has been unable to perform anti-cheat checks on this user.
+#constant k_EAuthSessionResponseAuthTicketCanceled				6	// The ticket has been canceled by the issuer.
+#constant k_EAuthSessionResponseAuthTicketInvalidAlreadyUsed	7	// This ticket has already been used, it is not valid.
+#constant k_EAuthSessionResponseAuthTicketInvalid				8	// This ticket is not from a user instance currently connected to steam.
+#constant k_EAuthSessionResponsePublisherIssuedBan				9	// The user is banned for this game. The ban came via the web api and not VAC.
+
+// EBeginAuthSessionResult
+//--------------------------------------------------------------
+// Results returned from ISteamUser::BeginAuthSession and ISteamGameServer::BeginAuthSession.
+#constant k_EBeginAuthSessionResultOK				0	// Ticket is valid for this game and this Steam ID.
+#constant k_EBeginAuthSessionResultInvalidTicket	1	// The ticket is invalid.
+#constant k_EBeginAuthSessionResultDuplicateRequest	2	// A ticket has already been submitted for this Steam ID.
+#constant k_EBeginAuthSessionResultInvalidVersion	3	// Ticket is from an incompatible interface version.
+#constant k_EBeginAuthSessionResultGameMismatch		4	// Ticket is not for this game.
+#constant k_EBeginAuthSessionResultExpiredTicket	5	// Ticket has expired.
+
+// EBroadcastUploadResult
+//--------------------------------------------------------------
+// Broadcast upload result from BroadcastUploadStop_t.
+#constant k_EBroadcastUploadResultNone				0	// Broadcast state unknown.
+#constant k_EBroadcastUploadResultOK				1	// Broadcast was good, no problems.
+#constant k_EBroadcastUploadResultInitFailed		2	// Broadcast init failed.
+#constant k_EBroadcastUploadResultFrameFailed		3	// Broadcast frame upload failed.
+#constant k_EBroadcastUploadResultTimeout			4	// Broadcast upload timed out.
+#constant k_EBroadcastUploadResultBandwidthExceeded	5	// Broadcast send too much data.
+#constant k_EBroadcastUploadResultLowFPS			6	// Broadcast FPS is too low.
+#constant k_EBroadcastUploadResultMissingKeyFrames	7	// Broadcast sending not enough key frames.
+#constant k_EBroadcastUploadResultNoConnection		8	// Broadcast client failed to connect to relay.
+#constant k_EBroadcastUploadResultRelayFailed		9	// Relay dropped the upload.
+#constant k_EBroadcastUploadResultSettingsChanged	10	// The client changed broadcast settings.
+#constant k_EBroadcastUploadResultMissingAudio		11	// Client failed to send audio data.
+#constant k_EBroadcastUploadResultTooFarBehind		12	// Clients was too slow uploading.
+#constant k_EBroadcastUploadResultTranscodeBehind	13	// Server failed to keep up with transcode.
+
+// EChatEntryType
+//--------------------------------------------------------------
+// Chat Entry Types.
+// Returned by ISteamFriends::GetFriendMessage, ISteamFriends::GetClanChatMessage and ISteamMatchmaking::GetLobbyChatEntry.
+#constant k_EChatEntryTypeInvalid			0	// Invalid.
+#constant k_EChatEntryTypeChatMsg			1	// Normal text message from another user.
+#constant k_EChatEntryTypeTyping			2	// The other user is typing, not used in multi-user chat.
+#constant k_EChatEntryTypeInviteGame		3	// Invite from other user into that users current game.
+#constant k_EChatEntryTypeEmote				4	// Text emote message (Deprecated, should be treated as ChatMsg).
+#constant k_EChatEntryTypeLeftConversation	6	// A user has left the conversation (closed the chat window).
+#constant k_EChatEntryTypeEntered			7	// User has entered the conversation, used in multi-user chat and group chat.
+#constant k_EChatEntryTypeWasKicked			8	// User was kicked (Data: Steam ID of the user performing the kick).
+#constant k_EChatEntryTypeWasBanned			9	// User was banned (Data: Steam ID of the user performing the ban).
+#constant k_EChatEntryTypeDisconnected		10	// User disconnected.
+#constant k_EChatEntryTypeHistoricalChat	11	// A chat message from user's chat history or offline message.
+#constant k_EChatEntryTypeLinkBlocked		14	// A link was removed by the chat filter.
+
+// EChatRoomEnterResponse
+//--------------------------------------------------------------
+// Chat Room Enter Responses.
+#constant k_EChatRoomEnterResponseSuccess			1	// Success.
+#constant k_EChatRoomEnterResponseDoesntExist		2	// Chat doesn't exist (probably closed).
+#constant k_EChatRoomEnterResponseNotAllowed		3	// General Denied - You don't have the permissions needed to join the chat.
+#constant k_EChatRoomEnterResponseFull				4	// Chat room has reached its maximum size.
+#constant k_EChatRoomEnterResponseError				5	// Unexpected Error.
+#constant k_EChatRoomEnterResponseBanned			6	// You are banned from this chat room and may not join.
+#constant k_EChatRoomEnterResponseLimited			7	// Joining this chat is not allowed because you are a limited user (no value on account).
+#constant k_EChatRoomEnterResponseClanDisabled		8	// Attempt to join a clan chat when the clan is locked or disabled.
+#constant k_EChatRoomEnterResponseCommunityBan		9	// Attempt to join a chat when the user has a community lock on their account.
+#constant k_EChatRoomEnterResponseMemberBlockedYou	10	J// oin failed - a user that is in the chat has blocked you from joining.
+#constant k_EChatRoomEnterResponseYouBlockedMember	11	J// oin failed - you have blocked a user that is already in the chat.
+
+// EChatSteamIDInstanceFlags
+//--------------------------------------------------------------
+// Special flags for Chat accounts - they go in the top 8 bits of the Steam ID's "instance", leaving 12 for the actual instances
+#constant k_EChatAccountInstanceMask	0x00000FFF	// Top 8 bits are flags.
+#constant k_EChatInstanceFlagClan		0x0080000 	// The Steam ID is for a Steam group.	// (k_unSteamAccountInstanceMask + 1) >> 1
+#constant k_EChatInstanceFlagLobby		0x0040000	// The Steam ID is for a Lobby.			// (k_unSteamAccountInstanceMask + 1) >> 2
+#constant k_EChatInstanceFlagMMSLobby	0x0020000	// The Steam ID is for a MMS Lobby.		// (k_unSteamAccountInstanceMask + 1) >> 3
+
+// EDenyReason
+//--------------------------------------------------------------
+// Result values when a client failed to join or has been kicked from a game server. Obtained from GSClientDeny_t and GSClientKick_t.
+#constant k_EDenyInvalid					0	// Unknown.
+#constant k_EDenyInvalidVersion				1	// The client and server are not the same version.
+#constant k_EDenyGeneric					2	// Generic.
+#constant k_EDenyNotLoggedOn				3	// The client is not logged on.
+#constant k_EDenyNoLicense					4	// The client does not have a license to play this game.
+#constant k_EDenyCheater					5	// The client is VAC banned.
+#constant k_EDenyLoggedInElseWhere			6	// The client is logged in elsewhere.
+#constant k_EDenyUnknownText				7	
+#constant k_EDenyIncompatibleAnticheat		8	
+#constant k_EDenyMemoryCorruption			9	
+#constant k_EDenyIncompatibleSoftware		10	
+#constant k_EDenySteamConnectionLost		11	// The server lost connection to steam.
+#constant k_EDenySteamConnectionError		12	// The server had a general error connecting to Steam.
+#constant k_EDenySteamResponseTimedOut		13	// The server timed out connecting to Steam.
+#constant k_EDenySteamValidationStalled		14	// The client has not authed with Steam yet.
+#constant k_EDenySteamOwnerLeftGuestUser	15	// The owner of the shared game has left, called for each guest of the owner.
+
+// EGameIDType
+//--------------------------------------------------------------
+// Used to describe the type of CGameID.
+#constant k_EGameIDTypeApp		0	// The Game ID is a regular steam app.
+#constant k_EGameIDTypeGameMod	1	// The Game ID is a mod.
+#constant k_EGameIDTypeShortcut	2	// The game ID is a shortcut.
+#constant k_EGameIDTypeP2P		3	// The game ID is a P2P file.
+
+// ELaunchOptionType
+//--------------------------------------------------------------
+// Codes for well defined launch options, corresponds to "Launch Type" in the applications Launch Options which can be found on the General Installation Settings page.
+// There is a special function BIsVRLaunchOptionType, to check a the type is any of the VR launch options.
+#constant k_ELaunchOptionType_None			0	// Unspecified.
+#constant k_ELaunchOptionType_Default		1	// Runs the app in default mode.
+#constant k_ELaunchOptionType_SafeMode		2	// Runs the game in safe mode.
+#constant k_ELaunchOptionType_Multiplayer	3	// Runs the game in multiplayer mode.
+#constant k_ELaunchOptionType_Config		4	// Runs config tool for this game.
+#constant k_ELaunchOptionType_OpenVR		5	// Runs game in VR mode using OpenVR.
+#constant k_ELaunchOptionType_Server		6	// Runs dedicated server for this game.
+#constant k_ELaunchOptionType_Editor		7	// Runs game editor.
+#constant k_ELaunchOptionType_Manual		8	// Shows game manual.
+#constant k_ELaunchOptionType_Benchmark		9	// Runs game benchmark.
+#constant k_ELaunchOptionType_Option1		10	// Generic run option, uses description field for game name.
+#constant k_ELaunchOptionType_Option2		11	// Generic run option, uses description field for game name.
+#constant k_ELaunchOptionType_Option3		12	// Generic run option, uses description field for game name.
+#constant k_ELaunchOptionType_OculusVR		13	// Runs game in VR mode using the Oculus SDK.
+#constant k_ELaunchOptionType_OpenVROverlay	14	// Runs an OpenVR dashboard overlay.
+#constant k_ELaunchOptionType_OSVR			15	// Runs game in VR mode using the OSVR SDK.
+#constant k_ELaunchOptionType_Dialog		1000	// Show launch options dialog.
+
+// EMarketingMessageFlags
+//--------------------------------------------------------------
+// Internal Steam marketing message flags that change how a client should handle them.
+#constant k_EMarketingMessageFlagsNone					0	
+#constant k_EMarketingMessageFlagsHighPriority			1	// 1 << 0
+#constant k_EMarketingMessageFlagsPlatformWindows		2	// 1 << 1
+#constant k_EMarketingMessageFlagsPlatformMac			4	// 1 << 2
+#constant k_EMarketingMessageFlagsPlatformLinux			8	// 1 << 3
+//~ #constant k_EMarketingMessageFlagsPlatformRestrictions	=	aggregate flags
+
+// ENotificationPosition
+//--------------------------------------------------------------
+// Possible positions to have the overlay show notifications in. Used with ISteamUtils::SetOverlayNotificationPosition.
+#constant k_EPositionTopLeft		0	// Top left corner.
+#constant k_EPositionTopRight		1	// Top right corner.
+#constant k_EPositionBottomLeft		2	// Bottom left corner.
+#constant k_EPositionBottomRight	3	// Bottom right corner.
+
+// EResult
+//--------------------------------------------------------------
+// Steam error result codes.
+// These are frequently returned by functions, callbacks, and call results from both the Steamworks API and the Web API. An API may return arbitrary EResult codes, refer to the documentation for that API function or callback to see what it could return and what they mean in the context of that API call.
+// This is similar to Win32's HRESULT type or POSIXs errno.
+#constant k_EResultOK										1	// Success.
+#constant k_EResultFail										2	// Generic failure.
+#constant k_EResultNoConnection								3	// Your Steam client doesn't have a connection to the back-end.
+#constant k_EResultInvalidPassword							5	// Password/ticket is invalid.
+#constant k_EResultLoggedInElsewhere						6	// The user is logged in elsewhere.
+#constant k_EResultInvalidProtocolVer						7	// Protocol version is incorrect.
+#constant k_EResultInvalidParam								8	// A parameter is incorrect.
+#constant k_EResultFileNotFound								9	// File was not found.
+#constant k_EResultBusy										10	// Called method is busy - action not taken.
+#constant k_EResultInvalidState								11	// Called object was in an invalid state.
+#constant k_EResultInvalidName								12	// The name was invalid.
+#constant k_EResultInvalidEmail								13	// The email was invalid.
+#constant k_EResultDuplicateName							14	// The name is not unique.
+#constant k_EResultAccessDenied								15	// Access is denied.
+#constant k_EResultTimeout									16	// Operation timed out.
+#constant k_EResultBanned									17	// The user is VAC2 banned.
+#constant k_EResultAccountNotFound							18	// Account not found.
+#constant k_EResultInvalidSteamID							19	// The Steam ID was invalid.
+#constant k_EResultServiceUnavailable						20	// The requested service is currently unavailable.
+#constant k_EResultNotLoggedOn								21	// The user is not logged on.
+#constant k_EResultPending									22	// Request is pending, it may be in process or waiting on third party.
+#constant k_EResultEncryptionFailure						23	// Encryption or Decryption failed.
+#constant k_EResultInsufficientPrivilege					24	// Insufficient privilege.
+#constant k_EResultLimitExceeded							25	// Too much of a good thing.
+#constant k_EResultRevoked									26	// Access has been revoked (used for revoked guest passes.)
+#constant k_EResultExpired									27	// License/Guest pass the user is trying to access is expired.
+#constant k_EResultAlreadyRedeemed							28	// Guest pass has already been redeemed by account, cannot be used again.
+#constant k_EResultDuplicateRequest							29	// The request is a duplicate and the action has already occurred in the past, ignored this time.
+#constant k_EResultAlreadyOwned								30	// All the games in this guest pass redemption request are already owned by the user.
+#constant k_EResultIPNotFound								31	// IP address not found.
+#constant k_EResultPersistFailed							32	// Failed to write change to the data store.
+#constant k_EResultLockingFailed							33	// Failed to acquire access lock for this operation.
+#constant k_EResultLogonSessionReplaced						34	// The logon session has been replaced.
+#constant k_EResultConnectFailed							35	// Failed to connect.
+#constant k_EResultHandshakeFailed							36	// The authentication handshake has failed.
+#constant k_EResultIOFailure								37	// There has been a genic IO failure.
+#constant k_EResultRemoteDisconnect							38	// The remote server has disconnected.
+#constant k_EResultShoppingCartNotFound						39	// Failed to find the shopping cart requested.
+#constant k_EResultBlocked									40	// A user blocked the action.
+#constant k_EResultIgnored									41	// The target is ignoring sender.
+#constant k_EResultNoMatch									42	// Nothing matching the request found.
+#constant k_EResultAccountDisabled							43	// The account is disabled.
+#constant k_EResultServiceReadOnly							44	// This service is not accepting content changes right now.
+#constant k_EResultAccountNotFeatured						45	// Account doesn't have value, so this feature isn't available.
+#constant k_EResultAdministratorOK							46	// Allowed to take this action, but only because requester is admin.
+#constant k_EResultContentVersion							47	// A Version mismatch in content transmitted within the Steam protocol.
+#constant k_EResultTryAnotherCM								48	// The current CM can't service the user making a request, user should try another.
+#constant k_EResultPasswordRequiredToKickSession			49	// You are already logged in elsewhere, this cached credential login has failed.
+#constant k_EResultAlreadyLoggedInElsewhere					50	// The user is logged in elsewhere. (Use k_EResultLoggedInElsewhere instead!)
+#constant k_EResultSuspended								51	// Long running operation has suspended/paused. (eg. content download.)
+#constant k_EResultCancelled								52	// Operation has been canceled, typically by user. (eg. a content download.)
+#constant k_EResultDataCorruption							53	// Operation canceled because data is ill formed or unrecoverable.
+#constant k_EResultDiskFull									54	// Operation canceled - not enough disk space.
+#constant k_EResultRemoteCallFailed							55	// The remote or IPC call has failed.
+#constant k_EResultPasswordUnset							56	// Password could not be verified as it's unset server side.
+#constant k_EResultExternalAccountUnlinked					57	// External account (PSN, Facebook...) is not linked to a Steam account.
+#constant k_EResultPSNTicketInvalid							58	// PSN ticket was invalid.
+#constant k_EResultExternalAccountAlreadyLinked				59	// External account (PSN, Facebook...) is already linked to some other account, must explicitly request to replace/delete the link first.
+#constant k_EResultRemoteFileConflict						60	// The sync cannot resume due to a conflict between the local and remote files.
+#constant k_EResultIllegalPassword							61	// The requested new password is not allowed.
+#constant k_EResultSameAsPreviousValue						62	// New value is the same as the old one. This is used for secret question and answer.
+#constant k_EResultAccountLogonDenied						63	// Account login denied due to 2nd factor authentication failure.
+#constant k_EResultCannotUseOldPassword						64	// The requested new password is not legal.
+#constant k_EResultInvalidLoginAuthCode						65	// Account login denied due to auth code invalid.
+#constant k_EResultAccountLogonDeniedNoMail					66	// Account login denied due to 2nd factor auth failure - and no mail has been sent.
+#constant k_EResultHardwareNotCapableOfIPT					67	// The users hardware does not support Intel's Identity Protection Technology (IPT).
+#constant k_EResultIPTInitError								68	// Intel's Identity Protection Technology (IPT) has failed to initialize.
+#constant k_EResultParentalControlRestricted				69	// Operation failed due to parental control restrictions for current user.
+#constant k_EResultFacebookQueryError						70	// Facebook query returned an error.
+#constant k_EResultExpiredLoginAuthCode						71	// Account login denied due to an expired auth code.
+#constant k_EResultIPLoginRestrictionFailed					72	// The login failed due to an IP resriction.
+#constant k_EResultAccountLockedDown						73	// The current users account is currently locked for use. This is likely due to a hijacking and pending ownership verification.
+#constant k_EResultAccountLogonDeniedVerifiedEmailRequired	74	// The logon failed because the accounts email is not verified.
+#constant k_EResultNoMatchingURL							75	// There is no URL matching the provided values.
+#constant k_EResultBadResponse								76	// Bad Response due to a Parse failure, missing field, etc.
+#constant k_EResultRequirePasswordReEntry					77	// The user cannot complete the action until they re-enter their password.
+#constant k_EResultValueOutOfRange							78	// The value entered is outside the acceptable range.
+#constant k_EResultUnexpectedError							79	// Something happened that we didn't expect to ever happen.
+#constant k_EResultDisabled									80	// The requested service has been configured to be unavailable.
+#constant k_EResultInvalidCEGSubmission						81	// The files submitted to the CEG server are not valid.
+#constant k_EResultRestrictedDevice							82	// The device being used is not allowed to perform this action.
+#constant k_EResultRegionLocked								83	// The action could not be complete because it is region restricted.
+#constant k_EResultRateLimitExceeded						84	// Temporary rate limit exceeded, try again later, different from k_EResultLimitExceeded which may be permanent.
+#constant k_EResultAccountLoginDeniedNeedTwoFactor			85	// Need two-factor code to login.
+#constant k_EResultItemDeleted								86	// The thing we're trying to access has been deleted.
+#constant k_EResultAccountLoginDeniedThrottle				87	// Login attempt failed, try to throttle response to possible attacker.
+#constant k_EResultTwoFactorCodeMismatch					88	// Two factor authentication (Steam Guard) code is incorrect.
+#constant k_EResultTwoFactorActivationCodeMismatch			89	// The activation code for two-factor authentication (Steam Guard) didn't match.
+#constant k_EResultAccountAssociatedToMultiplePartners		90	// The current account has been associated with multiple partners.
+#constant k_EResultNotModified								91	// The data has not been modified.
+#constant k_EResultNoMobileDevice							92	// The account does not have a mobile device associated with it.
+#constant k_EResultTimeNotSynced							93	// The time presented is out of range or tolerance.
+#constant k_EResultSmsCodeFailed							94	// SMS code failure - no match, none pending, etc.
+#constant k_EResultAccountLimitExceeded						95	// Too many accounts access this resource.
+#constant k_EResultAccountActivityLimitExceeded				96	// Too many changes to this account.
+#constant k_EResultPhoneActivityLimitExceeded				97	// Too many changes to this phone.
+#constant k_EResultRefundToWallet							98	// Cannot refund to payment method, must use wallet.
+#constant k_EResultEmailSendFailure							99	// Cannot send an email.
+#constant k_EResultNotSettled								100	// Can't perform operation until payment has settled.
+#constant k_EResultNeedCaptcha								101	// The user needs to provide a valid captcha.
+#constant k_EResultGSLTDenied								102	// A game server login token owned by this token's owner has been banned.
+#constant k_EResultGSOwnerDenied							103	// Game server owner is denied for some other reason such as account locked, community ban, vac ban, missing phone, etc.
+#constant k_EResultInvalidItemType							104	// The type of thing we were requested to act on is invalid.
+#constant k_EResultIPBanned									105	// The IP address has been banned from taking this action.
+#constant k_EResultGSLTExpired								106	// This Game Server Login Token (GSLT) has expired from disuse; it can be reset for use.
+#constant k_EResultInsufficientFunds						107	// user doesn't have enough wallet funds to complete the action
+#constant k_EResultTooManyPending							108	// There are too many of this thing pending already
+
+// ESteamUserStatType
+//--------------------------------------------------------------
+// Fields used internally to store user stats.
+#constant k_ESteamUserStatTypeINVALID			0	// Invalid.
+#constant k_ESteamUserStatTypeINT				1	// 32-bit int stat.
+#constant k_ESteamUserStatTypeFLOAT				2	// 32-bit float stat.
+#constant k_ESteamUserStatTypeAVGRATE			3	// Read as FLOAT, set with count / session length.
+#constant k_ESteamUserStatTypeACHIEVEMENTS		4	// Standard user achievement.
+//~ #constant k_ESteamUserStatTypeGROUPACHIEVEMENTS	5	// Deprecated.
+//~ #constant k_ESteamUserStatTypeMAX				6	// Total number of user stat types, used for sanity checks.
+
+// EUniverse
+//--------------------------------------------------------------
+// Steam universes. Each universe is a self-contained Steam instance.
+#constant k_EUniverseInvalid	0	// Invalid.
+#constant k_EUniversePublic		1	// The standard public universe.
+#constant k_EUniverseBeta		2	// Beta universe used inside Valve.
+#constant k_EUniverseInternal	3	// Internal universe used inside Valve.
+#constant k_EUniverseDev		4	// Dev universe used inside Valve.
+#constant k_EUniverseMax		5	// Total number of universes, used for sanity checks.
+
+// EUserHasLicenseForAppResult
+//--------------------------------------------------------------
+// Result of ISteamUser::UserHasLicenseForApp.
+#constant k_EUserHasLicenseResultHasLicense			0	// The user has a license for specified app.
+#constant k_EUserHasLicenseResultDoesNotHaveLicense	1	// The user does not have a license for the specified app.
+#constant k_EUserHasLicenseResultNoAuth				2	// The user has not been authenticated.
+
+// EVoiceResult
+//--------------------------------------------------------------
+// Results for use with the Steam Voice functions.
+#constant k_EVoiceResultOK						0	// The call has completed successfully.
+#constant k_EVoiceResultNotInitialized			1	// The Steam Voice interface has not been initialized.
+#constant k_EVoiceResultNotRecording			2	// Steam Voice is not currently recording.
+#constant k_EVoiceResultNoData					3	// There is no voice data available.
+#constant k_EVoiceResultBufferTooSmall			4	// The provided buffer is too small to receive the data.
+#constant k_EVoiceResultDataCorrupted			5	// The voice data has been corrupted.
+#constant k_EVoiceResultRestricted				6	// The user is chat restricted.
+//~ #constant k_EVoiceResultUnsupportedCodec		7	// Deprecated.
+//~ #constant k_EVoiceResultReceiverOutOfDate		8	// Deprecated.
+//~ #constant k_EVoiceResultReceiverDidNotAnswer	9	// Deprecated.
+
+// EVRHMDType
+//--------------------------------------------------------------
+// Code points for VR HMD vendors and models. Use the special functions BIsOculusHMD and BIsViveHMD to check for a specific brand.
+#constant k_eEVRHMDType_None			-1	// Unknown vendor and model.
+#constant k_eEVRHMDType_Unknown			0	// Unknown vendor and model.
+#constant k_eEVRHMDType_HTC_Dev			1	// Original HTC dev kits.
+#constant k_eEVRHMDType_HTC_VivePre		2	// HTC Vive Pre dev kits.
+#constant k_eEVRHMDType_HTC_Vive		3	// HTC Vive Consumer Release.
+#constant k_eEVRHMDType_HTC_Unknown		20	// Unknown HTC HMD.
+#constant k_eEVRHMDType_Oculus_DK1		21	// Oculus Rift Development Kit 1.
+#constant k_eEVRHMDType_Oculus_DK2		22	// Oculus Rift Development Kit 2
+#constant k_eEVRHMDType_Oculus_Rift		23	// Oculus Rift Consumer Version 1.
+#constant k_eEVRHMDType_Oculus_Unknown	40	// Unknown Oculus HMD.
+
+// Constants
+//--------------------------------------------------------------
+// These are constants which are defined for use with steam_api.
+#constant BREAKPAD_INVALID_HANDLE			0
+#constant k_cchGameExtraInfoMax				64			// The maximum size (in UTF-8 bytes, including the null terminator) of the pchExtraInfo parameter of ISteamUser::TrackAppUsageEvent.
+//~ #constant k_cubSaltSize						8			// Only used internally in Steam.
+//~ #constant k_GIDNil							0xffffffffffffffff	// Only used internally in Steam.
+#constant k_HAuthTicketInvalid				0			// An invalid user authentication ticket.
+//~ #constant k_JobIDNil						0xffffffffffffffff	// Only used internally in Steam.
+//~ #constant k_steamIDLanModeGS				?			// Steam ID comes from a user game connection to an sv_lan GS
+#constant k_steamIDNil						0			// Generic invalid CSteamID.
+//~ #constant k_steamIDNonSteamGS				?			// This Steam ID can come from a user game connection to a GS that isn't using the steam authentication system but still 
+														//~ // wants to support the "Join Game" option in the friends list
+//~ #constant k_steamIDNotInitYetGS				?			// This Steam ID can come from a user game connection to a GS that has just booted but hasnt yet even initialized its steam3
+														//~ // component and started logging on.
+//~ #constant k_steamIDOutofDateGS				?			// This Steam ID comes from a user game connection to an out of date GS that hasnt implemented the protocol to provide its Steam ID
+//~ #constant k_TxnIDNil						k_GIDNil	// Only used internally in Steam.
+//~ #constant k_TxnIDUnknown					0			// Only used internally in Steam.
+#constant k_uAPICallInvalid					0x0			// An Invalid Steam API Call handle.
+#constant k_uAppIdInvalid					0x0			// An Invalid App ID.
+//~ #constant k_uBundleIdInvalid				0			// Only used internally in Steam.
+//~ #constant k_uCellIDInvalid					0xFFFFFFFF	// Only used internally in Steam.
+#constant k_uDepotIdInvalid					0x0			// An Invalid Depot ID.
+//~ #constant k_ulAssetClassIdInvalid			0x0			// Only used internally in Steam.
+//~ #constant k_uManifestIdInvalid				0			// Only used internally in Steam.
+#constant k_unSteamAccountIDMask			0xFFFFFFFF	// Used in CSteamID to mask out the AccountID_t.
+#constant k_unSteamAccountInstanceMask		0x000FFFFF	// Used in CSteamID to mask out the account instance.
+#constant k_unSteamUserConsoleInstance		2			// Used by CSteamID to identify users logged in from a console.
+#constant k_unSteamUserDesktopInstance		1			// Used by CSteamID to identify users logged in from the desktop client.
+#constant k_unSteamUserWebInstance			4			// Used by CSteamID to identify users logged in from the web.
+//~ #constant k_uPackageIdFreeSub				0x0			// Only used internally in Steam.
+//~ #constant k_uPackageIdInvalid				0xFFFFFFFF	// Only used internally in Steam.
+//~ #constant k_uPartnerIdInvalid				0			// Only used internally in Steam.
+//~ #constant k_uPhysicalItemIdInvalid			0x0			// Only used internally in Steam.
+#constant QUERY_PORT_ERROR					0xFFFE		// We were unable to get the query port for this server.
+#constant QUERY_PORT_NOT_INITIALIZED		0xFFFF		// Constants used for query ports.  We haven't asked the GS for this query port's actual value yet.
+
+////////////////////////////////////////////////////////////////
 // ISteamFriends
 // https://partner.steamgames.com/doc/api/ISteamFriends
 ////////////////////////////////////////////////////////////////
