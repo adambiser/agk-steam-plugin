@@ -1,6 +1,3 @@
-// Project: Achievements and Stats 
-// Created: 2017-12-14
-// Copyright 2017 Adam Biser
 #option_explicit
 
 #constant ICON_SIZE		64
@@ -54,7 +51,7 @@ loop
 global feet as float
 
 //
-// Check and handle virtual buttons.
+// Check and handle input.
 //
 Function CheckInput()
 	x as integer

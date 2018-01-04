@@ -1,6 +1,3 @@
-// Project: Leaderboard
-// Created: 2017-12-14
-// Copyright 2017 Adam Biser
 #option_explicit
 
 // Holds everything related to the Steam server data.
@@ -92,7 +89,7 @@ loop
 global feet as float
 
 //
-// Check and handle virtual buttons.
+// Check and handle input.
 //
 Function CheckInput()
 	entryCount as integer

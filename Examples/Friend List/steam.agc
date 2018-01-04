@@ -1,11 +1,8 @@
-// Project: Achievements and Stats 
-// Created: 2017-12-14
-// Copyright 2017 Adam Biser
 #option_explicit
 
-#constant OFFLINE_COLOR		127, 127, 127, 256
-#constant ONLINE_COLOR		85, 165, 196, 256
-#constant INGAME_COLOR		144, 186, 60, 256
+#constant OFFLINE_COLOR		127, 127, 127, 255
+#constant ONLINE_COLOR		85, 165, 196, 255
+#constant INGAME_COLOR		144, 186, 60, 255
 
 // Holds everything related to the Steam server data.
 global server as SteamServerInfo
@@ -61,7 +58,7 @@ do
 loop
 
 //
-// Check and handle virtual buttons.
+// Check and handle input.
 //
 Function CheckInput()
 	delta as float
