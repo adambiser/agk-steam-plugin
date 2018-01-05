@@ -58,6 +58,26 @@ SetButtonEnabled(CREATE_BUTTON, 1)
 
 CreateLobbyUI()
 
+// Dump current friend lobbies
+AddStatus("Checking for friend lobbies.")
+friendCount as integer
+friendCount = Steam.GetFriendCount(k_EFriendFlagImmediate)
+index as integer
+for index = 0 to friendCount - 1
+	friendGameInfo as FriendGameInfo_t
+	hSteamIDFriend as integer
+	hSteamIDFriend = Steam.GetFriendByIndex(index, k_EFriendFlagImmediate)
+	friendGameInfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamIDFriend))
+	if friendGameInfo.InGame 
+		if Steam.IsSteamIDValid(friendGameInfo.SteamIDLobby)
+			AddStatus(Steam.GetFriendPersonaName(hSteamIDFriend) + " is in lobby handle " + str(friendGameInfo.SteamIDLobby))
+		// friendGameInfo.m_steamIDLobby is a valid lobby, you can join it or use RequestLobbyData() get it's metadata
+		else
+			AddStatus(Steam.GetFriendPersonaName(hSteamIDFriend) + " is in-game, but not in a lobby.")
+		endif
+	endif
+next
+
 //
 // The main loop
 //
@@ -88,7 +108,7 @@ Function CheckInput()
 		mouseX = GetRawMouseX()
 		mouseY = GetRawMouseY()
 		if GetTextHitTest(lobbyList.textID, mouseX, mouseY)
-			SetTextString(lobbyInfo.textID, "")
+			ClearScrollableTextArea(lobbyInfo)
 			server.lobbyIndex = Trunc((mouseY - GetTextY(lobbyList.textID)) / GetTextSize(lobbyList.textID))
 			HighlightLobbyIndex()
 			hLobby = Steam.GetLobbyByIndex(server.lobbyIndex)
@@ -177,8 +197,8 @@ Function ProcessCallbacks()
 		case STATE_IDLE
 			if server.needToFindLobbies
 				AddStatus("Finding lobbies...")
-				SetTextString(lobbyList.textID, "")
-				SetTextString(lobbyInfo.textID, "")
+				ClearScrollableTextArea(lobbyList)
+				ClearScrollableTextArea(lobbyInfo)
 				server.lobbyIndex = -1 // An invalid lobby index.
 				Steam.RequestLobbyList()
 			endif
@@ -275,7 +295,7 @@ Function AddChatLine(red as integer, green as integer, blue as integer, alpha as
 EndFunction
 
 Function RefreshMemberList()
-	SetTextString(memberList.textID, "")
+	ClearScrollableTextArea(memberList)
 	SetTextColor(memberList.textID, 255, 255, 255, 255)
 	// Can only show owner and members after joining.
 	hOwner as integer
@@ -341,6 +361,7 @@ Function CreateLobbyUI()
 	chatRoom = CreateScrollableTextArea(LOBBY_INFO_X, LOBBY_INFO_Y, LOBBY_INFO_WIDTH, LIST_HEIGHT)
 	chatBox = CreateEditBox()
 	SetEditBoxSize(chatbox, LOBBY_INFO_WIDTH, 20)
+	SetEditBoxTextSize(chatbox, 20)
 	SetEditBoxPosition(chatBox, LOBBY_INFO_X, LOBBY_INFO_Y + LIST_HEIGHT)
 	SetChatRoomVisible(0)
 EndFunction
@@ -363,7 +384,7 @@ Function SetChatRoomVisible(visible as integer)
 	SetButtonEnabled(ADD_DATA_BUTTON, visible)
 	SetButtonEnabled(DELETE_DATA_BUTTON, visible)
 	if visible
-		SetTextString(chatRoom.textID, "")
+		ClearScrollableTextArea(chatRoom)
 		SetTextColor(chatRoom.textID, 255, 255, 255, 255)
 		SetEditBoxFocus(chatBox, 1)
 	endif
