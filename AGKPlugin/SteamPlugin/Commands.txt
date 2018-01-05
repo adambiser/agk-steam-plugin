@@ -124,6 +124,12 @@ GetDownloadedLeaderboardEntryUser,I,I,GetDownloadedLeaderboardEntryUser,0,0,0,0,
 #
 # Lobby methods: List
 #
+AddRequestLobbyListDistanceFilter,0,I,AddRequestLobbyListDistanceFilter,0,0,0,0,0
+AddRequestLobbyListFilterSlotsAvailable,0,I,AddRequestLobbyListFilterSlotsAvailable,0,0,0,0,0
+AddRequestLobbyListNearValueFilter,0,SI,AddRequestLobbyListNearValueFilter,0,0,0,0,0
+AddRequestLobbyListNumericalFilter,0,SII,AddRequestLobbyListNumericalFilter,0,0,0,0,0
+AddRequestLobbyListResultCountFilter,0,I,AddRequestLobbyListResultCountFilter,0,0,0,0,0
+AddRequestLobbyListStringFilter,0,SSI,AddRequestLobbyListStringFilter,0,0,0,0,0
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,0
 GetLobbyMatchListCallbackState,I,0,GetLobbyMatchListCallbackState,0,0,0,0,0
 GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,0

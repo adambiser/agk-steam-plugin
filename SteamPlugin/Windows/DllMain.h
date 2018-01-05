@@ -133,6 +133,12 @@ extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int index);
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int index);
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
 // Lobby methods: List
+extern "C" DLL_EXPORT void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter);
+extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
+extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *pchKeyToMatch, int nValueToBeCloseTo);
+extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(char *pchKeyToMatch, int nValueToMatch, int eComparisonType);
+extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int cMaxResults);
+extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(char *pchKeyToMatch, char *pchValueToMatch, int eComparisonType);
 extern "C" DLL_EXPORT int RequestLobbyList(); //  LobbyMatchList_t call result.
 extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
 extern "C" DLL_EXPORT int GetLobbyMatchListCount();
@@ -200,12 +206,6 @@ bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPo
 bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
 int GetFavoriteGameCount();
 
-void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
-void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
-void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
-void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
-void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
-void AddRequestLobbyListResultCountFilter(int cMaxResults);
 
 bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?

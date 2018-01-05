@@ -271,6 +271,12 @@ public:
 	int GetDownloadedLeaderboardEntryScore(int index);
 	CSteamID GetDownloadedLeaderboardEntryUser(int index);
 	// Lobby methods: List
+	void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
+	void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
+	void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
+	void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
+	void AddRequestLobbyListResultCountFilter(int cMaxResults);
+	void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
 	bool RequestLobbyList();
 	CSteamID GetLobbyByIndex(int iLobby);
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
