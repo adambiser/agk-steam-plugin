@@ -44,6 +44,7 @@ extern "C" DLL_EXPORT int RestartAppIfNecessary(int ownAppID);
 extern "C" DLL_EXPORT int GetAppID();
 extern "C" DLL_EXPORT char *GetAppName(int appID);
 extern "C" DLL_EXPORT int LoggedOn();
+extern "C" DLL_EXPORT int IsSteamIDValid(int hSteamID);
 extern "C" DLL_EXPORT void RunCallbacks();
 // Overlay methods
 extern "C" DLL_EXPORT int IsGameOverlayActive();

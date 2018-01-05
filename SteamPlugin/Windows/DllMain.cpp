@@ -198,6 +198,13 @@ int LoggedOn()
 	return Steam->LoggedOn();
 }
 
+int IsSteamIDValid(int hSteamID)
+{
+	CheckInitialized(false);
+	CSteamID steamID = GetSteamID(hSteamID);
+	return steamID.IsValid();
+}
+
 /*
 Call every frame to allow the Steam API callbacks to process.
 Should be used in conjunction with RequestStats and StoreStats to ensure the callbacks finish.

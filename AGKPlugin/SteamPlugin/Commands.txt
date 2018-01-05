@@ -9,6 +9,7 @@ RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,0
 GetAppID,I,0,GetAppID,0,0,0,0,0
 GetAppName,S,I,GetAppName,0,0,0,0,0
 LoggedOn,I,0,LoggedOn,0,0,0,0,0
+IsSteamIDValid,I,I,IsSteamIDValid,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 #
 # Overlay methods
