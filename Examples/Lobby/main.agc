@@ -11,6 +11,7 @@
 	//~ end
 //~ endif
 
+#constant KEY_ENTER		13
 #constant KEY_ESCAPE	27
 #constant NEWLINE		CHR(10)
 #constant WINDOW_WIDTH	1024

@@ -32,16 +32,16 @@ Function PerformVerticalScroll(area as ScrollableTextArea)
 	if GetSpriteVisible(area.backgroundID) = 0
 		ExitFunction 0
 	endif
-	delta as float
 	mouseX as float
 	mouseY as float
-	delta = GetRawMouseWheelDelta()
 	mouseX = GetPointerX()
 	mouseY = GetPointerY()
-	if delta = 0
+	if GetSpriteHitTest(area.backgroundID, mouseX, mouseY) = 0
 		ExitFunction 0
 	endif
-	if GetSpriteHitTest(area.backgroundID, mouseX, mouseY) = 0
+	delta as float
+	delta = GetRawMouseWheelDelta()
+	if delta = 0
 		ExitFunction 0
 	endif
 	newY as float
@@ -69,7 +69,6 @@ Function SetScrollableTextAreaVisible(area as ScrollableTextArea, visible as int
 EndFunction
 
 Function AddLineToScrollableTextArea(area as ScrollableTextArea, text as string)
-	
 	SetTextString(area.textID, GetTextString(area.textID) + text + NEWLINE)
 	// Scroll the text upward.
 	height as float
