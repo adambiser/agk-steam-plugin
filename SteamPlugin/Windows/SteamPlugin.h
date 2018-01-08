@@ -282,9 +282,11 @@ public:
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
 	int GetLobbyMatchListCount() { return m_LobbyMatchList.m_nLobbiesMatching; }
 	// Lobby methods: Data
+	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
-	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
+	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
+	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	bool RequestLobbyData(CSteamID steamIDLobby);
 	bool HasLobbyDataUpdated();
 	CSteamID GetLobbyDataUpdatedLobby() { return m_LobbyDataUpdatedLobby; }
@@ -292,8 +294,6 @@ public:
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	// Lobby methods: Owner methods
-	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
-	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer);
 	//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
@@ -328,6 +328,11 @@ public:
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
 	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, strlen(m_LobbyChatMessageText) + 1, m_LobbyChatMessageText); }
 	bool SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody);
+	// Lobby methods: Favorite games
+	int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
+	int GetFavoriteGameCount();
+	bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
+	bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
 };
 
 #endif // STEAMPLUGIN_H_

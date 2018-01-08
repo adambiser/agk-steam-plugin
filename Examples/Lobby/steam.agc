@@ -58,6 +58,15 @@ SetButtonEnabled(CREATE_BUTTON, 1)
 
 CreateLobbyUI()
 
+// Dump favorite game information.
+AddStatus("Favorite games:")
+AddStatus("AddFavoriteGame result: " + str(Steam.AddFavoriteGame(480, GetDeviceIP(), 12345, 12345, k_unFavoriteFlagFavorite)))
+for x = 0 to Steam.GetFavoriteGameCount() - 1
+	AddStatus(Steam.GetFavoriteGameJSON(x))
+next
+AddStatus("RemoveFavoriteGame result: " + str(Steam.RemoveFavoriteGame(480, GetDeviceIP(), 12345, 12345, k_unFavoriteFlagFavorite)))
+AddStatus("New GetFavoriteGameCount: " + str(Steam.GetFavoriteGameCount()))
+
 // Dump current friend lobbies
 AddStatus("Checking for friend lobbies.")
 friendCount as integer
@@ -121,8 +130,8 @@ Function CheckInput()
 			x as integer
 			for x = 0 to count - 1
 				kv as KeyValuePair
-				// GetLobbyDataByIndex returns a key/value pair as JSON.
-				kv.fromJson(Steam.GetLobbyDataByIndex(hLobby, x))
+				// GetLobbyDataByIndexJSON returns a key/value pair as JSON.
+				kv.fromJson(Steam.GetLobbyDataByIndexJSON(hLobby, x))
 				AddLineToScrollableTextArea(lobbyInfo, kv.key + ": " + kv.value)
 			next
 			SetButtonEnabled(JOIN_BUTTON, 1)

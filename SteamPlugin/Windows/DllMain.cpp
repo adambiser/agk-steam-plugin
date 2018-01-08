@@ -22,11 +22,14 @@ THE SOFTWARE.
 
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
+#include <ctime>
+#include <shellapi.h>
 #include <vector>
 #include <sstream>
 #include "DllMain.h"
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
+
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -205,6 +208,13 @@ int IsSteamIDValid(int hSteamID)
 	return steamID.IsValid();
 }
 
+int GetHandleFromSteamID64(char *steamID64)
+{
+	CheckInitialized(0);
+	uint64 id = _atoi64(steamID64);
+	return GetSteamIDHandle(CSteamID(id));
+}
+
 /*
 Call every frame to allow the Steam API callbacks to process.
 Should be used in conjunction with RequestStats and StoreStats to ensure the callbacks finish.
@@ -213,6 +223,32 @@ void RunCallbacks()
 {
 	CheckInitialized(NORETURN);
 	Steam->RunCallbacks();
+}
+
+char *GetCommandLineArgsJSON()
+{
+	std::ostringstream json;
+	json << "[";
+	LPWSTR *szArglist;
+	int nArgs;
+	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	if (NULL != szArglist)
+	{
+		char arg[MAX_PATH];
+		for (int i = 0; i < nArgs; i++)
+		{
+			if (i > 0)
+			{
+				json << ",";
+			}
+			wcstombs(arg, szArglist[i], MAX_PATH);
+			json << "\"" << arg << "\"";
+		}
+		// Free memory.
+		LocalFree(szArglist);
+	}
+	json << "]";
+	return CreateString(json.str());
 }
 
 int IsGameOverlayActive()
@@ -840,28 +876,28 @@ void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)
 	return Steam->AddRequestLobbyListDistanceFilter((ELobbyDistanceFilter)eLobbyDistanceFilter);
 }
 
-void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable)
+void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListFilterSlotsAvailable(nSlotsAvailable);
+	return Steam->AddRequestLobbyListFilterSlotsAvailable(slotsAvailable);
 }
 
-void AddRequestLobbyListNearValueFilter(char *pchKeyToMatch, int nValueToBeCloseTo)
+void AddRequestLobbyListNearValueFilter(char *pchKeyToMatch, int valueToBeCloseTo)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListNearValueFilter(pchKeyToMatch, nValueToBeCloseTo);
+	return Steam->AddRequestLobbyListNearValueFilter(pchKeyToMatch, valueToBeCloseTo);
 }
 
-void AddRequestLobbyListNumericalFilter(char *pchKeyToMatch, int nValueToMatch, int eComparisonType)
+void AddRequestLobbyListNumericalFilter(char *pchKeyToMatch, int valueToMatch, int eComparisonType)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListNumericalFilter(pchKeyToMatch, nValueToMatch, (ELobbyComparison)eComparisonType);
+	return Steam->AddRequestLobbyListNumericalFilter(pchKeyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
 }
 
-void AddRequestLobbyListResultCountFilter(int cMaxResults)
+void AddRequestLobbyListResultCountFilter(int maxResults)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListResultCountFilter(cMaxResults);
+	return Steam->AddRequestLobbyListResultCountFilter(maxResults);
 }
 
 void AddRequestLobbyListStringFilter(char *pchKeyToMatch, char *pchValueToMatch, int eComparisonType)
@@ -893,13 +929,19 @@ int GetLobbyByIndex(int index)
 	return GetSteamIDHandle(Steam->GetLobbyByIndex(index));
 }
 
+char *GetLobbyData(int hLobbySteamID, char *key)
+{
+	CheckInitialized(CreateString(NULL));
+	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+}
+
 int GetLobbyDataCount(int hLobbySteamID)
 {
 	CheckInitialized(0);
 	return Steam->GetLobbyDataCount(GetSteamID(hLobbySteamID));
 }
 
-char *GetLobbyDataByIndex(int hLobbySteamID, int index)
+char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
 {
 	if (Steam)
 	{
@@ -907,9 +949,9 @@ char *GetLobbyDataByIndex(int hLobbySteamID, int index)
 		char value[k_cubChatMetadataMax];
 		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
 		{
-			std::string json = "{\"key\": \"";
+			std::string json = "{\"Key\": \"";
 			json.append(key);
-			json.append("\", \"value\": \"");
+			json.append("\", \"Value\": \"");
 			json.append(value);
 			json.append("\"}");
 			return CreateString(json);
@@ -933,9 +975,9 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 			{
 				json.append(", ");
 			}
-			json.append("{\"key\": \"");
+			json.append("{\"Key\": \"");
 			json.append(key);
-			json.append("\", \"value\": \"");
+			json.append("\", \"Value\": \"");
 			json.append(value);
 			json.append("\"}");
 		}
@@ -944,10 +986,16 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 	return CreateString(json);
 }
 
-char *GetLobbyData(int hLobbySteamID, char *key)
+void SetLobbyData(int hLobbySteamID, char *key, char *value)
 {
-	CheckInitialized(CreateString(NULL));
-	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+	CheckInitialized(NORETURN);
+	Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
+}
+
+int DeleteLobbyData(int hLobbySteamID, char *key)
+{
+	CheckInitialized(false);
+	return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
 }
 
 int RequestLobbyData(int hLobbySteamID)
@@ -984,18 +1032,6 @@ void SetLobbyMemberData(int hLobbySteamID, char *key, char *value)
 {
 	CheckInitialized(NORETURN);
 	return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
-}
-
-int DeleteLobbyData(int hLobbySteamID, char *key)
-{
-	CheckInitialized(false);
-	return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
-}
-
-void SetLobbyData(int hLobbySteamID, char *key, char *value)
-{
-	CheckInitialized(NORETURN);
-	Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
 }
 
 int CreateLobby(int eLobbyType, int maxMembers)
@@ -1130,4 +1166,98 @@ int SendLobbyChatMessage(int hLobbySteamID, char *msg)
 {
 	CheckInitialized(0);
 	return Steam->SendLobbyChatMessage(GetSteamID(hLobbySteamID), msg);
+}
+
+bool ParseIP(char *ipv4, uint32 *ip)
+{
+	int ip1, ip2, ip3, ip4;
+	sscanf(ipv4, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
+	if ((ip1 < 0 || ip1 > 255)
+		|| (ip2 < 0 || ip2 > 255)
+		|| (ip3 < 0 || ip3 > 255)
+		|| (ip4 < 0 || ip4 > 255)
+		)
+	{
+		agk::PluginError("Could not parse IP address.");
+		return false;
+	}
+	*ip = (ip1 << 24) | (ip2 << 16) | (ip3 << 8) | (ip4);
+	return true;
+}
+
+// Lobby methods: Favorite games
+int AddFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, int flags) //, int time32LastPlayedOnServer)
+{
+	CheckInitialized(0);
+	if (connectPort < 0 || connectPort > 0xffff)
+	{
+		agk::PluginError("AddFavoriteGame: Invalid connection port.");
+		return 0;
+	}
+	if (queryPort < 0 || queryPort > 0xffff)
+	{
+		agk::PluginError("AddFavoriteGame: Invalid query port.");
+		return 0;
+	}
+	uint32 ip;
+	if (!ParseIP(ipv4, &ip))
+	{
+		return 0;
+	}
+	std::time_t now = std::time(0);
+	//agk::Message(agk::Str((int)now));
+	return Steam->AddFavoriteGame(appID, (uint32)ip, connectPort, queryPort, flags, (uint32)now);
+}
+
+int GetFavoriteGameCount()
+{
+	CheckInitialized(0);
+	return Steam->GetFavoriteGameCount();
+}
+
+char *GetFavoriteGameJSON(int index)
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		AppId_t nAppID;
+		uint32 nIP;
+		uint16 nConnPort;
+		uint16 nQueryPort;
+		uint32 unFlags;
+		uint32 rTime32LastPlayedOnServer;
+		if (Steam->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &unFlags, &rTime32LastPlayedOnServer))
+		{
+			json << "\"AppID\": " << nAppID;
+			json << ",\"IPv4\": \"" << ((nIP >> 24) & 0xff) << "." << ((nIP >> 16) & 0xff) << "." << ((nIP >> 8) & 0xff) << "." << ((nIP >> 0) & 0xff) << "\"";
+			json << ",\"ConnectPort\": " << nConnPort;
+			json << ",\"QueryPort\": " << nQueryPort;
+			json << ",\"Flags\": " << unFlags;
+			json << ",\"TimeLastPlayedOnServer\": " << (int)rTime32LastPlayedOnServer;
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+int RemoveFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, int flags)
+{
+	CheckInitialized(0);
+	if (connectPort < 0 || connectPort > 0xffff)
+	{
+		agk::PluginError("RemoveFavoriteGame: Invalid connection port.");
+		return 0;
+	}
+	if (queryPort < 0 || queryPort > 0xffff)
+	{
+		agk::PluginError("RemoveFavoriteGame: Invalid query port.");
+		return 0;
+	}
+	uint32 ip;
+	if (!ParseIP(ipv4, &ip))
+	{
+		return 0;
+	}
+	return Steam->RemoveFavoriteGame(appID, ip, connectPort, queryPort, flags);
 }

@@ -8,9 +8,10 @@ SteamInitialized,I,0,SteamInitialized,0,0,0,0,0
 RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,0
 GetAppID,I,0,GetAppID,0,0,0,0,0
 GetAppName,S,I,GetAppName,0,0,0,0,0
-LoggedOn,I,0,LoggedOn,0,0,0,0,0
 IsSteamIDValid,I,I,IsSteamIDValid,0,0,0,0,0
+GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
+GetCommandLineArgsJSON,S,0,GetCommandLineArgsJSON,0,0,0,0,0
 #
 # Overlay methods
 #
@@ -23,6 +24,7 @@ ActivateGameOverlayToWebPage,0,S,ActivateGameOverlayToWebPage,0,0,0,0,0
 #
 # User/Friend methods
 #
+LoggedOn,I,0,LoggedOn,0,0,0,0,0
 GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
 GetSteamID,I,0,GetSteamID,0,0,0,0,0
 GetSteamID64,S,I,GetSteamID64,0,0,0,0,0
@@ -138,10 +140,12 @@ GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,0
 #
 # Lobby methods: Data
 #
-GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
-GetLobbyDataByIndex,S,II,GetLobbyDataByIndex,0,0,0,0,0
-GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,0
 GetLobbyData,S,IS,GetLobbyData,0,0,0,0,0
+GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,0
+GetLobbyDataByIndexJSON,S,II,GetLobbyDataByIndexJSON,0,0,0,0,0
+GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,0
+SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,0
+DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,0
 RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,0
 HasLobbyDataUpdated,I,0,HasLobbyDataUpdated,0,0,0,0,0
 GetLobbyDataUpdatedLobby,I,0,GetLobbyDataUpdatedLobby,0,0,0,0,0
@@ -151,8 +155,6 @@ SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,0
 #
 # Lobby methods: Owner methods
 #
-DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,0
-SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,0
 #SetLinkedLobby,I,II,SetLinkedLobby,0,0,0,0,0
 #SetLobbyGameServer,0,IIII,SetLobbyGameServer,0,0,0,0,0
 #SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,0
@@ -160,34 +162,25 @@ SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,0
 #SetLobbyOwner,I,II,SetLobbyOwner,0,0,0,0,0
 #SetLobbyType,I,II,SetLobbyType,0,0,0,0,0
 #
-# Lobby methods: Create
+# Lobby methods: Create, join, and leave
 #
 CreateLobby,I,II,CreateLobby,0,0,0,0,0
 GetLobbyCreateCallbackState,I,0,GetLobbyCreateCallbackState,0,0,0,0,0
 GetLobbyCreatedID,I,0,GetLobbyCreatedID,0,0,0,0,0
 GetLobbyCreatedResult,I,0,GetLobbyCreatedResult,0,0,0,0,0
-#
-# Lobby methods: Join
-#
 JoinLobby,I,I,JoinLobby,0,0,0,0,0
 GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,0
 GetLobbyEnterID,I,0,GetLobbyEnterID,0,0,0,0,0
 GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,0
 GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,0
-#
-# Lobby methods: Leave
-#
 LeaveLobby,0,I,LeaveLobby,0,0,0,0,0
 #
-# Lobby methods: Members
+# Lobby methods: Members and status
 #
 GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,0
 GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,0
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,0
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,0
-#
-# Lobby methods: Member status
-#
 HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,0
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,0
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,0
@@ -199,3 +192,10 @@ HasLobbyChatMessage,I,0,HasLobbyChatMessage,0,0,0,0,0
 GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,0
 GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,0
 SendLobbyChatMessage,I,IS,SendLobbyChatMessage,0,0,0,0,0
+#
+# Lobby methods: Favorite games
+#
+AddFavoriteGame,I,ISIII,AddFavoriteGame,0,0,0,0,0
+GetFavoriteGameCount,I,0,GetFavoriteGameCount,0,0,0,0,0
+GetFavoriteGameJSON,S,I,GetFavoriteGameJSON,0,0,0,0,0
+RemoveFavoriteGame,I,ISIII,RemoveFavoriteGame,0,0,0,0,0

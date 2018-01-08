@@ -603,13 +603,26 @@ EndType
 										// This is useful if you want a user in two lobbies, for example matching groups together. 
 										// A user can be in only one regular lobby, and up to two invisible lobbies.
 
+// Structs
+//--------------------------------------------------------------
+// Favorite game information.
+// Obtainable from: GetFavoriteGameJSON.
+Type FavoriteGameInfo_t
+	AppID as integer
+	IPv4 as string
+	ConnectPort as integer
+	QueryPort as integer
+	Flags as integer
+	TimeLastPlayedOnServer as integer
+EndType
+
 // Constants
 //--------------------------------------------------------------
 //~ #constant HSERVERQUERY_INVALID						0xffffffff	
 //~ #constant k_nMaxLobbyKeyLength						255		// Maximum number of characters a lobby metadata key can be.
-//~ #constant k_unFavoriteFlagFavorite					0x01	// This favorite game server entry is for the favorites list.
-//~ #constant k_unFavoriteFlagHistory					0x02	// This favorite game server entry is for the history list.
-//~ #constant k_unFavoriteFlagNone						0x00	// This favorite game server has no flags set.
+#constant k_unFavoriteFlagFavorite					0x01	// This favorite game server entry is for the favorites list.
+#constant k_unFavoriteFlagHistory					0x02	// This favorite game server entry is for the history list.
+#constant k_unFavoriteFlagNone						0x00	// This favorite game server has no flags set.
 //~ #constant STEAMMATCHMAKINGSERVERS_INTERFACE_VERSION	"SteamMatchMakingServers002"	
 //~ #constant STEAMMATCHMAKING_INTERFACE_VERSION		"SteamMatchMaking009"	
 

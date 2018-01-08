@@ -984,6 +984,12 @@ CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
 	return SteamMatchmaking()->GetLobbyByIndex(iLobby);
 }
 
+const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
+}
+
 int SteamPlugin::GetLobbyDataCount(CSteamID steamIDLobby)
 {
 	CheckInitialized(SteamMatchmaking, 0);
@@ -996,10 +1002,16 @@ bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, cha
 	return SteamMatchmaking()->GetLobbyDataByIndex(steamIDLobby, iLobbyData, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
 }
 
-const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
+void SteamPlugin::SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->SetLobbyData(steamIDLobby, pchKey, pchValue);
+}
+
+bool SteamPlugin::DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey)
 {
 	CheckInitialized(SteamMatchmaking, false);
-	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
+	return SteamMatchmaking()->DeleteLobbyData(steamIDLobby, pchKey);
 }
 
 bool SteamPlugin::RequestLobbyData(CSteamID steamIDLobby)
@@ -1059,18 +1071,6 @@ void SteamPlugin::SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, 
 {
 	CheckInitialized(SteamMatchmaking, );
 	SteamMatchmaking()->SetLobbyMemberData(steamIDLobby, pchKey, pchValue);
-}
-
-bool SteamPlugin::DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey)
-{
-	CheckInitialized(SteamMatchmaking, false);
-	return SteamMatchmaking()->DeleteLobbyData(steamIDLobby, pchKey);
-}
-
-void SteamPlugin::SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
-{
-	CheckInitialized(SteamMatchmaking, );
-	SteamMatchmaking()->SetLobbyData(steamIDLobby, pchKey, pchValue);
 }
 
 // Callback for CreateLobby.
@@ -1261,4 +1261,29 @@ bool SteamPlugin::SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgB
 {
 	CheckInitialized(SteamMatchmaking, false);
 	return SteamMatchmaking()->SendLobbyChatMsg(steamIDLobby, pvMsgBody, strlen(pvMsgBody) + 1);
+}
+
+// Lobby methods: Favorite games
+int SteamPlugin::AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer)
+{
+	CheckInitialized(SteamMatchmaking, 0);
+	return SteamMatchmaking()->AddFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags, rTime32LastPlayedOnServer);
+}
+
+int SteamPlugin::GetFavoriteGameCount()
+{
+	CheckInitialized(SteamMatchmaking, 0);
+	return SteamMatchmaking()->GetFavoriteGameCount();
+}
+
+bool SteamPlugin::GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->GetFavoriteGame(iGame, pnAppID, pnIP, pnConnPort, pnQueryPort, punFlags, pRTime32LastPlayedOnServer);
+}
+
+bool SteamPlugin::RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->RemoveFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags);
 }
