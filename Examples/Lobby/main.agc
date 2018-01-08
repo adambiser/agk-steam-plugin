@@ -47,7 +47,8 @@ CreateTextEx(0, 20, "LoggedOn: " + TF(Steam.LoggedOn()))
 CreateTextEx(0, 40, "SteamID: " + Steam.GetPersonaName())
 
 #insert "../steam_constants.agc"
-// The main plugin usage is in this file.
+// The main plugin usage are in these files.
+#insert "gameserver.agc"
 #insert "steam.agc"
 
 Steam.Shutdown()

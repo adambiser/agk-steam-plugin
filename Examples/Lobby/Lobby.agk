@@ -43,10 +43,12 @@ output_path=
 [projectfiles]
 FILE_0=main.agc;-1
 FILE_1=steam.agc;-1
+FILE_2=gameserver.agc;-1
 
 [files]
-FILE_NAME_0=0;main.agc;1800;2
-FILE_NAME_1=0;steam.agc;3463;3
+FILE_NAME_0=0;main.agc;1800;0
+FILE_NAME_1=0;steam.agc;11633;1
+FILE_NAME_2=1;gameserver.agc;0;8
 
 [project]
 description=

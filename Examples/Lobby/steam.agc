@@ -7,6 +7,8 @@ Type SteamServerInfo
 	needToFindLobbies as integer
 	hLobby as integer
 	lobbyIndex as integer
+	isLobbyOwner as integer
+	networkID as integer
 EndType
 server.needToFindLobbies = 1
 server.lobbyIndex = -1 // An invalid lobby index.
@@ -46,8 +48,9 @@ global chatBox as integer
 #constant LEAVE_BUTTON			5
 #constant ADD_DATA_BUTTON		6
 #constant DELETE_DATA_BUTTON	7
+#constant CREATE_GAME_BUTTON	8
 
-global buttonText as string[6] = ["FIND ALL", "FIND AGK", "JOIN", "CREATE", "LEAVE", "ADD_DATA", "DELETE_DATA"]
+global buttonText as string[7] = ["FIND ALL", "FIND AGK", "JOIN_LOBBY", "CREATE_LOBBY", "LEAVE", "ADD_DATA", "DELETE_DATA", "CREATE_SERVER"]
 x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
@@ -86,6 +89,8 @@ for index = 0 to friendCount - 1
 		endif
 	endif
 next
+
+//~ AddStatus("GetExternalIP: " + Steam.GetPublicIP())
 
 //
 // The main loop
@@ -163,14 +168,23 @@ Function CheckInput()
 	endif
 	if GetVirtualButtonPressed(ADD_DATA_BUTTON)
 		AddStatus("Setting some lobby and member data...")
-		Steam.SetLobbyData(server.hLobby, "lobby_data", "Here's some lobby data.")
-		Steam.SetLobbyMemberData(server.hLobby, "member_data", "And here's some member data.")
+		if server.isLobbyOwner
+			Steam.SetLobbyData(server.hLobby, "lobby_data", "Here's some lobby data.")
+		endif
+		Steam.SetLobbyMemberData(server.hLobby, "member_data", "Here's some member data.")
 	endif
 	if GetVirtualButtonPressed(DELETE_DATA_BUTTON)
 		AddStatus("Deleting lobby data")
-		if Steam.DeleteLobbyData(server.hLobby, "lobby_data")
-			AddStatus("... Deleted!")
+		if server.isLobbyOwner
+			if Steam.DeleteLobbyData(server.hLobby, "lobby_data")
+				AddStatus("... Deleted!")
+			endif
 		endif
+		// There is no DeleteLobbyMemberData!
+		Steam.SetLobbyMemberData(server.hLobby, "member_data", "")
+	endif
+	if GetVirtualButtonPressed(CREATE_GAME_BUTTON)
+		HostGameServer()
 	endif
 	if GetEditBoxVisible(chatBox)
 		if GetRawKeyPressed(KEY_ENTER)
@@ -199,6 +213,7 @@ Function ProcessCallbacks()
 	x as integer
 	hSteamID as integer
 	hLobby as integer
+	gameserver as GameServerInfo_t
 	//
 	// Lobby Match-making
 	//
@@ -238,9 +253,11 @@ Function ProcessCallbacks()
 				AddStatus("Joined lobby. Handle: " + str(server.hLobby))
 				SetChatRoomVisible(1)
 				RefreshMemberList()
-				if Steam.GetLobbyOwner(server.hLobby) = Steam.GetSteamID()
+				// If the lobby owner is the current user, set some lobby data.
+				if server.isLobbyOwner
 					Steam.SetLobbyData(server.hLobby, "name", "agk")
 				endif
+				AddStatus("GameServer: " + Steam.GetLobbyGameServerJSON(server.hLobby))
 			else
 				AddStatus("Failed to join lobby.  Response = " + str(Steam.GetLobbyEnterResponse()))
 			endif
@@ -289,6 +306,14 @@ Function ProcessCallbacks()
 		AddChatLine(STATUS_COLOR, text)
 		RefreshMemberList()
 	endwhile
+	// Process game server creation.
+	if Steam.HasLobbyGameCreated()
+		gameserver.fromJSON(Steam.GetLobbyGameCreatedJSON())
+		AddStatus("Game server created: " + Steam.GetLobbyGameCreatedJSON())
+		if gameserver.IP <> "0.0.0.0"
+			ConnectGameServer(gameserver)
+		endif
+	endif
 EndFunction
 
 Function AddChatLine(red as integer, green as integer, blue as integer, alpha as integer, text as string)
@@ -322,6 +347,10 @@ Function RefreshMemberList()
 		endif
 		AddLineToScrollableTextArea(memberList, Steam.GetFriendPersonaName(hSteamID))
 	next
+	server.isLobbyOwner = (hOwner = Steam.GetSteamID())
+	if server.isLobbyOwner
+		SetButtonEnabled(CREATE_GAME_BUTTON, 1)
+	endif
 EndFunction
 
 Function LeaveLobby()
@@ -392,6 +421,7 @@ Function SetChatRoomVisible(visible as integer)
 	SetButtonEnabled(LEAVE_BUTTON, visible)
 	SetButtonEnabled(ADD_DATA_BUTTON, visible)
 	SetButtonEnabled(DELETE_DATA_BUTTON, visible)
+	SetButtonEnabled(CREATE_GAME_BUTTON, 0)
 	if visible
 		ClearScrollableTextArea(chatRoom)
 		SetTextColor(chatRoom.textID, 255, 255, 255, 255)
