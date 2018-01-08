@@ -76,7 +76,6 @@ do
 		AddStatus("Game overlay deactivated.")
 	endif
 	Sync()
-	CheckMouseWheel()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
 	Steam.RunCallbacks()
@@ -93,6 +92,8 @@ global feet as float
 //
 Function CheckInput()
 	entryCount as integer
+	// Scrollable text.
+	PerformVerticalScroll(statusArea)
 	// Click user avatar to take to that page.
 	if GetPointerPressed()
 		mouseX as float

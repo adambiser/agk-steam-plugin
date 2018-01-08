@@ -29,7 +29,7 @@ UseNewDefaultFonts(1)
 SetPrintSize(20)
 SetErrorMode(2) // show all errors
 
-#insert "scrollabletextarea.agc"
+#insert "../scrollabletextarea.agc"
 
 global statusArea as ScrollableTextArea
 

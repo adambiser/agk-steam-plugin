@@ -38,7 +38,6 @@ next
 //
 do
 	Sync()
-	CheckMouseWheel()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
 	Steam.RunCallbacks()
@@ -55,6 +54,9 @@ global feet as float
 //
 Function CheckInput()
 	x as integer
+	// Scrollable text.
+	PerformVerticalScroll(statusArea)
+	// Click to toggle achievements
 	if GetPointerPressed()
 		mouseX as float
 		mouseY as float

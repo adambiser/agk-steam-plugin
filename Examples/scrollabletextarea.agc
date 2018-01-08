@@ -37,6 +37,7 @@ Function CreateScrollableTextArea(x as float, y as float, width as float, height
 	area.thumbID = CreateSprite(CreateImageColor(THUMB_BACKGROUND_COLOR))
 	SetSpritePosition(area.thumbID, x + width - THUMB_WIDTH, y)
 	SetSpriteSize(area.thumbID, THUMB_WIDTH, THUMB_WIDTH)
+	SetSpriteVisible(area.thumbID, 0)
 EndFunction area
 
 Function ClearScrollableTextArea(area as ScrollableTextArea)

@@ -28,6 +28,10 @@ UseNewDefaultFonts(1)
 SetPrintSize(20)
 SetErrorMode(2) // show all errors
 
+#insert "../scrollabletextarea.agc"
+
+global statusArea as ScrollableTextArea
+
 CreateUI()
 
 // Note: RequestStats is called within Init().
@@ -53,25 +57,11 @@ Quit()
 // Keep the UI stuff separate to highligh the plugin code.
 //
 // The type holds IDs for all text controls.
-global text as TextControls
-Type TextControls
-	status as integer
-EndType
-
 global buttonColumns as integer [2] = [75, 225, 375]
 
 Function CreateUI()
 	CreateTextEx(STATUS_X, STATUS_Y - 25, "Status Messages (Scrollable)")
-	spriteID as integer
-	spriteID = CreateSprite(CreateImageColor(32, 32, 32, 255))
-	SetSpritePosition(spriteID, STATUS_X, STATUS_Y)
-	SetSpriteSize(spriteID, STATUS_WIDTH, STATUS_HEIGHT)
-	// Set up scrolling status text
-	text.status = CreateText("")
-	SetTextPosition(text.status, STATUS_X, STATUS_Y)
-	SetTextScissor(text.status, STATUS_X, STATUS_Y, STATUS_X + STATUS_WIDTH, STATUS_Y + STATUS_HEIGHT)
-	SetTextSize(text.status, 18)
-	SetTextVisible(text.status, 1)
+	statusArea = CreateScrollableTextArea(STATUS_X, STATUS_Y, STATUS_WIDTH, STATUS_HEIGHT)
 EndFunction
 
 Function CreateTextEx(x as float, y as float, text as string)
@@ -98,45 +88,7 @@ Function SetButtonEnabled(id as integer, enabled as integer)
 EndFunction	
 
 Function AddStatus(status as string)
-	SetTextString(text.status, GetTextString(text.status) + GetDateFromUnix(GetUnixTime()) + ": " + status + NEWLINE)
-	// Scroll the text upward.
-	height as float
-	height = GetTextTotalHeight(text.status)
-	if height < STATUS_HEIGHT
-		height = STATUS_HEIGHT
-	endif
-	SetTextPosition(text.status, STATUS_X, STATUS_Y - (height - STATUS_HEIGHT))
-EndFunction
-
-// Scrollable status window.
-Function CheckMouseWheel()
-	delta as float
-	delta = GetRawMouseWheelDelta()
-	if delta <> 0
-		mouseX as float
-		mouseY as float
-		mouseX = GetPointerX()
-		mouseY = GetPointerY()
-		if mouseX < STATUS_X or mouseY < STATUS_Y or mouseX >= STATUS_X + STATUS_WIDTH or mouseY >= STATUS_Y + STATUS_HEIGHT
-			ExitFunction
-		endif
-		newY as float
-		newY = GetTextY(text.status) + GetTextSize(text.status) * delta
-		if newY >= STATUS_Y //WINDOW_HEIGHT
-			newY = STATUS_Y
-		else
-			height as float
-			height = GetTextTotalHeight(text.status)
-			if height < STATUS_HEIGHT
-				height = STATUS_HEIGHT
-			endif
-			//~ if newY - GetTextSize(text.status) + height < STATUS_Y
-			if newY + height < WINDOW_HEIGHT
-				newY = WINDOW_HEIGHT - height
-			endif
-		endif
-		SetTextY(text.status, newY)
-	endif
+	AddLineToScrollableTextArea(statusArea, GetDateFromUnix(GetUnixTime()) + ": " + status)
 EndFunction
 
 Function GetDateFromUnix(unix as integer)

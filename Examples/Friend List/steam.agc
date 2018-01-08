@@ -47,7 +47,6 @@ CreateFriendListUI()
 //
 do
 	Sync()
-	CheckMouseWheel()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
 	Steam.RunCallbacks()
@@ -61,13 +60,15 @@ loop
 // Check and handle input.
 //
 Function CheckInput()
+	// Scrollable text.
+	PerformVerticalScroll(statusArea)
+	// Scrolling lists.
 	delta as float
 	mouseX as float
 	mouseY as float
 	delta = GetRawMouseWheelDelta()
 	mouseX = GetPointerX()
 	mouseY = GetPointerY()
-	// Scrolling lists.
 	if delta <> 0
 		if GetSpriteHitTest(ui.groupListBackground, mouseX, mouseY)
 			UpdateGroupListUI(-delta)

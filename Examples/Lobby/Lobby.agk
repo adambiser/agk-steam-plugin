@@ -43,12 +43,10 @@ output_path=
 [projectfiles]
 FILE_0=main.agc;-1
 FILE_1=steam.agc;-1
-FILE_2=scrollabletextarea.agc;-1
 
 [files]
-FILE_NAME_0=0;main.agc;4314;1
-FILE_NAME_1=0;steam.agc;9078;2
-FILE_NAME_2=1;scrollabletextarea.agc;0;4
+FILE_NAME_0=1;main.agc;955;0
+FILE_NAME_1=0;steam.agc;5442;1
 
 [project]
 description=
