@@ -43,8 +43,10 @@ extern "C" DLL_EXPORT int SteamInitialized();
 extern "C" DLL_EXPORT int RestartAppIfNecessary(int ownAppID);
 extern "C" DLL_EXPORT int GetAppID();
 extern "C" DLL_EXPORT char *GetAppName(int appID);
-extern "C" DLL_EXPORT int LoggedOn();
+extern "C" DLL_EXPORT int IsSteamIDValid(int hSteamID);
+extern "C" DLL_EXPORT int GetHandleFromSteamID64(char *steamID64);
 extern "C" DLL_EXPORT void RunCallbacks();
+extern "C" DLL_EXPORT char *GetCommandLineArgsJSON();
 // Overlay methods
 extern "C" DLL_EXPORT int IsGameOverlayActive();
 extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
@@ -53,6 +55,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToStore(int appID, int flag);
 extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *pchDialog, int hSteamID);
 extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url);
 // User/Friend methods
+extern "C" DLL_EXPORT int LoggedOn();
 extern "C" DLL_EXPORT char *GetPersonaName();
 extern "C" DLL_EXPORT int GetSteamID();
 extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
@@ -133,57 +136,54 @@ extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int index);
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int index);
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
 // Lobby methods: List
+extern "C" DLL_EXPORT void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter);
+extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable);
+extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *pchKeyToMatch, int valueToBeCloseTo);
+extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(char *pchKeyToMatch, int valueToMatch, int eComparisonType);
+extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults);
+extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(char *pchKeyToMatch, char *pchValueToMatch, int eComparisonType);
 extern "C" DLL_EXPORT int RequestLobbyList(); //  LobbyMatchList_t call result.
 extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
 extern "C" DLL_EXPORT int GetLobbyMatchListCount();
 extern "C" DLL_EXPORT int GetLobbyByIndex(int index);
 // Lobby methods: Data
-extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
-extern "C" DLL_EXPORT char *GetLobbyDataByIndex(int hLobbySteamID, int index); // Returns json of key/value data.
-extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
+extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
+extern "C" DLL_EXPORT char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index); // Returns json of key/value data.
+extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
+extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, char *key, char *value);
+extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, char *key);
 extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID);
 extern "C" DLL_EXPORT int HasLobbyDataUpdated();
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedLobby();
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
 extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key);
 extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char *value);
-// Lobby methods: Owner methods
-extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, char *key);
-extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, char *key, char *value);
-//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
+// Lobby methods: Game server
+//bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 //void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
+// Lobby methods: Owner methods
+//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 //bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
 //bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
 //bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
 //bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
-// Lobby methods: Create
+// Lobby methods: Create, Join, Leave
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
 extern "C" DLL_EXPORT int GetLobbyCreateCallbackState();
 extern "C" DLL_EXPORT int GetLobbyCreatedID();
 extern "C" DLL_EXPORT int GetLobbyCreatedResult();
-/*
-k_EResultOK - The lobby was successfully created.
-k_EResultFail - The server responded, but with an unknown internal error.
-k_EResultTimeout - The message was sent to the Steam servers, but it didn't respond.
-k_EResultNoConnection - Your game client has created too many lobbies and is being rate limited.
-k_EResultAccessDenied - Your game isn't set to allow lobbies, or your client does haven't rights to play the game
-k_EResultNoConnection - Your Steam client doesn't have a connection to the back-end.
-*/
-// Lobby methods: Join
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
 extern "C" DLL_EXPORT int GetLobbyEnterID();
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
-// Lobby methods: Leave
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
-// Lobby methods: Members
+// Lobby methods: Members and status
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index);
-// Lobby methods: Member status
 extern "C" DLL_EXPORT int HasLobbyChatUpdate();
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
@@ -193,21 +193,12 @@ extern "C" DLL_EXPORT int HasLobbyChatMessage();
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
 extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, char *msg);
-
+// Lobby methods: Favorite games
+extern "C" DLL_EXPORT int AddFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);//, int time32LastPlayedOnServer);
+extern "C" DLL_EXPORT int GetFavoriteGameCount();
+extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
+extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);
 /*
-int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
-bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
-bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
-int GetFavoriteGameCount();
-
-void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
-void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
-void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
-void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
-void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
-void AddRequestLobbyListResultCountFilter(int cMaxResults);
-
-bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?
 */
 

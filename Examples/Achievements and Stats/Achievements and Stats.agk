@@ -45,7 +45,8 @@ FILE_0=main.agc;-1
 FILE_1=steam.agc;-1
 
 [files]
-FILE_NAME_0=1;main.agc;0;1
+FILE_NAME_0=0;main.agc;1902;2
+FILE_NAME_1=0;steam.agc;1503;3
 
 [project]
 description=

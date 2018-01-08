@@ -1,6 +1,3 @@
-// Project: Leaderboard
-// Created: 2017-12-14
-// Copyright 2017 Adam Biser
 #option_explicit
 
 // Holds everything related to the Steam server data.
@@ -79,7 +76,6 @@ do
 		AddStatus("Game overlay deactivated.")
 	endif
 	Sync()
-	CheckMouseWheel()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
 	Steam.RunCallbacks()
@@ -92,10 +88,12 @@ loop
 global feet as float
 
 //
-// Check and handle virtual buttons.
+// Check and handle input.
 //
 Function CheckInput()
 	entryCount as integer
+	// Scrollable text.
+	PerformVerticalScroll(statusArea)
 	// Click user avatar to take to that page.
 	if GetPointerPressed()
 		mouseX as float

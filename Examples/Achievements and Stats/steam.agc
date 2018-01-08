@@ -1,6 +1,3 @@
-// Project: Achievements and Stats 
-// Created: 2017-12-14
-// Copyright 2017 Adam Biser
 #option_explicit
 
 #constant ICON_SIZE		64
@@ -41,7 +38,6 @@ next
 //
 do
 	Sync()
-	CheckMouseWheel()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
 	Steam.RunCallbacks()
@@ -54,10 +50,13 @@ loop
 global feet as float
 
 //
-// Check and handle virtual buttons.
+// Check and handle input.
 //
 Function CheckInput()
 	x as integer
+	// Scrollable text.
+	PerformVerticalScroll(statusArea)
+	// Click to toggle achievements
 	if GetPointerPressed()
 		mouseX as float
 		mouseY as float

@@ -30,6 +30,13 @@ THE SOFTWARE.
 
 #pragma comment(lib, "steam_api.lib")
 
+#define CheckInitialized(steamInterface, returnValue)				\
+	if (!m_SteamInitialized || (NULL == steamInterface()))			\
+	{																\
+		agk::PluginError("Steam API has not been initialized.");	\
+		return returnValue;											\
+	}
+
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
@@ -154,28 +161,19 @@ bool SteamPlugin::RestartAppIfNecessary(uint32 unOwnAppID)
 
 int SteamPlugin::GetAppID()
 {
-	if (!m_SteamInitialized || NULL == SteamUtils())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamUtils, 0);
 	return SteamUtils()->GetAppID();
 }
 
 int SteamPlugin::GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
 {
-	if (!m_SteamInitialized || NULL == SteamUtils())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamAppList, 0);
 	return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
 }
 
 bool SteamPlugin::LoggedOn()
 {
-	if (!m_SteamInitialized || NULL == SteamUser())
-	{
-		return false;
-	}
+	CheckInitialized(SteamUser, 0);
 	return SteamUser()->BLoggedOn();
 }
 
@@ -195,64 +193,43 @@ void SteamPlugin::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 
 void SteamPlugin::ActivateGameOverlay(const char *pchDialog)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return;
-	}
+	CheckInitialized(SteamFriends, );
 	SteamFriends()->ActivateGameOverlay(pchDialog);
 }
 
 void SteamPlugin::ActivateGameOverlayInviteDialog(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return;
-	}
+	CheckInitialized(SteamFriends, );
 	SteamFriends()->ActivateGameOverlayInviteDialog(steamIDLobby);
 }
 
 void SteamPlugin::ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return;
-	}
+	CheckInitialized(SteamFriends, );
 	SteamFriends()->ActivateGameOverlayToStore(nAppID, eFlag);
 }
 
 void SteamPlugin::ActivateGameOverlayToUser(const char *pchDialog, CSteamID steamID)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return;
-	}
+	CheckInitialized(SteamFriends, );
 	SteamFriends()->ActivateGameOverlayToUser(pchDialog, steamID);
 }
 
 void SteamPlugin::ActivateGameOverlayToWebPage(const char *pchURL)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return;
-	}
+	CheckInitialized(SteamFriends, );
 	SteamFriends()->ActivateGameOverlayToWebPage(pchURL);
 }
 
 const char *SteamPlugin::GetPersonaName()
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, NULL);
 	return SteamFriends()->GetPersonaName();
 }
 
 CSteamID SteamPlugin::GetSteamID()
 {
-	if (!m_SteamInitialized || NULL == SteamUser())
-	{
-		return k_steamIDNil;
-	}
+	CheckInitialized(SteamUser, k_steamIDNil);
 	return SteamUser()->GetSteamID();
 }
 
@@ -288,10 +265,7 @@ bool SteamPlugin::HasPersonaStateChanged()
 
 bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return false;
-	}
+	CheckInitialized(SteamFriends, false);
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->RequestUserInformation(steamIDUser, bRequireNameOnly);
 }
@@ -320,10 +294,7 @@ bool SteamPlugin::HasAvatarImageLoaded()
 // NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, 0);
 	m_AvatarImageLoadedEnabled = true;
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
@@ -347,58 +318,40 @@ int SteamPlugin::GetFriendAvatar(CSteamID steamID, EAvatarSize size)
 
 int SteamPlugin::GetFriendCount(EFriendFlags iFriendFlags)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, 0);
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->GetFriendCount(iFriendFlags);
 }
 CSteamID SteamPlugin::GetFriendByIndex(int iFriend, EFriendFlags iFriendFlags)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return k_steamIDNil;
-	}
+	CheckInitialized(SteamFriends, k_steamIDNil);
 	return SteamFriends()->GetFriendByIndex(iFriend, iFriendFlags);
 }
 
 bool SteamPlugin::GetFriendGamePlayed(CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return false;
-	}
+	CheckInitialized(SteamFriends, false);
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->GetFriendGamePlayed(steamIDFriend, pFriendGameInfo);
 }
 
 const char *SteamPlugin::GetFriendPersonaName(CSteamID steamIDFriend)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, NULL);
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->GetFriendPersonaName(steamIDFriend);
 }
 
 EPersonaState SteamPlugin::GetFriendPersonaState(CSteamID steamIDFriend)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return k_EPersonaStateOffline;
-	}
+	CheckInitialized(SteamFriends, k_EPersonaStateOffline);
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->GetFriendPersonaState(steamIDFriend);
 }
 
 EFriendRelationship SteamPlugin::GetFriendRelationship(CSteamID steamIDFriend)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return k_EFriendRelationshipNone;
-	}
+	CheckInitialized(SteamFriends, k_EFriendRelationshipNone);
 	return SteamFriends()->GetFriendRelationship(steamIDFriend);
 }
 
@@ -413,57 +366,39 @@ Possible solution is to just keep requesting the level when 0 is returned.
 */
 int SteamPlugin::GetFriendSteamLevel(CSteamID steamIDFriend)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, 0);
 	m_PersonaStateChangedEnabled = true;
 	return SteamFriends()->GetFriendSteamLevel(steamIDFriend);
 }
 
 const char *SteamPlugin::GetPlayerNickname(CSteamID steamIDPlayer)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return NULL;
-	}
+	CheckInitialized(SteamFriends, NULL);
 	return SteamFriends()->GetPlayerNickname(steamIDPlayer);
 }
 
 bool SteamPlugin::HasFriend(CSteamID steamIDFriend, EFriendFlags iFriendFlags)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return k_EPersonaStateOffline;
-	}
+	CheckInitialized(SteamFriends, k_EPersonaStateOffline);
 	return SteamFriends()->HasFriend(steamIDFriend, iFriendFlags);
 }
 
 // Friend group methods
 int SteamPlugin::GetFriendsGroupCount()
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, 0);
 	return SteamFriends()->GetFriendsGroupCount();
 }
 
 FriendsGroupID_t SteamPlugin::GetFriendsGroupIDByIndex(int iFriendGroup)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return k_FriendsGroupID_Invalid;
-	}
+	CheckInitialized(SteamFriends, k_FriendsGroupID_Invalid);
 	return SteamFriends()->GetFriendsGroupIDByIndex(iFriendGroup);
 }
 
 int SteamPlugin::GetFriendsGroupMembersCount(FriendsGroupID_t friendsGroupID)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return 0;
-	}
+	CheckInitialized(SteamFriends, 0);
 	return SteamFriends()->GetFriendsGroupMembersCount(friendsGroupID);
 }
 
@@ -479,10 +414,7 @@ void SteamPlugin::GetFriendsGroupMembersList(FriendsGroupID_t friendsGroupID, CS
 
 const char *SteamPlugin::GetFriendsGroupName(FriendsGroupID_t friendsGroupID)
 {
-	if (!m_SteamInitialized || NULL == SteamFriends())
-	{
-		return NULL;
-	}
+	CheckInitialized(SteamFriends, NULL);
 	return SteamFriends()->GetFriendsGroupName(friendsGroupID);
 }
 
@@ -558,14 +490,12 @@ bool SteamPlugin::RequestStats()
 {
 	// Set to false so that we can detect when the callback finishes for this request.
 	m_StatsInitialized = false;
-	if (NULL == SteamUserStats() || NULL == SteamUser())
-	{
-		return false;
-	}
+	CheckInitialized(SteamUser, false);
 	if (!SteamUser()->BLoggedOn())
 	{
 		return false;
 	}
+	CheckInitialized(SteamUserStats, false);
 	// Fail when the callback is currently running.
 	if (m_RequestStatsCallbackState == Running)
 	{
@@ -608,10 +538,7 @@ void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
 
 bool SteamPlugin::StoreStats()
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	// Fail when the callback is currently running.
 	if (m_StoreStatsCallbackState == Running)
 	{
@@ -630,10 +557,7 @@ bool SteamPlugin::StoreStats()
 
 bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	// Fail when the callback is currently running.
 	if (m_StoreStatsCallbackState == Running)
 	{
@@ -652,28 +576,19 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 
 int SteamPlugin::GetNumAchievements()
 {
-	if (!m_StatsInitialized)
-	{
-		return 0;
-	}
+	CheckInitialized(SteamUserStats, 0);
 	return SteamUserStats()->GetNumAchievements();
 }
 
 const char *SteamPlugin::GetAchievementID(int index)
 {
-	if (!m_StatsInitialized)
-	{
-		return 0;
-	}
+	CheckInitialized(SteamUserStats, NULL);
 	return SteamUserStats()->GetAchievementName(index);
 }
 
 const char *SteamPlugin::GetAchievementDisplayAttribute(const char *pchName, const char *pchKey)
 {
-	if (!m_StatsInitialized)
-	{
-		return 0;
-	}
+	CheckInitialized(SteamUserStats, NULL);
 	return SteamUserStats()->GetAchievementDisplayAttribute(pchName, pchKey);
 }
 
@@ -698,10 +613,7 @@ Instead this checks some failure conditions so that it can return 0 for failure 
 */
 int SteamPlugin::GetAchievementIcon(const char *pchName)
 {
-	if (!m_StatsInitialized)
-	{
-		return 0;
-	}
+	CheckInitialized(SteamUserStats, 0);
 	// See if we're waiting for a callback result for this icon.
 	std::string name = pchName;
 	auto search = m_AchievementIconsMap.find(name);
@@ -732,91 +644,61 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 
 bool SteamPlugin::GetAchievement(const char *pchName, bool *pbAchieved)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->GetAchievement(pchName, pbAchieved);
 }
 
 bool SteamPlugin::SetAchievement(const char *pchName)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->SetAchievement(pchName);
 }
 
 bool SteamPlugin::GetAchievementAndUnlockTime(const char *pchName, bool *pbAchieved, uint32 *punUnlockTime)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->GetAchievementAndUnlockTime(pchName, pbAchieved, punUnlockTime);
 }
 
 bool SteamPlugin::IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
 }
 
 bool SteamPlugin::ClearAchievement(const char *pchName)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->ClearAchievement(pchName);
 }
 
 bool SteamPlugin::GetStat(const char *pchName, int32 *pData)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->GetStat(pchName, pData);
 }
 
 bool SteamPlugin::GetStat(const char *pchName, float *pData)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->GetStat(pchName, pData);
 }
 
 bool SteamPlugin::SetStat(const char *pchName, int32 nData)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->SetStat(pchName, nData);
 }
 
 bool SteamPlugin::SetStat(const char *pchName, float fData)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->SetStat(pchName, fData);
 }
 
 bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	return SteamUserStats()->UpdateAvgRateStat(pchName, flCountThisSession, dSessionLength);
 }
 
@@ -837,10 +719,7 @@ void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIO
 
 bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	// Fail when the callback is currently running.
 	if (m_FindLeaderboardCallbackState == Running)
 	{
@@ -917,10 +796,7 @@ void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOF
 
 bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	if (!hLeaderboard)
 	{
 		m_UploadLeaderboardScoreCallbackState = ClientError;
@@ -973,10 +849,7 @@ void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool
 
 bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
-	if (!m_StatsInitialized)
-	{
-		return false;
-	}
+	CheckInitialized(SteamUserStats, false);
 	if (!hLeaderboard)
 	{
 		m_DownloadLeaderboardEntriesCallbackState = ClientError;
@@ -1032,6 +905,42 @@ CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int index)
 	return m_DownloadedLeaderboardEntries[index].m_steamIDUser;
 }
 
+void SteamPlugin::AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->AddRequestLobbyListDistanceFilter(eLobbyDistanceFilter);
+}
+
+void SteamPlugin::AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->AddRequestLobbyListFilterSlotsAvailable(nSlotsAvailable);
+}
+
+void SteamPlugin::AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->AddRequestLobbyListNearValueFilter(pchKeyToMatch, nValueToBeCloseTo);
+}
+
+void SteamPlugin::AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->AddRequestLobbyListNumericalFilter(pchKeyToMatch, nValueToMatch, eComparisonType);
+}
+
+void SteamPlugin::AddRequestLobbyListResultCountFilter(int cMaxResults)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->AddRequestLobbyListResultCountFilter(cMaxResults);
+}
+
+void SteamPlugin::AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType)
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->AddRequestLobbyListStringFilter(pchKeyToMatch, pchValueToMatch, eComparisonType);
+}
+
 // Callback for RequestLobbyList.
 void SteamPlugin::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure)
 {
@@ -1050,10 +959,7 @@ bool SteamPlugin::RequestLobbyList()
 {
 	// Clear result structure.
 	m_LobbyMatchList.m_nLobbiesMatching = 0;
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
+	CheckInitialized(SteamMatchmaking, false);
 	try
 	{
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
@@ -1070,10 +976,7 @@ bool SteamPlugin::RequestLobbyList()
 
 CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return k_steamIDNil;
-	}
+	CheckInitialized(SteamMatchmaking, k_steamIDNil);
 	if (m_LobbyMatchList.m_nLobbiesMatching == 0 || iLobby >= (int)m_LobbyMatchList.m_nLobbiesMatching)
 	{
 		return k_steamIDNil;
@@ -1081,39 +984,39 @@ CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
 	return SteamMatchmaking()->GetLobbyByIndex(iLobby);
 }
 
+const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
+}
+
 int SteamPlugin::GetLobbyDataCount(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return 0;
-	}
+	CheckInitialized(SteamMatchmaking, 0);
 	return SteamMatchmaking()->GetLobbyDataCount(steamIDLobby);
 }
 
 bool SteamPlugin::GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
+	CheckInitialized(SteamMatchmaking, false);
 	return SteamMatchmaking()->GetLobbyDataByIndex(steamIDLobby, iLobbyData, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
 }
 
-const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
+void SteamPlugin::SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
-	return SteamMatchmaking()->GetLobbyData(steamIDLobby, pchKey);
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->SetLobbyData(steamIDLobby, pchKey, pchValue);
+}
+
+bool SteamPlugin::DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->DeleteLobbyData(steamIDLobby, pchKey);
 }
 
 bool SteamPlugin::RequestLobbyData(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
+	CheckInitialized(SteamMatchmaking, false);
 	return SteamMatchmaking()->RequestLobbyData(steamIDLobby);
 }
 
@@ -1160,38 +1063,14 @@ bool SteamPlugin::HasLobbyDataUpdated()
 
 const char *SteamPlugin::GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return NULL;
-	}
+	CheckInitialized(SteamMatchmaking, NULL);
 	return SteamMatchmaking()->GetLobbyMemberData(steamIDLobby, steamIDUser, pchKey);
 }
 
 void SteamPlugin::SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return;
-	}
+	CheckInitialized(SteamMatchmaking, );
 	SteamMatchmaking()->SetLobbyMemberData(steamIDLobby, pchKey, pchValue);
-}
-
-bool SteamPlugin::DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey)
-{
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
-	return SteamMatchmaking()->DeleteLobbyData(steamIDLobby, pchKey);
-}
-
-void SteamPlugin::SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue)
-{
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return;
-	}
-	SteamMatchmaking()->SetLobbyData(steamIDLobby, pchKey, pchValue);
 }
 
 // Callback for CreateLobby.
@@ -1219,10 +1098,7 @@ bool SteamPlugin::CreateLobby(ELobbyType eLobbyType, int cMaxMembers)
 	m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
 	m_LobbyCreatedID = k_steamIDNil;
 	m_LobbyCreatedResult = (EResult)0;
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
+	CheckInitialized(SteamMatchmaking, false);
 	try
 	{
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->CreateLobby(eLobbyType, cMaxMembers);
@@ -1280,10 +1156,7 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 {
 	m_LobbyEnterBlocked = false;
 	m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
+	CheckInitialized(SteamMatchmaking, false);
 	try
 	{
 		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->JoinLobby(steamIDLobby);
@@ -1300,10 +1173,7 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return;
-	}
+	CheckInitialized(SteamMatchmaking, );
 	SteamMatchmaking()->LeaveLobby(steamIDLobby);
 	// Remove from list of joined lobbies.
 	auto it = std::find(m_JoinedLobbies.begin(), m_JoinedLobbies.end(), steamIDLobby);
@@ -1315,37 +1185,25 @@ void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
 
 CSteamID SteamPlugin::GetLobbyOwner(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return k_steamIDNil;
-	}
+	CheckInitialized(SteamMatchmaking, k_steamIDNil);
 	return SteamMatchmaking()->GetLobbyOwner(steamIDLobby);
 }
 
 int SteamPlugin::GetLobbyMemberLimit(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return 0;
-	}
+	CheckInitialized(SteamMatchmaking, 0);
 	return SteamMatchmaking()->GetLobbyMemberLimit(steamIDLobby);
 }
 
 int SteamPlugin::GetNumLobbyMembers(CSteamID steamIDLobby)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return 0;
-	}
+	CheckInitialized(SteamMatchmaking, 0);
 	return SteamMatchmaking()->GetNumLobbyMembers(steamIDLobby);
 }
 
 CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return k_steamIDNil;
-	}
+	CheckInitialized(SteamMatchmaking, k_steamIDNil);
 	return SteamMatchmaking()->GetLobbyMemberByIndex(steamIDLobby, iMember);
 }
 
@@ -1401,9 +1259,31 @@ bool SteamPlugin::HasLobbyChatMessage()
 
 bool SteamPlugin::SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody)
 {
-	if (!m_SteamInitialized || (NULL == SteamMatchmaking()))
-	{
-		return false;
-	}
+	CheckInitialized(SteamMatchmaking, false);
 	return SteamMatchmaking()->SendLobbyChatMsg(steamIDLobby, pvMsgBody, strlen(pvMsgBody) + 1);
+}
+
+// Lobby methods: Favorite games
+int SteamPlugin::AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer)
+{
+	CheckInitialized(SteamMatchmaking, 0);
+	return SteamMatchmaking()->AddFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags, rTime32LastPlayedOnServer);
+}
+
+int SteamPlugin::GetFavoriteGameCount()
+{
+	CheckInitialized(SteamMatchmaking, 0);
+	return SteamMatchmaking()->GetFavoriteGameCount();
+}
+
+bool SteamPlugin::GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->GetFavoriteGame(iGame, pnAppID, pnIP, pnConnPort, pnQueryPort, punFlags, pRTime32LastPlayedOnServer);
+}
+
+bool SteamPlugin::RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->RemoveFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags);
 }
