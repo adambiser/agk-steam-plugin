@@ -929,6 +929,84 @@ int GetLobbyByIndex(int index)
 	return GetSteamIDHandle(Steam->GetLobbyByIndex(index));
 }
 
+int CreateLobby(int eLobbyType, int maxMembers)
+{
+	CheckInitialized(false);
+	return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
+}
+
+int GetLobbyCreateCallbackState()
+{
+	CheckInitialized(0);
+	return Steam->GetLobbyCreateCallbackState();
+}
+
+int GetLobbyCreatedID()
+{
+	CheckInitialized(0);
+	return GetSteamIDHandle(Steam->GetLobbyCreatedID());
+}
+
+int GetLobbyCreatedResult()
+{
+	CheckInitialized(0);
+	return Steam->GetLobbyCreatedResult();
+}
+
+int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
+{
+	CheckInitialized(false);
+	return Steam->SetLinkedLobby(GetSteamID(hLobbySteamID), GetSteamID(hLobbyDependentSteamID));
+}
+
+int SetLobbyJoinable(int hLobbySteamID, bool lobbyJoinable)
+{
+	CheckInitialized(false);
+	return Steam->SetLobbyJoinable(GetSteamID(hLobbySteamID), lobbyJoinable);
+}
+
+int SetLobbyType(int hLobbySteamID, int eLobbyType)
+{
+	CheckInitialized(false);
+	return Steam->SetLobbyType(GetSteamID(hLobbySteamID), (ELobbyType)eLobbyType);
+}
+
+int JoinLobby(int hLobbySteamID)
+{
+	CheckInitialized(false);
+	return Steam->JoinLobby(GetSteamID(hLobbySteamID));
+}
+
+int GetLobbyEnterCallbackState()
+{
+	CheckInitialized(STATE_CLIENT_ERROR);
+	return Steam->GetLobbyEnterCallbackState();
+}
+
+int GetLobbyEnterID()
+{
+	CheckInitialized(0);
+	return GetSteamIDHandle(Steam->GetLobbyEnterID());
+}
+
+int GetLobbyEnterBlocked()
+{
+	CheckInitialized(false);
+	return Steam->GetLobbyEnterBlocked();
+}
+
+int GetLobbyEnterResponse()
+{
+	CheckInitialized(0);
+	return Steam->GetLobbyEnterResponse();
+}
+
+void LeaveLobby(int hLobbySteamID)
+{
+	CheckInitialized(NORETURN);
+	Steam->LeaveLobby(GetSteamID(hLobbySteamID));
+}
+
 char *GetLobbyData(int hLobbySteamID, char *key)
 {
 	CheckInitialized(CreateString(NULL));
@@ -1034,76 +1112,28 @@ void SetLobbyMemberData(int hLobbySteamID, char *key, char *value)
 	return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
 }
 
-int CreateLobby(int eLobbyType, int maxMembers)
-{
-	CheckInitialized(false);
-	return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
-}
-
-int GetLobbyCreateCallbackState()
-{
-	CheckInitialized(0);
-	return Steam->GetLobbyCreateCallbackState();
-}
-
-int GetLobbyCreatedID()
-{
-	CheckInitialized(0);
-	return GetSteamIDHandle(Steam->GetLobbyCreatedID());
-}
-
-int GetLobbyCreatedResult()
-{
-	CheckInitialized(0);
-	return Steam->GetLobbyCreatedResult();
-}
-
-int JoinLobby(int hLobbySteamID)
-{
-	CheckInitialized(false);
-	return Steam->JoinLobby(GetSteamID(hLobbySteamID));
-}
-
-int GetLobbyEnterCallbackState()
-{
-	CheckInitialized(STATE_CLIENT_ERROR);
-	return Steam->GetLobbyEnterCallbackState();
-}
-
-int GetLobbyEnterID()
-{
-	CheckInitialized(0);
-	return GetSteamIDHandle(Steam->GetLobbyEnterID());
-}
-
-int GetLobbyEnterBlocked()
-{
-	CheckInitialized(false);
-	return Steam->GetLobbyEnterBlocked();
-}
-
-int GetLobbyEnterResponse()
-{
-	CheckInitialized(0);
-	return Steam->GetLobbyEnterResponse();
-}
-
-void LeaveLobby(int hLobbySteamID)
-{
-	CheckInitialized(NORETURN);
-	Steam->LeaveLobby(GetSteamID(hLobbySteamID));
-}
-
 int GetLobbyOwner(int hLobbySteamID)
 {
 	CheckInitialized(0);
 	return GetSteamIDHandle(Steam->GetLobbyOwner(GetSteamID(hLobbySteamID)));
 }
 
+int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID)
+{
+	CheckInitialized(0);
+	return Steam->SetLobbyOwner(GetSteamID(hLobbySteamID), GetSteamID(hNewOwnerSteamID));
+}
+
 int GetLobbyMemberLimit(int hLobbySteamID)
 {
 	CheckInitialized(0);
 	return Steam->GetLobbyMemberLimit(GetSteamID(hLobbySteamID));
+}
+
+int SetLobbyMemberLimit(int hLobbySteamID, int cMaxMembers)
+{
+	CheckInitialized(0);
+	return Steam->SetLobbyMemberLimit(GetSteamID(hLobbySteamID), cMaxMembers);
 }
 
 int GetNumLobbyMembers(int hLobbySteamID)

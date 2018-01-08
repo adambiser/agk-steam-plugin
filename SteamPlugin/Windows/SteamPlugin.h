@@ -281,6 +281,20 @@ public:
 	CSteamID GetLobbyByIndex(int iLobby);
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
 	int GetLobbyMatchListCount() { return m_LobbyMatchList.m_nLobbiesMatching; }
+	// Lobby methods: Create, Join, Leave
+	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
+	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
+	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
+	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
+	bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
+	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
+	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
+	bool JoinLobby(CSteamID steamIDLobby);
+	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
+	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
+	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
+	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
+	void LeaveLobby(CSteamID steamIDLobby);
 	// Lobby methods: Data
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
@@ -293,29 +307,11 @@ public:
 	CSteamID GetLobbyDataUpdatedID() { return m_LobbyDataUpdatedID; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
-	// Lobby methods: Owner methods
-	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
-	//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer);
-	//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
-	//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
-	//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Triggers a LobbyDataUpdate_t callback.
-	//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
-	// Lobby methods: Create
-	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
-	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
-	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
-	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
-	// Lobby methods: Join
-	bool JoinLobby(CSteamID steamIDLobby);
-	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
-	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
-	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
-	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
-	// Lobby methods: Leave
-	void LeaveLobby(CSteamID steamIDLobby);
 	// Lobby methods:  members
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
+	bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
+	bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
 	// Lobby methods: Member status
