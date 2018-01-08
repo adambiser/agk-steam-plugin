@@ -609,11 +609,20 @@ EndType
 // Obtainable from: GetFavoriteGameJSON.
 Type FavoriteGameInfo_t
 	AppID as integer
-	IPv4 as string
+	IP as string
 	ConnectPort as integer
 	QueryPort as integer
 	Flags as integer
 	TimeLastPlayedOnServer as integer
+EndType
+
+// Game server information
+// Obtainable from: GetLobbyGameServerJSON
+Type GameServerInfo_t
+	hLobby as integer
+	IP as string
+	Port as integer
+	hGameServer as integer
 EndType
 
 // Constants

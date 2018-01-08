@@ -103,6 +103,25 @@ void ClearSteamIDHandleList()
 	m_CSteamIDs.push_back(k_steamIDNil);
 }
 
+bool ParseIP(char *ipv4, uint32 *ip)
+{
+	int ip1, ip2, ip3, ip4;
+	sscanf(ipv4, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
+	if ((ip1 < 0 || ip1 > 255)
+		|| (ip2 < 0 || ip2 > 255)
+		|| (ip3 < 0 || ip3 > 255)
+		|| (ip4 < 0 || ip4 > 255)
+		)
+	{
+		agk::PluginError("Could not parse IP address.");
+		return false;
+	}
+	*ip = (ip1 << 24) | (ip2 << 16) | (ip3 << 8) | (ip4);
+	return true;
+}
+
+#define ConvertIPToString(ip) "\"" << ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff) << "\""
+
 /*
 This method should be called before attempting to do anything else with this plugin.
 Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
@@ -1007,6 +1026,46 @@ void LeaveLobby(int hLobbySteamID)
 	Steam->LeaveLobby(GetSteamID(hLobbySteamID));
 }
 
+// Lobby methods: Game server
+char *GetLobbyGameServerJSON(int hLobbySteamID)
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		uint32 unGameServerIP;
+		uint16 unGameServerPort;
+		CSteamID steamIDGameServer;
+		if (Steam->GetLobbyGameServer(GetSteamID(hLobbySteamID), &unGameServerIP, &unGameServerPort, &steamIDGameServer))
+		{
+			json << "\"hLobby\": " << hLobbySteamID; // Add this for completeness.
+			json << ",\"IP\": " << ConvertIPToString(unGameServerIP);
+			json << ",\"Port\": " << unGameServerPort;
+			json << ",\"hGameServer\": " << GetSteamIDHandle(steamIDGameServer);
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort, int hGameServerSteamID)
+{
+	CheckInitialized(false);
+	if (gameServerPort < 0 || gameServerPort > 0xffff)
+	{
+		agk::PluginError("SetLobbyGameServer: Invalid game server port.");
+		return false;
+	}
+	uint32 ip;
+	if (!ParseIP(gameServerIP, &ip))
+	{
+		return false;
+	}
+	Steam->SetLobbyGameServer(GetSteamID(hLobbySteamID), ip, gameServerPort, GetSteamID(hGameServerSteamID));
+	return true;
+}
+
+// Lobby methods: Data
 char *GetLobbyData(int hLobbySteamID, char *key)
 {
 	CheckInitialized(CreateString(NULL));
@@ -1198,23 +1257,6 @@ int SendLobbyChatMessage(int hLobbySteamID, char *msg)
 	return Steam->SendLobbyChatMessage(GetSteamID(hLobbySteamID), msg);
 }
 
-bool ParseIP(char *ipv4, uint32 *ip)
-{
-	int ip1, ip2, ip3, ip4;
-	sscanf(ipv4, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
-	if ((ip1 < 0 || ip1 > 255)
-		|| (ip2 < 0 || ip2 > 255)
-		|| (ip3 < 0 || ip3 > 255)
-		|| (ip4 < 0 || ip4 > 255)
-		)
-	{
-		agk::PluginError("Could not parse IP address.");
-		return false;
-	}
-	*ip = (ip1 << 24) | (ip2 << 16) | (ip3 << 8) | (ip4);
-	return true;
-}
-
 // Lobby methods: Favorite games
 int AddFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, int flags) //, int time32LastPlayedOnServer)
 {
@@ -1260,7 +1302,7 @@ char *GetFavoriteGameJSON(int index)
 		if (Steam->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &unFlags, &rTime32LastPlayedOnServer))
 		{
 			json << "\"AppID\": " << nAppID;
-			json << ",\"IPv4\": \"" << ((nIP >> 24) & 0xff) << "." << ((nIP >> 16) & 0xff) << "." << ((nIP >> 8) & 0xff) << "." << ((nIP >> 0) & 0xff) << "\"";
+			json << ",\"IP\": " << ConvertIPToString(nIP);
 			json << ",\"ConnectPort\": " << nConnPort;
 			json << ",\"QueryPort\": " << nQueryPort;
 			json << ",\"Flags\": " << unFlags;

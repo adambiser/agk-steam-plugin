@@ -1112,6 +1112,18 @@ void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
 	}
 }
 
+bool SteamPlugin::GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->GetLobbyGameServer(steamIDLobby, punGameServerIP, punGameServerPort, psteamIDGameServer);
+}
+
+void SteamPlugin::SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer) // Triggers a LobbyGameCreated_t callback.
+{
+	CheckInitialized(SteamMatchmaking, );
+	SteamMatchmaking()->SetLobbyGameServer(steamIDLobby, unGameServerIP, unGameServerPort, steamIDGameServer);
+}
+
 const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
 {
 	CheckInitialized(SteamMatchmaking, false);

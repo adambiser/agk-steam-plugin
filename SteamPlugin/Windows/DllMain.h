@@ -160,6 +160,9 @@ extern "C" DLL_EXPORT int GetLobbyEnterID();
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
+// Lobby methods: Game server
+extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
+extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort, int hGameServerSteamID); // Triggers a LobbyGameCreated_t callback.
 // Lobby methods: Data
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
 extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
@@ -173,10 +176,6 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdatedLobby();
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
 extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key);
 extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char *value);
-// Lobby methods: Game server
-//bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
-//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
-// Lobby methods: Owner methods
 // Lobby methods: Members and status
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID);

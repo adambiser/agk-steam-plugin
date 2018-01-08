@@ -295,6 +295,9 @@ public:
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
 	void LeaveLobby(CSteamID steamIDLobby);
+	// Lobby methods: Game server
+	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
+	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
 	// Lobby methods: Data
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
