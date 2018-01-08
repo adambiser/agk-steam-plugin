@@ -165,8 +165,8 @@
 #constant k_EChatRoomEnterResponseLimited			7	// Joining this chat is not allowed because you are a limited user (no value on account).
 #constant k_EChatRoomEnterResponseClanDisabled		8	// Attempt to join a clan chat when the clan is locked or disabled.
 #constant k_EChatRoomEnterResponseCommunityBan		9	// Attempt to join a chat when the user has a community lock on their account.
-#constant k_EChatRoomEnterResponseMemberBlockedYou	10	J// oin failed - a user that is in the chat has blocked you from joining.
-#constant k_EChatRoomEnterResponseYouBlockedMember	11	J// oin failed - you have blocked a user that is already in the chat.
+#constant k_EChatRoomEnterResponseMemberBlockedYou	10	// Join failed - a user that is in the chat has blocked you from joining.
+#constant k_EChatRoomEnterResponseYouBlockedMember	11	// Join failed - you have blocked a user that is already in the chat.
 
 // EChatSteamIDInstanceFlags
 //--------------------------------------------------------------
@@ -618,7 +618,7 @@ EndType
 
 // Game server information
 // Obtainable from: GetLobbyGameServerJSON
-Type GameServerInfo_t
+Type GameServerInfo_t // aka LobbyGameCreated_t
 	hLobby as integer
 	IP as string
 	Port as integer

@@ -119,7 +119,7 @@ private:
 	CCallResult<SteamPlugin, LobbyCreated_t> m_CallResultLobbyCreate;
 	CSteamID m_LobbyCreatedID;
 	EResult m_LobbyCreatedResult;
-	// Lobby methods: Join
+	// Lobby methods: Join, Create, Leave
 	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we leave any left open when closing.
 	ECallbackState m_LobbyEnterCallbackState;
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
@@ -128,9 +128,10 @@ private:
 	CSteamID m_LobbyEnterID;
 	bool m_LobbyEnterBlocked;
 	EChatRoomEnterResponse m_LobbyEnterResponse;
-	// Lobby methods: Leave
-	// Lobby methods: Members
-	// Lobby methods: Member status
+	// Lobby methods: Game server
+	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
+	LobbyGameCreated_t m_LobbyGameCreatedInfo;
+	// Lobby methods: Members and Status
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
 	// TODO Replace with ChatUpdateInfo_t variable.
 	CSteamID m_LobbyChatUpdateUserChanged;
@@ -143,6 +144,7 @@ private:
 		CSteamID userMakingChange;
 	};
 	std::list<ChatUpdateInfo_t> m_ChatUpdates;
+
 	// Lobby methods: Chat messages
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
 	// TODO Replace with ChatMessageInfo_t variable.
@@ -298,6 +300,8 @@ public:
 	// Lobby methods: Game server
 	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
+	bool HasLobbyGameCreated() { return m_LobbyGameCreatedInfo.m_ulSteamIDLobby != 0; };
+	LobbyGameCreated_t GetLobbyGameCreated();
 	// Lobby methods: Data
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
@@ -322,6 +326,7 @@ public:
 	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
 	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
 	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
+	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	// Lobby methods: Chat messages
 	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
@@ -332,6 +337,8 @@ public:
 	int GetFavoriteGameCount();
 	bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
 	bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
+	// Game server
+	//uint32 GetPublicIP();
 };
 
 #endif // STEAMPLUGIN_H_

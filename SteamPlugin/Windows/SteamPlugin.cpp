@@ -24,6 +24,7 @@ THE SOFTWARE.
 #include <windows.h>
 #include <stdio.h>
 #include <steam_api.h>
+//#include <steam_gameserver.h>
 #include "SteamPlugin.h"
 #include <string>
 #include "..\AGKLibraryCommands.h"
@@ -72,6 +73,7 @@ SteamPlugin::SteamPlugin() :
 	m_LobbyEnterID(k_steamIDNil),
 	m_LobbyEnterBlocked(false),
 	m_LobbyEnterResponse((EChatRoomEnterResponse)0),
+	m_CallbackLobbyGameCreated(this, &SteamPlugin::OnLobbyGameCreated),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
 	m_LobbyChatUpdateUserChanged(k_steamIDNil),
 	m_LobbyChatUpdateUserState((EChatMemberStateChange)0),
@@ -1124,6 +1126,22 @@ void SteamPlugin::SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerI
 	SteamMatchmaking()->SetLobbyGameServer(steamIDLobby, unGameServerIP, unGameServerPort, steamIDGameServer);
 }
 
+LobbyGameCreated_t SteamPlugin::GetLobbyGameCreated()
+{
+	LobbyGameCreated_t temp = m_LobbyGameCreatedInfo;
+	// Clear the stored value.
+	m_LobbyGameCreatedInfo.m_ulSteamIDLobby = 0;
+	m_LobbyGameCreatedInfo.m_ulSteamIDGameServer = 0;
+	m_LobbyGameCreatedInfo.m_unIP = 0;
+	m_LobbyGameCreatedInfo.m_usPort = 0;
+	return temp;
+}
+
+void SteamPlugin::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
+{
+	m_LobbyGameCreatedInfo = *pParam;
+}
+
 const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
 {
 	CheckInitialized(SteamMatchmaking, false);
@@ -1275,6 +1293,12 @@ bool SteamPlugin::HasLobbyChatUpdate()
 	return false;
 }
 
+bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->InviteUserToLobby(steamIDLobby, steamIDInvitee);
+}
+
 void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
 	//m_LobbyChatMessageCallbackState = Done;
@@ -1329,3 +1353,12 @@ bool SteamPlugin::RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPor
 	CheckInitialized(SteamMatchmaking, false);
 	return SteamMatchmaking()->RemoveFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags);
 }
+
+//uint32 SteamPlugin::GetPublicIP()
+//{
+//	SteamGameServer_Init(0xc0a80068, 27015, 11000, 11001, eServerModeNoAuthentication, "1.0.0.0");
+//	CheckInitialized(SteamGameServer, 0);
+//	uint32 ip = SteamGameServer()->GetPublicIP();
+//	SteamGameServer_Shutdown();
+//	return ip;
+//}

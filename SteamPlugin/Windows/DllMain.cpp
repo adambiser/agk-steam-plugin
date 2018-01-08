@@ -30,7 +30,6 @@ THE SOFTWARE.
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
 
-
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
@@ -120,7 +119,7 @@ bool ParseIP(char *ipv4, uint32 *ip)
 	return true;
 }
 
-#define ConvertIPToString(ip) "\"" << ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff) << "\""
+#define ConvertIPToString(ip) ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff)
 
 /*
 This method should be called before attempting to do anything else with this plugin.
@@ -1038,8 +1037,8 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 		CSteamID steamIDGameServer;
 		if (Steam->GetLobbyGameServer(GetSteamID(hLobbySteamID), &unGameServerIP, &unGameServerPort, &steamIDGameServer))
 		{
-			json << "\"hLobby\": " << hLobbySteamID; // Add this for completeness.
-			json << ",\"IP\": " << ConvertIPToString(unGameServerIP);
+			json << "\"hLobby\": " << hLobbySteamID; // Add this to match LobbyGameCreated_t.
+			json << ",\"IP\": \"" << ConvertIPToString(unGameServerIP) << "\"";
 			json << ",\"Port\": " << unGameServerPort;
 			json << ",\"hGameServer\": " << GetSteamIDHandle(steamIDGameServer);
 		}
@@ -1063,6 +1062,31 @@ int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort
 	}
 	Steam->SetLobbyGameServer(GetSteamID(hLobbySteamID), ip, gameServerPort, GetSteamID(hGameServerSteamID));
 	return true;
+}
+
+int HasLobbyGameCreated()
+{
+	CheckInitialized(false);
+	return Steam->HasLobbyGameCreated();
+}
+
+char *GetLobbyGameCreatedJSON()
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		LobbyGameCreated_t gameServer = Steam->GetLobbyGameCreated();
+		if (gameServer.m_ulSteamIDLobby != 0)
+		{
+			json << "\"hLobby\": " << GetSteamIDHandle(gameServer.m_ulSteamIDLobby);
+			json << ",\"IP\": \"" << ConvertIPToString(gameServer.m_unIP) << "\"";
+			json << ",\"Port\": " << gameServer.m_usPort;
+			json << ",\"hGameServer\": " << GetSteamIDHandle(gameServer.m_ulSteamIDGameServer);
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
 }
 
 // Lobby methods: Data
@@ -1231,6 +1255,12 @@ int GetLobbyChatUpdateUserMakingChange()
 	return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
 }
 
+int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
+{
+	CheckInitialized(false);
+	return Steam->InviteUserToLobby(GetSteamID(hLobbySteamID), GetSteamID(hInviteeSteamID));
+}
+
 int HasLobbyChatMessage()
 {
 	CheckInitialized(false);
@@ -1302,7 +1332,7 @@ char *GetFavoriteGameJSON(int index)
 		if (Steam->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &unFlags, &rTime32LastPlayedOnServer))
 		{
 			json << "\"AppID\": " << nAppID;
-			json << ",\"IP\": " << ConvertIPToString(nIP);
+			json << ",\"IP\": \"" << ConvertIPToString(nIP) << "\"";
 			json << ",\"ConnectPort\": " << nConnPort;
 			json << ",\"QueryPort\": " << nQueryPort;
 			json << ",\"Flags\": " << unFlags;
@@ -1333,3 +1363,12 @@ int RemoveFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, in
 	}
 	return Steam->RemoveFavoriteGame(appID, ip, connectPort, queryPort, flags);
 }
+
+//char *GetPublicIP()
+//{
+//	CheckInitialized(CreateString(NULL));
+//	uint32 ip = Steam->GetPublicIP();
+//	std::ostringstream ipc;
+//	ipc << ConvertIPToString(ip);
+//	return CreateString(ipc.str());
+//}

@@ -163,6 +163,8 @@ extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
 // Lobby methods: Game server
 extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
 extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort, int hGameServerSteamID); // Triggers a LobbyGameCreated_t callback.
+extern "C" DLL_EXPORT int HasLobbyGameCreated();
+extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
 // Lobby methods: Data
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
 extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
@@ -187,6 +189,7 @@ extern "C" DLL_EXPORT int HasLobbyChatUpdate();
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
+extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID);
 // Lobby methods: Chat messages
 extern "C" DLL_EXPORT int HasLobbyChatMessage();
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
@@ -197,8 +200,7 @@ extern "C" DLL_EXPORT int AddFavoriteGame(int appID, char *ip, int connectPort, 
 extern "C" DLL_EXPORT int GetFavoriteGameCount();
 extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
 extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);
-/*
-bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee); // Can this be done?
-*/
+// Game server
+//extern "C" DLL_EXPORT char *GetPublicIP();
 
 #endif // DLLMAIN_H_

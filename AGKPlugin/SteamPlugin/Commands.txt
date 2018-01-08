@@ -157,7 +157,9 @@ LeaveLobby,0,I,LeaveLobby,0,0,0,0,0
 # Lobby methods: Game server
 #
 GetLobbyGameServerJSON,S,I,GetLobbyGameServerJSON,0,0,0,0,0
-SetLobbyGameServer,0,ISII,SetLobbyGameServer,0,0,0,0,0
+SetLobbyGameServer,I,ISII,SetLobbyGameServer,0,0,0,0,0
+HasLobbyGameCreated,I,0,HasLobbyGameCreated,0,0,0,0,0
+GetLobbyGameCreatedJSON,S,0,GetLobbyGameCreatedJSON,0,0,0,0,0
 #
 # Lobby methods: Data
 #
@@ -186,6 +188,7 @@ HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,0
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,0
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,0
 GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,0
+InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,0
 #
 # Lobby methods: Chat messages
 #
@@ -200,3 +203,7 @@ AddFavoriteGame,I,ISIII,AddFavoriteGame,0,0,0,0,0
 GetFavoriteGameCount,I,0,GetFavoriteGameCount,0,0,0,0,0
 GetFavoriteGameJSON,S,I,GetFavoriteGameJSON,0,0,0,0,0
 RemoveFavoriteGame,I,ISIII,RemoveFavoriteGame,0,0,0,0,0
+#
+# Game server
+#
+#GetPublicIP,S,0,GetPublicIP,0,0,0,0,0
