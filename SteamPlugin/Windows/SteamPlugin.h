@@ -144,7 +144,6 @@ private:
 		CSteamID userMakingChange;
 	};
 	std::list<ChatUpdateInfo_t> m_ChatUpdates;
-
 	// Lobby methods: Chat messages
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
 	// TODO Replace with ChatMessageInfo_t variable.
@@ -156,6 +155,11 @@ private:
 		char text[4096];
 	};
 	std::list<ChatMessageInfo_t> m_ChatMessages;
+	// Music methods
+	STEAM_CALLBACK(SteamPlugin, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t, m_CallbackPlaybackStatusHasChanged);
+	bool m_PlaybackStatusHasChanged;
+	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
+	bool m_VolumeHasChanged;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -314,14 +318,13 @@ public:
 	CSteamID GetLobbyDataUpdatedID() { return m_LobbyDataUpdatedID; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
-	// Lobby methods:  members
+	// Lobby methods: members and status
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
 	bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
-	// Lobby methods: Member status
 	bool HasLobbyChatUpdate();
 	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
 	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
@@ -339,6 +342,18 @@ public:
 	bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
 	// Game server
 	//uint32 GetPublicIP();
+	// Music methods
+	bool IsMusicEnabled();
+	bool IsMusicPlaying();
+	AudioPlayback_Status GetMusicPlaybackStatus();
+	float GetMusicVolume();
+	void PauseMusic();
+	void PlayMusic();
+	void PlayNextSong();
+	void PlayPreviousSong();
+	void SetMusicVolume(float flVolume);
+	bool HasMusicPlaybackStatusChanged();
+	bool HasMusicVolumeChanged();
 };
 
 #endif // STEAMPLUGIN_H_

@@ -202,5 +202,17 @@ extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
 extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);
 // Game server
 //extern "C" DLL_EXPORT char *GetPublicIP();
+// Music methods
+extern "C" DLL_EXPORT int IsMusicEnabled();
+extern "C" DLL_EXPORT int IsMusicPlaying();
+extern "C" DLL_EXPORT int GetMusicPlaybackStatus();
+extern "C" DLL_EXPORT float GetMusicVolume();
+extern "C" DLL_EXPORT void PauseMusic();
+extern "C" DLL_EXPORT void PlayMusic();
+extern "C" DLL_EXPORT void PlayNextSong();
+extern "C" DLL_EXPORT void PlayPreviousSong();
+extern "C" DLL_EXPORT void SetMusicVolume(float volume);
+extern "C" DLL_EXPORT int HasMusicPlaybackStatusChanged();
+extern "C" DLL_EXPORT int HasMusicVolumeChanged();
 
 #endif // DLLMAIN_H_

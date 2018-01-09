@@ -635,6 +635,24 @@ EndType
 //~ #constant STEAMMATCHMAKINGSERVERS_INTERFACE_VERSION	"SteamMatchMakingServers002"	
 //~ #constant STEAMMATCHMAKING_INTERFACE_VERSION		"SteamMatchMaking009"	
 
+
+////////////////////////////////////////////////////////////////
+// ISteamMusic
+// https://partner.steamgames.com/doc/api/ISteamMusic
+////////////////////////////////////////////////////////////////
+
+// AudioPlayback_Status
+//--------------------------------------------------------------
+// Specifies the current playback status.
+#constant AudioPlayback_Undefined	0	// The Steam music interface probably isn't enabled.
+#constant AudioPlayback_Playing		1	// Steam Music is currently playing.
+#constant AudioPlayback_Paused		2	// Steam Music is currently paused.
+#constant AudioPlayback_Idle		3	// Steam Music is currently stopped.
+
+// Constants
+//--------------------------------------------------------------
+//~ #constant STEAMMUSIC_INTERFACE_VERSION	"STEAMMUSIC_INTERFACE_VERSION001"
+
 ////////////////////////////////////////////////////////////////
 // ISteamUserStats
 // https://partner.steamgames.com/doc/api/ISteamUserStats

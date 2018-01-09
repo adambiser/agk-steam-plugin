@@ -1388,3 +1388,70 @@ int RemoveFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, in
 //	ipc << ConvertIPToString(ip);
 //	return CreateString(ipc.str());
 //}
+
+int IsMusicEnabled()
+{
+	CheckInitialized(0);
+	return Steam->IsMusicEnabled();
+}
+
+int IsMusicPlaying()
+{
+	CheckInitialized(0);
+	return Steam->IsMusicPlaying();
+}
+
+int GetMusicPlaybackStatus()
+{
+	CheckInitialized(0);
+	return Steam->GetMusicPlaybackStatus();
+}
+
+float GetMusicVolume()
+{
+	CheckInitialized(0.0);
+	return Steam->GetMusicVolume();
+}
+
+void PauseMusic()
+{
+	CheckInitialized(NORETURN);
+	Steam->PauseMusic();
+}
+
+void PlayMusic()
+{
+	CheckInitialized(NORETURN);
+	Steam->PlayMusic();
+}
+
+void PlayNextSong()
+{
+	CheckInitialized(NORETURN);
+	Steam->PlayNextSong();
+}
+
+void PlayPreviousSong()
+{
+	CheckInitialized(NORETURN);
+	Steam->PlayPreviousSong();
+}
+
+void SetMusicVolume(float volume)
+{
+	CheckInitialized(NORETURN);
+	Steam->SetMusicVolume(volume);
+}
+
+int HasMusicPlaybackStatusChanged()
+{
+	CheckInitialized(0);
+	return Steam->HasMusicPlaybackStatusChanged();
+}
+
+int HasMusicVolumeChanged()
+{
+	CheckInitialized(0);
+	return Steam->HasMusicVolumeChanged();
+}
+

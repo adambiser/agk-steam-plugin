@@ -207,3 +207,17 @@ RemoveFavoriteGame,I,ISIII,RemoveFavoriteGame,0,0,0,0,0
 # Game server
 #
 #GetPublicIP,S,0,GetPublicIP,0,0,0,0,0
+#
+# Music methods
+#
+IsMusicEnabled,I,0,IsMusicEnabled,0,0,0,0,0
+IsMusicPlaying,I,0,IsMusicPlaying,0,0,0,0,0
+GetMusicPlaybackStatus,I,0,GetMusicPlaybackStatus,0,0,0,0,0
+GetMusicVolume,F,0,GetMusicVolume,0,0,0,0,0
+PauseMusic,0,0,PauseMusic,0,0,0,0,0
+PlayMusic,0,0,PlayMusic,0,0,0,0,0
+PlayNextSong,0,0,PlayNextSong,0,0,0,0,0
+PlayPreviousSong,0,0,PlayPreviousSong,0,0,0,0,0
+SetMusicVolume,0,F,SetMusicVolume,0,0,0,0,0
+HasMusicPlaybackStatusChanged,I,0,HasMusicPlaybackStatusChanged,0,0,0,0,0
+HasMusicVolumeChanged,I,0,HasMusicVolumeChanged,0,0,0,0,0
