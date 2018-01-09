@@ -987,11 +987,11 @@ int GetLobbyCreatedResult()
 	return Steam->GetLobbyCreatedResult();
 }
 
-int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
-{
-	CheckInitialized(false);
-	return Steam->SetLinkedLobby(GetSteamID(hLobbySteamID), GetSteamID(hLobbyDependentSteamID));
-}
+//int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
+//{
+//	CheckInitialized(false);
+//	return Steam->SetLinkedLobby(GetSteamID(hLobbySteamID), GetSteamID(hLobbyDependentSteamID));
+//}
 
 int SetLobbyJoinable(int hLobbySteamID, bool lobbyJoinable)
 {
@@ -1033,6 +1033,12 @@ int GetLobbyEnterResponse()
 {
 	CheckInitialized(0);
 	return Steam->GetLobbyEnterResponse();
+}
+
+int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
+{
+	CheckInitialized(false);
+	return Steam->InviteUserToLobby(GetSteamID(hLobbySteamID), GetSteamID(hInviteeSteamID));
 }
 
 void LeaveLobby(int hLobbySteamID)
@@ -1269,12 +1275,6 @@ int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitialized(0);
 	return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
-}
-
-int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
-{
-	CheckInitialized(false);
-	return Steam->InviteUserToLobby(GetSteamID(hLobbySteamID), GetSteamID(hInviteeSteamID));
 }
 
 int HasLobbyChatMessage()

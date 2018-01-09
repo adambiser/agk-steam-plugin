@@ -292,7 +292,7 @@ public:
 	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
 	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
 	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
-	bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
+	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
 	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 	bool JoinLobby(CSteamID steamIDLobby);
@@ -300,6 +300,7 @@ public:
 	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
+	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	void LeaveLobby(CSteamID steamIDLobby);
 	// Lobby methods: Game server
 	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
@@ -329,7 +330,6 @@ public:
 	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
 	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
 	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
-	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	// Lobby methods: Chat messages
 	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }

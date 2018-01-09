@@ -1032,11 +1032,11 @@ bool SteamPlugin::CreateLobby(ELobbyType eLobbyType, int cMaxMembers)
 	}
 }
 
-bool SteamPlugin::SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent)
-{
-	CheckInitialized(SteamMatchmaking, false);
-	return SteamMatchmaking()->SetLinkedLobby(steamIDLobby, steamIDLobbyDependent);
-}
+//bool SteamPlugin::SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent)
+//{
+//	CheckInitialized(SteamMatchmaking, false);
+//	return SteamMatchmaking()->SetLinkedLobby(steamIDLobby, steamIDLobbyDependent);
+//}
 
 bool SteamPlugin::SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable)
 {
@@ -1106,6 +1106,12 @@ bool SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 		m_LobbyEnterCallbackState = ClientError;
 		return false;
 	}
+}
+
+bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee)
+{
+	CheckInitialized(SteamMatchmaking, false);
+	return SteamMatchmaking()->InviteUserToLobby(steamIDLobby, steamIDInvitee);
 }
 
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
@@ -1297,12 +1303,6 @@ bool SteamPlugin::HasLobbyChatUpdate()
 	m_LobbyChatUpdateUserState = (EChatMemberStateChange) 0;
 	m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
 	return false;
-}
-
-bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee)
-{
-	CheckInitialized(SteamMatchmaking, false);
-	return SteamMatchmaking()->InviteUserToLobby(steamIDLobby, steamIDInvitee);
 }
 
 void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
