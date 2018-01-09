@@ -119,7 +119,7 @@ private:
 	CCallResult<SteamPlugin, LobbyCreated_t> m_CallResultLobbyCreate;
 	CSteamID m_LobbyCreatedID;
 	EResult m_LobbyCreatedResult;
-	// Lobby methods: Join
+	// Lobby methods: Join, Create, Leave
 	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we leave any left open when closing.
 	ECallbackState m_LobbyEnterCallbackState;
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
@@ -128,9 +128,10 @@ private:
 	CSteamID m_LobbyEnterID;
 	bool m_LobbyEnterBlocked;
 	EChatRoomEnterResponse m_LobbyEnterResponse;
-	// Lobby methods: Leave
-	// Lobby methods: Members
-	// Lobby methods: Member status
+	// Lobby methods: Game server
+	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
+	LobbyGameCreated_t m_LobbyGameCreatedInfo;
+	// Lobby methods: Members and Status
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
 	// TODO Replace with ChatUpdateInfo_t variable.
 	CSteamID m_LobbyChatUpdateUserChanged;
@@ -154,6 +155,11 @@ private:
 		char text[4096];
 	};
 	std::list<ChatMessageInfo_t> m_ChatMessages;
+	// Music methods
+	STEAM_CALLBACK(SteamPlugin, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t, m_CallbackPlaybackStatusHasChanged);
+	bool m_PlaybackStatusHasChanged;
+	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
+	bool m_VolumeHasChanged;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -281,6 +287,25 @@ public:
 	CSteamID GetLobbyByIndex(int iLobby);
 	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
 	int GetLobbyMatchListCount() { return m_LobbyMatchList.m_nLobbiesMatching; }
+	// Lobby methods: Create, Join, Leave
+	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
+	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
+	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
+	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
+	bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
+	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
+	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
+	bool JoinLobby(CSteamID steamIDLobby);
+	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
+	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
+	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
+	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
+	void LeaveLobby(CSteamID steamIDLobby);
+	// Lobby methods: Game server
+	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
+	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
+	bool HasLobbyGameCreated() { return m_LobbyGameCreatedInfo.m_ulSteamIDLobby != 0; };
+	LobbyGameCreated_t GetLobbyGameCreated();
 	// Lobby methods: Data
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
@@ -293,36 +318,18 @@ public:
 	CSteamID GetLobbyDataUpdatedID() { return m_LobbyDataUpdatedID; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
-	// Lobby methods: Owner methods
-	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
-	//void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer);
-	//bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
-	//bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
-	//bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner); // Triggers a LobbyDataUpdate_t callback.
-	//bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
-	// Lobby methods: Create
-	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
-	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
-	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
-	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
-	// Lobby methods: Join
-	bool JoinLobby(CSteamID steamIDLobby);
-	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
-	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
-	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
-	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
-	// Lobby methods: Leave
-	void LeaveLobby(CSteamID steamIDLobby);
-	// Lobby methods:  members
+	// Lobby methods: members and status
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
+	bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
+	bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
-	// Lobby methods: Member status
 	bool HasLobbyChatUpdate();
 	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
 	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
 	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
+	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	// Lobby methods: Chat messages
 	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }
@@ -333,6 +340,20 @@ public:
 	int GetFavoriteGameCount();
 	bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
 	bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
+	// Game server
+	//uint32 GetPublicIP();
+	// Music methods
+	bool IsMusicEnabled();
+	bool IsMusicPlaying();
+	AudioPlayback_Status GetMusicPlaybackStatus();
+	float GetMusicVolume();
+	void PauseMusic();
+	void PlayMusic();
+	void PlayNextSong();
+	void PlayPreviousSong();
+	void SetMusicVolume(float flVolume);
+	bool HasMusicPlaybackStatusChanged();
+	bool HasMusicVolumeChanged();
 };
 
 #endif // STEAMPLUGIN_H_

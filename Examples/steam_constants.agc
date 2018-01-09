@@ -165,8 +165,8 @@
 #constant k_EChatRoomEnterResponseLimited			7	// Joining this chat is not allowed because you are a limited user (no value on account).
 #constant k_EChatRoomEnterResponseClanDisabled		8	// Attempt to join a clan chat when the clan is locked or disabled.
 #constant k_EChatRoomEnterResponseCommunityBan		9	// Attempt to join a chat when the user has a community lock on their account.
-#constant k_EChatRoomEnterResponseMemberBlockedYou	10	J// oin failed - a user that is in the chat has blocked you from joining.
-#constant k_EChatRoomEnterResponseYouBlockedMember	11	J// oin failed - you have blocked a user that is already in the chat.
+#constant k_EChatRoomEnterResponseMemberBlockedYou	10	// Join failed - a user that is in the chat has blocked you from joining.
+#constant k_EChatRoomEnterResponseYouBlockedMember	11	// Join failed - you have blocked a user that is already in the chat.
 
 // EChatSteamIDInstanceFlags
 //--------------------------------------------------------------
@@ -609,11 +609,20 @@ EndType
 // Obtainable from: GetFavoriteGameJSON.
 Type FavoriteGameInfo_t
 	AppID as integer
-	IPv4 as string
+	IP as string
 	ConnectPort as integer
 	QueryPort as integer
 	Flags as integer
 	TimeLastPlayedOnServer as integer
+EndType
+
+// Game server information
+// Obtainable from: GetLobbyGameServerJSON
+Type GameServerInfo_t // aka LobbyGameCreated_t
+	hLobby as integer
+	IP as string
+	Port as integer
+	hGameServer as integer
 EndType
 
 // Constants
@@ -625,6 +634,24 @@ EndType
 #constant k_unFavoriteFlagNone						0x00	// This favorite game server has no flags set.
 //~ #constant STEAMMATCHMAKINGSERVERS_INTERFACE_VERSION	"SteamMatchMakingServers002"	
 //~ #constant STEAMMATCHMAKING_INTERFACE_VERSION		"SteamMatchMaking009"	
+
+
+////////////////////////////////////////////////////////////////
+// ISteamMusic
+// https://partner.steamgames.com/doc/api/ISteamMusic
+////////////////////////////////////////////////////////////////
+
+// AudioPlayback_Status
+//--------------------------------------------------------------
+// Specifies the current playback status.
+#constant AudioPlayback_Undefined	0	// The Steam music interface probably isn't enabled.
+#constant AudioPlayback_Playing		1	// Steam Music is currently playing.
+#constant AudioPlayback_Paused		2	// Steam Music is currently paused.
+#constant AudioPlayback_Idle		3	// Steam Music is currently stopped.
+
+// Constants
+//--------------------------------------------------------------
+//~ #constant STEAMMUSIC_INTERFACE_VERSION	"STEAMMUSIC_INTERFACE_VERSION001"
 
 ////////////////////////////////////////////////////////////////
 // ISteamUserStats
