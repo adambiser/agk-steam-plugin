@@ -1235,10 +1235,10 @@ int GetLobbyMemberLimit(int hLobbySteamID)
 	return Steam->GetLobbyMemberLimit(GetSteamID(hLobbySteamID));
 }
 
-int SetLobbyMemberLimit(int hLobbySteamID, int cMaxMembers)
+int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers)
 {
 	CheckInitialized(0);
-	return Steam->SetLobbyMemberLimit(GetSteamID(hLobbySteamID), cMaxMembers);
+	return Steam->SetLobbyMemberLimit(GetSteamID(hLobbySteamID), maxMembers);
 }
 
 int GetNumLobbyMembers(int hLobbySteamID)

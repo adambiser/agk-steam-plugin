@@ -183,7 +183,7 @@ extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
 extern "C" DLL_EXPORT int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
-extern "C" DLL_EXPORT int SetLobbyMemberLimit(int hLobbySteamID, int cMaxMembers);
+extern "C" DLL_EXPORT int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers);
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index);
 extern "C" DLL_EXPORT int HasLobbyChatUpdate();
