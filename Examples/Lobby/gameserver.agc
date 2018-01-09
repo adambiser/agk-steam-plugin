@@ -5,10 +5,10 @@
 #constant GAME_SERVER_COLOR	255, 255, 0, 255
 
 Function HostGameServer()
-	server.networkID = HostNetwork("AGKSteamPluginTest", Steam.GetPersonaName(), 12345)
+	server.networkID = HostNetwork("AGKSteamPluginTest", Steam.GetPersonaName(), GAME_SERVER_PORT)
 	AddChatLine(GAME_SERVER_COLOR, "Hosting game server.")
 	// TODO Use SteamGameServer or somehow get public IP.
-	Steam.SetLobbyGameServer(server.hLobby, GetDeviceIP(), 12345, 0)
+	Steam.SetLobbyGameServer(server.hLobby, GetDeviceIP(), GAME_SERVER_PORT, 0)
 EndFunction
 
 Function ConnectGameServer(gameserver as GameServerInfo_t)
