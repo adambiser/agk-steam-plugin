@@ -121,6 +121,22 @@ bool ParseIP(char *ipv4, uint32 *ip)
 
 #define ConvertIPToString(ip) ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff)
 
+//BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+//{
+//	switch (fdwReason)
+//	{
+//	case DLL_PROCESS_ATTACH:
+//		break;
+//	case DLL_THREAD_ATTACH:
+//		break;
+//	case DLL_THREAD_DETACH:
+//		break;
+//	case DLL_PROCESS_DETACH:
+//		break;
+//	}
+//	return TRUE;
+//}
+
 /*
 This method should be called before attempting to do anything else with this plugin.
 Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
