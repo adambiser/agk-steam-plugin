@@ -152,6 +152,8 @@ GetLobbyEnterID,I,0,GetLobbyEnterID,0,0,0,0,0
 GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,0
 GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,0
 InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,0
+HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,0
+GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,0
 LeaveLobby,0,I,LeaveLobby,0,0,0,0,0
 #
 # Lobby methods: Game server

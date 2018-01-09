@@ -128,6 +128,8 @@ private:
 	CSteamID m_LobbyEnterID;
 	bool m_LobbyEnterBlocked;
 	EChatRoomEnterResponse m_LobbyEnterResponse;
+	STEAM_CALLBACK(SteamPlugin, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, m_CallbackGameLobbyJoinRequested);
+	GameLobbyJoinRequested_t m_GameLobbyJoinRequestedInfo;
 	// Lobby methods: Game server
 	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
 	LobbyGameCreated_t m_LobbyGameCreatedInfo;
@@ -301,6 +303,8 @@ public:
 	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
 	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
 	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
+	bool HasGameLobbyJoinRequest() { return m_GameLobbyJoinRequestedInfo.m_steamIDLobby != k_steamIDNil; }
+	CSteamID GetGameLobbyJoinRequestedLobby();
 	void LeaveLobby(CSteamID steamIDLobby);
 	// Lobby methods: Game server
 	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);

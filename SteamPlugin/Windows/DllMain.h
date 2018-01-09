@@ -160,6 +160,8 @@ extern "C" DLL_EXPORT int GetLobbyEnterID();
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
 extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID);
+extern "C" DLL_EXPORT int HasGameLobbyJoinRequest();
+extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby();
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
 // Lobby methods: Game server
 extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);

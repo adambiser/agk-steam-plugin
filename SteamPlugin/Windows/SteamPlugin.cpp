@@ -73,6 +73,7 @@ SteamPlugin::SteamPlugin() :
 	m_LobbyEnterID(k_steamIDNil),
 	m_LobbyEnterBlocked(false),
 	m_LobbyEnterResponse((EChatRoomEnterResponse)0),
+	m_CallbackGameLobbyJoinRequested(this, &SteamPlugin::OnGameLobbyJoinRequested),
 	m_CallbackLobbyGameCreated(this, &SteamPlugin::OnLobbyGameCreated),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
 	m_LobbyChatUpdateUserChanged(k_steamIDNil),
@@ -1112,6 +1113,19 @@ bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvit
 {
 	CheckInitialized(SteamMatchmaking, false);
 	return SteamMatchmaking()->InviteUserToLobby(steamIDLobby, steamIDInvitee);
+}
+
+void SteamPlugin::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
+{
+	m_GameLobbyJoinRequestedInfo = *pParam;
+}
+
+CSteamID SteamPlugin::GetGameLobbyJoinRequestedLobby()
+{
+	CSteamID lobby = m_GameLobbyJoinRequestedInfo.m_steamIDLobby;
+	m_GameLobbyJoinRequestedInfo.m_steamIDLobby = k_steamIDNil;
+	m_GameLobbyJoinRequestedInfo.m_steamIDFriend = k_steamIDNil;
+	return lobby;
 }
 
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)

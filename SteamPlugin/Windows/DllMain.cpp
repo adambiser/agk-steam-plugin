@@ -1041,6 +1041,18 @@ int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 	return Steam->InviteUserToLobby(GetSteamID(hLobbySteamID), GetSteamID(hInviteeSteamID));
 }
 
+int HasGameLobbyJoinRequest()
+{
+	CheckInitialized(0);
+	return Steam->HasGameLobbyJoinRequest();
+}
+
+int GetGameLobbyJoinRequestedLobby()
+{
+	CheckInitialized(0);
+	return GetSteamIDHandle(Steam->GetGameLobbyJoinRequestedLobby());
+}
+
 void LeaveLobby(int hLobbySteamID)
 {
 	CheckInitialized(NORETURN);
