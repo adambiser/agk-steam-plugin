@@ -90,7 +90,20 @@ for index = 0 to friendCount - 1
 	endif
 next
 
-//~ AddStatus("GetExternalIP: " + Steam.GetPublicIP())
+// Check to see if this was started as a result of a game invitation.  If so, join the lobby to which the user was invited.
+commandline as string[]
+commandline.fromJSON(Steam.GetCommandLineArgsJSON())
+for x = 0 to commandline.length
+	if commandline[x] = "+connect_lobby" and x < commandline.length
+		AddStatus("Received +connect_lobby commandline argument.")
+		hLobby as integer
+		hLobby = Steam.GetHandleFromSteamID64(commandline[x + 1])
+		if hLobby
+			AddStatus("Joining lobby: " + commandline[x + 1])
+			Steam.JoinLobby(hLobby)
+		endif
+	endif
+next
 
 //
 // The main loop
@@ -313,6 +326,14 @@ Function ProcessCallbacks()
 		if gameserver.IP <> "0.0.0.0"
 			ConnectGameServer(gameserver)
 		endif
+	endif
+	// Process lobby invitations
+	if Steam.HasGameLobbyJoinRequest()
+		server.lobbyIndex = -1
+		hLobby = Steam.GetGameLobbyJoinRequestedLobby()
+		AddStatus("Received invitation to join lobby " + str(hLobby))
+		AddStatus("Joining lobby")
+		Steam.JoinLobby(hLobby)
 	endif
 EndFunction
 
