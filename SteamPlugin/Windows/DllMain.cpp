@@ -285,6 +285,269 @@ char *GetCommandLineArgsJSON()
 	return CreateString(json.str());
 }
 
+// App/DLC methods
+char *GetDLCDataJSON()
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		for (int index = 0; index < Steam->GetDLCCount(); index++)
+		{
+			if (index > 0)
+			{
+				json << ",";
+			}
+			AppId_t appID;
+			bool available;
+			char name[128];
+			bool success = Steam->GetDLCDataByIndex(index, &appID, &available, name, sizeof(name));
+			json << "{";
+			if (success)
+			{
+				json << "\"AppID\": " << appID;
+				json << ",\"Available\": " << available;
+				json << ",\"Name\": \"" << name << "\"";
+			}
+			json << "}";
+			//else
+			//{
+			//	// Send an empty entry to indicate failure for this index.
+			//	json << "{";
+			//	json << "\"AppID\": 0";
+			//	json << ",\"Available\": 0";
+			//	json << ",\"Name\": \"\"";
+			//	json << "}";
+			//}
+		}
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetDLCDataByIndexJSON(int index)
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		AppId_t appID;
+		bool available;
+		char name[128];
+		bool success = Steam->GetDLCDataByIndex(index, &appID, &available, name, sizeof(name));
+		if (success)
+		{
+			json << "\"AppID\": " << appID;
+			json << ",\"Available\": " << available;
+			json << ",\"Name\": \"" << name << "\"";
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+int IsAppInstalled(int appID)
+{
+	CheckInitialized(false);
+	return Steam->IsAppInstalled(appID);
+}
+
+int IsCybercafe()
+{
+	CheckInitialized(false);
+	return Steam->IsCybercafe();
+}
+
+int IsDLCInstalled(int appID)
+{
+	CheckInitialized(false);
+	return Steam->IsDlcInstalled(appID);
+}
+
+int IsLowViolence()
+{
+	CheckInitialized(false);
+	return Steam->IsLowViolence();
+}
+
+int IsSubscribed()
+{
+	CheckInitialized(false);
+	return Steam->IsSubscribed();
+}
+
+int IsSubscribedApp(int appID)
+{
+	CheckInitialized(false);
+	return Steam->IsSubscribedApp(appID);
+}
+
+int IsSubscribedFromFreeWeekend()
+{
+	CheckInitialized(false);
+	return Steam->IsSubscribedFromFreeWeekend();
+}
+
+int IsVACBanned()
+{
+	CheckInitialized(false);
+	return Steam->IsVACBanned();
+}
+
+int GetAppBuildID()
+{
+	CheckInitialized(false);
+	return Steam->GetAppBuildId();
+}
+
+char *GetAppInstallDir(int appID)
+{
+	CheckInitialized(CreateString(NULL));
+	char folder[MAX_PATH];
+	uint32 length = Steam->GetAppInstallDir(appID, folder, sizeof(folder));
+	if (length)
+	{
+		//length++; // NULL terminator
+		//char *result = agk::CreateString(length);
+		//strcpy_s(result, length, folder);
+		//return result;
+		// TODO Verify this works as expected without using the returned length.
+		return CreateString(folder);
+	}
+	else
+	{
+		return CreateString(NULL);
+	}
+}
+
+int GetAppOwner()
+{
+	CheckInitialized(false);
+	return GetSteamIDHandle(Steam->GetAppOwner());
+}
+
+char *GetAvailableGameLanguages()
+{
+	CheckInitialized(CreateString(NULL));
+	return CreateString(Steam->GetAvailableGameLanguages());
+}
+
+char *GetCurrentBetaName()
+{
+	CheckInitialized(CreateString(NULL));
+	char name[256];
+	if (Steam->GetCurrentBetaName(name, sizeof(name)))
+	{
+		return CreateString(name);
+	}
+	return CreateString(NULL);
+}
+
+char * GetCurrentGameLanguage()
+{
+	CheckInitialized(CreateString(NULL));
+	return CreateString(Steam->GetCurrentGameLanguage());
+}
+
+int GetDLCCount()
+{
+	CheckInitialized(false);
+	return Steam->GetDLCCount();
+}
+
+char *GetDLCDownloadProgressJSON(int appID)
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		uint64 downloaded;
+		uint64 total;
+		bool downloading = Steam->GetDlcDownloadProgress(appID, &downloaded, &total);
+		if (downloading)
+		{
+			json << "\"AppID\": " << appID;
+			json << ",\"BytesDownloaded\": " << downloaded;
+			json << ",\"BytesTotal\": " << total;
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+int GetEarliestPurchaseUnixTime(int appID)
+{
+	CheckInitialized(false);
+	return Steam->GetEarliestPurchaseUnixTime(appID);
+}
+
+//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+
+char *GetInstalledDepotsJSON(int appID, int maxDepots)
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		DepotId_t *depots = new DepotId_t[maxDepots];
+		int count = Steam->GetInstalledDepots(appID, depots, maxDepots);
+		for (int x = 0; x < count; x++)
+		{
+			if (x > 0)
+			{
+				json << ",";
+			}
+			json << depots[x];
+		}
+		delete[] depots;
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char * GetLaunchQueryParam(char *pchKey)
+{
+	CheckInitialized(CreateString(NULL));
+	return CreateString(Steam->GetLaunchQueryParam(pchKey));
+}
+
+int HasNewLaunchQueryParameters()
+{
+	CheckInitialized(false);
+	return Steam->HasNewLaunchQueryParameters();
+}
+
+int HasNewDLCInstalled()
+{
+	CheckInitialized(false);
+	return Steam->HasNewDlcInstalled();
+}
+
+int GetNewDLCInstalled()
+{
+	CheckInitialized(0);
+	return Steam->GetNewDlcInstalled();
+}
+
+void InstallDLC(int appID) // Triggers a DlcInstalled_t callback.
+{
+	CheckInitialized(NORETURN);
+	Steam->InstallDLC(appID);
+}
+
+int MarkContentCorrupt(int missingFilesOnly)
+{
+	CheckInitialized(false);
+	return Steam->MarkContentCorrupt(missingFilesOnly != 0);
+}
+
+void UninstallDLC(int appID)
+{
+	CheckInitialized(NORETURN);
+	Steam->UninstallDLC(appID);
+}
+
+// Overlay methods
 int IsGameOverlayActive()
 {
 	CheckInitialized(false);

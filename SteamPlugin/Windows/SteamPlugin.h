@@ -53,6 +53,13 @@ private:
 	// General methods.
 	uint64 m_AppID;
 	bool m_SteamInitialized;
+	// App/DLC methods
+	bool m_HasNewLaunchQueryParameters;
+	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewLaunchQueryParameters_t, m_CallbackNewLaunchQueryParameters);
+	bool m_OnDlcInstalledEnabled;
+	std::list<AppId_t> m_DlcInstalledList;
+	AppId_t m_NewDlcInstalled;
+	STEAM_CALLBACK(SteamPlugin, OnDlcInstalled, DlcInstalled_t, m_CallbackDlcInstalled);
 	// Overlay methods
 	bool m_IsGameOverlayActive;
 	STEAM_CALLBACK(SteamPlugin, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
@@ -188,6 +195,34 @@ public:
 	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax);
 	bool LoggedOn();
 	void RunCallbacks();
+	// App/DLC methods
+	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
+	bool IsAppInstalled(AppId_t appID);
+	bool IsCybercafe();
+	bool IsDlcInstalled(AppId_t appID);
+	bool IsLowViolence();
+	bool IsSubscribed();
+	bool IsSubscribedApp(AppId_t appID);
+	bool IsSubscribedFromFreeWeekend();
+	bool IsVACBanned();
+	int GetAppBuildId();
+	uint32 GetAppInstallDir(AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize);
+	CSteamID GetAppOwner();
+	const char * GetAvailableGameLanguages();
+	bool GetCurrentBetaName(char *pchName, int cchNameBufferSize);
+	const char * GetCurrentGameLanguage();
+	int GetDLCCount();
+	bool GetDlcDownloadProgress(AppId_t nAppID, uint64 *punBytesDownloaded, uint64 *punBytesTotal);
+	uint32 GetEarliestPurchaseUnixTime(AppId_t nAppID);
+	//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+	uint32 GetInstalledDepots(AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots);
+	const char * GetLaunchQueryParam(const char *pchKey);
+	bool HasNewLaunchQueryParameters();
+	bool HasNewDlcInstalled();
+	AppId_t GetNewDlcInstalled() { return m_NewDlcInstalled; }
+	void InstallDLC(AppId_t nAppID); // Triggers a DlcInstalled_t callback.
+	bool MarkContentCorrupt(bool bMissingFilesOnly);
+	void UninstallDLC(AppId_t nAppID);
 	// Overlay methods
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 	void ActivateGameOverlay(const char *pchDialog);

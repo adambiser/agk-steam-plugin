@@ -13,6 +13,37 @@ GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 GetCommandLineArgsJSON,S,0,GetCommandLineArgsJSON,0,0,0,0,0
 #
+# App/DLC methods
+#
+GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,0
+GetDLCDataByIndexJSON,S,I,GetDLCDataByIndexJSON,0,0,0,0,0
+IsAppInstalled,I,I,IsAppInstalled,0,0,0,0,0
+IsCybercafe,I,0,IsCybercafe,0,0,0,0,0
+IsDLCInstalled,I,I,IsDLCInstalled,0,0,0,0,0
+IsLowViolence,I,0,IsLowViolence,0,0,0,0,0
+IsSubscribed,I,0,IsSubscribed,0,0,0,0,0
+IsSubscribedApp,I,I,IsSubscribedApp,0,0,0,0,0
+IsSubscribedFromFreeWeekend,I,0,IsSubscribedFromFreeWeekend,0,0,0,0,0
+IsVACBanned,I,0,IsVACBanned,0,0,0,0,0
+GetAppBuildID,I,0,GetAppBuildID,0,0,0,0,0
+GetAppInstallDir,S,I,GetAppInstallDir,0,0,0,0,0
+GetAppOwner,I,0,GetAppOwner,0,0,0,0,0
+GetAvailableGameLanguages,S,0,GetAvailableGameLanguages,0,0,0,0,0
+GetCurrentBetaName,S,0,GetCurrentBetaName,0,0,0,0,0
+GetCurrentGameLanguage,S,0,GetCurrentGameLanguage,0,0,0,0,0
+GetDLCCount,I,0,GetDLCCount,0,0,0,0,0
+GetDLCDownloadProgressJSON,S,I,GetDLCDownloadProgressJSON,0,0,0,0,0
+GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,0
+# GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+GetInstalledDepotsJSON,S,II,GetInstalledDepotsJSON,0,0,0,0,0
+GetLaunchQueryParam,S,S,GetLaunchQueryParam,0,0,0,0,0
+HasNewLaunchQueryParameters,I,0,HasNewLaunchQueryParameters,0,0,0,0,0
+HasNewDLCInstalled,I,0,HasNewDLCInstalled,0,0,0,0,0
+GetNewDLCInstalled,I,0,GetNewDLCInstalled,0,0,0,0,0
+InstallDLC,0,I,InstallDLC,0,0,0,0,0
+MarkContentCorrupt,I,I,MarkContentCorrupt,0,0,0,0,0
+UninstallDLC,0,I,UninstallDLC,0,0,0,0,0
+#
 # Overlay methods
 #
 IsGameOverlayActive,I,0,IsGameOverlayActive,0,0,0,0,0

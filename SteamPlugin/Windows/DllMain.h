@@ -47,6 +47,35 @@ extern "C" DLL_EXPORT int IsSteamIDValid(int hSteamID);
 extern "C" DLL_EXPORT int GetHandleFromSteamID64(char *steamID64);
 extern "C" DLL_EXPORT void RunCallbacks();
 extern "C" DLL_EXPORT char *GetCommandLineArgsJSON();
+// App/DLC methods
+extern "C" DLL_EXPORT char *GetDLCDataJSON();
+extern "C" DLL_EXPORT char *GetDLCDataByIndexJSON(int index);
+extern "C" DLL_EXPORT int IsAppInstalled(int appID);
+extern "C" DLL_EXPORT int IsCybercafe();
+extern "C" DLL_EXPORT int IsDLCInstalled(int appID);
+extern "C" DLL_EXPORT int IsLowViolence();
+extern "C" DLL_EXPORT int IsSubscribed();
+extern "C" DLL_EXPORT int IsSubscribedApp(int appID);
+extern "C" DLL_EXPORT int IsSubscribedFromFreeWeekend();
+extern "C" DLL_EXPORT int IsVACBanned();
+extern "C" DLL_EXPORT int GetAppBuildID();
+extern "C" DLL_EXPORT char *GetAppInstallDir(int appID);
+extern "C" DLL_EXPORT int GetAppOwner();
+extern "C" DLL_EXPORT char *GetAvailableGameLanguages();
+extern "C" DLL_EXPORT char *GetCurrentBetaName();
+extern "C" DLL_EXPORT char * GetCurrentGameLanguage();
+extern "C" DLL_EXPORT int GetDLCCount();
+extern "C" DLL_EXPORT char *GetDLCDownloadProgressJSON(int appID);
+extern "C" DLL_EXPORT int GetEarliestPurchaseUnixTime(int appID);
+//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots);
+extern "C" DLL_EXPORT char *GetLaunchQueryParam(char *pchKey);
+extern "C" DLL_EXPORT int HasNewLaunchQueryParameters();
+extern "C" DLL_EXPORT int HasNewDLCInstalled();
+extern "C" DLL_EXPORT int GetNewDLCInstalled();
+extern "C" DLL_EXPORT void InstallDLC(int appID); // Triggers a DlcInstalled_t callback.
+extern "C" DLL_EXPORT int MarkContentCorrupt(int missingFilesOnly);
+extern "C" DLL_EXPORT void UninstallDLC(int appID);
 // Overlay methods
 extern "C" DLL_EXPORT int IsGameOverlayActive();
 extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
