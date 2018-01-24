@@ -46,9 +46,6 @@ FILE_1=steam.agc;-1
 FILE_2=gameserver.agc;-1
 
 [files]
-FILE_NAME_0=0;main.agc;1800;0
-FILE_NAME_1=0;steam.agc;11633;1
-FILE_NAME_2=0;gameserver.agc;0;2
 
 [project]
 description=
