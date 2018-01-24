@@ -128,6 +128,8 @@ Function CheckInput()
 	PerformVerticalScroll(statusArea)
 	PerformVerticalScroll(lobbyList)
 	PerformVerticalScroll(lobbyInfo)
+	PerformVerticalScroll(memberList)
+	PerformVerticalScroll(chatroom)
 	// Lobby list
 	if GetRawMouseLeftPressed()
 		mouseX as float
