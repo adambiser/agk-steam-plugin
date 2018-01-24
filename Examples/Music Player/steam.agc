@@ -16,7 +16,7 @@ for x = 0 to buttonText.length
 	SetButtonEnabled(x + 1, 1)
 next
 
-// Dump favorite game information.
+// Dump music status information.
 AddStatus("Music enabled: " + TF(Steam.IsMusicEnabled()))
 AddStatus("Music playing: " + TF(Steam.IsMusicPlaying()))
 AddStatus("Status: " + GetMusicPlaybackStatusText(Steam.GetMusicPlaybackStatus()))
