@@ -306,8 +306,8 @@ char *GetDLCDataJSON()
 			if (success)
 			{
 				json << "\"AppID\": " << appID;
-				json << ",\"Available\": " << available;
-				json << ",\"Name\": \"" << name << "\"";
+				json << ", \"Available\": " << available;
+				json << ", \"Name\": \"" << name << "\"";
 			}
 			json << "}";
 			//else
@@ -315,8 +315,8 @@ char *GetDLCDataJSON()
 			//	// Send an empty entry to indicate failure for this index.
 			//	json << "{";
 			//	json << "\"AppID\": 0";
-			//	json << ",\"Available\": 0";
-			//	json << ",\"Name\": \"\"";
+			//	json << ", \"Available\": 0";
+			//	json << ", \"Name\": \"\"";
 			//	json << "}";
 			//}
 		}
@@ -338,8 +338,8 @@ char *GetDLCDataByIndexJSON(int index)
 		if (success)
 		{
 			json << "\"AppID\": " << appID;
-			json << ",\"Available\": " << available;
-			json << ",\"Name\": \"" << name << "\"";
+			json << ", \"Available\": " << available;
+			json << ", \"Name\": \"" << name << "\"";
 		}
 	}
 	json << "}";
@@ -467,8 +467,8 @@ char *GetDLCDownloadProgressJSON(int appID)
 		if (downloading)
 		{
 			json << "\"AppID\": " << appID;
-			json << ",\"BytesDownloaded\": " << downloaded;
-			json << ",\"BytesTotal\": " << total;
+			json << ", \"BytesDownloaded\": " << downloaded;
+			json << ", \"BytesTotal\": " << total;
 		}
 	}
 	json << "}";
@@ -689,11 +689,11 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 		json << "\"InGame\": " << (int)ingame;
 		if (ingame)
 		{
-			json << ",\"GameAppID\": " << pFriendGameInfo.m_gameID.AppID();
-			json << ",\"GameIP\": " << pFriendGameInfo.m_unGameIP;
-			json << ",\"GamePort\": " << pFriendGameInfo.m_usGamePort;
-			json << ",\"QueryPort\": " << pFriendGameInfo.m_usQueryPort;
-			json << ",\"SteamIDLobby\": " << GetSteamIDHandle(pFriendGameInfo.m_steamIDLobby);
+			json << ", \"GameAppID\": " << pFriendGameInfo.m_gameID.AppID();
+			json << ", \"GameIP\": \"" << ConvertIPToString(pFriendGameInfo.m_unGameIP) << "\"";
+			json << ", \"GamePort\": " << pFriendGameInfo.m_usGamePort;
+			json << ", \"QueryPort\": " << pFriendGameInfo.m_usQueryPort;
+			json << ", \"SteamIDLobby\": " << GetSteamIDHandle(pFriendGameInfo.m_steamIDLobby);
 		}
 	}
 	json << "}";
@@ -945,8 +945,6 @@ int GetAchievementUnlockTime(const char *pchName)
 	}
 	return 0;
 }
-
-
 
 /*
 Marks an achievement as achieved.
@@ -1335,9 +1333,9 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 		if (Steam->GetLobbyGameServer(GetSteamID(hLobbySteamID), &unGameServerIP, &unGameServerPort, &steamIDGameServer))
 		{
 			json << "\"hLobby\": " << hLobbySteamID; // Add this to match LobbyGameCreated_t.
-			json << ",\"IP\": \"" << ConvertIPToString(unGameServerIP) << "\"";
-			json << ",\"Port\": " << unGameServerPort;
-			json << ",\"hGameServer\": " << GetSteamIDHandle(steamIDGameServer);
+			json << ", \"IP\": \"" << ConvertIPToString(unGameServerIP) << "\"";
+			json << ", \"Port\": " << unGameServerPort;
+			json << ", \"hGameServer\": " << GetSteamIDHandle(steamIDGameServer);
 		}
 	}
 	json << "}";
@@ -1377,9 +1375,9 @@ char *GetLobbyGameCreatedJSON()
 		if (gameServer.m_ulSteamIDLobby != 0)
 		{
 			json << "\"hLobby\": " << GetSteamIDHandle(gameServer.m_ulSteamIDLobby);
-			json << ",\"IP\": \"" << ConvertIPToString(gameServer.m_unIP) << "\"";
-			json << ",\"Port\": " << gameServer.m_usPort;
-			json << ",\"hGameServer\": " << GetSteamIDHandle(gameServer.m_ulSteamIDGameServer);
+			json << ", \"IP\": \"" << ConvertIPToString(gameServer.m_unIP) << "\"";
+			json << ", \"Port\": " << gameServer.m_usPort;
+			json << ", \"hGameServer\": " << GetSteamIDHandle(gameServer.m_ulSteamIDGameServer);
 		}
 	}
 	json << "}";
@@ -1401,28 +1399,28 @@ int GetLobbyDataCount(int hLobbySteamID)
 
 char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
 {
+	std::ostringstream json;
+	json << "{";
 	if (Steam)
 	{
 		char key[k_nMaxLobbyKeyLength];
 		char value[k_cubChatMetadataMax];
 		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
 		{
-			std::string json = "{\"Key\": \"";
-			json.append(key);
-			json.append("\", \"Value\": \"");
-			json.append(value);
-			json.append("\"}");
-			return CreateString(json);
+			json << "\"Key\": \"" << key << "\"";
+			json << ", \"Value\": \"" << value << "\"";
 		}
 	}
-	return CreateString(NULL);
+	json << "}";
+	return CreateString(json.str());
 }
 
 char *GetLobbyDataJSON(int hLobbySteamID)
 {
 	CheckInitialized(CreateString(NULL));
 	CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
-	std::string json = "[";
+	std::ostringstream json;
+	json << "[";
 	char key[k_nMaxLobbyKeyLength];
 	char value[k_cubChatMetadataMax];
 	for (int index = 0; index < Steam->GetLobbyDataCount(steamIDLobby); index++)
@@ -1431,17 +1429,14 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 		{
 			if (index > 0)
 			{
-				json.append(", ");
+				json << ", ";
 			}
-			json.append("{\"Key\": \"");
-			json.append(key);
-			json.append("\", \"Value\": \"");
-			json.append(value);
-			json.append("\"}");
+			json << "{\"Key\": \"" << key << "\"";
+			json << ", \"Value\": \"" << value << "\"}";
 		}
 	}
-	json.append("]");
-	return CreateString(json);
+	json << "]";
+	return CreateString(json.str());
 }
 
 void SetLobbyData(int hLobbySteamID, char *key, char *value)
@@ -1623,11 +1618,11 @@ char *GetFavoriteGameJSON(int index)
 		if (Steam->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &unFlags, &rTime32LastPlayedOnServer))
 		{
 			json << "\"AppID\": " << nAppID;
-			json << ",\"IP\": \"" << ConvertIPToString(nIP) << "\"";
-			json << ",\"ConnectPort\": " << nConnPort;
-			json << ",\"QueryPort\": " << nQueryPort;
-			json << ",\"Flags\": " << unFlags;
-			json << ",\"TimeLastPlayedOnServer\": " << (int)rTime32LastPlayedOnServer;
+			json << ", \"IP\": \"" << ConvertIPToString(nIP) << "\"";
+			json << ", \"ConnectPort\": " << nConnPort;
+			json << ", \"QueryPort\": " << nQueryPort;
+			json << ", \"Flags\": " << unFlags;
+			json << ", \"TimeLastPlayedOnServer\": " << (int)rTime32LastPlayedOnServer;
 		}
 	}
 	json << "}";
