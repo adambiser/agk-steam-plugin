@@ -443,7 +443,7 @@ char *GetCurrentBetaName()
 	return CreateString(NULL);
 }
 
-char * GetCurrentGameLanguage()
+char *GetCurrentGameLanguage()
 {
 	CheckInitialized(CreateString(NULL));
 	return CreateString(Steam->GetCurrentGameLanguage());
@@ -505,10 +505,10 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 	return CreateString(json.str());
 }
 
-char * GetLaunchQueryParam(char *pchKey)
+char * GetLaunchQueryParam(char *key)
 {
 	CheckInitialized(CreateString(NULL));
-	return CreateString(Steam->GetLaunchQueryParam(pchKey));
+	return CreateString(Steam->GetLaunchQueryParam(key));
 }
 
 int HasNewLaunchQueryParameters()

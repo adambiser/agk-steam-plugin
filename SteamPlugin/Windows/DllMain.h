@@ -63,13 +63,13 @@ extern "C" DLL_EXPORT char *GetAppInstallDir(int appID);
 extern "C" DLL_EXPORT int GetAppOwner();
 extern "C" DLL_EXPORT char *GetAvailableGameLanguages();
 extern "C" DLL_EXPORT char *GetCurrentBetaName();
-extern "C" DLL_EXPORT char * GetCurrentGameLanguage();
+extern "C" DLL_EXPORT char *GetCurrentGameLanguage();
 extern "C" DLL_EXPORT int GetDLCCount();
 extern "C" DLL_EXPORT char *GetDLCDownloadProgressJSON(int appID);
 extern "C" DLL_EXPORT int GetEarliestPurchaseUnixTime(int appID);
 //SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots);
-extern "C" DLL_EXPORT char *GetLaunchQueryParam(char *pchKey);
+extern "C" DLL_EXPORT char *GetLaunchQueryParam(char *key);
 extern "C" DLL_EXPORT int HasNewLaunchQueryParameters();
 extern "C" DLL_EXPORT int HasNewDLCInstalled();
 extern "C" DLL_EXPORT int GetNewDLCInstalled();
