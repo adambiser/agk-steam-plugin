@@ -18,6 +18,24 @@
 #constant AVATAR_MEDIUM	1 // 64x64
 #constant AVATAR_LARGE	2 // 128x128
 
+// Structs
+//--------------------------------------------------------------
+// DLC information
+// Obtainable from: GetDLCDataJSON, GetDLCDataByIndexJSON.
+Type DLCData_t
+	AppID as integer		// If 0, the DLC is hidden.
+	Available as integer	// Boolean: If 1, the user owns the DLC.
+	Name as string
+EndType
+
+// DLC download progress
+// Obtainable from: GetDLCDownloadProgressJSON.
+Type DownloadProgress_t
+	AppID as integer			// If 0, the DLC is not currently downloading.
+	BytesDownloaded as integer
+	BytesTotal as integer
+EndType
+
 ////////////////////////////////////////////////////////////////
 // steam_api.h
 // https://partner.steamgames.com/doc/api/steam_api

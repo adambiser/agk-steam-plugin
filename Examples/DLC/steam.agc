@@ -19,19 +19,9 @@ next
 global dlcDownloadBar as ProgressBar
 dlcDownloadBar = CreateProgressBar(0, 200, 100, 500, "DLC Download:")
 
-Type DLCData_t
-	AppID as integer
-	Available as integer
-	Name as string
-EndType
-Type DownloadProgress_t
-	AppID as integer
-	BytesDownloaded as integer
-	BytesTotal as integer
-EndType
-
 AddStatus("App Owner: " + Steam.GetFriendPersonaName(Steam.GetAppOwner()))
 AddStatus("App 480 Installed: " + TF(Steam.IsAppInstalled(480)))
+AddStatus("Installed Depots: " + Steam.GetInstalledDepotsJSON(480, 10))
 // This will be 0 when the app is not installed.
 AddStatus("App BuildID: " + str(Steam.GetAppBuildID()))
 AddStatus("Current Beta Name: " + Steam.GetCurrentBetaName())
@@ -51,7 +41,6 @@ AddStatus("Subscribed From Free Weekend: " + TF(Steam.IsSubscribedFromFreeWeeken
 //~ AddStatus("Half-Life 2 Subscribed: " + TF(Steam.IsSubscribedApp(220)))
 AddStatus("DLC Count: " + str(Steam.GetDLCCount()))
 AddStatus("DLC Data JSON: " + Steam.GetDLCDataJSON())
-AddStatus("Installed Depots: " + Steam.GetInstalledDepotsJSON(480, 10))
 AddStatus("GetLaunchQueryParam at startup.  param1 = " + Steam.GetLaunchQueryParam("param1"))
 
 // For reference: https://steamdb.info/app/480/
@@ -60,12 +49,16 @@ for x = 0 to Steam.GetDLCCount() - 1
 	dlcData as DLCData_t
 	dlcData.fromjson(Steam.GetDLCDataByIndexJSON(x))
 	if dlcData.AppID // Check whether DLC is hidden
-		AddStatus("DLC " + str(x) + ": " + str(dlcData.AppID) + ": " + dlcData.Name)
-		AddStatus("IsDLCInstalled: " + TF(Steam.IsDLCInstalled(dlcData.AppID))) // DLC app id
+		AddStatus("DLC " + str(dlcData.AppID) + ": " + dlcData.Name)
+		AddStatus("Owned: " + TF(dlcData.Available)) // DLC app id
+		AddStatus("Installed: " + TF(Steam.IsDLCInstalled(dlcData.AppID))) // DLC app id
 		// Add button to toggle DLC installation
 		dlcAppIDs.insert(dlcData.AppID)
-		CreateButton(x + 2, 752 + (x - 4) * 100, 40, "DLC" + NEWLINE + str(dlcData.AppID))
-		SetButtonEnabled(x + 2, 1)
+		CreateButton(DLC_START_BUTTON + x, 752 + (DLC_START_BUTTON + x - 6) * 100, 40, "DLC" + NEWLINE + str(dlcData.AppID))
+		// Enable the DLC button if the DLC is available/owned.
+		if dlcData.Available
+			SetButtonEnabled(DLC_START_BUTTON + x, 1)
+		endif
 	endif
 next
 
@@ -87,13 +80,14 @@ loop
 // Check and handle input.
 //
 Function CheckInput()
+	x as integer
+
 	// Scrollable text.
 	PerformVerticalScroll(statusArea)
 	if GetVirtualButtonPressed(RUN_480_BUTTON)
 		AddStatus("Calling Steam run 480 url")
 		OpenBrowser("steam://run/480//?param1=value1")
 	endif
-	x as integer
 	for x = 0 to dlcAppIDs.length
 		if GetVirtualButtonPressed(DLC_START_BUTTON + x)
 			ToggleDLCInstall(x)
