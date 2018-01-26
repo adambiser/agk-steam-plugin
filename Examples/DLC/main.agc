@@ -1,5 +1,5 @@
-// Project: Lobby 
-// Created: 2018-01-03
+// Project: DLC 
+// Created: 2018-01-24
 // Copyright 2018 Adam Biser
 #option_explicit
 
@@ -21,7 +21,7 @@
 #constant STATUS_WIDTH	1024
 #constant STATUS_HEIGHT	568
 
-SetWindowTitle("Lobby")
+SetWindowTitle("DLC")
 SetWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT, 0)
 SetVirtualResolution(WINDOW_WIDTH, WINDOW_HEIGHT)
 SetSyncRate(30, 0)
