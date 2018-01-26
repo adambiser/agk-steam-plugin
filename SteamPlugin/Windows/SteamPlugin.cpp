@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include <steam_api.h>
 //#include <steam_gameserver.h>
 #include "SteamPlugin.h"
+#include "DllMain.h"
 #include <string>
 #include "..\AGKLibraryCommands.h"
 
@@ -89,7 +90,15 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackPlaybackStatusHasChanged(this, &SteamPlugin::OnPlaybackStatusHasChanged),
 	m_PlaybackStatusHasChanged(false),
 	m_CallbackVolumeHasChanged(this, &SteamPlugin::OnVolumeHasChanged),
-	m_VolumeHasChanged(false)
+	m_VolumeHasChanged(false),
+	m_HasIPCountryChanged(false),
+	m_CallbackIPCountryChanged(this, &SteamPlugin::OnIPCountryChanged),
+	m_HasLowBatteryWarning(false),
+	m_nMinutesBatteryLeft(255),
+	m_CallbackLowBatteryPower(this, &SteamPlugin::OnLowBatteryPower),
+	m_IsSteamShuttingDown(false),
+	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
+	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
 	// Nothing for now
 }
@@ -169,6 +178,10 @@ void SteamPlugin::Shutdown()
 		m_LobbyChatMessageUser = k_steamIDNil;
 		m_PlaybackStatusHasChanged = false;
 		m_VolumeHasChanged = false;
+		m_HasIPCountryChanged = false;
+		m_HasLowBatteryWarning = false;
+		m_nMinutesBatteryLeft = 255;
+		m_IsSteamShuttingDown = false;
 	}
 }
 
@@ -1656,4 +1669,160 @@ bool SteamPlugin::HasMusicVolumeChanged()
 	bool temp = m_VolumeHasChanged;
 	m_VolumeHasChanged = false;
 	return temp;
+}
+
+// Utils
+uint8 SteamPlugin::GetCurrentBatteryPower()
+{
+	CheckInitialized(SteamUtils, 0);
+	return SteamUtils()->GetCurrentBatteryPower();
+}
+
+uint32 SteamPlugin::GetIPCCallCount()
+{
+	CheckInitialized(SteamUtils, 0);
+	return SteamUtils()->GetIPCCallCount();
+}
+
+const char *SteamPlugin::GetIPCountry()
+{
+	CheckInitialized(SteamUtils, NULL);
+	return SteamUtils()->GetIPCountry();
+}
+
+uint32 SteamPlugin::GetSecondsSinceAppActive()
+{
+	CheckInitialized(SteamUtils, 0);
+	return SteamUtils()->GetSecondsSinceAppActive();
+}
+
+uint32 SteamPlugin::GetSecondsSinceComputerActive()
+{
+	CheckInitialized(SteamUtils, 0);
+	return SteamUtils()->GetSecondsSinceComputerActive();
+}
+
+uint32 SteamPlugin::GetServerRealTime()
+{
+	CheckInitialized(SteamUtils, 0);
+	return SteamUtils()->GetServerRealTime();
+}
+
+const char *SteamPlugin::GetSteamUILanguage()
+{
+	CheckInitialized(SteamUtils, NULL);
+	return SteamUtils()->GetSteamUILanguage();
+}
+
+bool SteamPlugin::IsOverlayEnabled()
+{
+	CheckInitialized(SteamUtils, 0);
+	return SteamUtils()->IsOverlayEnabled();
+}
+
+void SteamPlugin::SetOverlayNotificationInset(int nHorizontalInset, int nVerticalInset)
+{
+	CheckInitialized(SteamUtils, );
+	SteamUtils()->SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
+}
+
+void SteamPlugin::SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition)
+{
+	CheckInitialized(SteamUtils, );
+	SteamUtils()->SetOverlayNotificationPosition(eNotificationPosition);
+}
+
+void SteamPlugin::OnIPCountryChanged(IPCountry_t *pParam)
+{
+	m_HasIPCountryChanged = true;
+}
+
+bool SteamPlugin::HasIPCountryChanged()
+{
+	if (m_HasIPCountryChanged)
+	{
+		m_HasIPCountryChanged = false;
+		return true;
+	}
+	return false;
+}
+
+void SteamPlugin::OnLowBatteryPower(LowBatteryPower_t *pParam)
+{
+	m_HasLowBatteryWarning = true;
+	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
+}
+
+bool SteamPlugin::HasLowBatteryWarning()
+{
+	if (m_HasLowBatteryWarning)
+	{
+		m_HasLowBatteryWarning = false;
+		return true;
+	}
+	return false;
+}
+
+void SteamPlugin::OnSteamShutdown(SteamShutdown_t *pParam)
+{
+	m_IsSteamShuttingDown = true;
+}
+
+bool SteamPlugin::IsSteamShuttingDown()
+{
+	if (m_IsSteamShuttingDown)
+	{
+		m_IsSteamShuttingDown = false;
+		return true;
+	}
+	return m_IsSteamShuttingDown;
+}
+
+// Big Picture Mode methods
+bool SteamPlugin::IsSteamInBigPictureMode()
+{
+	CheckInitialized(SteamUtils, false);
+	return SteamUtils()->IsSteamInBigPictureMode();
+
+}
+bool SteamPlugin::ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText)
+{
+	CheckInitialized(SteamUtils, false);
+	if (unCharMax >= sizeof(m_GamepadTextInputDismissedInfo.text))
+	{
+		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
+		unCharMax = sizeof(m_GamepadTextInputDismissedInfo.text) - 1;
+	}
+	return SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
+}
+
+bool SteamPlugin::HasGamepadTextInputDismissedInfo()
+{
+	return m_GamepadTextInputDismissedInfo.dismissed;
+}
+
+void SteamPlugin::GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchText)
+{
+	//*info = m_GamepadTextInputDismissedInfo;
+	*pbSubmitted = m_GamepadTextInputDismissedInfo.submitted;
+	strcpy_s(pchText, strnlen_s(m_GamepadTextInputDismissedInfo.text, MAX_GAMEPAD_TEXT_INPUT_LENGTH) + 1, m_GamepadTextInputDismissedInfo.text);
+	m_GamepadTextInputDismissedInfo.dismissed = false;
+}
+
+void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
+{
+	m_GamepadTextInputDismissedInfo.dismissed = true;
+	m_GamepadTextInputDismissedInfo.submitted = pCallback->m_bSubmitted;
+	*m_GamepadTextInputDismissedInfo.text = NULL;
+	if (!pCallback->m_bSubmitted)
+	{
+		// User canceled.
+		return;
+	}
+	uint32 length = SteamUtils()->GetEnteredGamepadTextLength(); 
+	bool success = SteamUtils()->GetEnteredGamepadTextInput(m_GamepadTextInputDismissedInfo.text, length);
+	if (!success) {
+		// This should only ever happen if there's a length mismatch.
+		agk::Log("GetEnteredGamepadTextInput failed.");
+	} 
 }

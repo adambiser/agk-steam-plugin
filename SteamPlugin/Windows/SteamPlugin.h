@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <mutex>
 
 #define MAX_LEADERBOARD_ENTRIES 10
+#define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
 
 enum ECallbackState
 {
@@ -169,6 +170,23 @@ private:
 	bool m_PlaybackStatusHasChanged;
 	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
 	bool m_VolumeHasChanged;
+	// Util methods
+	bool m_HasIPCountryChanged;
+	STEAM_CALLBACK(SteamPlugin, OnIPCountryChanged, IPCountry_t, m_CallbackIPCountryChanged);
+	bool m_HasLowBatteryWarning;
+	uint8 m_nMinutesBatteryLeft;
+	STEAM_CALLBACK(SteamPlugin, OnLowBatteryPower, LowBatteryPower_t, m_CallbackLowBatteryPower);
+	bool m_IsSteamShuttingDown;
+	STEAM_CALLBACK(SteamPlugin, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
+	// Big Picture methods
+	STEAM_CALLBACK(SteamPlugin, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, m_CallbackGamepadTextInputDismissed);
+	struct GamepadTextInputDismissedInfo_t
+	{
+		bool dismissed;
+		bool submitted;
+		char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
+	};
+	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -393,6 +411,26 @@ public:
 	void SetMusicVolume(float flVolume);
 	bool HasMusicPlaybackStatusChanged();
 	bool HasMusicVolumeChanged();
+	// Utils
+	uint8 GetCurrentBatteryPower();
+	uint32 GetIPCCallCount();
+	const char *GetIPCountry();
+	uint32 GetSecondsSinceAppActive();
+	uint32 GetSecondsSinceComputerActive();
+	uint32 GetServerRealTime();
+	const char *GetSteamUILanguage();
+	bool IsOverlayEnabled();
+	void SetOverlayNotificationInset(int nHorizontalInset, int nVerticalInset);
+	void SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition);
+	bool HasIPCountryChanged();
+	bool HasLowBatteryWarning();
+	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
+	bool IsSteamShuttingDown();
+	// Big Picture methods
+	bool IsSteamInBigPictureMode();
+	bool HasGamepadTextInputDismissedInfo();
+	void GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchText);
+	bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText);
 };
 
 #endif // STEAMPLUGIN_H_

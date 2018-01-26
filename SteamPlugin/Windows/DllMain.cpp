@@ -1725,3 +1725,125 @@ int HasMusicVolumeChanged()
 	return Steam->HasMusicVolumeChanged();
 }
 
+// Util methods
+int GetCurrentBatteryPower()
+{
+	CheckInitialized(0);
+	return Steam->GetCurrentBatteryPower();
+}
+
+int GetIPCCallCount()
+{
+	CheckInitialized(0);
+	return Steam->GetIPCCallCount();
+}
+
+char *GetIPCountry()
+{
+	CheckInitialized(CreateString(NULL));
+	return CreateString(Steam->GetIPCountry());
+}
+
+int GetSecondsSinceAppActive()
+{
+	CheckInitialized(0);
+	return Steam->GetSecondsSinceAppActive();
+}
+
+int GetSecondsSinceComputerActive()
+{
+	CheckInitialized(0);
+	return Steam->GetSecondsSinceComputerActive();
+}
+
+int GetServerRealTime()
+{
+	CheckInitialized(0);
+	return Steam->GetServerRealTime();
+}
+
+char *GetSteamUILanguage()
+{
+	CheckInitialized(CreateString(NULL));
+	return CreateString(Steam->GetSteamUILanguage());
+}
+
+int IsOverlayEnabled()
+{
+	CheckInitialized(0);
+	return Steam->IsOverlayEnabled();
+}
+
+void SetOverlayNotificationInset(int horizontalInset, int verticalInset)
+{
+	CheckInitialized(NORETURN);
+	Steam->SetOverlayNotificationInset(horizontalInset, verticalInset);
+}
+
+void SetOverlayNotificationPosition(int eNotificationPosition)
+{
+	CheckInitialized(NORETURN);
+	Steam->SetOverlayNotificationPosition((ENotificationPosition) eNotificationPosition);
+}
+
+int HasIPCountryChanged()
+{
+	CheckInitialized(false);
+	return Steam->HasIPCountryChanged();
+}
+
+int HasLowBatteryWarning()
+{
+	CheckInitialized(false);
+	return Steam->HasLowBatteryWarning();
+}
+
+int GetMinutesBatteryLeft()
+{
+	CheckInitialized(255);
+	return Steam->GetMinutesBatteryLeft();
+}
+
+int IsSteamShuttingDown()
+{
+	CheckInitialized(false);
+	return Steam->IsSteamShuttingDown();
+}
+
+// Big Picture methods
+int IsSteamInBigPictureMode()
+{
+	CheckInitialized(0);
+	return Steam->IsSteamInBigPictureMode();
+}
+
+int HasGamepadTextInputDismissedInfo()
+{
+	CheckInitialized(0);
+	return Steam->HasGamepadTextInputDismissedInfo();
+}
+
+char *GetGamepadTextInputDismissedInfoJSON()
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		if (Steam->HasGamepadTextInputDismissedInfo())
+		{
+			bool submitted;
+			char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
+			Steam->GetGamepadTextInputDismissedInfo(&submitted, text);
+			json << "\"Submitted\": " << (int)submitted;
+			json << ", \"Text\": \"" << text << "\"";
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText)
+{
+	CheckInitialized(0);
+	return Steam->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
+}

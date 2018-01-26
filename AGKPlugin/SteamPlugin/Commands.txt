@@ -253,3 +253,27 @@ PlayPreviousSong,0,0,PlayPreviousSong,0,0,0,0,0
 SetMusicVolume,0,F,SetMusicVolume,0,0,0,0,0
 HasMusicPlaybackStatusChanged,I,0,HasMusicPlaybackStatusChanged,0,0,0,0,0
 HasMusicVolumeChanged,I,0,HasMusicVolumeChanged,0,0,0,0,0
+#
+# Util methods
+#
+GetCurrentBatteryPower,I,0,GetCurrentBatteryPower,0,0,0,0,0
+GetIPCCallCount,I,0,GetIPCCallCount,0,0,0,0,0
+GetIPCountry,S,0,GetIPCountry,0,0,0,0,0
+GetSecondsSinceAppActive,I,0,GetSecondsSinceAppActive,0,0,0,0,0
+GetSecondsSinceComputerActive,I,0,GetSecondsSinceComputerActive,0,0,0,0,0
+GetServerRealTime,I,0,GetServerRealTime,0,0,0,0,0
+GetSteamUILanguage,S,0,GetSteamUILanguage,0,0,0,0,0
+IsOverlayEnabled,I,0,IsOverlayEnabled,0,0,0,0,0
+SetOverlayNotificationInset,0,II,SetOverlayNotificationInset,0,0,0,0,0
+SetOverlayNotificationPosition,0,I,SetOverlayNotificationPosition,0,0,0,0,0
+HasIPCountryChanged,I,0,HasIPCountryChanged,0,0,0,0,0
+HasLowBatteryWarning,I,0,HasLowBatteryWarning,0,0,0,0,0
+GetMinutesBatteryLeft,I,0,GetMinutesBatteryLeft,0,0,0,0,0
+IsSteamShuttingDown,I,0,IsSteamShuttingDown,0,0,0,0,0
+#
+# Big Picture methods
+#
+IsSteamInBigPictureMode,I,0,IsSteamInBigPictureMode,0,0,0,0,0
+HasGamepadTextInputDismissedInfo,I,0,HasGamepadTextInputDismissedInfo,0,0,0,0,0
+GetGamepadTextInputDismissedInfoJSON,S,0,GetGamepadTextInputDismissedInfoJSON,0,0,0,0,0
+ShowGamepadTextInput,I,IISIS,ShowGamepadTextInput,0,0,0,0,0

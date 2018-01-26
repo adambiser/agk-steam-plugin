@@ -245,5 +245,30 @@ extern "C" DLL_EXPORT void PlayPreviousSong();
 extern "C" DLL_EXPORT void SetMusicVolume(float volume);
 extern "C" DLL_EXPORT int HasMusicPlaybackStatusChanged();
 extern "C" DLL_EXPORT int HasMusicVolumeChanged();
+// Util methods
+extern "C" DLL_EXPORT int GetCurrentBatteryPower();
+extern "C" DLL_EXPORT int GetIPCCallCount();
+extern "C" DLL_EXPORT char *GetIPCountry();
+extern "C" DLL_EXPORT int GetSecondsSinceAppActive();
+extern "C" DLL_EXPORT int GetSecondsSinceComputerActive();
+extern "C" DLL_EXPORT int GetServerRealTime();
+extern "C" DLL_EXPORT char *GetSteamUILanguage();
+extern "C" DLL_EXPORT int IsOverlayEnabled();
+extern "C" DLL_EXPORT void SetOverlayNotificationInset(int horizontalInset, int verticalInset);
+extern "C" DLL_EXPORT void SetOverlayNotificationPosition(int eNotificationPosition);
+extern "C" DLL_EXPORT int HasIPCountryChanged();
+extern "C" DLL_EXPORT int HasLowBatteryWarning();
+extern "C" DLL_EXPORT int GetMinutesBatteryLeft();
+extern "C" DLL_EXPORT int IsSteamShuttingDown();
+// Big Picture methods
+extern "C" DLL_EXPORT int IsSteamInBigPictureMode();
+extern "C" DLL_EXPORT int HasGamepadTextInputDismissedInfo();
+extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
+extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText);
+// VR
+//bool IsVRHeadsetStreamingEnabled();
+//bool IsSteamRunningInVR();
+//void SetVRHeadsetStreamingEnabled(bool bEnabled);
+//void StartVRDashboard();
 
 #endif // DLLMAIN_H_
