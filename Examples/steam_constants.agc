@@ -36,6 +36,13 @@ Type DownloadProgress_t
 	BytesTotal as integer
 EndType
 
+// Bit Picture Mode gamepad text input
+// Obtainable from: GetGamepadTextInputDismissedInfoJSON
+Type GamepadTextInputDismissedInfo_t
+	Submitted as integer
+	Text as string
+EndType
+
 ////////////////////////////////////////////////////////////////
 // steam_api.h
 // https://partner.steamgames.com/doc/api/steam_api
