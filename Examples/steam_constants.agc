@@ -723,3 +723,24 @@ EndType
 //~ #constant k_cchStatNameMax					128	// Maximum number of bytes for stat and achievement names (UTF-8 encoded).
 //~ #constant k_cLeaderboardDetailsMax			64	// Maximum number of details that you can store for a single leaderboard entry.
 //~ #constant STEAMUSERSTATS_INTERFACE_VERSION	"STEAMUSERSTATS_INTERFACE_VERSION011"	
+
+////////////////////////////////////////////////////////////////
+// ISteamUtils
+// https://partner.steamgames.com/doc/api/ISteamUtils
+////////////////////////////////////////////////////////////////
+
+// EGamepadTextInputLineMode
+//--------------------------------------------------------------
+// Controls number of allowed lines for the Big Picture gamepad text entry
+#constant k_EGamepadTextInputLineModeSingleLine		0
+#constant k_EGamepadTextInputLineModeMultipleLines	1
+
+// EGamepadTextInputMode
+//--------------------------------------------------------------
+// Input modes for the Big Picture gamepad text entry
+#constant k_EGamepadTextInputModeNormal		0
+#constant k_EGamepadTextInputModePassword	1
+
+// Constants
+//--------------------------------------------------------------
+//~ #constant STEAMUTILS_INTERFACE_VERSION	"SteamUtils009"
