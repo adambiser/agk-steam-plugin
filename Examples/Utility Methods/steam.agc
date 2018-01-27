@@ -15,7 +15,7 @@ info as string
 //
 do
 	info = "Inter-Process Communication Call Count: " + str(Steam.GetIPCCallCount()) + NEWLINE
-	info = info + "Seconds Since Steam Started: " + str(Steam.GetSecondsSinceAppActive()) + NEWLINE
+	info = info + "Seconds Since App Active: " + str(Steam.GetSecondsSinceAppActive()) + NEWLINE
 	info = info + "Seconds Since Last Mouse Move: " + str(Steam.GetSecondsSinceComputerActive()) + NEWLINE
 	info = info + "Server Real Time: " + GetDateFromUnix(Steam.GetServerRealTime()) + NEWLINE
 	info = info + "Overlay Enabled: " + TF(Steam.IsOverlayEnabled()) + NEWLINE
