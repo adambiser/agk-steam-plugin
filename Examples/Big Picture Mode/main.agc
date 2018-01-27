@@ -21,7 +21,7 @@
 #constant STATUS_WIDTH	1024
 #constant STATUS_HEIGHT	268
 
-SetWindowTitle("Utility Methods")
+SetWindowTitle("Big Picture Mode")
 SetWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT, 0)
 SetVirtualResolution(WINDOW_WIDTH, WINDOW_HEIGHT)
 SetSyncRate(30, 0)
