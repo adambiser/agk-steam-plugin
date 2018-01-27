@@ -426,11 +426,17 @@ public:
 	bool HasLowBatteryWarning();
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
 	bool IsSteamShuttingDown();
+	void SetWarningMessageHook();
 	// Big Picture methods
 	bool IsSteamInBigPictureMode();
 	bool HasGamepadTextInputDismissedInfo();
 	void GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchText);
 	bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText);
+	// VR methods
+	bool IsSteamRunningInVR();
+	void StartVRDashboard();
+	void SetVRHeadsetStreamingEnabled(bool bEnabled);
+	bool IsVRHeadsetStreamingEnabled();
 };
 
 #endif // STEAMPLUGIN_H_

@@ -39,6 +39,11 @@ THE SOFTWARE.
 		return returnValue;											\
 	}
 
+extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
+{
+	agk::Log(pchDebugText);
+} 
+
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
@@ -342,6 +347,7 @@ const char * SteamPlugin::GetLaunchQueryParam(const char *pchKey)
 
 void SteamPlugin::OnNewLaunchQueryParameters(NewLaunchQueryParameters_t *pParam)
 {
+	agk::Log("Callback: New Launch Query Parameters");
 	m_HasNewLaunchQueryParameters = true;
 }
 
@@ -358,6 +364,7 @@ bool SteamPlugin::HasNewLaunchQueryParameters()
 
 void SteamPlugin::OnDlcInstalled(DlcInstalled_t *pParam)
 {
+	agk::Log("Callback: DLC Installed");
 	// Don't store unless the main program is using this functionality.
 	if (m_OnDlcInstalledEnabled)
 	{
@@ -401,6 +408,7 @@ void SteamPlugin::UninstallDLC(AppId_t nAppID)
 // Overlay methods
 void SteamPlugin::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
+	agk::Log("Callback: Game Overlay Activated");
 	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
@@ -449,6 +457,7 @@ CSteamID SteamPlugin::GetSteamID()
 // Callback for RequestUserInformation and more.
 void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 {
+	agk::Log("Callback: Persona State Changed");
 	if (m_PersonaStateChangedEnabled)
 	{
 		m_PersonaStateChangeList.push_back(*pParam);
@@ -485,6 +494,7 @@ bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireName
 
 void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 {
+	agk::Log("Callback: Avatar Image Loaded");
 	if (!m_AvatarImageLoadedEnabled)
 	{
 		return;
@@ -689,11 +699,13 @@ void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 	{
 		if (pCallback->m_eResult == k_EResultOK)
 		{
+			agk::Log("Callback: User Stats Received Succeeded");
 			m_RequestStatsCallbackState = Done;
 			m_StatsInitialized = true;
 		}
 		else
 		{
+			agk::Log("Callback: User Stats Received Failed");
 			m_RequestStatsCallbackState = ServerError;
 		}
 	}
@@ -730,11 +742,13 @@ void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 	{
 		if (pCallback->m_eResult == k_EResultOK)
 		{
+			agk::Log("Callback: User Stats Stored Succeeded");
 			m_StoreStatsCallbackState = Done;
 			m_StatsStored = true;
 		}
 		else
 		{
+			agk::Log("Callback: User Stats Stored Failed");
 			m_StoreStatsCallbackState = ServerError;
 		}
 	}
@@ -745,6 +759,7 @@ void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
+		agk::Log("Callback: Achievement Stored");
 		m_AchievementStored = true;
 	}
 }
@@ -810,6 +825,7 @@ void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 {
 	if (pParam->m_nGameID.AppID() == m_AppID)
 	{
+		agk::Log("Callback: Achievement Icon Fetched");
 		// Only store the results for values that are expected.
 		std::string name = pParam->m_rgchAchievementName;
 		auto search = m_AchievementIconsMap.find(name);
@@ -920,11 +936,13 @@ void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIO
 {
 	if (pCallback->m_bLeaderboardFound && !bIOFailure)
 	{
+		agk::Log("Callback: Find Leaderboard Succeeded");
 		m_FindLeaderboardCallbackState = Done;
 	}
 	else
 	{
 		// Did not find the leaderboard.
+		agk::Log("Callback: Find Leaderboard Failed");
 		m_FindLeaderboardCallbackState = ServerError;
 	}
 	m_LeaderboardFindResult = *pCallback;
@@ -996,10 +1014,12 @@ void SteamPlugin::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOF
 {
 	if (pCallback->m_bSuccess && !bIOFailure)
 	{
+		agk::Log("Callback: Upload Leaderboard Score Succeeded");
 		m_UploadLeaderboardScoreCallbackState = Done;
 	}
 	else
 	{
+		agk::Log("Callback: Upload Leaderboard Score Failed");
 		m_UploadLeaderboardScoreCallbackState = ServerError;
 	}
 	m_LeaderboardScoreUploaded = *pCallback;
@@ -1047,6 +1067,7 @@ void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool
 {
 	if (!bIOFailure)
 	{
+		agk::Log("Callback: Download Leaderboard Entries Succeeded");
 		m_DownloadLeaderboardEntriesCallbackState = Done;
 		m_DownloadedLeaderboardEntryCount = min(pCallback->m_cEntryCount, MAX_LEADERBOARD_ENTRIES);
 		for (int index = 0; index < m_DownloadedLeaderboardEntryCount; index++)
@@ -1056,6 +1077,7 @@ void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool
 	}
 	else
 	{
+		agk::Log("Callback: Download Leaderboard Entries Failed");
 		m_DownloadLeaderboardEntriesCallbackState = ServerError;
 	}
 }
@@ -1159,10 +1181,12 @@ void SteamPlugin::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFa
 {
 	if (bIOFailure)
 	{
+		agk::Log("Callback: Lobby List Failed");
 		m_LobbyMatchListCallbackState = ServerError;
 	}
 	else
 	{
+		agk::Log("Callback: Lobby List Succeeded");
 		m_LobbyMatchListCallbackState = Done;
 		m_LobbyMatchList = *pLobbyMatchList;
 	}
@@ -1206,10 +1230,12 @@ void SteamPlugin::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
 	}
 	if (bIOFailure)
 	{
+		agk::Log("Callback: Lobby Created Failed");
 		m_LobbyCreateCallbackState = ServerError;
 	}
 	else
 	{
+		agk::Log("Callback: Lobby Created Succeeded");
 		m_LobbyCreateCallbackState = Done;
 		m_LobbyCreatedID = pParam->m_ulSteamIDLobby;
 		m_LobbyCreatedResult = pParam->m_eResult;
@@ -1265,10 +1291,12 @@ void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
 	if (bIOFailure)
 	{
+		agk::Log("Callback: Lobby Enter Failed");
 		m_LobbyEnterCallbackState = ServerError;
 	}
 	else
 	{
+		agk::Log("Callback: Lobby Enter Succeeded");
 		if (m_LobbyEnterCallbackState == Done)
 		{
 			if (m_LobbyEnterID == pParam->m_ulSteamIDLobby)
@@ -1321,6 +1349,7 @@ bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvit
 
 void SteamPlugin::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 {
+	agk::Log("Callback: Lobby Join Requested");
 	m_GameLobbyJoinRequestedInfo = *pParam;
 }
 
@@ -1369,6 +1398,7 @@ LobbyGameCreated_t SteamPlugin::GetLobbyGameCreated()
 
 void SteamPlugin::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
+	agk::Log("Callback: Lobby Game Created");
 	m_LobbyGameCreatedInfo = *pParam;
 }
 
@@ -1413,6 +1443,7 @@ void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 	lobbyDataUpdateMutex.lock();
 	if (!pParam->m_bSuccess)
 	{
+		agk::Log("Callback: Lobby Data Update Failed");
 		//m_LobbyDataUpdateCallbackState = ServerError;
 		// Report nil steam ids for failure.
 		LobbyDataUpdateInfo_t info;
@@ -1422,6 +1453,7 @@ void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 	}
 	else
 	{
+		agk::Log("Callback: Lobby Data Update Succeeded");
 		//m_LobbyDataUpdateCallbackState = Done;
 		LobbyDataUpdateInfo_t info;
 		info.lobby = pParam->m_ulSteamIDLobby;
@@ -1499,6 +1531,7 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 
 void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
 {
+	agk::Log("Callback: Lobby Chat updated");
 	ChatUpdateInfo_t info;
 	info.userChanged = pParam->m_ulSteamIDUserChanged;
 	info.userState = (EChatMemberStateChange) pParam->m_rgfChatMemberStateChange;
@@ -1525,6 +1558,7 @@ bool SteamPlugin::HasLobbyChatUpdate()
 
 void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
+	agk::Log("Callback: Lobby Chat Message");
 	//m_LobbyChatMessageCallbackState = Done;
 	ChatMessageInfo_t info;
 	info.user = pParam->m_ulSteamIDUser;
@@ -1644,6 +1678,7 @@ void SteamPlugin::SetMusicVolume(float flVolume)
 
 void SteamPlugin::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pParam)
 {
+	agk::Log("Callback: Music Playback Status Changed");
 	m_PlaybackStatusHasChanged = true;
 }
 
@@ -1660,6 +1695,7 @@ bool SteamPlugin::HasMusicPlaybackStatusChanged()
 
 void SteamPlugin::OnVolumeHasChanged(VolumeHasChanged_t *pParam)
 {
+	agk::Log("Callback: Music Volume Changed");
 	m_VolumeHasChanged = true;
 }
 
@@ -1734,6 +1770,7 @@ void SteamPlugin::SetOverlayNotificationPosition(ENotificationPosition eNotifica
 
 void SteamPlugin::OnIPCountryChanged(IPCountry_t *pParam)
 {
+	agk::Log("Callback: IP Country Changed");
 	m_HasIPCountryChanged = true;
 }
 
@@ -1749,6 +1786,7 @@ bool SteamPlugin::HasIPCountryChanged()
 
 void SteamPlugin::OnLowBatteryPower(LowBatteryPower_t *pParam)
 {
+	agk::Log("Callback: Low Battery Power Warning");
 	m_HasLowBatteryWarning = true;
 	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
 }
@@ -1765,6 +1803,7 @@ bool SteamPlugin::HasLowBatteryWarning()
 
 void SteamPlugin::OnSteamShutdown(SteamShutdown_t *pParam)
 {
+	agk::Log("Callback: Steam Shutdown");
 	m_IsSteamShuttingDown = true;
 }
 
@@ -1776,6 +1815,12 @@ bool SteamPlugin::IsSteamShuttingDown()
 		return true;
 	}
 	return m_IsSteamShuttingDown;
+}
+
+void SteamPlugin::SetWarningMessageHook()
+{
+	CheckInitialized(SteamUtils, );
+	SteamUtils()->SetWarningMessageHook(&SteamAPIDebugTextHook);
 }
 
 // Big Picture Mode methods
@@ -1811,6 +1856,7 @@ void SteamPlugin::GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchT
 
 void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
 {
+	agk::Log("Callback: Gamepad Text Input Dismissed");
 	m_GamepadTextInputDismissedInfo.dismissed = true;
 	m_GamepadTextInputDismissedInfo.submitted = pCallback->m_bSubmitted;
 	*m_GamepadTextInputDismissedInfo.text = NULL;
@@ -1826,3 +1872,28 @@ void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCall
 		agk::Log("GetEnteredGamepadTextInput failed.");
 	} 
 }
+
+bool SteamPlugin::IsSteamRunningInVR()
+{
+	CheckInitialized(SteamUtils, false);
+	return SteamUtils()->IsSteamRunningInVR();
+}
+
+void SteamPlugin::StartVRDashboard()
+{
+	CheckInitialized(SteamUtils, );
+	SteamUtils()->StartVRDashboard();
+}
+
+void SteamPlugin::SetVRHeadsetStreamingEnabled(bool bEnabled)
+{
+	CheckInitialized(SteamUtils, );
+	SteamUtils()->SetVRHeadsetStreamingEnabled(bEnabled);
+}
+
+bool SteamPlugin::IsVRHeadsetStreamingEnabled()
+{
+	CheckInitialized(SteamUtils, false);
+	return SteamUtils()->IsVRHeadsetStreamingEnabled();
+}
+

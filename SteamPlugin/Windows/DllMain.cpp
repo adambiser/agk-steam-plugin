@@ -1810,6 +1810,12 @@ int IsSteamShuttingDown()
 	return Steam->IsSteamShuttingDown();
 }
 
+void SetWarningMessageHook()
+{
+	CheckInitialized(NORETURN);
+	Steam->SetWarningMessageHook();
+}
+
 // Big Picture methods
 int IsSteamInBigPictureMode()
 {
@@ -1844,6 +1850,30 @@ char *GetGamepadTextInputDismissedInfoJSON()
 
 int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText)
 {
-	CheckInitialized(0);
+	CheckInitialized(false);
 	return Steam->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
+}
+
+int IsSteamRunningInVR()
+{
+	CheckInitialized(false);
+	return Steam->IsSteamRunningInVR();
+}
+
+void StartVRDashboard()
+{
+	CheckInitialized(NORETURN);
+	Steam->StartVRDashboard();
+}
+
+void SetVRHeadsetStreamingEnabled(int enabled)
+{
+	CheckInitialized(NORETURN);
+	Steam->SetVRHeadsetStreamingEnabled(enabled);
+}
+
+int IsVRHeadsetStreamingEnabled()
+{
+	CheckInitialized(false);
+	return Steam->IsVRHeadsetStreamingEnabled();
 }

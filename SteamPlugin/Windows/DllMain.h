@@ -260,15 +260,16 @@ extern "C" DLL_EXPORT int HasIPCountryChanged();
 extern "C" DLL_EXPORT int HasLowBatteryWarning();
 extern "C" DLL_EXPORT int GetMinutesBatteryLeft();
 extern "C" DLL_EXPORT int IsSteamShuttingDown();
+extern "C" DLL_EXPORT void SetWarningMessageHook();
 // Big Picture methods
 extern "C" DLL_EXPORT int IsSteamInBigPictureMode();
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedInfo();
 extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
 extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText);
-// VR
-//bool IsVRHeadsetStreamingEnabled();
-//bool IsSteamRunningInVR();
-//void SetVRHeadsetStreamingEnabled(bool bEnabled);
-//void StartVRDashboard();
+// VR methods
+extern "C" DLL_EXPORT int IsSteamRunningInVR();
+extern "C" DLL_EXPORT void StartVRDashboard();
+extern "C" DLL_EXPORT void SetVRHeadsetStreamingEnabled(int enabled);
+extern "C" DLL_EXPORT int IsVRHeadsetStreamingEnabled();
 
 #endif // DLLMAIN_H_

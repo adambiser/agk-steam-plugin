@@ -270,6 +270,7 @@ HasIPCountryChanged,I,0,HasIPCountryChanged,0,0,0,0,0
 HasLowBatteryWarning,I,0,HasLowBatteryWarning,0,0,0,0,0
 GetMinutesBatteryLeft,I,0,GetMinutesBatteryLeft,0,0,0,0,0
 IsSteamShuttingDown,I,0,IsSteamShuttingDown,0,0,0,0,0
+SetWarningMessageHook,0,0,SetWarningMessageHook,0,0,0,0,0
 #
 # Big Picture methods
 #
@@ -277,3 +278,10 @@ IsSteamInBigPictureMode,I,0,IsSteamInBigPictureMode,0,0,0,0,0
 HasGamepadTextInputDismissedInfo,I,0,HasGamepadTextInputDismissedInfo,0,0,0,0,0
 GetGamepadTextInputDismissedInfoJSON,S,0,GetGamepadTextInputDismissedInfoJSON,0,0,0,0,0
 ShowGamepadTextInput,I,IISIS,ShowGamepadTextInput,0,0,0,0,0
+#
+# VR methods
+#
+IsSteamRunningInVR,I,0,IsSteamRunningInVR,0,0,0,0,0
+StartVRDashboard,0,0,StartVRDashboard,0,0,0,0,0
+SetVRHeadsetStreamingEnabled,0,I,SetVRHeadsetStreamingEnabled,0,0,0,0,0
+IsVRHeadsetStreamingEnabled,I,0,IsVRHeadsetStreamingEnabled,0,0,0,0,0
