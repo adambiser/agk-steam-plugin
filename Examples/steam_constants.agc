@@ -39,7 +39,7 @@ EndType
 // Bit Picture Mode gamepad text input
 // Obtainable from: GetGamepadTextInputDismissedInfoJSON
 Type GamepadTextInputDismissedInfo_t
-	Submitted as integer
+	Submitted as integer	// 1 when the user submitted text. 0 when the user cancels.
 	Text as string
 EndType
 
