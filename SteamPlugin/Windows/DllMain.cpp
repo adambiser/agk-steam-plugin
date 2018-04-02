@@ -1869,7 +1869,7 @@ void StartVRDashboard()
 void SetVRHeadsetStreamingEnabled(int enabled)
 {
 	CheckInitialized(NORETURN);
-	Steam->SetVRHeadsetStreamingEnabled(enabled);
+	Steam->SetVRHeadsetStreamingEnabled(enabled != 0);
 }
 
 int IsVRHeadsetStreamingEnabled()
