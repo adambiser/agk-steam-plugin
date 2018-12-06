@@ -40,10 +40,13 @@ AddStatus("Quota: " + Steam.GetCloudQuotaJSON())
 AddStatus("Files in cloud: " + str(Steam.GetCloudFileCount()))
 AddStatus("File 0 = " + Steam.GetCloudFileName(0))
 AddStatus(TEST_FILE_NAME + " exists: " + TF(Steam.CloudFileExists(TEST_FILE_NAME)))
-AddStatus(TEST_FILE_NAME + " size: " + str(Steam.GetCloudFileSize(TEST_FILE_NAME)))
-AddStatus(TEST_FILE_NAME + " timestamp: " + GetDateFromUnix(Steam.GetCloudFileTimestamp(TEST_FILE_NAME)))
-AddStatus(TEST_FILE_NAME + " persisted: " + TF(Steam.CloudFilePersisted(TEST_FILE_NAME)))
-AddStatus(TEST_FILE_NAME + " platforms: " + GetSyncPlatformList(Steam.GetCloudFileSyncPlatforms(TEST_FILE_NAME)))
+if Steam.CloudFileExists(TEST_FILE_NAME)
+	AddStatus(TEST_FILE_NAME + " size: " + str(Steam.GetCloudFileSize(TEST_FILE_NAME)))
+	AddStatus(TEST_FILE_NAME + " timestamp: " + GetDateFromUnix(Steam.GetCloudFileTimestamp(TEST_FILE_NAME)))
+	AddStatus(TEST_FILE_NAME + " persisted: " + TF(Steam.CloudFilePersisted(TEST_FILE_NAME)))
+	AddStatus(TEST_FILE_NAME + " platforms: " + GetSyncPlatformList(Steam.GetCloudFileSyncPlatforms(TEST_FILE_NAME)))
+endif
+//~ AddStatus("GetCachedUGCCount: " + str(Steam.GetCachedUGCCount()))
 
 
 cloudFiles.fromJSON(Steam.GetCloudFileListJSON())
