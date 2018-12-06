@@ -58,6 +58,7 @@ ActivateGameOverlayToWebPage,0,S,ActivateGameOverlayToWebPage,0,0,0,0,0
 LoggedOn,I,0,LoggedOn,0,0,0,0,0
 GetPersonaName,S,0,GetPersonaName,0,0,0,0,0
 GetSteamID,I,0,GetSteamID,0,0,0,0,0
+GetSteamID3,S,I,GetSteamID3,0,0,0,0,0
 GetSteamID64,S,I,GetSteamID64,0,0,0,0,0
 HasPersonaStateChanged,I,0,HasPersonaStateChanged,0,0,0,0,0
 GetPersonaStateChangedUser,I,0,GetPersonaStateChangedUser,0,0,0,0,0
@@ -285,3 +286,48 @@ IsSteamRunningInVR,I,0,IsSteamRunningInVR,0,0,0,0,0
 StartVRDashboard,0,0,StartVRDashboard,0,0,0,0,0
 SetVRHeadsetStreamingEnabled,0,I,SetVRHeadsetStreamingEnabled,0,0,0,0,0
 IsVRHeadsetStreamingEnabled,I,0,IsVRHeadsetStreamingEnabled,0,0,0,0,0
+#
+# Cloud methods: Information
+#
+IsCloudEnabledForAccount,I,0,IsCloudEnabledForAccount,0,0,0,0,0
+IsCloudEnabledForApp,I,0,IsCloudEnabledForApp,0,0,0,0,0
+SetCloudEnabledForApp,0,I,SetCloudEnabledForApp,0,0,0,0,0
+#
+# Cloud methods: Files
+#
+CloudFileDelete,I,S,CloudFileDelete,0,0,0,0,0
+CloudFileExists,I,S,CloudFileExists,0,0,0,0,0
+CloudFileForget,I,S,CloudFileForget,0,0,0,0,0
+CloudFilePersisted,I,S,CloudFilePersisted,0,0,0,0,0
+CloudFileRead,I,S,CloudFileRead,0,0,0,0,0
+#SteamAPICall_t CloudFileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+#bool CloudFileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+#SteamAPICall_t CloudFileShare(const char *pchFile);
+CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,0
+CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,0
+GetCloudFileWriteAsyncCallbackState,I,0,GetCloudFileWriteAsyncCallbackState,0,0,0,0,0
+GetCloudFileWriteAsyncComplete,I,0,GetCloudFileWriteAsyncComplete,0,0,0,0,0
+#bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
+#bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
+#UGCFileWriteStreamHandle_t CloudFileWriteStreamOpen(const char *pchFile);
+#bool CloudFileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
+#int32 GetCachedUGCCount();
+#UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
+GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,0
+GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,0
+GetCloudFileListJSON,S,0,GetCloudFileListJSON,0,0,0,0,0
+GetCloudFileSize,I,S,GetCloudFileSize,0,0,0,0,0
+GetCloudFileTimestamp,I,S,GetCloudFileTimestamp,0,0,0,0,0
+GetCloudQuotaAvailable,I,0,GetCloudQuotaAvailable,0,0,0,0,0
+GetCloudQuotaTotal,I,0,GetCloudQuotaTotal,0,0,0,0,0
+GetCloudQuotaJSON,S,0,GetCloudQuotaJSON,0,0,0,0,0
+GetCloudFileSyncPlatforms,I,S,GetCloudFileSyncPlatforms,0,0,0,0,0
+SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,0
+#
+# User-Generated Content
+#
+#bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+#bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
+#SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
+#SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+#int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);

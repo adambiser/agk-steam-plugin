@@ -103,7 +103,9 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackLowBatteryPower(this, &SteamPlugin::OnLowBatteryPower),
 	m_IsSteamShuttingDown(false),
 	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
-	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
+	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed),
+	m_FileWriteAsyncCallbackState(Idle),
+	m_FileWriteAsyncComplete((EResult)0)
 {
 	// Nothing for now
 }
@@ -187,6 +189,8 @@ void SteamPlugin::Shutdown()
 		m_HasLowBatteryWarning = false;
 		m_nMinutesBatteryLeft = 255;
 		m_IsSteamShuttingDown = false;
+		m_FileWriteAsyncCallbackState = Idle;
+		m_FileWriteAsyncComplete = (EResult)0;
 	}
 }
 
@@ -1873,6 +1877,7 @@ void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCall
 	} 
 }
 
+// VR methods
 bool SteamPlugin::IsSteamRunningInVR()
 {
 	CheckInitialized(SteamUtils, false);
@@ -1896,4 +1901,186 @@ bool SteamPlugin::IsVRHeadsetStreamingEnabled()
 	CheckInitialized(SteamUtils, false);
 	return SteamUtils()->IsVRHeadsetStreamingEnabled();
 }
+
+// Cloud methods: Information
+bool SteamPlugin::IsCloudEnabledForAccount()
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->IsCloudEnabledForAccount();
+}
+
+bool SteamPlugin::IsCloudEnabledForApp()
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->IsCloudEnabledForApp();
+}
+
+void SteamPlugin::SetCloudEnabledForApp(bool bEnabled)
+{
+	CheckInitialized(SteamRemoteStorage, );
+	SteamRemoteStorage()->SetCloudEnabledForApp(bEnabled);
+}
+
+// Cloud Methods: Files
+bool SteamPlugin::FileDelete(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->FileDelete(pchFile);
+}
+
+bool SteamPlugin::FileExists(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->FileExists(pchFile);
+}
+
+bool SteamPlugin::FileForget(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->FileForget(pchFile);
+}
+
+bool SteamPlugin::FilePersisted(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->FilePersisted(pchFile);
+}
+
+int32 SteamPlugin::FileRead(const char *pchFile, void *pvData, int32 cubDataToRead)
+{
+	CheckInitialized(SteamRemoteStorage, 0);
+	return SteamRemoteStorage()->FileRead(pchFile, pvData, cubDataToRead);
+}
+
+//SteamAPICall_t SteamPlugin::FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+//bool SteamPlugin::FileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+//SteamAPICall_t SteamPlugin::FileShare(const char *pchFile);
+
+bool SteamPlugin::FileWrite(const char *pchFile, const void *pvData, int32 cubData)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->FileWrite(pchFile, pvData, cubData);
+}
+
+/*
+bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
+{
+	CheckInitialized(SteamUserStats, false);
+	// Fail when the callback is currently running.
+	if (m_FindLeaderboardCallbackState == Running)
+	{
+		return false;
+	}
+	try
+	{
+		// Clear result structure.
+		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
+		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
+		SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+		m_CallResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
+		m_FindLeaderboardCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_FindLeaderboardCallbackState = ClientError;
+		return false;
+	}
+}
+*/
+bool SteamPlugin::FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	// Fail when the callback is currently running.
+	if (m_FileWriteAsyncCallbackState == Running)
+	{
+		return false;
+	}
+	try
+	{
+		// Clear result structure.
+		m_FileWriteAsyncComplete = (EResult)0;
+		SteamAPICall_t hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(pchFile, pvData, cubData);
+		m_CallResultFileWriteAsync.Set(hSteamAPICall, this, &SteamPlugin::OnRemoteStorageFileWriteAsyncComplete);
+		m_FileWriteAsyncCallbackState = Running;
+		return true;
+	}
+	catch (...)
+	{
+		m_FileWriteAsyncCallbackState = ClientError;
+		return false;
+	}
+}
+
+void SteamPlugin::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pCallback, bool bIOFailure)
+{
+	m_FileWriteAsyncComplete = pCallback->m_eResult;
+	if (pCallback->m_eResult == k_EResultOK && !bIOFailure)
+	{
+		agk::Log("Callback: Remote Storage File Write Async Succeeded");
+		m_FileWriteAsyncCallbackState = Done;
+	}
+	else
+	{
+		agk::Log("Callback: Remote Storage File Write Async Failed");
+		m_FileWriteAsyncCallbackState = ServerError;
+	}
+}
+
+
+//bool SteamPlugin::FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
+//bool SteamPlugin::FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
+//UGCFileWriteStreamHandle_t SteamPlugin::FileWriteStreamOpen(const char *pchFile);
+//bool SteamPlugin::FileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
+
+int32 SteamPlugin::GetFileCount()
+{
+	CheckInitialized(SteamRemoteStorage, 0);
+	return SteamRemoteStorage()->GetFileCount();
+}
+
+const char * SteamPlugin::GetFileNameAndSize(int iFile, int32 *pnFileSizeInBytes)
+{
+	CheckInitialized(SteamRemoteStorage, NULL);
+	return SteamRemoteStorage()->GetFileNameAndSize(iFile, pnFileSizeInBytes);
+}
+
+int32 SteamPlugin::GetFileSize(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, 0);
+	return SteamRemoteStorage()->GetFileSize(pchFile);
+}
+
+int64 SteamPlugin::GetFileTimestamp(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, 0);
+	return SteamRemoteStorage()->GetFileTimestamp(pchFile);
+}
+
+bool SteamPlugin::GetQuota(uint64 *pnTotalBytes, uint64 *puAvailableBytes)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->GetQuota(pnTotalBytes, puAvailableBytes);
+}
+
+ERemoteStoragePlatform SteamPlugin::GetSyncPlatforms(const char *pchFile)
+{
+	CheckInitialized(SteamRemoteStorage, k_ERemoteStoragePlatformNone);
+	return SteamRemoteStorage()->GetSyncPlatforms(pchFile);
+}
+
+bool SteamPlugin::SetSyncPlatforms(const char *pchFile, ERemoteStoragePlatform eRemoteStoragePlatform)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	return SteamRemoteStorage()->SetSyncPlatforms(pchFile, eRemoteStoragePlatform);
+}
+
+// User-Generated Content
+//int32 SteamPlugin::GetCachedUGCCount();
+//UGCHandle_t SteamPlugin::GetCachedUGCHandle(int32 iCachedContent);
+//bool SteamPlugin::GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+//bool SteamPlugin::GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
+//SteamAPICall_t SteamPlugin::UGCDownload(UGCHandle_t hContent, uint32 unPriority);
+//SteamAPICall_t SteamPlugin::UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+//int32 SteamPlugin::UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 

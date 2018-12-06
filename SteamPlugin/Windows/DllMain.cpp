@@ -596,6 +596,48 @@ int GetSteamID()
 	return GetSteamIDHandle(Steam->GetSteamID());
 }
 
+char *GetSteamID3(int hUserSteamID)
+{
+	CheckInitialized(CreateString(NULL));
+	CSteamID steamID = GetSteamID(hUserSteamID);
+	if (steamID != k_steamIDNil)
+	{
+		std::ostringstream steam3;
+		steam3 << "[";
+		// Source: https://developer.valvesoftware.com/wiki/SteamID#Types_of_Steam_Accounts
+		switch (steamID.GetEAccountType())
+		{
+		case k_EAccountTypeInvalid:			// I
+		case k_EAccountTypeIndividual:		// U
+		case k_EAccountTypeMultiseat:		// M
+		case k_EAccountTypeGameServer:		// G
+		case k_EAccountTypeAnonGameServer:	// A
+		case k_EAccountTypePending:			// P
+		case k_EAccountTypeContentServer:	// C
+		case k_EAccountTypeClan:			// g
+		case k_EAccountTypeChat:			// T / L / c
+		case k_EAccountTypeAnonUser:		// a
+			steam3 << "IUMGAPCgT?a"[steamID.GetEAccountType()];
+			break;
+		case k_EAccountTypeConsoleUser: // 9 = P2P, but this doesn't look right.  Fake anyway, just do the default below.
+		default:
+			steam3 << steamID.GetEAccountType();
+			break;
+		}
+		steam3 << ":" << steamID.GetEUniverse() << ":" << steamID.GetAccountID();
+		switch (steamID.GetEAccountType())
+		{
+		case k_EAccountTypeAnonGameServer:
+		case k_EAccountTypeAnonUser:
+			steam3 << ":" << steamID.GetUnAccountInstance();
+			break;
+		}
+		steam3 << "]";
+		return CreateString(steam3.str());
+	}
+	return CreateString(NULL);
+}
+
 char *GetSteamID64(int hUserSteamID)
 {
 	CheckInitialized(CreateString(NULL));
@@ -1854,6 +1896,7 @@ int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, 
 	return Steam->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
+// VR Methods
 int IsSteamRunningInVR()
 {
 	CheckInitialized(false);
@@ -1877,3 +1920,226 @@ int IsVRHeadsetStreamingEnabled()
 	CheckInitialized(false);
 	return Steam->IsVRHeadsetStreamingEnabled();
 }
+
+// Cloud methods: Information
+int IsCloudEnabledForAccount()
+{
+	CheckInitialized(false);
+	return Steam->IsCloudEnabledForAccount();
+}
+
+int IsCloudEnabledForApp()
+{
+	CheckInitialized(false);
+	return Steam->IsCloudEnabledForApp();
+}
+
+void SetCloudEnabledForApp(int enabled)
+{
+	CheckInitialized(NORETURN);
+	return Steam->SetCloudEnabledForApp(enabled != 0);
+}
+
+// Cloud methods: Files
+int CloudFileDelete(char *filename)
+{
+	CheckInitialized(false);
+	return Steam->FileDelete(filename);
+}
+
+int CloudFileExists(char *filename)
+{
+	CheckInitialized(false);
+	return Steam->FileExists(filename);
+}
+
+int CloudFileForget(char *filename)
+{
+	CheckInitialized(false);
+	return Steam->FileForget(filename);
+}
+
+int CloudFilePersisted(char *filename)
+{
+	CheckInitialized(false);
+	return Steam->FilePersisted(filename);
+}
+
+int CloudFileRead(char *filename)
+{
+	CheckInitialized(0);
+	int fileSize = Steam->GetFileSize(filename);
+	unsigned int memblock = agk::CreateMemblock(fileSize);
+	if (Steam->FileRead(filename, agk::GetMemblockPtr(memblock), fileSize))
+	{
+		return memblock;
+	}
+	agk::DeleteMemblock(memblock);
+	return 0;
+}
+
+//SteamAPICall_t CloudFileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+//bool CloudFileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+//SteamAPICall_t CloudFileShare(const char *pchFile);
+
+int CloudFileWrite(char *filename, int memblockID)
+{
+	CheckInitialized(false);
+	if (agk::GetMemblockExists(memblockID))
+	{
+		return Steam->FileWrite(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
+	}
+	return false;
+}
+
+int CloudFileWriteAsync(char *filename, int memblockID)
+{
+	CheckInitialized(false);
+	if (agk::GetMemblockExists(memblockID))
+	{
+		return Steam->FileWriteAsync(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
+	}
+	return false;
+}
+
+int GetCloudFileWriteAsyncCallbackState()
+{
+	CheckInitialized(STATE_CLIENT_ERROR);
+	return Steam->GetFileWriteAsyncCallbackState();
+}
+
+int GetCloudFileWriteAsyncComplete()
+{
+	CheckInitialized(0);
+	return (int)Steam->GetFileWriteAsyncComplete();
+}
+
+//bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
+//bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
+//UGCFileWriteStreamHandle_t CloudFileWriteStreamOpen(const char *pchFile);
+//bool CloudFileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
+
+int GetCloudFileCount()
+{
+	CheckInitialized(0);
+	return Steam->GetFileCount();
+}
+
+char * GetCloudFileName(int index)
+{
+	CheckInitialized(CreateString(NULL));
+	int32 pnFileSizeInBytes;
+	return CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
+}
+
+char *GetCloudFileListJSON()
+{
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		for (int index = 0; index < Steam->GetFileCount(); index++)
+		{
+			if (index > 0)
+			{
+				json << ", ";
+			}
+			json << "{";
+			int32 pnFileSizeInBytes;
+			const char *name = Steam->GetFileNameAndSize(index, &pnFileSizeInBytes);
+			if (name)
+			{
+				json << "\"Name\": \"" << name << "\", ";
+				json << "\"Size\": " << pnFileSizeInBytes;
+				delete[] name;
+			}
+			else
+			{
+				json << "\"Name\": \"?\", ";
+				json << "\"Size\": 0";
+			}
+			json << "}";
+		}
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+int GetCloudFileSize(char *filename)
+{
+	CheckInitialized(0);
+	return Steam->GetFileSize(filename);
+}
+
+int GetCloudFileTimestamp(char *filename)
+{
+	CheckInitialized(0);
+	// NOTE: Dangerous conversion int64 to int.
+	return (int) Steam->GetFileTimestamp(filename);
+}
+
+int GetCloudQuotaAvailable()
+{
+	CheckInitialized(0);
+	uint64 pnTotalBytes;
+	uint64 puAvailableBytes;
+	if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
+	{
+		// Note: Potential issue converting uint64 to int if the quote gets to be more than 2GB.
+		return (int)puAvailableBytes;
+	}
+	return 0;
+}
+
+int GetCloudQuotaTotal()
+{
+	CheckInitialized(0);
+	uint64 pnTotalBytes;
+	uint64 puAvailableBytes;
+	if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
+	{
+		// Note: Potential issue converting uint64 to int if the quote gets to be more than 2GB.
+		return (int)pnTotalBytes;
+	}
+	return 0;
+}
+
+char *GetCloudQuotaJSON()
+{
+	std::ostringstream json;
+	json << "{";
+	if (Steam)
+	{
+		uint64 pnTotalBytes;
+		uint64 puAvailableBytes;
+		if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
+		{
+			json << "\"Available\": " << puAvailableBytes << ", ";
+			json << "\"Total\": " << pnTotalBytes;
+		}
+	}
+	json << "}";
+	return CreateString(json.str());
+}
+
+int GetCloudFileSyncPlatforms(char *filename)
+{
+	CheckInitialized(0);
+	return Steam->GetSyncPlatforms(filename);
+}
+
+bool SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform)
+{
+	CheckInitialized(false);
+	return Steam->SetSyncPlatforms(filename, (ERemoteStoragePlatform) eRemoteStoragePlatform);
+}
+
+// User-Generated Content
+
+//int32 GetCachedUGCCount();
+//UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
+//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+//bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
+//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
+//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);

@@ -49,6 +49,15 @@ enum EAvatarSize
 	Large = 2
 };
 
+//class CFileWriteAsync {
+//private:
+//public:
+//	ECallbackState m_CallbackState;
+//	EResult m_Result;
+//	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
+//	CCallResult<SteamPlugin, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
+//};
+
 class SteamPlugin {
 private:
 	// General methods.
@@ -128,7 +137,7 @@ private:
 	CSteamID m_LobbyCreatedID;
 	EResult m_LobbyCreatedResult;
 	// Lobby methods: Join, Create, Leave
-	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we leave any left open when closing.
+	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 	ECallbackState m_LobbyEnterCallbackState;
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
@@ -187,6 +196,12 @@ private:
 		char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
 	};
 	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
+	// Cloud method: FileWriteAsync
+	//STEAM_CALLBACK(SteamPlugin, OnRemoteStorageFileWriteAsyncComplete, RemoteStorageFileWriteAsyncComplete_t, m_CallbackRemoteStorageFileWriteAsyncComplete);
+	ECallbackState m_FileWriteAsyncCallbackState;
+	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
+	CCallResult<SteamPlugin, RemoteStorageFileWriteAsyncComplete_t> m_CallResultFileWriteAsync;
+	EResult m_FileWriteAsyncComplete;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -437,6 +452,42 @@ public:
 	void StartVRDashboard();
 	void SetVRHeadsetStreamingEnabled(bool bEnabled);
 	bool IsVRHeadsetStreamingEnabled();
+	// Cloud methods : Information
+	bool IsCloudEnabledForAccount();
+	bool IsCloudEnabledForApp();
+	void SetCloudEnabledForApp(bool bEnabled);
+	// Cloud Methods: Files
+	bool FileDelete(const char *pchFile);
+	bool FileExists(const char *pchFile);
+	bool FileForget(const char *pchFile);
+	bool FilePersisted(const char *pchFile);
+	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
+	//SteamAPICall_t FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	//bool FileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+	//SteamAPICall_t FileShare(const char *pchFile);
+	bool FileWrite(const char *pchFile, const void *pvData, int32 cubData);
+	bool FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);
+	ECallbackState GetFileWriteAsyncCallbackState() { return getCallbackState(&m_FileWriteAsyncCallbackState); }
+	EResult GetFileWriteAsyncComplete() { return m_FileWriteAsyncComplete; }
+	//bool FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
+	//bool FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
+	//UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *pchFile);
+	//bool FileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
+	int32 GetFileCount();
+	const char * GetFileNameAndSize(int iFile, int32 *pnFileSizeInBytes);
+	int32 GetFileSize(const char *pchFile);
+	int64 GetFileTimestamp(const char *pchFile);
+	bool GetQuota(uint64 *pnTotalBytes, uint64 *puAvailableBytes);
+	ERemoteStoragePlatform GetSyncPlatforms(const char *pchFile);
+	bool SetSyncPlatforms(const char *pchFile, ERemoteStoragePlatform eRemoteStoragePlatform);
+	// User-Generated Content
+	//int32 GetCachedUGCCount();
+	//UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
+	//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+	//bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
+	//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
+	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 };
 
 #endif // STEAMPLUGIN_H_
