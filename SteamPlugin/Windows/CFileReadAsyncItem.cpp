@@ -38,19 +38,41 @@ CFileReadAsyncItem::~CFileReadAsyncItem(void)
 
 bool CFileReadAsyncItem::Call(const char *pchFile, uint32 nOffset, uint32 cubToRead)
 {
+	if (m_CallbackState == Running)
+	{
+		return false;
+	}
+	// Check for file existence because calling FileReadAsync() on files that have been FileDeleted 
+	// can cause Steamworks to start a CallResult that never finishes and FileReadAsync() can no longer
+	// be used the file until the user logs out and back into the Steam client.
+	// FileRead() does not have this issue.
+	if (!SteamRemoteStorage()->FileExists(pchFile))
+	{
+		return false;
+	}
 	m_Filename = pchFile;
 	std::ostringstream msg;
-	msg << "FileReadAsync: " << m_Filename;
+	msg << "FileReadAsync: " << m_Filename << ", nOffset: " << nOffset << ", cubToRead: " << cubToRead;
 	agk::Log(msg.str().c_str());
 	try
 	{
 		SteamAPICall_t hSteamAPICall = SteamRemoteStorage()->FileReadAsync(pchFile, nOffset, cubToRead);
+		if (hSteamAPICall == k_uAPICallInvalid)
+		{
+			msg.str(std::string());
+			msg << "FileReadAsync returned k_uAPICallInvalid:\npchFile: " << m_Filename << "\nnOffset: " << nOffset << "\ncubToRead: " << cubToRead;
+			agk::PluginError(msg.str().c_str());
+			m_CallbackState = ClientError;
+			return false;
+		}
 		m_CallResult.Set(hSteamAPICall, this, &CFileReadAsyncItem::OnRemoteStorageFileReadAsyncComplete);
 		m_CallbackState = Running;
+		agk::Log("CFileReadAsyncItem is running.");
 		return true;
 	}
 	catch (...)
 	{
+		agk::Log("CFileReadAsyncItem had an error.");
 		m_CallbackState = ClientError;
 		return false;
 	}
@@ -62,16 +84,17 @@ void CFileReadAsyncItem::OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileR
 	std::ostringstream msg;
 	msg << "OnRemoteStorageFileReadAsyncComplete: " << m_Filename << ".  Result = " << pResult->m_eResult;
 	agk::Log(msg.str().c_str());
-	if (pResult->m_eResult == k_EResultOK && !bFailure)
+	if (pResult->m_eResult == k_EResultOK) // && !bFailure)
 	{
 		m_MemblockID = agk::CreateMemblock(pResult->m_cubRead);
 		if (SteamRemoteStorage()->FileReadAsyncComplete(pResult->m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), pResult->m_cubRead))
 		{
+			agk::Log("FileReadAsyncComplete retrieved data.");
 			m_CallbackState = Done;
 		}
 		else
 		{
-			agk::Log("FileReadAsyncComplete failed to retrieve data.");
+			agk::PluginError("ERROR: FileReadAsyncComplete failed.");
 			agk::DeleteMemblock(m_MemblockID);
 			m_MemblockID = 0;
 			m_CallbackState = ServerError;

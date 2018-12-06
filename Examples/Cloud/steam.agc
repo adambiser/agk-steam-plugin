@@ -1,11 +1,15 @@
 #option_explicit
 
+// Cloud files are stored at
+// %STEAMPATH%\userdata\[ACCOUNT_ID]\[APP_ID]\remote
+
 #constant TOGGLE_CLOUD_ENABLED_BUTTON	1
 #constant SYNC_WRITE_BUTTON				2
 #constant SYNC_READ_BUTTON				3
 #constant ASYNC_WRITE_BUTTON			4
 #constant ASYNC_READ_BUTTON				5
 #constant DELETE_BUTTON					6
+#constant OPEN_FOLDER_BUTTON			7
 
 // This array stores the valid DLC AppIDs for this app.
 global dlcAppIDs as integer[]
@@ -13,7 +17,7 @@ global dlcAppIDs as integer[]
 global dlcsToDownload as integer[]
 global dlcsToUninstall as integer[]
 
-global buttonText as string[5] = ["TOGGLE_ENABLED", "SYNC_WRITE", "SYNC_READ", "ASYNC_WRITE", "ASYNC_READ", "DELETE"]
+global buttonText as string[6] = ["TOGGLE_ENABLED", "SYNC_WRITE", "SYNC_READ", "ASYNC_WRITE", "ASYNC_READ", "DELETE", "OPEN_FOLDER"]
 x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
@@ -102,17 +106,24 @@ Function CheckInput()
 		SyncRead(TEST_FILE_NAME)
 	endif
 	if GetVirtualButtonPressed(ASYNC_WRITE_BUTTON)
-		AddStatus("Async write: " + TEST_FILE_NAME)
 		AsyncWrite(TEST_FILE_NAME)
+		AsyncWrite("test2.txt")
 	endif
 	if GetVirtualButtonPressed(ASYNC_READ_BUTTON)
-		AddStatus("Async read: " + TEST_FILE_NAME)
 		AsyncRead(TEST_FILE_NAME)
+		AsyncRead("test2.txt")
 	endif
 	if GetVirtualButtonPressed(DELETE_BUTTON)
 		AddStatus("Deleting: " + TEST_FILE_NAME)
 		AddStatus("Success = " + TF(Steam.CloudFileDelete(TEST_FILE_NAME)))
 		AddStatus(TEST_FILE_NAME + " exists: " + TF(Steam.CloudFileExists(TEST_FILE_NAME)))
+	endif
+	if GetVirtualButtonPressed(OPEN_FOLDER_BUTTON)
+		path as string
+		path = JoinPaths(Steam.GetSteamPath(), "userdata/" + str(Steam.GetAccountID(Steam.GetSteamID())) + "/" + str(Steam.GetAppID()) + "/remote")
+		path = ReplaceString(path, "/", "\", -1) // Must use backslash for explorer.
+		AddStatus(path)
+		RunApp("explorer", path)
 	endif
 EndFunction
 
@@ -127,15 +138,24 @@ EndFunction
 
 global asyncWriteFiles as string[]
 
-Function AsyncWrite(filename as string)
+Function CreateTempFileMemblock(Text as string)
+	filename as string = "temp.tmp"
+	file as integer
+	file = OpenToWrite(filename)
+	WriteLine(file, str(GetUnixTime()))
+	WriteLine(file, text)
+	CloseFile(file)
 	memblock as integer
-	memblock = CreateMemblock(7)
-	SetMemblockString(memblock, 0, "Hello!")
+	memblock = CreateMemblockFromFile(filename)
+	DeleteFile(filename)
+EndFunction memblock
+
+Function AsyncWrite(filename as string)
+	AddStatus("Async write: " + filename)
+	memblock as integer
+	memblock = CreateTempFileMemblock("Hello from " + filename  + "!")
 	AddStatus("Success = " + TF(Steam.CloudFileWriteAsync(filename, memblock)))
-	AddStatus("Success = " + TF(Steam.CloudFileWriteAsync("test2.txt", memblock)))
 	asyncWriteFiles.insert(filename)
-	asyncWriteFiles.insert("test2.txt")
-	// %STEAMPATH%\userdata\[USERID]\[APPID]\remote
 	DeleteMemblock(memblock)
 EndFunction
 
@@ -143,7 +163,7 @@ Function SyncRead(filename as string)
 	memblock as integer
 	memblock = Steam.CloudFileRead(filename)
 	if memblock
-		AddStatus("File Text: " + GetMemblockString(memblock, 0, 7))
+		AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(filename)))
 		DeleteMemblock(memblock)
 	else
 		AddStatus("File does not exist") 
@@ -153,11 +173,13 @@ EndFunction
 global asyncReadFiles as string[]
 
 Function AsyncRead(filename as string)
+	AddStatus("Async read: " + filename)
+	AddStatus("File size: " + str(Steam.GetCloudFileSize(filename)))
 	if Steam.CloudFileReadAsync(filename, 0, -1)
+		AddStatus("Success")
 		asyncReadFiles.insert(filename)
-	endif
-	if Steam.CloudFileReadAsync("test2.txt", 0, -1)
-		asyncReadFiles.insert("test2.txt")
+	else
+		AddStatus("Failed")
 	endif
 EndFunction
 
@@ -180,12 +202,13 @@ Function ProcessCallbacks()
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 				if not errorReported[ERROR_ASYNCWRITE]
 					errorReported[ERROR_ASYNCWRITE] = 1
-					AddStatus("ERROR: FileWriteAsync.")
+					AddStatus("ERROR: FileWriteAsync: " + asyncWriteFiles[index])
 				endif
 			endcase
 		endselect
 	next
 	for index = asyncReadFiles.length to 0 step -1
+		//~ AddStatus("Checking " + asyncReadFiles[index])
 		select Steam.GetCloudFileReadAsyncCallbackState(asyncReadFiles[index])
 			case STATE_DONE
 				AddStatus(asyncReadFiles[index] + " - Async file read finished with result: " + str(Steam.GetCloudFileReadAsyncResult(asyncReadFiles[index])))
@@ -202,7 +225,7 @@ Function ProcessCallbacks()
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 				if not errorReported[ERROR_ASYNCREAD]
 					errorReported[ERROR_ASYNCREAD] = 1
-					AddStatus("ERROR: FileReadRead.")
+					AddStatus("ERROR: FileReadAsync: " + asyncReadFiles[index])
 				endif
 			endcase
 		endselect

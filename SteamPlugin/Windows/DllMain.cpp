@@ -285,6 +285,29 @@ char *GetCommandLineArgsJSON()
 	return CreateString(json.str());
 }
 
+#define STEAM_REGISTRY_SUBKEY "Software\\Valve\\Steam"
+#define STEAM_REGISTRY_VALUE "SteamPath"
+
+char *GetSteamPath()
+{
+	// Given a HKEY and value name returns a string from the registry.
+	// Upon successful return the string should be freed using free()
+	// eg. RegGetString(hKey, TEXT("my value"), &szString);
+	HKEY hKey = 0;
+	if (RegOpenKeyA(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, &hKey) == ERROR_SUCCESS)
+	{
+		DWORD dwType = REG_SZ;
+		CHAR szValue[1024];
+		DWORD dwDataSize = sizeof(szValue);
+		// Query string value
+		if (RegQueryValueExA(hKey, STEAM_REGISTRY_VALUE, NULL, &dwType, reinterpret_cast<LPBYTE>(&szValue), &dwDataSize) == ERROR_SUCCESS)
+		{
+			return CreateString(szValue);
+		}
+	}
+	return CreateString(NULL);
+}
+
 // App/DLC methods
 char *GetDLCDataJSON()
 {
@@ -594,6 +617,17 @@ int GetSteamID()
 {
 	CheckInitialized(0);
 	return GetSteamIDHandle(Steam->GetSteamID());
+}
+
+int GetAccountID(int hUserSteamID)
+{
+	CheckInitialized(0);
+	CSteamID steamID = GetSteamID(hUserSteamID);
+	if (steamID != k_steamIDNil)
+	{
+		return steamID.GetAccountID();
+	}
+	return 0;
 }
 
 char *GetSteamID3(int hUserSteamID)

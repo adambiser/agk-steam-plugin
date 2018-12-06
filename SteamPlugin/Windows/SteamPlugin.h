@@ -36,15 +36,6 @@ THE SOFTWARE.
 #define MAX_LEADERBOARD_ENTRIES 10
 #define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
 
-//enum ECallbackState
-//{
-//	ServerError = -2,
-//	ClientError = -1,
-//	Idle = 0,
-//	Running = 1,
-//	Done = 2
-//};
-
 enum EAvatarSize
 {
 	Small = 0,
@@ -457,12 +448,10 @@ public:
 	bool FileForget(const char *pchFile);
 	bool FilePersisted(const char *pchFile);
 	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
-
 	bool FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
 	ECallbackState GetFileReadAsyncCallbackState(const char *pchFile);
 	EResult GetFileReadAsyncResult(const char *pchFile);
 	int GetFileReadAsyncMemblock(const char *pchFile);
-
 	//SteamAPICall_t FileShare(const char *pchFile);
 	bool FileWrite(const char *pchFile, const void *pvData, int32 cubData);
 	bool FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);

@@ -50,6 +50,7 @@ extern "C" DLL_EXPORT int IsSteamIDValid(int hSteamID);
 extern "C" DLL_EXPORT int GetHandleFromSteamID64(char *steamID64);
 extern "C" DLL_EXPORT void RunCallbacks();
 extern "C" DLL_EXPORT char *GetCommandLineArgsJSON();
+extern "C" DLL_EXPORT char *GetSteamPath();
 // App/DLC methods
 extern "C" DLL_EXPORT char *GetDLCDataJSON();
 extern "C" DLL_EXPORT char *GetDLCDataByIndexJSON(int index);
@@ -90,6 +91,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url);
 extern "C" DLL_EXPORT int LoggedOn();
 extern "C" DLL_EXPORT char *GetPersonaName();
 extern "C" DLL_EXPORT int GetSteamID();
+extern "C" DLL_EXPORT int GetAccountID(int hUserSteamID);
 extern "C" DLL_EXPORT char *GetSteamID3(int hUserSteamID);
 extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
 extern "C" DLL_EXPORT int HasPersonaStateChanged();

@@ -240,7 +240,7 @@ void SteamPlugin::Shutdown()
 		m_nMinutesBatteryLeft = 255;
 		m_IsSteamShuttingDown = false;
 		FreeClearMap(m_FileWriteAsyncItemMap);
-		
+		FreeClearMap(m_FileReadAsyncItemMap);
 		//m_FileWriteAsyncCallbackState = Idle;
 		//m_FileWriteAsyncComplete = (EResult)0;
 	}
@@ -2019,14 +2019,7 @@ bool SteamPlugin::FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubT
 	CheckInitialized(SteamRemoteStorage, false);
 	std::string filename = pchFile;
 	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
-	if (item)
-	{
-		if (item->m_CallbackState == Running)
-		{
-			return false;
-		}
-	}
-	else
+	if (!item)
 	{
 		item = new CFileReadAsyncItem();
 		m_FileReadAsyncItemMap.insert_or_assign(filename, item);
@@ -2090,14 +2083,7 @@ bool SteamPlugin::FileWriteAsync(const char *pchFile, const void *pvData, uint32
 	CheckInitialized(SteamRemoteStorage, false);
 	std::string filename = pchFile;
 	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
-	if (item)
-	{
-		if (item->m_CallbackState == Running)
-		{
-			return false;
-		}
-	}
-	else
+	if (!item)
 	{
 		item = new CFileWriteAsyncItem();
 		m_FileWriteAsyncItemMap.insert_or_assign(filename, item);
