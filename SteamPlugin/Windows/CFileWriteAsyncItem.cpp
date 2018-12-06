@@ -51,7 +51,7 @@ bool CFileWriteAsyncItem::Call(const char *pchFile, const void *pvData, uint32 c
 		if (hSteamAPICall == k_uAPICallInvalid)
 		{
 			msg.str(std::string());
-			msg << "FileWriteAsync returned k_uAPICallInvalid.\npchFile: " << m_Filename << "\cubData: " << cubData;
+			msg << "FileWriteAsync returned k_uAPICallInvalid.\n pchFile: " << m_Filename << "\n cubData: " << cubData;
 			agk::PluginError(msg.str().c_str());
 			m_CallbackState = ClientError;
 			return false;
@@ -63,7 +63,7 @@ bool CFileWriteAsyncItem::Call(const char *pchFile, const void *pvData, uint32 c
 	catch (...)
 	{
 		msg.str(std::string());
-		msg << "FileWriteAsync returned k_uAPICallInvalid.\npchFile: " << m_Filename << "\cubData: " << cubData;
+		msg << "FileWriteAsync returned k_uAPICallInvalid.\n pchFile: " << m_Filename << "\n cubData: " << cubData;
 		agk::PluginError(msg.str().c_str());
 		m_CallbackState = ClientError;
 		return false;

@@ -506,7 +506,7 @@ Files default to k_ERemoteStoragePlatformAll when they are first created. You ca
 */
 extern "C" DLL_EXPORT bool SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform);
 // User-Generated Content
-//extern "C" DLL_EXPORT int32 GetCachedUGCCount();
+extern "C" DLL_EXPORT int GetCachedUGCCount();
 //extern "C" DLL_EXPORT UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
 //extern "C" DLL_EXPORT bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //extern "C" DLL_EXPORT bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);

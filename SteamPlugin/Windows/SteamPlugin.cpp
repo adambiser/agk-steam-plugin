@@ -2161,7 +2161,11 @@ bool SteamPlugin::SetSyncPlatforms(const char *pchFile, ERemoteStoragePlatform e
 }
 
 // User-Generated Content
-//int32 SteamPlugin::GetCachedUGCCount();
+int32 SteamPlugin::GetCachedUGCCount()
+{
+	CheckInitialized(SteamRemoteStorage, 0);
+	return SteamRemoteStorage()->GetCachedUGCCount();
+}
 //UGCHandle_t SteamPlugin::GetCachedUGCHandle(int32 iCachedContent);
 //bool SteamPlugin::GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //bool SteamPlugin::GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);

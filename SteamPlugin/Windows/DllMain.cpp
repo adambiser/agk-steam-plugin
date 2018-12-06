@@ -2197,7 +2197,12 @@ bool SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform)
 
 // User-Generated Content
 
-//int32 GetCachedUGCCount();
+int GetCachedUGCCount()
+{
+	CheckInitialized(0);
+	return Steam->GetCachedUGCCount();
+}
+
 //UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
 //bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);

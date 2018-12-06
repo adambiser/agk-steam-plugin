@@ -60,7 +60,7 @@ bool CFileReadAsyncItem::Call(const char *pchFile, uint32 nOffset, uint32 cubToR
 		if (hSteamAPICall == k_uAPICallInvalid)
 		{
 			msg.str(std::string());
-			msg << "FileReadAsync returned k_uAPICallInvalid.\npchFile: " << m_Filename << "\nnOffset: " << nOffset << "\ncubToRead: " << cubToRead;
+			msg << "FileReadAsync returned k_uAPICallInvalid.\n pchFile: " << m_Filename << "\n nOffset: " << nOffset << "\n cubToRead: " << cubToRead;
 			agk::PluginError(msg.str().c_str());
 			m_CallbackState = ClientError;
 			return false;
@@ -72,7 +72,7 @@ bool CFileReadAsyncItem::Call(const char *pchFile, uint32 nOffset, uint32 cubToR
 	catch (...)
 	{
 		msg.str(std::string());
-		msg << "FileReadAsync failed.\npchFile: " << m_Filename << "\nnOffset: " << nOffset << "\ncubToRead: " << cubToRead;
+		msg << "FileReadAsync failed.\n pchFile: " << m_Filename << "\n nOffset: " << nOffset << "\n cubToRead: " << cubToRead;
 		agk::PluginError(msg.str().c_str());
 		m_CallbackState = ClientError;
 		return false;
@@ -95,7 +95,7 @@ void CFileReadAsyncItem::OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileR
 		else
 		{
 			msg.str(std::string());
-			msg << "FileReadAsyncComplete failed.\nm_Filename: " << m_Filename;
+			msg << "FileReadAsyncComplete failed.\n m_Filename: " << m_Filename;
 			agk::PluginError(msg.str().c_str());
 			agk::DeleteMemblock(m_MemblockID);
 			m_MemblockID = 0;
