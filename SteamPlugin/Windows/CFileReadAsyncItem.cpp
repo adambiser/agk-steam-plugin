@@ -60,19 +60,20 @@ bool CFileReadAsyncItem::Call(const char *pchFile, uint32 nOffset, uint32 cubToR
 		if (hSteamAPICall == k_uAPICallInvalid)
 		{
 			msg.str(std::string());
-			msg << "FileReadAsync returned k_uAPICallInvalid:\npchFile: " << m_Filename << "\nnOffset: " << nOffset << "\ncubToRead: " << cubToRead;
+			msg << "FileReadAsync returned k_uAPICallInvalid.\npchFile: " << m_Filename << "\nnOffset: " << nOffset << "\ncubToRead: " << cubToRead;
 			agk::PluginError(msg.str().c_str());
 			m_CallbackState = ClientError;
 			return false;
 		}
 		m_CallResult.Set(hSteamAPICall, this, &CFileReadAsyncItem::OnRemoteStorageFileReadAsyncComplete);
 		m_CallbackState = Running;
-		agk::Log("CFileReadAsyncItem is running.");
 		return true;
 	}
 	catch (...)
 	{
-		agk::Log("CFileReadAsyncItem had an error.");
+		msg.str(std::string());
+		msg << "FileReadAsync failed.\npchFile: " << m_Filename << "\nnOffset: " << nOffset << "\ncubToRead: " << cubToRead;
+		agk::PluginError(msg.str().c_str());
 		m_CallbackState = ClientError;
 		return false;
 	}
@@ -82,19 +83,20 @@ void CFileReadAsyncItem::OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileR
 {
 	m_Result = pResult->m_eResult;
 	std::ostringstream msg;
-	msg << "OnRemoteStorageFileReadAsyncComplete: " << m_Filename << ".  Result = " << pResult->m_eResult;
+	msg << "OnRemoteStorageFileReadAsyncComplete: " << m_Filename << ", m_eResult = " << pResult->m_eResult;
 	agk::Log(msg.str().c_str());
 	if (pResult->m_eResult == k_EResultOK) // && !bFailure)
 	{
 		m_MemblockID = agk::CreateMemblock(pResult->m_cubRead);
 		if (SteamRemoteStorage()->FileReadAsyncComplete(pResult->m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), pResult->m_cubRead))
 		{
-			agk::Log("FileReadAsyncComplete retrieved data.");
 			m_CallbackState = Done;
 		}
 		else
 		{
-			agk::PluginError("ERROR: FileReadAsyncComplete failed.");
+			msg.str(std::string());
+			msg << "FileReadAsyncComplete failed.\nm_Filename: " << m_Filename;
+			agk::PluginError(msg.str().c_str());
 			agk::DeleteMemblock(m_MemblockID);
 			m_MemblockID = 0;
 			m_CallbackState = ServerError;

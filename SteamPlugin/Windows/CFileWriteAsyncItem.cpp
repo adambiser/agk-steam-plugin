@@ -43,14 +43,16 @@ bool CFileWriteAsyncItem::Call(const char *pchFile, const void *pvData, uint32 c
 	}
 	m_Filename = pchFile;
 	std::ostringstream msg;
-	msg << "FileWriteAsync: " << m_Filename;
+	msg << "FileWriteAsync: " << m_Filename << ", cubData: " << cubData;
 	agk::Log(msg.str().c_str());
 	try
 	{
 		SteamAPICall_t hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(pchFile, pvData, cubData);
 		if (hSteamAPICall == k_uAPICallInvalid)
 		{
-			agk::Log("CFileWriteAsyncItem received k_uAPICallInvalid.");
+			msg.str(std::string());
+			msg << "FileWriteAsync returned k_uAPICallInvalid.\npchFile: " << m_Filename << "\cubData: " << cubData;
+			agk::PluginError(msg.str().c_str());
 			m_CallbackState = ClientError;
 			return false;
 		}
@@ -60,7 +62,9 @@ bool CFileWriteAsyncItem::Call(const char *pchFile, const void *pvData, uint32 c
 	}
 	catch (...)
 	{
-		agk::Log("CFileWriteAsyncItem had an error.");
+		msg.str(std::string());
+		msg << "FileWriteAsync returned k_uAPICallInvalid.\npchFile: " << m_Filename << "\cubData: " << cubData;
+		agk::PluginError(msg.str().c_str());
 		m_CallbackState = ClientError;
 		return false;
 	}
