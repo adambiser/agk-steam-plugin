@@ -300,13 +300,15 @@ CloudFileExists,I,S,CloudFileExists,0,0,0,0,0
 CloudFileForget,I,S,CloudFileForget,0,0,0,0,0
 CloudFilePersisted,I,S,CloudFilePersisted,0,0,0,0,0
 CloudFileRead,I,S,CloudFileRead,0,0,0,0,0
-#SteamAPICall_t CloudFileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-#bool CloudFileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+CloudFileReadAsync,I,SII,CloudFileReadAsync,0,0,0,0,0
+GetCloudFileReadAsyncCallbackState,I,S,GetCloudFileReadAsyncCallbackState,0,0,0,0,0
+GetCloudFileReadAsyncResult,I,S,GetCloudFileReadAsyncResult,0,0,0,0,0
+GetCloudFileReadAsyncMemblock,I,S,GetCloudFileReadAsyncMemblock,0,0,0,0,0
 #SteamAPICall_t CloudFileShare(const char *pchFile);
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,0
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,0
-GetCloudFileWriteAsyncCallbackState,I,0,GetCloudFileWriteAsyncCallbackState,0,0,0,0,0
-GetCloudFileWriteAsyncComplete,I,0,GetCloudFileWriteAsyncComplete,0,0,0,0,0
+GetCloudFileWriteAsyncCallbackState,I,S,GetCloudFileWriteAsyncCallbackState,0,0,0,0,0
+GetCloudFileWriteAsyncResult,I,S,GetCloudFileWriteAsyncResult,0,0,0,0,0
 #bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 #bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 #UGCFileWriteStreamHandle_t CloudFileWriteStreamOpen(const char *pchFile);

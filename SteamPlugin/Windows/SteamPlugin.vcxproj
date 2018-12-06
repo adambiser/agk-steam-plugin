@@ -103,6 +103,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
+    <ClCompile Include="CFileReadAsyncItem.cpp" />
+    <ClCompile Include="CFileWriteAsyncItem.cpp" />
     <ClCompile Include="DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -115,6 +117,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
+    <ClInclude Include="CFileReadAsyncItem.h" />
+    <ClInclude Include="CFileWriteAsyncItem.h" />
     <ClInclude Include="DllMain.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SteamPlugin.h" />

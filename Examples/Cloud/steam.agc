@@ -4,7 +4,8 @@
 #constant SYNC_WRITE_BUTTON				2
 #constant SYNC_READ_BUTTON				3
 #constant ASYNC_WRITE_BUTTON			4
-#constant DELETE_BUTTON					5
+#constant ASYNC_READ_BUTTON				5
+#constant DELETE_BUTTON					6
 
 // This array stores the valid DLC AppIDs for this app.
 global dlcAppIDs as integer[]
@@ -12,7 +13,7 @@ global dlcAppIDs as integer[]
 global dlcsToDownload as integer[]
 global dlcsToUninstall as integer[]
 
-global buttonText as string[4] = ["TOGGLE_ENABLED", "SYNC_WRITE", "SYNC_READ", "ASYNC_WRITE", "DELETE"]
+global buttonText as string[5] = ["TOGGLE_ENABLED", "SYNC_WRITE", "SYNC_READ", "ASYNC_WRITE", "ASYNC_READ", "DELETE"]
 x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
@@ -104,6 +105,10 @@ Function CheckInput()
 		AddStatus("Async write: " + TEST_FILE_NAME)
 		AsyncWrite(TEST_FILE_NAME)
 	endif
+	if GetVirtualButtonPressed(ASYNC_READ_BUTTON)
+		AddStatus("Async read: " + TEST_FILE_NAME)
+		AsyncRead(TEST_FILE_NAME)
+	endif
 	if GetVirtualButtonPressed(DELETE_BUTTON)
 		AddStatus("Deleting: " + TEST_FILE_NAME)
 		AddStatus("Success = " + TF(Steam.CloudFileDelete(TEST_FILE_NAME)))
@@ -120,11 +125,16 @@ Function SyncWrite(filename as string)
 	DeleteMemblock(memblock)
 EndFunction
 
+global asyncWriteFiles as string[]
+
 Function AsyncWrite(filename as string)
 	memblock as integer
 	memblock = CreateMemblock(7)
 	SetMemblockString(memblock, 0, "Hello!")
 	AddStatus("Success = " + TF(Steam.CloudFileWriteAsync(filename, memblock)))
+	AddStatus("Success = " + TF(Steam.CloudFileWriteAsync("test2.txt", memblock)))
+	asyncWriteFiles.insert(filename)
+	asyncWriteFiles.insert("test2.txt")
 	// %STEAMPATH%\userdata\[USERID]\[APPID]\remote
 	DeleteMemblock(memblock)
 EndFunction
@@ -140,25 +150,64 @@ Function SyncRead(filename as string)
 	endif
 EndFunction
 
+global asyncReadFiles as string[]
+
+Function AsyncRead(filename as string)
+	if Steam.CloudFileReadAsync(filename, 0, -1)
+		asyncReadFiles.insert(filename)
+	endif
+	if Steam.CloudFileReadAsync("test2.txt", 0, -1)
+		asyncReadFiles.insert("test2.txt")
+	endif
+EndFunction
+
 // Used to keep track of reported errors so they are only shown once.
-global errorReported as integer[0]
+global errorReported as integer[1]
 #constant ERROR_ASYNCWRITE		0
+#constant ERROR_ASYNCREAD		1
 
 //
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
-	select Steam.GetCloudFileWriteAsyncCallbackState()
-		case STATE_DONE
-			AddStatus("Async file write finished with code: " + str(Steam.GetCloudFileWriteAsyncComplete()))
-		endcase
-		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-			if not errorReported[ERROR_ASYNCWRITE]
-				errorReported[ERROR_ASYNCWRITE] = 1
-				AddStatus("ERROR: UploadLeaderboardScore.  Did you upload scores too often?")
-			endif
-		endcase
-	endselect
+	index as integer
+	for index = asyncWriteFiles.length to 0 step -1
+		select Steam.GetCloudFileWriteAsyncCallbackState(asyncWriteFiles[index])
+			case STATE_DONE
+				AddStatus(asyncWriteFiles[index] + " - Async file write finished with result: " + str(Steam.GetCloudFileWriteAsyncResult(asyncWriteFiles[index])))
+				asyncWriteFiles.remove(index)
+			endcase
+			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+				if not errorReported[ERROR_ASYNCWRITE]
+					errorReported[ERROR_ASYNCWRITE] = 1
+					AddStatus("ERROR: FileWriteAsync.")
+				endif
+			endcase
+		endselect
+	next
+	for index = asyncReadFiles.length to 0 step -1
+		select Steam.GetCloudFileReadAsyncCallbackState(asyncReadFiles[index])
+			case STATE_DONE
+				AddStatus(asyncReadFiles[index] + " - Async file read finished with result: " + str(Steam.GetCloudFileReadAsyncResult(asyncReadFiles[index])))
+				memblock as integer
+				memblock = Steam.GetCloudFileReadAsyncMemblock(asyncReadFiles[index])
+				if memblock
+					AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(asyncReadFiles[index])))
+					DeleteMemblock(memblock)
+				else
+					AddStatus("File does not exist") 
+				endif
+				asyncReadFiles.remove(index)
+			endcase
+			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+				if not errorReported[ERROR_ASYNCREAD]
+					errorReported[ERROR_ASYNCREAD] = 1
+					AddStatus("ERROR: FileReadRead.")
+				endif
+			endcase
+		endselect
+	next
+	
 	//~ x as integer
 	//~ If Steam.HasNewLaunchQueryParameters() // Reports when a steam://run/ command is called while running.
 		//~ AddStatus("HasNewLaunchQueryParameters.  param1 = " + Steam.GetLaunchQueryParam("param1"))

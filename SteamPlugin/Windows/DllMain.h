@@ -29,12 +29,15 @@ THE SOFTWARE.
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
 
-// These match ECallbackState in SteamPlugin.h
-#define STATE_SERVER_ERROR	-2
-#define STATE_CLIENT_ERROR	-1
-#define STATE_IDLE			0
-#define STATE_RUNNING		1
-#define STATE_DONE			2
+// Callback states
+enum ECallbackState
+{
+	ServerError = -2,
+	ClientError = -1,
+	Idle = 0,
+	Running = 1,
+	Done = 2
+};
 
 // General methods.
 extern "C" DLL_EXPORT int Init();
@@ -379,8 +382,10 @@ Returns 0 if the file doesn't exist or the read fails.
 @api ISteamRemoteStorage#FileRead
 */
 extern "C" DLL_EXPORT int CloudFileRead(char *filename);
-//extern "C" DLL_EXPORT SteamAPICall_t CloudFileReadAsync(const char *filename, uint32 nOffset, uint32 cubToRead);
-//extern "C" DLL_EXPORT bool CloudFileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+extern "C" DLL_EXPORT int CloudFileReadAsync(char *filename, int offset, int length);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncCallbackState(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncResult(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(char *filename);
 //extern "C" DLL_EXPORT SteamAPICall_t CloudFileShare(const char *filename);
 /*
 @desc
@@ -403,8 +408,8 @@ Otherwise, 0 under the following conditions:
 */
 extern "C" DLL_EXPORT int CloudFileWrite(char *filename, int memblockID);
 extern "C" DLL_EXPORT int CloudFileWriteAsync(char *filename, int memblockID);
-extern "C" DLL_EXPORT int GetCloudFileWriteAsyncCallbackState();
-extern "C" DLL_EXPORT int GetCloudFileWriteAsyncComplete();
+extern "C" DLL_EXPORT int GetCloudFileWriteAsyncCallbackState(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileWriteAsyncResult(char *filename);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *filename);

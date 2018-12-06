@@ -29,18 +29,21 @@ THE SOFTWARE.
 #include <vector>
 //#include <thread>
 #include <mutex>
+#include "DllMain.h"
+#include "CFileWriteAsyncItem.h"
+#include "CFileReadAsyncItem.h"
 
 #define MAX_LEADERBOARD_ENTRIES 10
 #define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
 
-enum ECallbackState
-{
-	ServerError = -2,
-	ClientError = -1,
-	Idle = 0,
-	Running = 1,
-	Done = 2
-};
+//enum ECallbackState
+//{
+//	ServerError = -2,
+//	ClientError = -1,
+//	Idle = 0,
+//	Running = 1,
+//	Done = 2
+//};
 
 enum EAvatarSize
 {
@@ -49,16 +52,8 @@ enum EAvatarSize
 	Large = 2
 };
 
-//class CFileWriteAsync {
-//private:
-//public:
-//	ECallbackState m_CallbackState;
-//	EResult m_Result;
-//	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
-//	CCallResult<SteamPlugin, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
-//};
-
-class SteamPlugin {
+class SteamPlugin
+{
 private:
 	// General methods.
 	uint64 m_AppID;
@@ -197,11 +192,11 @@ private:
 	};
 	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
 	// Cloud method: FileWriteAsync
-	//STEAM_CALLBACK(SteamPlugin, OnRemoteStorageFileWriteAsyncComplete, RemoteStorageFileWriteAsyncComplete_t, m_CallbackRemoteStorageFileWriteAsyncComplete);
-	ECallbackState m_FileWriteAsyncCallbackState;
-	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
-	CCallResult<SteamPlugin, RemoteStorageFileWriteAsyncComplete_t> m_CallResultFileWriteAsync;
-	EResult m_FileWriteAsyncComplete;
+	CFileWriteAsyncItem *GetFileWriteAsyncItem(std::string filename);
+	std::map<std::string, CFileWriteAsyncItem*> m_FileWriteAsyncItemMap;
+	// Cloud method: FileReadAsync
+	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
+	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -462,13 +457,17 @@ public:
 	bool FileForget(const char *pchFile);
 	bool FilePersisted(const char *pchFile);
 	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
-	//SteamAPICall_t FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-	//bool FileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+
+	bool FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	ECallbackState GetFileReadAsyncCallbackState(const char *pchFile);
+	EResult GetFileReadAsyncResult(const char *pchFile);
+	int GetFileReadAsyncMemblock(const char *pchFile);
+
 	//SteamAPICall_t FileShare(const char *pchFile);
 	bool FileWrite(const char *pchFile, const void *pvData, int32 cubData);
 	bool FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);
-	ECallbackState GetFileWriteAsyncCallbackState() { return getCallbackState(&m_FileWriteAsyncCallbackState); }
-	EResult GetFileWriteAsyncComplete() { return m_FileWriteAsyncComplete; }
+	ECallbackState GetFileWriteAsyncCallbackState(const char *pchFile);
+	EResult GetFileWriteAsyncResult(const char *pchFile);
 	//bool FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 	//bool FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 	//UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *pchFile);

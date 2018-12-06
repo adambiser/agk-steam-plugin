@@ -26,8 +26,8 @@ THE SOFTWARE.
 #include <steam_api.h>
 //#include <steam_gameserver.h>
 #include "SteamPlugin.h"
-#include "DllMain.h"
 #include <string>
+#include <sstream>
 #include "..\AGKLibraryCommands.h"
 
 #pragma comment(lib, "steam_api.lib")
@@ -42,7 +42,59 @@ THE SOFTWARE.
 extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
 {
 	agk::Log(pchDebugText);
-} 
+}
+
+template <typename M> void FreeClearMap(M & map)
+{
+	for (typename M::iterator iter = map.begin(); iter != map.end(); iter++) {
+		delete[] iter->second;
+	}
+	map.clear();
+}
+
+//CFileWriteAsyncItem::CFileWriteAsyncItem() :
+//	m_CallbackState(Idle),
+//	m_Result((EResult)0)
+//{
+//}
+//
+//bool CFileWriteAsyncItem::Call(const char *pchFile, const void *pvData, uint32 cubData)
+//{
+//	m_Filename = pchFile;
+//	std::ostringstream msg;
+//	msg << "FileWriteAsync: " << m_Filename << ".";
+//	agk::Log(msg.str().c_str());
+//	try
+//	{
+//		SteamAPICall_t hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(pchFile, pvData, cubData);
+//		m_CallResult.Set(hSteamAPICall, this, &CFileWriteAsyncItem::OnRemoteStorageFileWriteAsyncComplete);
+//		m_CallbackState = Running;
+//		return true;
+//	}
+//	catch (...)
+//	{
+//		m_CallbackState = ClientError;
+//		return false;
+//	}
+//}
+//
+//void CFileWriteAsyncItem::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure)
+//{
+//	m_Result = pResult->m_eResult;
+//	std::ostringstream msg;
+//	msg << "RemoteStorageFileWriteAsyncComplete: " << m_Filename << " = ";
+//	if (pResult->m_eResult == k_EResultOK && !bFailure)
+//	{
+//		msg << "success";
+//		m_CallbackState = Done;
+//	}
+//	else
+//	{
+//		msg << "error: " << pResult->m_eResult;
+//		m_CallbackState = ServerError;
+//	}
+//	agk::Log(msg.str().c_str());
+//}
 
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
@@ -103,9 +155,7 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackLowBatteryPower(this, &SteamPlugin::OnLowBatteryPower),
 	m_IsSteamShuttingDown(false),
 	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
-	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed),
-	m_FileWriteAsyncCallbackState(Idle),
-	m_FileWriteAsyncComplete((EResult)0)
+	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
 	// Nothing for now
 }
@@ -189,8 +239,10 @@ void SteamPlugin::Shutdown()
 		m_HasLowBatteryWarning = false;
 		m_nMinutesBatteryLeft = 255;
 		m_IsSteamShuttingDown = false;
-		m_FileWriteAsyncCallbackState = Idle;
-		m_FileWriteAsyncComplete = (EResult)0;
+		FreeClearMap(m_FileWriteAsyncItemMap);
+		
+		//m_FileWriteAsyncCallbackState = Idle;
+		//m_FileWriteAsyncComplete = (EResult)0;
 	}
 }
 
@@ -1952,8 +2004,69 @@ int32 SteamPlugin::FileRead(const char *pchFile, void *pvData, int32 cubDataToRe
 	return SteamRemoteStorage()->FileRead(pchFile, pvData, cubDataToRead);
 }
 
-//SteamAPICall_t SteamPlugin::FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-//bool SteamPlugin::FileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+CFileReadAsyncItem *SteamPlugin::GetFileReadAsyncItem(std::string filename)
+{
+	auto search = m_FileReadAsyncItemMap.find(filename);
+	if (search != m_FileReadAsyncItemMap.end())
+	{
+		return search->second;
+	}
+	return NULL;
+}
+
+bool SteamPlugin::FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead)
+{
+	CheckInitialized(SteamRemoteStorage, false);
+	std::string filename = pchFile;
+	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
+	if (item)
+	{
+		if (item->m_CallbackState == Running)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		item = new CFileReadAsyncItem();
+		m_FileReadAsyncItemMap.insert_or_assign(filename, item);
+	}
+	return item->Call(pchFile, nOffset, cubToRead);
+}
+
+ECallbackState SteamPlugin::GetFileReadAsyncCallbackState(const char *pchFile)
+{
+	std::string filename = pchFile;
+	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
+	if (item)
+	{
+		return getCallbackState(&item->m_CallbackState);
+	}
+	return Idle;
+}
+
+EResult SteamPlugin::GetFileReadAsyncResult(const char *pchFile)
+{
+	std::string filename = pchFile;
+	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
+	if (item)
+	{
+		return item->m_Result;
+	}
+	return (EResult)0;
+}
+
+int SteamPlugin::GetFileReadAsyncMemblock(const char *pchFile)
+{
+	std::string filename = pchFile;
+	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
+	if (item)
+	{
+		return item->m_MemblockID;
+	}
+	return 0;
+}
+
 //SteamAPICall_t SteamPlugin::FileShare(const char *pchFile);
 
 bool SteamPlugin::FileWrite(const char *pchFile, const void *pvData, int32 cubData)
@@ -1962,71 +2075,57 @@ bool SteamPlugin::FileWrite(const char *pchFile, const void *pvData, int32 cubDa
 	return SteamRemoteStorage()->FileWrite(pchFile, pvData, cubData);
 }
 
-/*
-bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
+CFileWriteAsyncItem *SteamPlugin::GetFileWriteAsyncItem(std::string filename)
 {
-	CheckInitialized(SteamUserStats, false);
-	// Fail when the callback is currently running.
-	if (m_FindLeaderboardCallbackState == Running)
+	auto search = m_FileWriteAsyncItemMap.find(filename);
+	if (search != m_FileWriteAsyncItemMap.end())
 	{
-		return false;
+		return search->second;
 	}
-	try
-	{
-		// Clear result structure.
-		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
-		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
-		SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
-		m_CallResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
-		m_FindLeaderboardCallbackState = Running;
-		return true;
-	}
-	catch (...)
-	{
-		m_FindLeaderboardCallbackState = ClientError;
-		return false;
-	}
+	return NULL;
 }
-*/
+
 bool SteamPlugin::FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData)
 {
 	CheckInitialized(SteamRemoteStorage, false);
-	// Fail when the callback is currently running.
-	if (m_FileWriteAsyncCallbackState == Running)
+	std::string filename = pchFile;
+	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
+	if (item)
 	{
-		return false;
-	}
-	try
-	{
-		// Clear result structure.
-		m_FileWriteAsyncComplete = (EResult)0;
-		SteamAPICall_t hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(pchFile, pvData, cubData);
-		m_CallResultFileWriteAsync.Set(hSteamAPICall, this, &SteamPlugin::OnRemoteStorageFileWriteAsyncComplete);
-		m_FileWriteAsyncCallbackState = Running;
-		return true;
-	}
-	catch (...)
-	{
-		m_FileWriteAsyncCallbackState = ClientError;
-		return false;
-	}
-}
-
-void SteamPlugin::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pCallback, bool bIOFailure)
-{
-	m_FileWriteAsyncComplete = pCallback->m_eResult;
-	if (pCallback->m_eResult == k_EResultOK && !bIOFailure)
-	{
-		agk::Log("Callback: Remote Storage File Write Async Succeeded");
-		m_FileWriteAsyncCallbackState = Done;
+		if (item->m_CallbackState == Running)
+		{
+			return false;
+		}
 	}
 	else
 	{
-		agk::Log("Callback: Remote Storage File Write Async Failed");
-		m_FileWriteAsyncCallbackState = ServerError;
+		item = new CFileWriteAsyncItem();
+		m_FileWriteAsyncItemMap.insert_or_assign(filename, item);
 	}
+	return item->Call(pchFile, pvData, cubData);
 }
 
+ECallbackState SteamPlugin::GetFileWriteAsyncCallbackState(const char *pchFile)
+{
+	std::string filename = pchFile;
+	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
+	if (item)
+	{
+		return getCallbackState(&item->m_CallbackState);
+	}
+	return Idle;
+}
+
+EResult SteamPlugin::GetFileWriteAsyncResult(const char *pchFile)
+{
+	std::string filename = pchFile;
+	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
+	if (item)
+	{
+		return item->m_Result;
+	}
+	return (EResult)0;
+}
 
 //bool SteamPlugin::FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 //bool SteamPlugin::FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);

@@ -852,7 +852,7 @@ int RequestStats()
 
 int GetRequestStatsCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetRequestStatsCallbackState();
 }
 
@@ -888,7 +888,7 @@ int ResetAllStats(int bAchievementsToo)
 
 int GetStoreStatsCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetStoreStatsCallbackState();
 }
 
@@ -1089,7 +1089,7 @@ int FindLeaderboard(const char *pchLeaderboardName)
 
 int GetFindLeaderboardCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetFindLeaderboardCallbackState();
 }
 
@@ -1137,7 +1137,7 @@ int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 
 int GetUploadLeaderboardScoreCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetUploadLeaderboardScoreCallbackState();
 }
 
@@ -1179,7 +1179,7 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 
 int GetDownloadLeaderboardEntriesCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetDownloadLeaderboardEntriesCallbackState();
 }
 
@@ -1251,7 +1251,7 @@ int RequestLobbyList()
 
 int GetLobbyMatchListCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetLobbyMatchListCallbackState();
 }
 
@@ -1316,7 +1316,7 @@ int JoinLobby(int hLobbySteamID)
 
 int GetLobbyEnterCallbackState()
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
+	CheckInitialized(ClientError);
 	return Steam->GetLobbyEnterCallbackState();
 }
 
@@ -1978,8 +1978,35 @@ int CloudFileRead(char *filename)
 	return 0;
 }
 
-//SteamAPICall_t CloudFileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-//bool CloudFileReadAsyncComplete(SteamAPICall_t hReadCall, void *pvBuffer, uint32 cubToRead);
+int CloudFileReadAsync(char *filename, int offset, int length)
+{
+	CheckInitialized(false);
+	if (length == -1)
+	{
+		length = Steam->GetFileSize(filename);
+	}
+	return Steam->FileReadAsync(filename, offset, length);
+}
+
+int GetCloudFileReadAsyncCallbackState(char *filename)
+{
+	CheckInitialized(ClientError);
+	return Steam->GetFileReadAsyncCallbackState(filename);
+}
+
+int GetCloudFileReadAsyncResult(char *filename)
+{
+	CheckInitialized(0);
+	return Steam->GetFileReadAsyncResult(filename);
+}
+
+int GetCloudFileReadAsyncMemblock(char *filename)
+{
+	CheckInitialized(0);
+	return Steam->GetFileReadAsyncMemblock(filename);
+}
+
+
 //SteamAPICall_t CloudFileShare(const char *pchFile);
 
 int CloudFileWrite(char *filename, int memblockID)
@@ -2002,16 +2029,16 @@ int CloudFileWriteAsync(char *filename, int memblockID)
 	return false;
 }
 
-int GetCloudFileWriteAsyncCallbackState()
+int GetCloudFileWriteAsyncCallbackState(char *filename)
 {
-	CheckInitialized(STATE_CLIENT_ERROR);
-	return Steam->GetFileWriteAsyncCallbackState();
+	CheckInitialized(ClientError);
+	return Steam->GetFileWriteAsyncCallbackState(filename);
 }
 
-int GetCloudFileWriteAsyncComplete()
+int GetCloudFileWriteAsyncResult(char *filename)
 {
 	CheckInitialized(0);
-	return (int)Steam->GetFileWriteAsyncComplete();
+	return (int)Steam->GetFileWriteAsyncResult(filename);
 }
 
 //bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
