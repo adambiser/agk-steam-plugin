@@ -82,10 +82,10 @@ extern "C" DLL_EXPORT int MarkContentCorrupt(int missingFilesOnly);
 extern "C" DLL_EXPORT void UninstallDLC(int appID);
 // Overlay methods
 extern "C" DLL_EXPORT int IsGameOverlayActive();
-extern "C" DLL_EXPORT void ActivateGameOverlay(const char *pchDialog);
+extern "C" DLL_EXPORT void ActivateGameOverlay(const char *dialogName);
 extern "C" DLL_EXPORT void ActivateGameOverlayInviteDialog(int hLobbySteamID);
 extern "C" DLL_EXPORT void ActivateGameOverlayToStore(int appID, int flag);
-extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *pchDialog, int hSteamID);
+extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *dialogName, int hSteamID);
 extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url);
 // User/Friend methods
 extern "C" DLL_EXPORT int LoggedOn();
@@ -132,23 +132,23 @@ extern "C" DLL_EXPORT int AchievementStored();
 // Achievements methods.
 extern "C" DLL_EXPORT int GetNumAchievements();
 extern "C" DLL_EXPORT char *GetAchievementID(int index);
-extern "C" DLL_EXPORT char *GetAchievementDisplayName(const char *pchName);
-extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *pchName);
-extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *pchName);
-extern "C" DLL_EXPORT int GetAchievementIcon(const char *pchName);
-extern "C" DLL_EXPORT int GetAchievement(const char *pchName);
-extern "C" DLL_EXPORT int GetAchievementUnlockTime(const char *pchName);
-extern "C" DLL_EXPORT int SetAchievement(const char *pchName);
-extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *pchName, int nCurProgress, int nMaxProgress);
-extern "C" DLL_EXPORT int ClearAchievement(const char *pchName);
+extern "C" DLL_EXPORT char *GetAchievementDisplayName(const char *name);
+extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *name);
+extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *name);
+extern "C" DLL_EXPORT int GetAchievementIcon(const char *name);
+extern "C" DLL_EXPORT int GetAchievement(const char *name);
+extern "C" DLL_EXPORT int GetAchievementUnlockTime(const char *name);
+extern "C" DLL_EXPORT int SetAchievement(const char *name);
+extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *name, int nCurProgress, int nMaxProgress);
+extern "C" DLL_EXPORT int ClearAchievement(const char *name);
 // User stats methods.
-extern "C" DLL_EXPORT int GetStatInt(const char *pchName);
-extern "C" DLL_EXPORT float GetStatFloat(const char *pchName);
-extern "C" DLL_EXPORT int SetStatInt(const char *pchName, int nData);
-extern "C" DLL_EXPORT int SetStatFloat(const char *pchName, float fData);
-extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *pchName, float flCountThisSession, float dSessionLength);
+extern "C" DLL_EXPORT int GetStatInt(const char *name);
+extern "C" DLL_EXPORT float GetStatFloat(const char *name);
+extern "C" DLL_EXPORT int SetStatInt(const char *name, int nData);
+extern "C" DLL_EXPORT int SetStatFloat(const char *name, float fData);
+extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float flCountThisSession, float dSessionLength);
 // Leaderboards
-extern "C" DLL_EXPORT int FindLeaderboard(const char *pchLeaderboardName);
+extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 extern "C" DLL_EXPORT int GetFindLeaderboardCallbackState();
 extern "C" DLL_EXPORT int GetLeaderboardHandle();
 extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard);
@@ -173,10 +173,10 @@ extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
 // Lobby methods: List
 extern "C" DLL_EXPORT void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter);
 extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable);
-extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *pchKeyToMatch, int valueToBeCloseTo);
-extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(char *pchKeyToMatch, int valueToMatch, int eComparisonType);
+extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *keyToMatch, int valueToBeCloseTo);
+extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(char *keyToMatch, int valueToMatch, int eComparisonType);
 extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults);
-extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(char *pchKeyToMatch, char *pchValueToMatch, int eComparisonType);
+extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(char *keyToMatch, char *valueToMatch, int eComparisonType);
 extern "C" DLL_EXPORT int RequestLobbyList(); //  LobbyMatchList_t call result.
 extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
 extern "C" DLL_EXPORT int GetLobbyMatchListCount();
@@ -187,7 +187,7 @@ extern "C" DLL_EXPORT int GetLobbyCreateCallbackState();
 extern "C" DLL_EXPORT int GetLobbyCreatedID();
 extern "C" DLL_EXPORT int GetLobbyCreatedResult();
 //extern "C" DLL_EXPORT int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID);
-extern "C" DLL_EXPORT int SetLobbyJoinable(int hLobbySteamID, bool lobbyJoinable);
+extern "C" DLL_EXPORT int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable);
 extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType);
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
 extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
@@ -504,14 +504,14 @@ Files default to k_ERemoteStoragePlatformAll when they are first created. You ca
 @return 1 if the file exists, otherwise 0.
 @api ISteamRemoteStorage#SetSyncPlatforms
 */
-extern "C" DLL_EXPORT bool SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform);
+extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform);
 // User-Generated Content
 extern "C" DLL_EXPORT int GetCachedUGCCount();
 //extern "C" DLL_EXPORT UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
-//extern "C" DLL_EXPORT bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+//extern "C" DLL_EXPORT bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //extern "C" DLL_EXPORT bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
 //extern "C" DLL_EXPORT SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
-//extern "C" DLL_EXPORT SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+//extern "C" DLL_EXPORT SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *location, uint32 unPriority);
 //extern "C" DLL_EXPORT int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
 #endif // DLLMAIN_H_

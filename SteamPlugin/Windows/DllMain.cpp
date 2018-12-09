@@ -577,10 +577,10 @@ int IsGameOverlayActive()
 	return Steam->IsGameOverlayActive();
 }
 
-void ActivateGameOverlay(const char *pchDialog)
+void ActivateGameOverlay(const char *dialogName)
 {
 	CheckInitialized(NORETURN);
-	Steam->ActivateGameOverlay(pchDialog);
+	Steam->ActivateGameOverlay(dialogName);
 }
 
 void ActivateGameOverlayInviteDialog(int hLobbySteamID)
@@ -595,10 +595,10 @@ void ActivateGameOverlayToStore(int appID, int flag)
 	Steam->ActivateGameOverlayToStore(appID, (EOverlayToStoreFlag)flag);
 }
 
-void ActivateGameOverlayToUser(const char *pchDialog, int hSteamID)
+void ActivateGameOverlayToUser(const char *dialogName, int hSteamID)
 {
 	CheckInitialized(NORETURN);
-	Steam->ActivateGameOverlayToUser(pchDialog, GetSteamID(hSteamID));
+	Steam->ActivateGameOverlayToUser(dialogName, GetSteamID(hSteamID));
 }
 
 void ActivateGameOverlayToWebPage(const char *url)
@@ -965,28 +965,28 @@ char *GetAchievementID(int index)
 	return CreateString(Steam->GetAchievementID(index));
 }
 
-char *GetAchievementDisplayName(const char *pchName)
+char *GetAchievementDisplayName(const char *name)
 {
 	CheckInitialized(CreateString(NULL));
-	return CreateString(Steam->GetAchievementDisplayAttribute(pchName, "name"));
+	return CreateString(Steam->GetAchievementDisplayAttribute(name, "name"));
 }
 
-char *GetAchievementDisplayDesc(const char *pchName)
+char *GetAchievementDisplayDesc(const char *name)
 {
 	CheckInitialized(CreateString(NULL));
-	return CreateString(Steam->GetAchievementDisplayAttribute(pchName, "desc"));
+	return CreateString(Steam->GetAchievementDisplayAttribute(name, "desc"));
 }
 
-int GetAchievementDisplayHidden(const char *pchName)
+int GetAchievementDisplayHidden(const char *name)
 {
 	CheckInitialized(false);
-	return (strcmp(Steam->GetAchievementDisplayAttribute(pchName, "hidden"), "1") == 0);
+	return (strcmp(Steam->GetAchievementDisplayAttribute(name, "hidden"), "1") == 0);
 }
 
-int GetAchievementIcon(const char *pchName)
+int GetAchievementIcon(const char *name)
 {
 	CheckInitialized(0);
-	return Steam->GetAchievementIcon(pchName);
+	return Steam->GetAchievementIcon(name);
 }
 
 /*
@@ -995,11 +995,11 @@ If user stats have not been initialized 0 is returned.
 Use StatsInitialized() to determine when user stats are initialized before calling this method.
 If the call fails, 0 is returned and the error is reported to the AGK interpreter.
 */
-int GetAchievement(const char *pchName)
+int GetAchievement(const char *name)
 {
 	CheckInitialized(false);
 	bool result = false;
-	if (Steam->GetAchievement(pchName, &result))
+	if (Steam->GetAchievement(name, &result))
 	{
 		return result;
 	}
@@ -1007,12 +1007,12 @@ int GetAchievement(const char *pchName)
 	return false;
 }
 
-int GetAchievementUnlockTime(const char *pchName)
+int GetAchievementUnlockTime(const char *name)
 {
 	CheckInitialized(0);
 	bool pbAchieved;
 	uint32 punUnlockTime;
-	if (SteamUserStats()->GetAchievementAndUnlockTime(pchName, &pbAchieved, &punUnlockTime))
+	if (SteamUserStats()->GetAchievementAndUnlockTime(name, &pbAchieved, &punUnlockTime))
 	{
 		if (pbAchieved)
 		{
@@ -1027,10 +1027,10 @@ Marks an achievement as achieved.
 Returns 1 if the process succeeds.  Otherwise, returns 0.
 Use StatsInitialized() to determine when user stats are initialized before calling this method.
 */
-int SetAchievement(const char *pchName)
+int SetAchievement(const char *name)
 {
 	CheckInitialized(false);
-	return Steam->SetAchievement(pchName);
+	return Steam->SetAchievement(name);
 }
 
 /*
@@ -1038,10 +1038,10 @@ Raises a notification about achievemnt progress for progress stat achievements.
 The notification only shows when current progress is less than the max.
 SetStat still needs to be used to set the progress stat value.
 */
-int IndicateAchievementProgress(const char *pchName, int nCurProgress, int nMaxProgress)
+int IndicateAchievementProgress(const char *name, int nCurProgress, int nMaxProgress)
 {
 	CheckInitialized(false);
-	return Steam->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
+	return Steam->IndicateAchievementProgress(name, nCurProgress, nMaxProgress);
 }
 
 /*
@@ -1049,21 +1049,21 @@ Clears an achievement.
 Returns 1 if the process succeeds.  Otherwise, returns 0.
 Use StatsInitialized() to determine when user stats are initialized before calling this method.
 */
-int ClearAchievement(const char *pchName)
+int ClearAchievement(const char *name)
 {
 	CheckInitialized(false);
-	return Steam->ClearAchievement(pchName);
+	return Steam->ClearAchievement(name);
 }
 
 /*
 Gets an integer user stat value.
 If there is a problem, 0 is returned and the error is reported to the AGK interpreter.
 */
-int GetStatInt(const char *pchName)
+int GetStatInt(const char *name)
 {
 	CheckInitialized(0);
 	int result = 0;
-	if (Steam->GetStat(pchName, &result)) {
+	if (Steam->GetStat(name, &result)) {
 		return result;
 	}
 	agk::PluginError("GetStat failed.");
@@ -1074,11 +1074,11 @@ int GetStatInt(const char *pchName)
 Gets a float user stat value.
 If there is a problem, 0 is returned and the error is reported to the AGK interpreter.
 */
-float GetStatFloat(const char *pchName)
+float GetStatFloat(const char *name)
 {
 	CheckInitialized(0.0);
 	float result = 0.0;
-	if (Steam->GetStat(pchName, &result)) {
+	if (Steam->GetStat(name, &result)) {
 		return result;
 	}
 	agk::PluginError("GetStat failed.");
@@ -1089,36 +1089,36 @@ float GetStatFloat(const char *pchName)
 Sets an integer user stat value.
 Returns 1 if the call succeeds.  Otherwise returns 0.
 */
-int SetStatInt(const char *pchName, int nData)
+int SetStatInt(const char *name, int nData)
 {
 	CheckInitialized(false);
-	return Steam->SetStat(pchName, nData);
+	return Steam->SetStat(name, nData);
 }
 
 /*
 Sets a float user stat value.
 Returns 1 if the call succeeds.  Otherwise returns 0.
 */
-int SetStatFloat(const char *pchName, float fData)
+int SetStatFloat(const char *name, float fData)
 {
 	CheckInitialized(false);
-	return Steam->SetStat(pchName, fData);
+	return Steam->SetStat(name, fData);
 }
 
 /*
 Updates an average rate user stat.  Steam takes care of the averaging.  Use GetStatFloat to get the result.
 Returns 1 if the call succeeds.  Otherwise returns 0.
 */
-int UpdateAvgRateStat(const char *pchName, float flCountThisSession, float dSessionLength)
+int UpdateAvgRateStat(const char *name, float flCountThisSession, float dSessionLength)
 {
 	CheckInitialized(false);
-	return Steam->UpdateAvgRateStat(pchName, flCountThisSession, (double) dSessionLength);
+	return Steam->UpdateAvgRateStat(name, flCountThisSession, (double) dSessionLength);
 }
 
-int FindLeaderboard(const char *pchLeaderboardName)
+int FindLeaderboard(const char *leaderboardName)
 {
 	CheckInitialized(false);
-	return Steam->FindLeaderboard(pchLeaderboardName);
+	return Steam->FindLeaderboard(leaderboardName);
 }
 
 int GetFindLeaderboardCallbackState()
@@ -1253,16 +1253,16 @@ void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable)
 	return Steam->AddRequestLobbyListFilterSlotsAvailable(slotsAvailable);
 }
 
-void AddRequestLobbyListNearValueFilter(char *pchKeyToMatch, int valueToBeCloseTo)
+void AddRequestLobbyListNearValueFilter(char *keyToMatch, int valueToBeCloseTo)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListNearValueFilter(pchKeyToMatch, valueToBeCloseTo);
+	return Steam->AddRequestLobbyListNearValueFilter(keyToMatch, valueToBeCloseTo);
 }
 
-void AddRequestLobbyListNumericalFilter(char *pchKeyToMatch, int valueToMatch, int eComparisonType)
+void AddRequestLobbyListNumericalFilter(char *keyToMatch, int valueToMatch, int eComparisonType)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListNumericalFilter(pchKeyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
+	return Steam->AddRequestLobbyListNumericalFilter(keyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
 }
 
 void AddRequestLobbyListResultCountFilter(int maxResults)
@@ -1271,10 +1271,10 @@ void AddRequestLobbyListResultCountFilter(int maxResults)
 	return Steam->AddRequestLobbyListResultCountFilter(maxResults);
 }
 
-void AddRequestLobbyListStringFilter(char *pchKeyToMatch, char *pchValueToMatch, int eComparisonType)
+void AddRequestLobbyListStringFilter(char *keyToMatch, char *valueToMatch, int eComparisonType)
 {
 	CheckInitialized(NORETURN);
-	return Steam->AddRequestLobbyListStringFilter(pchKeyToMatch, pchValueToMatch, (ELobbyComparison)eComparisonType);
+	return Steam->AddRequestLobbyListStringFilter(keyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
 }
 
 int RequestLobbyList()
@@ -2041,7 +2041,7 @@ int GetCloudFileReadAsyncMemblock(char *filename)
 }
 
 
-//SteamAPICall_t CloudFileShare(const char *pchFile);
+//SteamAPICall_t CloudFileShare(char *filename);
 
 int CloudFileWrite(char *filename, int memblockID)
 {
@@ -2077,7 +2077,7 @@ int GetCloudFileWriteAsyncResult(char *filename)
 
 //bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 //bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
-//UGCFileWriteStreamHandle_t CloudFileWriteStreamOpen(const char *pchFile);
+//UGCFileWriteStreamHandle_t CloudFileWriteStreamOpen(const char *filename);
 //bool CloudFileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
 
 int GetCloudFileCount()
@@ -2189,7 +2189,7 @@ int GetCloudFileSyncPlatforms(char *filename)
 	return Steam->GetSyncPlatforms(filename);
 }
 
-bool SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform)
+int SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform)
 {
 	CheckInitialized(false);
 	return Steam->SetSyncPlatforms(filename, (ERemoteStoragePlatform) eRemoteStoragePlatform);
@@ -2204,8 +2204,8 @@ int GetCachedUGCCount()
 }
 
 //UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
-//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
 //SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
-//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *location, uint32 unPriority);
 //int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
