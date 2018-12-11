@@ -294,13 +294,15 @@ char *GetSteamPath()
 	// Upon successful return the string should be freed using free()
 	// eg. RegGetString(hKey, TEXT("my value"), &szString);
 	HKEY hKey = 0;
-	if (RegOpenKeyA(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyExA(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 	{
 		DWORD dwType = REG_SZ;
 		CHAR szValue[1024];
 		DWORD dwDataSize = sizeof(szValue);
 		// Query string value
-		if (RegQueryValueExA(hKey, STEAM_REGISTRY_VALUE, NULL, &dwType, reinterpret_cast<LPBYTE>(&szValue), &dwDataSize) == ERROR_SUCCESS)
+		LSTATUS result = RegQueryValueExA(hKey, STEAM_REGISTRY_VALUE, NULL, &dwType, reinterpret_cast<LPBYTE>(&szValue), &dwDataSize);
+		RegCloseKey(hKey);
+		if (result == ERROR_SUCCESS)
 		{
 			return CreateString(szValue);
 		}
