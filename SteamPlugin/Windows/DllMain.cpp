@@ -808,10 +808,10 @@ char *GetPlayerNickname(int hUserSteamID)
 	return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
 }
 
-int HasFriend(int hUserSteamID, int iFriendFlags)
+int HasFriend(int hUserSteamID, int friendFlags)
 {
 	CheckInitialized(false);
-	return Steam->HasFriend(GetSteamID(hUserSteamID), (EFriendFlags)iFriendFlags);
+	return Steam->HasFriend(GetSteamID(hUserSteamID), (EFriendFlags)friendFlags);
 }
 
 int GetFriendsGroupCount()
@@ -826,23 +826,23 @@ int GetFriendsGroupIDByIndex(int index)
 	return Steam->GetFriendsGroupIDByIndex(index);
 }
 
-int GetFriendsGroupMembersCount(int friendsGroupID)
+int GetFriendsGroupMembersCount(int hFriendsGroupID)
 {
 	CheckInitialized(0);
-	return Steam->GetFriendsGroupMembersCount(friendsGroupID);
+	return Steam->GetFriendsGroupMembersCount(hFriendsGroupID);
 }
 
-char *GetFriendsGroupMembersListJSON(int friendsGroupID) // return a json array of SteamID handles
+char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array of SteamID handles
 {
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
 	{
-		int memberCount = Steam->GetFriendsGroupMembersCount(friendsGroupID);
+		int memberCount = Steam->GetFriendsGroupMembersCount(hFriendsGroupID);
 		if (memberCount > 0)
 		{
 			std::vector<CSteamID> friends(memberCount);
-			Steam->GetFriendsGroupMembersList(friendsGroupID, friends.data(), memberCount);
+			Steam->GetFriendsGroupMembersList(hFriendsGroupID, friends.data(), memberCount);
 			for (int x = 0; x < memberCount; x++)
 			{
 				if (x > 0)
@@ -857,10 +857,10 @@ char *GetFriendsGroupMembersListJSON(int friendsGroupID) // return a json array 
 	return CreateString(json.str());
 }
 
-char *GetFriendsGroupName(int friendsGroupID)
+char *GetFriendsGroupName(int hFriendsGroupID)
 {
 	CheckInitialized(CreateString(NULL));
-	return CreateString(Steam->GetFriendsGroupName(friendsGroupID));
+	return CreateString(Steam->GetFriendsGroupName(hFriendsGroupID));
 }
 
 int LoadImageFromHandle(int hImage)
@@ -916,10 +916,10 @@ int StoreStats()
 Resets all status and optionally the achievements.
 Should generally only be used while testing.
 */
-int ResetAllStats(int bAchievementsToo)
+int ResetAllStats(int achievementsToo)
 {
 	CheckInitialized(false);
-	return Steam->ResetAllStats(bAchievementsToo != 0);
+	return Steam->ResetAllStats(achievementsToo != 0);
 }
 
 int GetStoreStatsCallbackState()
@@ -957,14 +957,14 @@ int GetNumAchievements()
 }
 
 /*
-Gets the achievement ID for the given achievement index.
+Gets the achievement API name for the given achievement index.
 If user stats have not been initialized, an empty string is returned.
 Use StatsInitialized() to determine when user stats are initialized before calling this method.
 */
-char *GetAchievementID(int index)
+char *GetAchievementAPIName(int index)
 {
 	CheckInitialized(CreateString(NULL));
-	return CreateString(Steam->GetAchievementID(index));
+	return CreateString(Steam->GetAchievementAPIName(index));
 }
 
 char *GetAchievementDisplayName(const char *name)
@@ -1332,10 +1332,10 @@ int GetLobbyCreatedResult()
 //	return Steam->SetLinkedLobby(GetSteamID(hLobbySteamID), GetSteamID(hLobbyDependentSteamID));
 //}
 
-int SetLobbyJoinable(int hLobbySteamID, bool lobbyJoinable)
+int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable)
 {
 	CheckInitialized(false);
-	return Steam->SetLobbyJoinable(GetSteamID(hLobbySteamID), lobbyJoinable);
+	return Steam->SetLobbyJoinable(GetSteamID(hLobbySteamID), lobbyJoinable != 0);
 }
 
 int SetLobbyType(int hLobbySteamID, int eLobbyType)

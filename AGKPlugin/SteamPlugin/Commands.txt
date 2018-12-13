@@ -107,7 +107,7 @@ AchievementStored,I,0,AchievementStored,0,0,0,0,0
 # Achievements methods.
 #
 GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,0
-GetAchievementID,S,I,GetAchievementID,0,0,0,0,0
+GetAchievementAPIName,S,I,GetAchievementAPIName,0,0,0,0,0
 GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,0
 GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,0
 GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,0

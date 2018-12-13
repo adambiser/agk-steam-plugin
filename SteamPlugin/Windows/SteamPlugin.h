@@ -293,7 +293,7 @@ public:
 	bool AchievementStored() { return m_AchievementStored; }
 	// Achievements methods.
 	int GetNumAchievements();
-	const char* GetAchievementID(int index);
+	const char* GetAchievementAPIName(int index);
 	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
 	int GetAchievementIcon(const char *pchName);

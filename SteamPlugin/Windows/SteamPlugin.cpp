@@ -864,7 +864,7 @@ int SteamPlugin::GetNumAchievements()
 	return SteamUserStats()->GetNumAchievements();
 }
 
-const char *SteamPlugin::GetAchievementID(int index)
+const char *SteamPlugin::GetAchievementAPIName(int index)
 {
 	CheckInitialized(SteamUserStats, NULL);
 	return SteamUserStats()->GetAchievementName(index);
