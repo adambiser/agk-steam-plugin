@@ -253,9 +253,9 @@ extern "C" DLL_EXPORT int IsDLCInstalled(int appID);
 @return A JSON string of an array of DLC information. (See steam_constants.agc)
 ```
 Type DLCData_t
-AppID as integer	// If 0, the DLC is hidden.
-Available as integer	// Boolean: If 1, the user owns the DLC.
-Name as string
+	AppID as integer	// If 0, the DLC is hidden.
+	Available as integer	// Boolean: If 1, the user owns the DLC.
+	Name as string
 EndType
 ```
 @api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
@@ -673,7 +673,7 @@ Resets user stats and optionally all achievements (when bAchievementsToo is 1). 
 extern "C" DLL_EXPORT int ResetAllStats(int achievementsToo);
 /*
 @desc Returns the state of the StoreStats callback.
-@return [A callback state](Callbacks-and-Call-Results#states)
+@return [A callback state.](Callbacks-and-Call-Results#states)
 */
 extern "C" DLL_EXPORT int GetStoreStatsCallbackState();
 /*
@@ -729,126 +729,768 @@ extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *name);
 */
 extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *name);
 /*
-GetAchievementIcon
 @desc Gets the achievement icon for the current user's current achievement state.
-@param id
+@param name The 'API Name' of the achievement.
 @return 0 when no icon is set, -1 when the icon needs to download via callback, or an image handle. [Similar to how avatars work.](Avatars)
 @api ISteamUserStats#GetAchievementIcon
 */
 extern "C" DLL_EXPORT int GetAchievementIcon(const char *name);
+/*
+@desc Gets whether the user has achieved this achievement.
+@param name The 'API Name' of the achievement.
+@return 1 when the user has achieved this achievement; otherwise 0.
+@api ISteamUserStats#GetAchievement
+*/
 extern "C" DLL_EXPORT int GetAchievement(const char *name);
+/*
+@desc Gets the time at which an achievement was unlocked, if ever.
+@param name The 'API Name' of the achievement.
+@return The unload time in Unix time.
+@api ISteamUserStats#GetAchievementAndUnlockTime
+*/
 extern "C" DLL_EXPORT int GetAchievementUnlockTime(const char *name);
+/*
+@desc Gives an achievement to the user.
+
+Call StoreStats afterward to notify the user of the achievement.  Otherwise, they will be notified after the game exits.
+@param name The 'API Name' of the achievement.
+@return 1 when the call succeeds; otherwise 0.
+@api ISteamUserStats#SetAchievement
+*/
 extern "C" DLL_EXPORT int SetAchievement(const char *name);
-extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *name, int nCurProgress, int nMaxProgress);
+/*
+@desc Raises a notification about achievemnt progress for progress stat achievements.
+The notification only shows when current progress is less than the max.
+
+SetStat still needs to be used to set the progress stat value.
+
+Steamworks documentation suggests only using this at intervals in the progression rather than every step of the way.
+ie: Every 25 wins out of 100.
+@param name The 'API Name' of the achievement.
+@param curProgress The current progress.
+@param maxProgress The progress required to unlock the achievement.
+@return 1 when the call succeeds; otherwise 0.
+@api ISteamUserStats#IndicateAchievementProgress
+*/
+extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *name, int curProgress, int maxProgress);
+/*
+@desc Removes an achievement from the user.
+Call StoreStats afterward to upload the stats to the server.
+
+_This method is generally just for testing purposes._
+@param name The 'API Name' of the achievement.
+@return int: 1 when the call succeeds; otherwise 0.
+@api ISteamUserStats#ClearAchievement
+*/
 extern "C" DLL_EXPORT int ClearAchievement(const char *name);
 /* @page Setters and Getters
 **User stats must first be requested and finish initializing before these commands can be used.**
 */
+/*
+@desc Gets the current value of an integer stat for the current user.
+If the stat is not defined as an integer, an error will be raised.
+@param name The 'API Name' of the stat.
+@return The value of the stat.
+@api ISteamUserStats#GetStat
+*/
 extern "C" DLL_EXPORT int GetStatInt(const char *name);
+/*
+@desc Gets the current value of a float stat for the current user.
+If the stat is not defined as a float, an error will be raised.
+@param name The 'API Name' of the stat.
+@return The value of the stat.
+@api ISteamUserStats#GetStat
+*/
 extern "C" DLL_EXPORT float GetStatFloat(const char *name);
-extern "C" DLL_EXPORT int SetStatInt(const char *name, int nData);
-extern "C" DLL_EXPORT int SetStatFloat(const char *name, float fData);
-extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float flCountThisSession, float dSessionLength);
+/*
+@desc Sets the value of an integer stat for the current user.
+@param name The 'API Name' of the stat.
+@param value The new value of the stat. This must be an absolute value, it will not increment or decrement for you.
+@return 1 if setting the value succeeds; otherwise 0.
+@api ISteamUserStats#SetStat
+*/
+extern "C" DLL_EXPORT int SetStatInt(const char *name, int value);
+/*
+@desc Sets the value of a float stat for the current user.
+@param name The 'API Name' of the stat.
+@param value The new value of the stat. This must be an absolute value, it will not increment or decrement for you.
+@return 1 if setting the value succeeds; otherwise 0.
+@api ISteamUserStats#SetStat
+*/
+extern "C" DLL_EXPORT int SetStatFloat(const char *name, float value);
+/*
+@desc Updates an AVGRATE stat with new values.  The value of these fields can be read with GetStatFloat.
+@param name The 'API Name' of the stat.
+@param countThisSession The value accumulation since the last call to this function.
+@param sessionLength The amount of time in seconds since the last call to this function.
+@return 1 if setting the stat succeeds; otherwise 0.
+@api ISteamUserStats#UpdateAvgRateStat
+*/
+extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLength);
 /* @page Find Leaderboard
 **User stats must first be requested and finish initializing before these commands can be used.**
 */
+/*
+FindLeaderboard
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Sends a request to find the handle for a leaderboard.
+
+**NOTE:** Currently only one leaderboard can be found at a time.  This will change in a later version.
+@param leaderboardName The name of the leaderboard to find.
+@return 1 when sending the request to find the leaderboard succeeds; otherwise 0.
+@api ISteamUserStats#FindLeaderboard
+*/
 extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
+/*
+@desc Returns the state of the FindLeaderboard callback.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+*/
 extern "C" DLL_EXPORT int GetFindLeaderboardCallbackState();
+/*
+@desc Gets the handle to the leaderboard requested with FindLeaderboard.
+@return The leaderboard handle or 0 if finding the handle has failed.
+*/
 extern "C" DLL_EXPORT int GetLeaderboardHandle();
 /* @page Leaderboard Information
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
+/*
+@desc Returns the leaderboard name.
+@param hLeaderboard A leaderboard handle.
+@return The leaderboard name.
+@api ISteamUserStats#GetLeaderboardName
+*/
 extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard);
+/*
+@desc Returns the total number of entries in a leaderboard.
+@param hLeaderboard A leaderboard handle.
+@return The number of entries in the leaderboard.
+@api ISteamUserStats#GetLeaderboardEntryCount
+*/
 extern "C" DLL_EXPORT int GetLeaderboardEntryCount(int hLeaderboard);
+/*
+@desc Returns the display type of a leaderboard.
+@param hLeaderboard A leaderboard handle.
+@return An [ELeaderboardDisplayType](https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDisplayType) value.
+@api ISteamUserStats#GetLeaderboardDisplayType
+*/
 extern "C" DLL_EXPORT int GetLeaderboardDisplayType(int hLeaderboard);
+/*
+@desc Returns the sort order of a leaderboard.
+@param hLeaderboard A leaderboard handle.
+@return An [ELeaderboardSortMethod](https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardSortMethod) value.
+@api ISteamUserStats#GetLeaderboardSortMethod
+*/
 extern "C" DLL_EXPORT int GetLeaderboardSortMethod(int hLeaderboard);
 /* @page Uploading Scores
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
+/*
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Uploads a score to a leaderboard.  The leaderboard will keep the user's best score.
+@param hLeaderboard A leaderboard handle.
+@param score The score to upload.
+@return 1 if the request to upload the score succeeds; otherwise 0.
+@api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
+*/
 extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
+/*
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Uploads a score to a leaderboard.  Forces the server to accept the uploaded score and replace any existing score.
+@param hLeaderboard A leaderboard handle.
+@param score The score to upload.
+@return 1 if the request to upload the score succeeds; otherwise 0.
+@api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
+*/
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
+/*
+@desc Returns the state of the UploadLeaderboardScore callback.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreCallbackState();
+/*
+@desc Gets whether the uploaded score was successfully received by the server leaderboard.
+@return 1 when successfully received; otherwise 0.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int LeaderboardScoreStored();
+/*
+@desc _This command should only be called when LeaderboardScoreStored returns 1._
+
+Gets whether the uploaded score caused the user's leaderboard entry to change or not.
+@return 1 if the score in the leaderboard changed.  0 if the existing score was better.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int LeaderboardScoreChanged();
+/*
+@desc _This command should only be called when LeaderboardScoreStored returns 1._
+
+Gets the uploaded score returned by the UploadLeaderboardScore callback.
+@return The uploaded score that was attempted to set.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetLeaderboardUploadedScore();
+/*
+@desc _This command should only be called when LeaderboardScoreStored returns 1._
+
+Gets the new global rank of the user in this leaderboard returned by the UploadLeaderboardScore callback
+@return The new global rank of the user in this leaderboard.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew();
+/*
+@desc _This command should only be called when LeaderboardScoreStored returns 1._
+
+Gets the previous global rank of the user in this leaderboard returned by the UploadLeaderboardScore callback
+@return The previous global rank of the user in this leaderboard; 0 if the user had no existing entry.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious();
 /* @page Downloading Entries
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
-// https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
-extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
+/*
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Downloads entries from a leaderboard.
+While the Steam API allows any number of entries to be downloaded, this plugin has a limit of 10 entries.
+@param hLeaderboard A leaderboard handle.
+@param eLeaderboardDataRequest The type of data request to make.
+@param-api eLeaderboardDataRequest ISteamUserStats#ELeaderboardDataRequest
+@param rangeStart The index to start downloading entries relative to eLeaderboardDataRequest.
+@param rangeEnd The last index to retrieve entries for relative to eLeaderboardDataRequest.
+@return 1 when the call succeeds; otherwise 0.
+@api ISteamUserStats#DownloadLeaderboardEntries
+*/
+extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd);
+/*
+@desc Returns the state of the DownloadLeaderboardEntries callback.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+*/
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntriesCallbackState();
+/*
+@desc Gets the number of leaderboard entries returned by the DownloadLeaderboardEntries callback.  Limited to 10.
+@return The number of leaderboard entries returned.  0 when there are no entries.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount();
+/*
+@desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
+
+Gets a leaderboard entry's global rank.
+@param index The index of the leaderboard entry.
+@return The entry's rank.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t, ISteamUserStats#GetDownloadedLeaderboardEntry
+*/
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int index);
+/*
+@desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
+
+Gets a leaderboard entry's score.
+@param index The index of the leaderboard entry.
+@return The entry's score.
+*/
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int index);
+/*
+@desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
+
+Gets a handle to the leaderboard entry's user SteamID.
+@param index The index of the leaderboard entry.
+@return The entry's user SteamID handle.
+*/
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
 /* @page Lobby List */
+/*
+@desc Sets the physical distance for which we should search for lobbies, this is based on the users IP address and a IP location map on the Steam backend.
+@param eLobbyDistanceFilter Specifies the maximum distance.
+@param-api eLobbyDistanceFilter ISteamMatchmaking#ELobbyDistanceFilter
+@api ISteamMatchmaking#AddRequestLobbyListDistanceFilter
+*/
 extern "C" DLL_EXPORT void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter);
+/*
+@desc Filters to only return lobbies with the specified number of open slots available.
+@param slotsAvailable The number of open slots that must be open.
+@api ISteamMatchmaking#AddRequestLobbyListFilterSlotsAvailable
+*/
 extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable);
+/*
+@desc Sorts the results closest to the specified value.
+@param keyToMatch The filter key name to match.
+@param valueToBeCloseTo The value that lobbies will be sorted on.
+@api ISteamMatchmaking#AddRequestLobbyListNearValueFilter
+*/
 extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *keyToMatch, int valueToBeCloseTo);
+/*
+@desc Adds a numerical comparison filter to the next RequestLobbyList call.
+@param keyToMatch The filter key name to match.
+@param valueToMatch The number to match.
+@param eComparisonType The type of comparison to make.
+@param-api eComparisonType ISteamMatchmaking#ELobbyComparison
+@api ISteamMatchmaking#AddRequestLobbyListNumericalFilter
+*/
 extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(char *keyToMatch, int valueToMatch, int eComparisonType);
+/*
+@desc Sets the maximum number of lobbies to return.
+@param maxResults The maximum number of lobbies to return.
+@api ISteamMatchmaking#AddRequestLobbyListResultCountFilter
+*/
 extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults);
+/*
+@desc Adds a string comparison filter to the next RequestLobbyList call.
+@param keyToMatch The filter key name to match.
+@param valueToMatch The string to match.
+@param eComparisonType The type of comparison to make.
+@param-api eComparisonType ISteamMatchmaking#ELobbyComparison
+@api ISteamMatchmaking#AddRequestLobbyListStringFilter
+*/
 extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(char *keyToMatch, char *valueToMatch, int eComparisonType);
-extern "C" DLL_EXPORT int RequestLobbyList(); //  LobbyMatchList_t call result.
+/*
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Get a filtered list of relevant lobbies.
+@return 1 when the request succeeds; otherwise 0.
+@api ISteamMatchmaking#RequestLobbyList, ISteamMatchmaking#LobbyMatchList_t
+*/
+extern "C" DLL_EXPORT int RequestLobbyList();
+/*
+@desc Returns the state of the RequestLobbyList callback.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+*/
 extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
+/*
+@desc Gets the number of matching lobbies found by the RequestLobbyList call.
+@return The number of matching lobbies or 0 if requesting the lobby list fails.
+*/
 extern "C" DLL_EXPORT int GetLobbyMatchListCount();
+/*
+GetLobbyByIndex
+@desc Gets the Steam ID handle of the lobby at the specified index after receiving the RequestLobbyList results.
+@param index The index of the lobby to get the Steam ID of, from 0 to GetLobbyMatchListCount.
+@return A lobby Steam ID handle.
+@api ISteamMatchmaking#GetLobbyByIndex
+*/
 extern "C" DLL_EXPORT int GetLobbyByIndex(int index);
 /* @page Creating, Joining, and Leaving Lobbies */
+/*
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Create a new matchmaking lobby.
+@param eLobbyType The type and visibility of this lobby. This can be changed later via SetLobbyType.
+@param-api eLobbyType ISteamMatchmaking#ELobbyType
+@param maxMembers The maximum number of players that can join this lobby. This can not be above 250.
+@return 1 when the request succeeds; otherwise 0.
+@api ISteamMatchmaking#CreateLobby
+*/
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
+/*
+@desc _Since the user will enter the lobby they create, GetLobbyEnterCallbackState can be checked and this callback isn't really necessary._
+
+Returns The state of the CreateLobby callback.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+*/
 extern "C" DLL_EXPORT int GetLobbyCreateCallbackState();
+/*
+@desc Gets the handle of the lobby created by CreateLobby.
+@return A lobby handle or 0 if lobby creation failed.
+*/
 extern "C" DLL_EXPORT int GetLobbyCreatedID();
+/*
+@desc Gets the result of the CreateLobby operation.
+@return A result code as outlined at [LobbyCreated_t](https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyCreated_t).
+@api ISteamMatchmaking#LobbyCreated_t
+*/
 extern "C" DLL_EXPORT int GetLobbyCreatedResult();
 //extern "C" DLL_EXPORT int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID);
+/*
+@desc Sets whether or not a lobby is joinable by other players. This always defaults to enabled for a new lobby.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID handle of the lobby
+@param lobbyJoinable 1 to allow or 0 to disallow users to join this lobby.
+@return 1 when the call succeeds; otherwise 0.
+@api ISteamMatchmaking#SetLobbyJoinable
+*/
 extern "C" DLL_EXPORT int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable);
+/*
+@desc Updates what type of lobby this is.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID handle of the lobby
+@param eLobbyType The new lobby type to that will be set.
+@param-api eLobbyType ISteamMatchmaking#ELobbyType
+@return 1 when the call succeeds; otherwise 0.
+@api ISteamMatchmaking#SetLobbyType
+*/
 extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType);
+/*
+@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+
+Joins an existing lobby.
+@param hLobbySteamID The Steam ID handle of the lobby
+@return 1 when the request succeeds; otherwise 0.
+@api ISteamMatchmaking#JoinLobby
+*/
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
+/*
+@desc Returns the state of the LobbyEnter_t call result initialized by CreateLobby or JoinLobby.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
+/*
+@desc Gets the handle of the lobby Steam ID entered returned by the LobbyEnter_t call result.
+@return A lobby Steam ID handle or 0 if the LobbyEnter_t call result failed.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetLobbyEnterID();
+/*
+@desc Gets whether only invited users may enter a lobby as returned by the LobbyEnter_t call result.
+@return 1 if only invited users may enter; otherwise 0.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
+/*
+@desc Gets the response returned by the LobbyEnter_t call result.
+@return A result code as outlined at [LobbyEnter_t](https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t).
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetLobbyEnterResponse();
+/*
+@desc Invite another user to the lobby.
+@param hLobbySteamID The Steam ID handle of the lobby to invite the user to.
+@param hInviteeSteamID The Steam ID handle of the person who will be invited.
+@return 1 when the invitation was sent successfully; otherwise 0.
+@api ISteamMatchmaking#InviteUserToLobby
+*/
 extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID);
+/*
+@desc Gets whether the user has accepted a request to join a game lobby.
+@return 1 when the user has accepted a request to join a game lobby; otherwise 0.
+@api ISteamFriends#GameLobbyJoinRequested_t
+*/
 extern "C" DLL_EXPORT int HasGameLobbyJoinRequest();
+/*
+@desc Gets the lobby Steam ID handle to which the user was invited.
+@return A lobby Steam ID handle or 0.
+*/
 extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby();
+/*
+@desc Leave a lobby that the user is currently in; this will take effect immediately on the client side, other users in the lobby will be notified by a LobbyChatUpdate_t callback.
+@param hLobbySteamID The Steam ID handle of the lobby to leave.
+@api ISteamMatchmaking#LeaveLobby
+*/
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID);
 /* @page Lobby Game Server */
+/*
+@desc Gets the details of a game server set in a lobby.
+@param hLobbySteamID The Steam ID of the lobby to get the game server information from.
+@return A JSON string that parses to the following type.
+```
+Type GameServerInfo_t // aka LobbyGameCreated_t
+	hLobby as integer
+	IP as string
+	Port as integer
+	hGameServer as integer
+EndType
+```
+@api ISteamMatchmaking#GetLobbyGameServer
+*/
 extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
+/*
+@desc Sets the game server associated with the lobby.  This function only accepts IPv4 addresses.
+Either an IP/port or a Game Server SteamID handle must be given.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID handle of the lobby to set the game server information for.
+@param gameServerIP Sets the IP address of the game server.
+@param gameServerPort Sets the connection port of the game server.
+@param hGameServerSteamID Sets the Steam ID handle of the game server.
+@return 1 when the call succeeds; otherwise 0.
+@api ISteamMatchmaking#SetLobbyGameServer
+*/
 extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort, int hGameServerSteamID); // Triggers a LobbyGameCreated_t callback.
+/*
+@desc Indicates that a lobby game was created since the last call.
+@return 1 when a lobby game was created; otherwise 0.
+@api ISteamMatchmaking#LobbyGameCreated_t
+*/
 extern "C" DLL_EXPORT int HasLobbyGameCreated();
+/*
+@desc Returns a JSON description of the newly-created lobby game.
+_This can only be read once per lobby game creation!_
+@return A JSON string that parses to the following type.
+```
+Type GameServerInfo_t // aka LobbyGameCreated_t
+	hLobby as integer
+	IP as string
+	Port as integer
+	hGameServer as integer
+EndType
+```
+@api ISteamMatchmaking#GetLobbyGameCreated
+*/
 extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
 /* @page Lobby Data */
+/*
+@desc Gets the metadata associated with the specified key from the specified lobby.
+@param hLobbySteamID The Steam ID of the lobby to get the metadata from.
+@param key The key to get the value of.
+@return The value for the given key or an empty string if the key or lobby doesn't exist.
+@api ISteamMatchmaking#GetLobbyData
+*/
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
+/*
+@desc Gets the number of metadata keys set on the specified lobby.
+@param hLobbySteamID The Steam ID of the lobby to get the data count from.
+@return The number of keys for the lobby.
+@api ISteamMatchmaking#GetLobbyDataCount
+*/
 extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
+/*
+@desc Gets a lobby metadata key/value pair by index.
+@param hLobbySteamID This MUST be the same lobby handle used in the previous call to GetLobbyDataCount!
+@param index An index between 0 and GetLobbyDataCount.
+@return A JSON string of the key/value pair at the given index.
+```
+Type KeyValuePair
+	Key as string
+	Value as string
+EndType
+```
+@api ISteamMatchmaking#GetLobbyDataByIndex
+*/
 extern "C" DLL_EXPORT char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index); // Returns json of key/value data.
+/*
+@desc Gets a lobby data for a given lobby.
+@param hLobbySteamID The Steam ID of the lobby to get the metadata from.
+@return A JSON string of key/value pairs for all data for a lobby.
+*/
 extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
+/*
+@desc Sets a key/value pair in the lobby metadata.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID of the lobby to set the metadata for.
+@param key The key to set the data for.
+@param value The value to set.
+@api ISteamMatchmaking#SetLobbyData
+*/
 extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, char *key, char *value);
+/*
+@desc Removes a metadata key from the lobby.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID of the lobby to delete the metadata for.
+@param key The key to delete the data for.
+@return 1 when the request succeeds; otherwise 0.
+@api ISteamMatchmaking#DeleteLobbyData
+*/
 extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, char *key);
+/*
+@desc Refreshes all of the metadata for a lobby that you're not in right now.
+@param hLobbySteamID The Steam ID of the lobby to refresh the metadata of.
+@return 1 when the request for lobby data succeeds will be reported by the LobbyDataUpdate_t callback. 0 when the request fails.
+@api ISteamMatchmaking#RequestLobbyData, ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID);
+/*
+@desc Indicates whether the LobbyDataUpdate_t callback has stored lobby data update notifications.
+@return 1 when lobby data has updated; otherwise 0.
+@api ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int HasLobbyDataUpdated();
+/*
+@desc HasLobbyDataUpdated must be called prior to calling this function.
+@return The lobby Steam ID handle that has the updated data.
+@api ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedLobby();
+/*
+@desc HasLobbyDataUpdated must be called prior to calling this function.
+@return Steam ID handle of the member whose data changed or the lobby itself.
+@api ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
+/*
+@desc Gets per-user metadata from another player in the specified lobby.
+@param hLobbySteamID The Steam ID handle of the lobby that the other player is in.
+@param hUserSteamID The Steam ID handle of the player to get the metadata from.
+@param key The key to get the value of.
+@return The value for the given key or an empty string if the key, member, or lobby doesn't exist.
+@api ISteamMatchmaking#GetLobbyMemberData
+*/
 extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key);
+/*
+@desc Sets per-user metadata for the local user.
+
+Each user in the lobby will be receive notification of the lobby data change via HasLobbyDataUpdated, and any new users joining will receive any existing data.
+@param hLobbySteamID The Steam ID of the lobby to set our metadata in.
+@param key The key to set the data for.
+@param value The value to set.
+@api ISteamMatchmaking#SetLobbyMemberData
+*/
 extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char *value);
 /* @page Lobby Members and Status */
+/*
+@desc Returns the current lobby owner.
+@param hLobbySteamID The Steam ID handle of the lobby to get the owner of.
+@return A steam ID handle or 0.
+@api ISteamMatchmaking#GetLobbyOwner
+*/
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID);
+/*
+@desc Changes who the lobby owner is.
+Triggers HasLobbyChatUpdate for all lobby members.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID handle of the lobby where the owner change will take place.
+@param hNewOwnerSteamID The Steam ID handle of the user that will be the new owner of the lobby, they must be in the lobby.
+@return 1 if the owner is successfully changed; otherwise 0.
+@api ISteamMatchmaking#SetLobbyOwner
+*/
 extern "C" DLL_EXPORT int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID);
+/*
+@desc The current limit on the number of users who can join the lobby.
+@param hLobbySteamID The Steam ID handle of the lobby to get the member limit of.
+@return A positive integer or 0 if no limit.
+@api ISteamMatchmaking#GetLobbyMemberLimit
+*/
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID);
+/*
+@desc Set the maximum number of players that can join the lobby.
+
+_This can only be set by the owner of the lobby._
+@param hLobbySteamID The Steam ID handle of the lobby to set the member limit for.
+@param maxMembers The maximum number of players allowed in this lobby. This can not be above 250.
+@return 1 if the limit was successfully set; otherwise 0.
+@api ISteamMatchmaking#SetLobbyMemberLimit
+*/
 extern "C" DLL_EXPORT int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers);
+/*
+@desc Gets the number of users in a lobby.
+@param hLobbySteamID The Steam ID handle of the lobby to get the number of members of.
+@return The number of members in the lobby, 0 if the current user has no data from the lobby.
+@api ISteamMatchmaking#GetNumLobbyMembers
+*/
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID);
+/*
+@desc Gets the Steam ID handle of the lobby member at the given index.
+@param hLobbySteamID This MUST be the same lobby used in the previous call to GetNumLobbyMembers!
+@param index An index between 0 and GetNumLobbyMembers.
+@return A Steam ID handle.
+@api ISteamMatchmaking#GetLobbyMemberByIndex
+*/
 extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index);
+/*
+@desc Indicates whether the LobbyChatUpdate_t callback has stored data.
+A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
+@return 1 when there is data stored; otherwise 0.
+@api ISteamMatchmaking#LobbyChatUpdate_t
+*/
 extern "C" DLL_EXPORT int HasLobbyChatUpdate();
+/*
+@desc The user whose status in the lobby has changed.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyChatUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
+/*
+@desc The new user state for the user whose status changed.
+@return [EChatMemberStateChange bit data](https://partner.steamgames.com/doc/api/ISteamMatchmaking#EChatMemberStateChange)
+@api ISteamMatchmaking#LobbyChatUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
+/*
+@desc Chat member who made the change.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyChatUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 /* @page Lobby Chat Messages */
+/*
+@desc A chat message for this lobby has been received.
+Indicates whether the LobbyChatMsg_t callback has stored data.
+@return 1 when there is data stored; otherwise 0.
+@api ISteamMatchmaking#LobbyChatMsg_t
+*/
 extern "C" DLL_EXPORT int HasLobbyChatMessage();
+/*
+@desc Gets the Steam ID handle of the user who sent this message.
+
+_HasLobbyChatMessage must be called prior to calling this function._
+@return A Steam ID handle.
+@api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
+*/
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
+/*
+@desc Gets the chat message that was sent.
+
+_HasLobbyChatMessage must be called prior to calling this function._
+@return The contents of the chat message.
+@api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
+*/
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
-extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, char *msg);
+/*
+@desc Broadcasts a chat message to the all of the users in the lobby.
+@param hLobbySteamID The Steam ID handle of the lobby to send the chat message to.
+@param message The message to send.
+@return 1 when the send succeeds; otherwise 0.
+@api ISteamMatchmaking#SendLobbyChatMessage
+*/
+extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, char *message);
 /* @page Favorite Games */
+/*
+@desc Adds the game server to the local favorites list or updates the time played of the server if it already exists in the list.
+
+_The plugin sets the API call's rTime32LastPlayedOnServer parameter internally to the current client system time._
+@param appID The App ID of the game.
+@param ip The IP address of the server.
+@param connectPort The port used to connect to the server.
+@param queryPort The port used to query the server, in host order.
+@param flags Sets the whether the server should be added to the favorites list or history list.
+@param-api flags ISteamMatchmaking#k_unFavoriteFlagNone
+@return An integer.  This appears to be an index position, but is not defined by the API.
+@api ISteamMatchmaking#AddFavoriteGame, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
+*/
 extern "C" DLL_EXPORT int AddFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);//, int time32LastPlayedOnServer);
+/*
+@desc Gets the number of favorite and recent game servers the user has stored locally.
+@return An integer.
+@api ISteamMatchmaking#GetFavoriteGameCount
+*/
 extern "C" DLL_EXPORT int GetFavoriteGameCount();
+/*
+@desc Gets the details of the favorite game server by index.
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount
+@return Returns a JSON string of the game server information that parses to the following type.
+```
+Type FavoriteGameInfo_t
+	AppID as integer
+	IPv4 as string
+	ConnectPort as integer
+	QueryPort as integer
+	Flags as integer
+	TimeLastPlayedOnServer as integer
+EndType
+```
+@api ISteamMatchmaking#GetFavoriteGame
+*/
 extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
+/*
+@desc Removes the game server from the local favorites list.
+@param appID The App ID of the game.
+@param ip The IP address of the server.
+@param connectPort The port used to connect to the server, in host order.
+@param queryPort The port used to query the server, in host order.
+@param flags Whether the server is on the favorites list or history list. See k_unFavoriteFlagNone for more information.
+@param-api flags ISteamMatchmaking#k_unFavoriteFlagNone
+@return 1 if the server was removed; otherwise, 0 if the specified server was not on the users local favorites list.
+@api ISteamMatchmaking#RemoveFavoriteGame, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
+*/
 extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);
 // Game server
 //extern "C" DLL_EXPORT char *GetPublicIP();
@@ -916,30 +1558,159 @@ extern "C" DLL_EXPORT int HasMusicPlaybackStatusChanged();
 */
 extern "C" DLL_EXPORT int HasMusicVolumeChanged();
 /* @page Utility Methods */
+/*
+@desc Gets the current amount of battery power on the computer.
+@return The current batter power as a percentage, from 0 to 100, or 255 when on AC power.
+@api ISteamUtils#GetCurrentBatteryPower
+*/
 extern "C" DLL_EXPORT int GetCurrentBatteryPower();
+/*
+@desc Tests when running on a laptop and there is less than 10 minutes of battery.  Fires every minute afterwards.
+This method returns 1 once per warning.  It is not reported as an on going effect.
+@return 1 when there is a low battery warning; otherwise 0.
+@api ISteamUtils#LowBatteryPower_t
+*/
 extern "C" DLL_EXPORT int HasLowBatteryWarning();
+/*
+@desc HasLowBatteryWarning should be checked before calling this method.
+
+Reports the estimate battery life in minutes when a low battery warning occurs.
+@return Battery life in minutes.
+@api ISteamUtils#LowBatteryPower_t
+*/
 extern "C" DLL_EXPORT int GetMinutesBatteryLeft();
+/*
+@desc Returns the number of Inter-Process Communication calls made since the last time this function was called.
+
+Used for perf debugging so you can determine how many IPC (Inter-Process Communication) calls your game makes per frame
+Every IPC call is at minimum a thread context switch if not a process one so you want to rate control how often you do them.
+@return An integer.
+@api ISteamUtils#GetIPCCallCount
+*/
 extern "C" DLL_EXPORT int GetIPCCallCount();
+/*
+@desc Returns the 2 character ISO 3166-1-alpha-2 format country code which client is running in.
+@return A two character string.
+@api ISteamUtils#GetIPCountry
+*/
 extern "C" DLL_EXPORT char *GetIPCountry();
+/*
+@desc Reports when the country of the user has changed.  Use GetIPCountry to get the new value.
+@return 1 when the country has changed; otherwise 0.
+@api ISteamUtils#IPCountry_t
+*/
 extern "C" DLL_EXPORT int HasIPCountryChanged();
+/*
+@desc Returns the number of seconds since the application was active.
+@return An integer.
+@api ISteamUtils#GetSecondsSinceAppActive
+*/
 extern "C" DLL_EXPORT int GetSecondsSinceAppActive();
+/*
+@desc Returns the number of seconds since the user last moved the mouse.
+@return An integer
+@api ISteamUtils#GetSecondsSinceComputerActive
+*/
 extern "C" DLL_EXPORT int GetSecondsSinceComputerActive();
+/*
+@desc Returns the Steam server time in Unix epoch format.
+@return An integer.
+@api ISteamUtils#GetServerRealTime
+*/
 extern "C" DLL_EXPORT int GetServerRealTime();
+/*
+@desc Returns the language the steam client is running in.
+
+You probably want GetCurrentGameLanguage instead, this should only be used in very special cases.
+@return A string.
+@api ISteamUtils#GetSteamUILanguage
+*/
 extern "C" DLL_EXPORT char *GetSteamUILanguage();
+/*
+@desc Called when Steam wants to shutdown.
+@return 1 when Steam is shutting down; otherwise 0.
+@api ISteamUtils#SteamShutdown_t
+*/
 extern "C" DLL_EXPORT int IsSteamShuttingDown();
+/*
+@desc Sets a warning message hook within the plugin to receive Steam API warnings and info messages and output them to AGK's Debug Log.
+
+_Note: I have never seen a warning show up and don't know how to force one to fire, so I can only assume the plugin code is correct._
+@api ISteamUtils#SetWarningMessageHook
+*/
 extern "C" DLL_EXPORT void SetWarningMessageHook();
 /* @page Big Picture Mode */
+/*
+@desc Checks if Steam and the Steam Overlay are running in Big Picture mode.
+@return 1 if in Big Picture Mode; otherwise 0.
+@api ISteamUtils#IsSteamInBigPictureMode
+*/
 extern "C" DLL_EXPORT int IsSteamInBigPictureMode();
+/*
+@desc Activates the Big Picture text input dialog which only supports gamepad input.
+
+Note: charMax is limited to 512 characters.
+@param eInputMode Selects the input mode to use, either Normal or Password (hidden text).
+@param-api eInputMode ISteamUtils#EGamepadTextInputMode
+@param eLineInputMode Controls whether to use single or multi line input.
+@param-api eLineInputMode ISteamUtils#EGamepadTextInputLineMode
+@param description Sets the description that should inform the user what the input dialog is for.
+@param charMax The maximum number of characters that the user can input.
+@param existingText Sets the preexisting text which the user can edit.
+@return 1 if the input overlay opens; otherwise 0.
+@api ISteamUtils#ShowGamepadTextInput
+*/
 extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText);
+/*
+@desc Returns 1 when the big picture gamepad text input has been closed.
+@return 1 when the big picture gamepad text input has closed; otherwise 0.
+@api ISteamUtils#GamepadTextInputDismissed_t
+*/
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedInfo();
+/*
+@desc HasGamepadTextInputDismissedInfo should be checked prior to calling this function.
+
+Gets the result of big picture gamepad text input.
+@return A JSON string with this structure.  (See steam_constants.agc)
+```
+Type GamepadTextInputDismissedInfo_t
+	Submitted as integer	// 1 when the user submitted text. 0 when the user cancels.
+	Text as string
+EndType
+```
+@api ISteamUtils#GamepadTextInputDismissed_t
+*/
 extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
 /* @page VR
 **Note:**  
 I don't own a VR device and don't have the SteamVR Tool installed.  I don't know if these commands are useful for those who do, but they are here for completeness.
 */
+/*
+@desc Checks if Steam is running in VR mode.
+@return 1 when Steam is running in VR mode; otherwise 0.
+@api ISteamUtils#IsSteamRunningInVR
+*/
 extern "C" DLL_EXPORT int IsSteamRunningInVR();
+/*
+@desc Asks Steam to create and render the OpenVR dashboard.
+@api ISteamUtils#StartVRDashboard
+*/
 extern "C" DLL_EXPORT void StartVRDashboard();
+/*
+@desc Set whether the HMD content will be streamed via Steam In-Home Streaming.
+
+See API reference for further information.
+@param enabled Turns VR HMD Streaming on (1) or off (0).
+@api ISteamUtils#SetVRHeadsetStreamingEnabled
+*/
 extern "C" DLL_EXPORT void SetVRHeadsetStreamingEnabled(int enabled);
+/*
+@desc Checks if the HMD view will be streamed via Steam In-Home Streaming.
+
+See API reference for further information.
+@return 1 if streaming is enabled; otherwise 0.
+@api ISteamUtils#IsVRHeadsetStreamingEnabled
+*/
 extern "C" DLL_EXPORT int IsVRHeadsetStreamingEnabled();
 /* @page Cloud Information */
 /*
@@ -1043,7 +1814,7 @@ This is meant to be used when a user actively deletes a file. Use FileForget if 
 
 When a file has been deleted it can be re-written with FileWrite to reupload it to the Steam Cloud.
 @param filename The name of the file that will be deleted.
-1 if the file exists and has been successfully deleted; otherwise, 0 if the file did not exist.
+@return 1 if the file exists and has been successfully deleted; otherwise, 0 if the file did not exist.
 @api ISteamRemoteStorage#FileDelete
 */
 extern "C" DLL_EXPORT int CloudFileDelete(char *filename);
@@ -1095,9 +1866,39 @@ Returns 0 if the file doesn't exist or the read fails.
 @api ISteamRemoteStorage#FileRead
 */
 extern "C" DLL_EXPORT int CloudFileRead(char *filename);
+/*
+@desc Starts an asynchronous read from a file.
+
+The offset and amount to read should be valid for the size of the file, as indicated by GetCloudFileSize.
+
+Check GetCloudFileReadAsyncCallbackState to see when the callback completes.
+@param filename The name of the file to read from.
+@param offset The offset in bytes into the file where the read will start from. 0 if you're reading the whole file in one chunk.
+@param length The amount of bytes to read starting from nOffset.
+@return 1 if the request succeeds; otherwise 0.
+@api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
+*/
 extern "C" DLL_EXPORT int CloudFileReadAsync(char *filename, int offset, int length);
+/*
+@desc Returns the state of the RemoteStorageFileReadAsyncComplete_t callback.
+@param filename The name of the file read from.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+@api ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
+*/
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncCallbackState(char *filename);
+/*
+@desc Returns the result of the CloudFileReadAsync callback operation.
+@param filename The name of the file read from.
+@return The result of the operation.
+@api steam_api#EResult
+*/
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncResult(char *filename);
+/*
+@desc Returns a memblock of the data returned by the CloudFileReadAsync callback operation.
+@param filename The name of the file read from.
+@return A memblock ID.
+@api steam_api#EResult
+*/
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(char *filename);
 //extern "C" DLL_EXPORT SteamAPICall_t CloudFileShare(const char *filename);
 /*
@@ -1120,8 +1921,29 @@ Otherwise, 0 under the following conditions:
 @api ISteamRemoteStorage#FileWrite
 */
 extern "C" DLL_EXPORT int CloudFileWrite(char *filename, int memblockID);
+/*
+@desc Creates a new file and asynchronously writes the raw byte data to the Steam Cloud, and then closes the file. If the target file already exists, it is overwritten.
+
+Check GetCloudFileWriteAsyncCallbackState to see when the callback completes.
+@param filename The name of the file to write to.
+@param memblockID The memblock containing the data to write to the file.
+@return 1 if the request succeeds; otherwise 0.
+@api ISteamRemoteStorage#FileWriteAsync, ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
+*/
 extern "C" DLL_EXPORT int CloudFileWriteAsync(char *filename, int memblockID);
+/*
+@desc Returns the state of the RemoteStorageFileWriteAsyncComplete_t callback.
+@param filename The name of the file to write to.
+@return [A callback state.](Callbacks-and-Call-Results#states)
+@api ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
+*/
 extern "C" DLL_EXPORT int GetCloudFileWriteAsyncCallbackState(char *filename);
+/*
+@desc Returns the result of the CloudFileWriteAsync callback operation.
+@param filename The name of the file to write to.
+@return The result of the operation.
+@api steam_api#EResult
+*/
 extern "C" DLL_EXPORT int GetCloudFileWriteAsyncResult(char *filename);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
@@ -1163,8 +1985,8 @@ Files default to k_ERemoteStoragePlatformAll when they are first created. You ca
 @api ISteamRemoteStorage#SetSyncPlatforms
 */
 extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform);
-// User-Generated Content
-extern "C" DLL_EXPORT int GetCachedUGCCount();
+/* @page User-Generated Content */
+//extern "C" DLL_EXPORT int GetCachedUGCCount();
 //extern "C" DLL_EXPORT UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
 //extern "C" DLL_EXPORT bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //extern "C" DLL_EXPORT bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);

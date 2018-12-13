@@ -1004,6 +1004,7 @@ void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIO
 	m_LeaderboardFindResult = *pCallback;
 }
 
+// TODO Change this to behave like CFileReadAsyncItem does so multiple leaderboards can be searched at once.
 bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
 	CheckInitialized(SteamUserStats, false);

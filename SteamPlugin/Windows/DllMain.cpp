@@ -1040,10 +1040,10 @@ Raises a notification about achievemnt progress for progress stat achievements.
 The notification only shows when current progress is less than the max.
 SetStat still needs to be used to set the progress stat value.
 */
-int IndicateAchievementProgress(const char *name, int nCurProgress, int nMaxProgress)
+int IndicateAchievementProgress(const char *name, int curProgress, int maxProgress)
 {
 	CheckInitialized(false);
-	return Steam->IndicateAchievementProgress(name, nCurProgress, nMaxProgress);
+	return Steam->IndicateAchievementProgress(name, curProgress, maxProgress);
 }
 
 /*
@@ -1091,30 +1091,30 @@ float GetStatFloat(const char *name)
 Sets an integer user stat value.
 Returns 1 if the call succeeds.  Otherwise returns 0.
 */
-int SetStatInt(const char *name, int nData)
+int SetStatInt(const char *name, int value)
 {
 	CheckInitialized(false);
-	return Steam->SetStat(name, nData);
+	return Steam->SetStat(name, value);
 }
 
 /*
 Sets a float user stat value.
 Returns 1 if the call succeeds.  Otherwise returns 0.
 */
-int SetStatFloat(const char *name, float fData)
+int SetStatFloat(const char *name, float value)
 {
 	CheckInitialized(false);
-	return Steam->SetStat(name, fData);
+	return Steam->SetStat(name, value);
 }
 
 /*
 Updates an average rate user stat.  Steam takes care of the averaging.  Use GetStatFloat to get the result.
 Returns 1 if the call succeeds.  Otherwise returns 0.
 */
-int UpdateAvgRateStat(const char *name, float flCountThisSession, float dSessionLength)
+int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLength)
 {
 	CheckInitialized(false);
-	return Steam->UpdateAvgRateStat(name, flCountThisSession, (double) dSessionLength);
+	return Steam->UpdateAvgRateStat(name, countThisSession, (double)sessionLength);
 }
 
 int FindLeaderboard(const char *leaderboardName)
@@ -1159,6 +1159,7 @@ int GetLeaderboardSortMethod(int hLeaderboard)
 	return Steam->GetLeaderboardSortMethod(hLeaderboard);
 }
 
+// TODO Adde force parameter and allow for a data memblock of integers.
 int UploadLeaderboardScore(int hLeaderboard, int score)
 {
 	CheckInitialized(false);
