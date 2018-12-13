@@ -210,7 +210,7 @@ Function LoadAchievements()
 	for index = 0 to Steam.GetNumAchievements() - 1
 		// NOTE: Apps should already have these names.  GetAchievementID is generally just for this demo.
 		name as string
-		name = Steam.GetAchievementID(index)
+		name = Steam.GetAchievementAPIName(index)
 		server.achievements.insert(name)
 		// Create controls to show the achievement icon and information.
 		imageID as integer
