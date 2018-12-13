@@ -679,6 +679,40 @@ EndType
 //~ #constant STEAMMUSIC_INTERFACE_VERSION	"STEAMMUSIC_INTERFACE_VERSION001"
 
 ////////////////////////////////////////////////////////////////
+// ISteamRemoteStorage
+// https://partner.steamgames.com/doc/api/ISteamRemoteStorage
+////////////////////////////////////////////////////////////////
+
+// ERemoteStoragePlatform
+//--------------------------------------------------------------
+// Sync Platforms flags. These can be used with SetSyncPlatforms to restrict a file to a specific OS.
+#constant k_ERemoteStoragePlatformNone			0x0	// This file will not be downloaded on any platform.
+#constant k_ERemoteStoragePlatformWindows		0x1	// This file will download on Windows.
+#constant k_ERemoteStoragePlatformOSX			0x2	// This file will download on macOS.
+#constant k_ERemoteStoragePlatformPS3			0x4	// This file will download on the Playstation 3.
+#constant k_ERemoteStoragePlatformLinux			0x8	// This file will download on SteamOS/Linux.
+#constant k_ERemoteStoragePlatformReserved2		0x16	// Reserved.
+#constant k_ERemoteStoragePlatformAll 			0xffffffff	// This file will download on every platform. This is the default.
+
+
+// Structs
+//--------------------------------------------------------------
+// Cloud file list information
+// Obtainable from: GetCloudFileListJSON
+Type CloudFileInfo_t
+	Name as string		// The file name.
+	Size as integer		// The size of the file.
+EndType
+
+// Cloud quota information
+// Obtainable from: GetCloudQuotaJSON
+Type CloudQuota_t
+	Available as integer	// The number of bytes available.
+	Total as integer		// Total amount of bytes the user has access to.
+EndType
+
+
+////////////////////////////////////////////////////////////////
 // ISteamUserStats
 // https://partner.steamgames.com/doc/api/ISteamUserStats
 ////////////////////////////////////////////////////////////////

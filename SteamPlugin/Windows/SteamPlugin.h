@@ -29,18 +29,12 @@ THE SOFTWARE.
 #include <vector>
 //#include <thread>
 #include <mutex>
+#include "DllMain.h"
+#include "CFileWriteAsyncItem.h"
+#include "CFileReadAsyncItem.h"
 
 #define MAX_LEADERBOARD_ENTRIES 10
 #define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
-
-enum ECallbackState
-{
-	ServerError = -2,
-	ClientError = -1,
-	Idle = 0,
-	Running = 1,
-	Done = 2
-};
 
 enum EAvatarSize
 {
@@ -49,7 +43,8 @@ enum EAvatarSize
 	Large = 2
 };
 
-class SteamPlugin {
+class SteamPlugin
+{
 private:
 	// General methods.
 	uint64 m_AppID;
@@ -128,7 +123,7 @@ private:
 	CSteamID m_LobbyCreatedID;
 	EResult m_LobbyCreatedResult;
 	// Lobby methods: Join, Create, Leave
-	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we leave any left open when closing.
+	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 	ECallbackState m_LobbyEnterCallbackState;
 	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
 	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
@@ -187,6 +182,12 @@ private:
 		char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
 	};
 	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
+	// Cloud method: FileWriteAsync
+	CFileWriteAsyncItem *GetFileWriteAsyncItem(std::string filename);
+	std::map<std::string, CFileWriteAsyncItem*> m_FileWriteAsyncItemMap;
+	// Cloud method: FileReadAsync
+	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
+	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -292,7 +293,7 @@ public:
 	bool AchievementStored() { return m_AchievementStored; }
 	// Achievements methods.
 	int GetNumAchievements();
-	const char* GetAchievementID(int index);
+	const char* GetAchievementAPIName(int index);
 	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
 	int GetAchievementIcon(const char *pchName);
@@ -437,6 +438,44 @@ public:
 	void StartVRDashboard();
 	void SetVRHeadsetStreamingEnabled(bool bEnabled);
 	bool IsVRHeadsetStreamingEnabled();
+	// Cloud methods : Information
+	bool IsCloudEnabledForAccount();
+	bool IsCloudEnabledForApp();
+	void SetCloudEnabledForApp(bool bEnabled);
+	// Cloud Methods: Files
+	bool FileDelete(const char *pchFile);
+	bool FileExists(const char *pchFile);
+	bool FileForget(const char *pchFile);
+	bool FilePersisted(const char *pchFile);
+	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
+	bool FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	ECallbackState GetFileReadAsyncCallbackState(const char *pchFile);
+	EResult GetFileReadAsyncResult(const char *pchFile);
+	int GetFileReadAsyncMemblock(const char *pchFile);
+	//SteamAPICall_t FileShare(const char *pchFile);
+	bool FileWrite(const char *pchFile, const void *pvData, int32 cubData);
+	bool FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);
+	ECallbackState GetFileWriteAsyncCallbackState(const char *pchFile);
+	EResult GetFileWriteAsyncResult(const char *pchFile);
+	//bool FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
+	//bool FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
+	//UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *pchFile);
+	//bool FileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
+	int32 GetFileCount();
+	const char * GetFileNameAndSize(int iFile, int32 *pnFileSizeInBytes);
+	int32 GetFileSize(const char *pchFile);
+	int64 GetFileTimestamp(const char *pchFile);
+	bool GetQuota(uint64 *pnTotalBytes, uint64 *puAvailableBytes);
+	ERemoteStoragePlatform GetSyncPlatforms(const char *pchFile);
+	bool SetSyncPlatforms(const char *pchFile, ERemoteStoragePlatform eRemoteStoragePlatform);
+	// User-Generated Content
+	int32 GetCachedUGCCount();
+	//UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
+	//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+	//bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
+	//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
+	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
+	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 };
 
 #endif // STEAMPLUGIN_H_

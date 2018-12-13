@@ -1181,10 +1181,10 @@ extern void(*AGKCommand1113)( const char * );
 //extern void(*AGKCommand1167)( float, float, float, float, unsigned int, unsigned int, int );
 extern unsigned int(*AGKCommand1168)( unsigned int );
 //extern void(*AGKCommand1169)( unsigned int, unsigned int );
-//extern int(*AGKCommand1170)( unsigned int );
+extern int(*AGKCommand1170)( unsigned int );
 extern void(*AGKCommand1171)( unsigned int );
 //extern void(*AGKCommand1172)( unsigned int, unsigned int, unsigned int, unsigned int, unsigned int );
-//extern int(*AGKCommand1173)( unsigned int );
+extern int(*AGKCommand1173)( unsigned int );
 //extern int(*AGKCommand1174)( unsigned int, unsigned int );
 //extern int(*AGKCommand1175)( unsigned int, unsigned int );
 //extern int(*AGKCommand1176)( unsigned int, unsigned int );
@@ -1843,7 +1843,7 @@ extern unsigned int(*AGKCommand1189)( unsigned int );
 //extern void(*AGKCommand1829)( unsigned int, unsigned int );
 //extern void(*AGKCommand1830)( unsigned int, float, float );
 //extern void(*AGKCommand1831)( unsigned int, unsigned int, float, float );
-//extern unsigned char*(*AGKCommand1832)( unsigned int );
+extern unsigned char*(*AGKCommand1832)( unsigned int );
 //extern void(*AGKCommand1833)( const char *, int );
 //extern void(*AGKCommand1834)(  );
 //extern int(*AGKCommand1835)(  );
@@ -3074,10 +3074,10 @@ class agk
 		//static inline void DrawEllipse( float x, float y, float radiusx, float radiusy, unsigned int color1, unsigned int color2, int filled ) { AGKCommand1167( x, y, radiusx, radiusy, color1, color2, filled ); }
 		static inline unsigned int CreateMemblock( unsigned int size ) { return AGKCommand1168( size ); }
 		//static inline void CreateMemblock( unsigned int memID, unsigned int size ) { AGKCommand1169( memID, size ); }
-		//static inline int GetMemblockExists( unsigned int memID ) { return AGKCommand1170( memID ); }
+		static inline int GetMemblockExists( unsigned int memID ) { return AGKCommand1170( memID ); }
 		static inline void DeleteMemblock( unsigned int memID ) { AGKCommand1171( memID ); }
 		//static inline void CopyMemblock( unsigned int memSrcID, unsigned int memDstID, unsigned int srcOffset, unsigned int dstOffset, unsigned int size ) { AGKCommand1172( memSrcID, memDstID, srcOffset, dstOffset, size ); }
-		//static inline int GetMemblockSize( unsigned int memID ) { return AGKCommand1173( memID ); }
+		static inline int GetMemblockSize( unsigned int memID ) { return AGKCommand1173( memID ); }
 		//static inline int GetMemblockByte( unsigned int memID, unsigned int offset ) { return AGKCommand1174( memID, offset ); }
 		//static inline int GetMemblockByteSigned( unsigned int memID, unsigned int offset ) { return AGKCommand1175( memID, offset ); }
 		//static inline int GetMemblockShort( unsigned int memID, unsigned int offset ) { return AGKCommand1176( memID, offset ); }
@@ -3736,7 +3736,7 @@ class agk
 		//static inline void SetObjectNormalMap( unsigned int objID, unsigned int imageID ) { AGKCommand1829( objID, imageID ); }
 		//static inline void SetObjectNormalMapScale( unsigned int objID, float scaleU, float scaleV ) { AGKCommand1830( objID, scaleU, scaleV ); }
 		//static inline void SetObjectMeshNormalMapScale( unsigned int objID, unsigned int meshIndex, float scaleU, float scaleV ) { AGKCommand1831( objID, meshIndex, scaleU, scaleV ); }
-		//static inline unsigned char* GetMemblockPtr( unsigned int memID ) { return AGKCommand1832( memID ); }
+		static inline unsigned char* GetMemblockPtr( unsigned int memID ) { return AGKCommand1832( memID ); }
 		//static inline void StartScreenRecording( const char * szFilename, int microphone ) { AGKCommand1833( szFilename, microphone ); }
 		//static inline void StopScreenRecording(  ) { AGKCommand1834(  ); }
 		//static inline int IsScreenRecording(  ) { return AGKCommand1835(  ); }
