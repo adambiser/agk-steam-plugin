@@ -48,6 +48,16 @@ If it has not been, return a default value.
 // Token for passing an empty returnValue into CheckInitialized();
 #define NORETURN
 
+#define Clamp(value, min, max)			\
+	if (value < min)					\
+	{									\
+		value = min;					\
+	}									\
+	else if (value > max)				\
+	{									\
+		value = max;					\
+	}
+
 /*
 Converts a const char* to agk:string.
 */
@@ -102,7 +112,7 @@ void ClearSteamIDHandleList()
 	m_CSteamIDs.push_back(k_steamIDNil);
 }
 
-bool ParseIP(char *ipv4, uint32 *ip)
+bool ParseIP(const char *ipv4, uint32 *ip)
 {
 	int ip1, ip2, ip3, ip4;
 	sscanf(ipv4, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
@@ -242,7 +252,7 @@ int IsSteamIDValid(int hSteamID)
 	return steamID.IsValid();
 }
 
-int GetHandleFromSteamID64(char *steamID64)
+int GetHandleFromSteamID64(const char *steamID64)
 {
 	CheckInitialized(0);
 	uint64 id = _atoi64(steamID64);
@@ -530,7 +540,7 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 	return CreateString(json.str());
 }
 
-char * GetLaunchQueryParam(char *key)
+char * GetLaunchQueryParam(const char *key)
 {
 	CheckInitialized(CreateString(NULL));
 	return CreateString(Steam->GetLaunchQueryParam(key));
@@ -1256,13 +1266,13 @@ void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable)
 	return Steam->AddRequestLobbyListFilterSlotsAvailable(slotsAvailable);
 }
 
-void AddRequestLobbyListNearValueFilter(char *keyToMatch, int valueToBeCloseTo)
+void AddRequestLobbyListNearValueFilter(const char *keyToMatch, int valueToBeCloseTo)
 {
 	CheckInitialized(NORETURN);
 	return Steam->AddRequestLobbyListNearValueFilter(keyToMatch, valueToBeCloseTo);
 }
 
-void AddRequestLobbyListNumericalFilter(char *keyToMatch, int valueToMatch, int eComparisonType)
+void AddRequestLobbyListNumericalFilter(const char *keyToMatch, int valueToMatch, int eComparisonType)
 {
 	CheckInitialized(NORETURN);
 	return Steam->AddRequestLobbyListNumericalFilter(keyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
@@ -1274,7 +1284,7 @@ void AddRequestLobbyListResultCountFilter(int maxResults)
 	return Steam->AddRequestLobbyListResultCountFilter(maxResults);
 }
 
-void AddRequestLobbyListStringFilter(char *keyToMatch, char *valueToMatch, int eComparisonType)
+void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueToMatch, int eComparisonType)
 {
 	CheckInitialized(NORETURN);
 	return Steam->AddRequestLobbyListStringFilter(keyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
@@ -1421,7 +1431,7 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 	return CreateString(json.str());
 }
 
-int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort, int hGameServerSteamID)
+int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
 {
 	CheckInitialized(false);
 	if (gameServerPort < 0 || gameServerPort > 0xffff)
@@ -1464,7 +1474,7 @@ char *GetLobbyGameCreatedJSON()
 }
 
 // Lobby methods: Data
-char *GetLobbyData(int hLobbySteamID, char *key)
+char *GetLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(CreateString(NULL));
 	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
@@ -1518,13 +1528,13 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 	return CreateString(json.str());
 }
 
-void SetLobbyData(int hLobbySteamID, char *key, char *value)
+void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 {
 	CheckInitialized(NORETURN);
 	Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
 }
 
-int DeleteLobbyData(int hLobbySteamID, char *key)
+int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(false);
 	return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
@@ -1554,13 +1564,13 @@ int GetLobbyDataUpdatedID()
 	return GetSteamIDHandle(Steam->GetLobbyDataUpdatedID());
 }
 
-char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key)
+char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
 	CheckInitialized(CreateString(NULL));
 	return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
 }
 
-void SetLobbyMemberData(int hLobbySteamID, char *key, char *value)
+void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
 {
 	CheckInitialized(NORETURN);
 	return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
@@ -1646,14 +1656,14 @@ char *GetLobbyChatMessageText()
 	return CreateString(msg);
 }
 
-int SendLobbyChatMessage(int hLobbySteamID, char *msg)
+int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
 	CheckInitialized(0);
 	return Steam->SendLobbyChatMessage(GetSteamID(hLobbySteamID), msg);
 }
 
 // Lobby methods: Favorite games
-int AddFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, int flags) //, int time32LastPlayedOnServer)
+int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags) //, int time32LastPlayedOnServer)
 {
 	CheckInitialized(0);
 	if (connectPort < 0 || connectPort > 0xffff)
@@ -1708,7 +1718,7 @@ char *GetFavoriteGameJSON(int index)
 	return CreateString(json.str());
 }
 
-int RemoveFavoriteGame(int appID, char *ipv4, int connectPort, int queryPort, int flags)
+int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags)
 {
 	CheckInitialized(0);
 	if (connectPort < 0 || connectPort > 0xffff)
@@ -1927,7 +1937,7 @@ char *GetGamepadTextInputDismissedInfoJSON()
 	return CreateString(json.str());
 }
 
-int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText)
+int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
 {
 	CheckInitialized(false);
 	return Steam->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
@@ -1978,31 +1988,31 @@ void SetCloudEnabledForApp(int enabled)
 }
 
 // Cloud methods: Files
-int CloudFileDelete(char *filename)
+int CloudFileDelete(const char *filename)
 {
 	CheckInitialized(false);
 	return Steam->FileDelete(filename);
 }
 
-int CloudFileExists(char *filename)
+int CloudFileExists(const char *filename)
 {
 	CheckInitialized(false);
 	return Steam->FileExists(filename);
 }
 
-int CloudFileForget(char *filename)
+int CloudFileForget(const char *filename)
 {
 	CheckInitialized(false);
 	return Steam->FileForget(filename);
 }
 
-int CloudFilePersisted(char *filename)
+int CloudFilePersisted(const char *filename)
 {
 	CheckInitialized(false);
 	return Steam->FilePersisted(filename);
 }
 
-int CloudFileRead(char *filename)
+int CloudFileRead(const char *filename)
 {
 	CheckInitialized(0);
 	int fileSize = Steam->GetFileSize(filename);
@@ -2015,7 +2025,7 @@ int CloudFileRead(char *filename)
 	return 0;
 }
 
-int CloudFileReadAsync(char *filename, int offset, int length)
+int CloudFileReadAsync(const char *filename, int offset, int length)
 {
 	CheckInitialized(false);
 	if (length == -1)
@@ -2025,28 +2035,28 @@ int CloudFileReadAsync(char *filename, int offset, int length)
 	return Steam->FileReadAsync(filename, offset, length);
 }
 
-int GetCloudFileReadAsyncCallbackState(char *filename)
+int GetCloudFileReadAsyncCallbackState(const char *filename)
 {
 	CheckInitialized(ClientError);
 	return Steam->GetFileReadAsyncCallbackState(filename);
 }
 
-int GetCloudFileReadAsyncResult(char *filename)
+int GetCloudFileReadAsyncResult(const char *filename)
 {
 	CheckInitialized(0);
 	return Steam->GetFileReadAsyncResult(filename);
 }
 
-int GetCloudFileReadAsyncMemblock(char *filename)
+int GetCloudFileReadAsyncMemblock(const char *filename)
 {
 	CheckInitialized(0);
 	return Steam->GetFileReadAsyncMemblock(filename);
 }
 
 
-//SteamAPICall_t CloudFileShare(char *filename);
+//SteamAPICall_t CloudFileShare(const char *filename);
 
-int CloudFileWrite(char *filename, int memblockID)
+int CloudFileWrite(const char *filename, int memblockID)
 {
 	CheckInitialized(false);
 	if (agk::GetMemblockExists(memblockID))
@@ -2056,7 +2066,7 @@ int CloudFileWrite(char *filename, int memblockID)
 	return false;
 }
 
-int CloudFileWriteAsync(char *filename, int memblockID)
+int CloudFileWriteAsync(const char *filename, int memblockID)
 {
 	CheckInitialized(false);
 	if (agk::GetMemblockExists(memblockID))
@@ -2066,13 +2076,13 @@ int CloudFileWriteAsync(char *filename, int memblockID)
 	return false;
 }
 
-int GetCloudFileWriteAsyncCallbackState(char *filename)
+int GetCloudFileWriteAsyncCallbackState(const char *filename)
 {
 	CheckInitialized(ClientError);
 	return Steam->GetFileWriteAsyncCallbackState(filename);
 }
 
-int GetCloudFileWriteAsyncResult(char *filename)
+int GetCloudFileWriteAsyncResult(const char *filename)
 {
 	CheckInitialized(0);
 	return (int)Steam->GetFileWriteAsyncResult(filename);
@@ -2129,13 +2139,13 @@ char *GetCloudFileListJSON()
 	return CreateString(json.str());
 }
 
-int GetCloudFileSize(char *filename)
+int GetCloudFileSize(const char *filename)
 {
 	CheckInitialized(0);
 	return Steam->GetFileSize(filename);
 }
 
-int GetCloudFileTimestamp(char *filename)
+int GetCloudFileTimestamp(const char *filename)
 {
 	CheckInitialized(0);
 	// NOTE: Dangerous conversion int64 to int.
@@ -2186,13 +2196,13 @@ char *GetCloudQuotaJSON()
 	return CreateString(json.str());
 }
 
-int GetCloudFileSyncPlatforms(char *filename)
+int GetCloudFileSyncPlatforms(const char *filename)
 {
 	CheckInitialized(0);
 	return Steam->GetSyncPlatforms(filename);
 }
 
-int SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform)
+int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 {
 	CheckInitialized(false);
 	return Steam->SetSyncPlatforms(filename, (ERemoteStoragePlatform) eRemoteStoragePlatform);
@@ -2207,8 +2217,47 @@ int GetCachedUGCCount()
 }
 
 //UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
-//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, const char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
 //SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 //SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *location, uint32 unPriority);
 //int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
+
+int InitSteamController()
+{
+	CheckInitialized(0);
+	return Steam->InitSteamController();
+}
+
+int ShutdownSteamController()
+{
+	CheckInitialized(0);
+	return Steam->ShutdownSteamController();
+}
+
+int GetConnectedControllers()
+{
+	CheckInitialized(0);
+	return Steam->GetConnectedControllers();
+}
+
+int GetControllerType(int controller)
+{
+	CheckInitialized(0);
+	return Steam->GetInputTypeForHandle(controller);
+}
+
+void TriggerControllerHapticPulse(int controllerIndex, int eTargetPad, int duration)
+{
+	CheckInitialized(NORETURN);
+	Clamp(duration, 0, USHRT_MAX);
+	Steam->TriggerControllerHapticPulse(controllerIndex, (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+}
+
+void TriggerControllerVibration(int controllerIndex, int leftSpeed, int rightSpeed)
+{
+	CheckInitialized(NORETURN);
+	Clamp(leftSpeed, 0, USHRT_MAX);
+	Clamp(rightSpeed, 0, USHRT_MAX);
+	Steam->TriggerControllerVibration(controllerIndex, (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+}

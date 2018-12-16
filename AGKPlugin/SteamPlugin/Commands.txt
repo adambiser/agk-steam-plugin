@@ -335,3 +335,12 @@ SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,0
 #SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 #SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 #int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
+#
+# Controllers
+#
+InitSteamController,I,0,InitSteamController,0,0,0,0,0
+ShutdownSteamController,I,0,ShutdownSteamController,0,0,0,0,0
+GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,0
+GetControllerType,I,I,GetControllerType,0,0,0,0,0
+TriggerControllerHapticPulse,0,III,TriggerControllerHapticPulse,0,0,0,0,0
+TriggerControllerVibration,0,III,TriggerControllerVibration,0,0,0,0,0

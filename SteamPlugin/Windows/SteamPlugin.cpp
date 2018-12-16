@@ -39,6 +39,13 @@ THE SOFTWARE.
 		return returnValue;											\
 	}
 
+#define CheckControllerIndex(index, returnValue)		\
+	if (index < 0 || index >= m_ControllerCount)		\
+	{													\
+		agk::PluginError("Invalid controller index.");	\
+		return returnValue;								\
+	}
+
 extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
 {
 	agk::Log(pchDebugText);
@@ -155,7 +162,8 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackLowBatteryPower(this, &SteamPlugin::OnLowBatteryPower),
 	m_IsSteamShuttingDown(false),
 	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
-	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
+	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed),
+	m_ControllerCount(0)
 {
 	// Nothing for now
 }
@@ -182,6 +190,7 @@ void SteamPlugin::Shutdown()
 {
 	if (m_SteamInitialized)
 	{
+		ShutdownSteamController();
 		// Disconnect from any lobbies.
 		while (m_JoinedLobbies.size() > 0)
 		{
@@ -241,8 +250,7 @@ void SteamPlugin::Shutdown()
 		m_IsSteamShuttingDown = false;
 		FreeClearMap(m_FileWriteAsyncItemMap);
 		FreeClearMap(m_FileReadAsyncItemMap);
-		//m_FileWriteAsyncCallbackState = Idle;
-		//m_FileWriteAsyncComplete = (EResult)0;
+		m_ControllerCount = 0;
 	}
 }
 
@@ -2174,3 +2182,49 @@ int32 SteamPlugin::GetCachedUGCCount()
 //SteamAPICall_t SteamPlugin::UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 //int32 SteamPlugin::UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
+// Controller
+bool SteamPlugin::InitSteamController()
+{
+	CheckInitialized(SteamController, 0);
+	if (SteamController()->Init())
+	{
+		// Give the API some time to refresh the controllers.
+		SteamController()->RunFrame();
+		return true;
+	}
+	return false;
+}
+
+bool SteamPlugin::ShutdownSteamController()
+{
+	CheckInitialized(SteamController, 0);
+	return SteamController()->Shutdown();
+}
+
+int SteamPlugin::GetConnectedControllers()
+{
+	CheckInitialized(SteamController, 0);
+	m_ControllerCount = SteamController()->GetConnectedControllers(m_ControllerHandles);
+	return m_ControllerCount;
+}
+
+ESteamInputType SteamPlugin::GetInputTypeForHandle(int index)
+{
+	CheckInitialized(SteamController, k_ESteamInputType_Unknown);
+	CheckControllerIndex(index, k_ESteamInputType_Unknown);
+	return SteamController()->GetInputTypeForHandle(m_ControllerHandles[index]);
+}
+
+void SteamPlugin::TriggerControllerHapticPulse(int index, ESteamControllerPad eTargetPad, unsigned short duration)
+{
+	CheckInitialized(SteamController, );
+	CheckControllerIndex(index, );
+	SteamController()->TriggerHapticPulse(m_ControllerHandles[index], eTargetPad, duration);
+}
+
+void SteamPlugin::TriggerControllerVibration(int index, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+{
+	CheckInitialized(SteamController, );
+	CheckControllerIndex(index, );
+	SteamController()->TriggerVibration(m_ControllerHandles[index], usLeftSpeed, usRightSpeed);
+}

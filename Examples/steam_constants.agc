@@ -476,6 +476,28 @@ EndType
 #constant QUERY_PORT_NOT_INITIALIZED		0xFFFF		// Constants used for query ports.  We haven't asked the GS for this query port's actual value yet.
 
 ////////////////////////////////////////////////////////////////
+// ISteamController
+// https://partner.steamgames.com/doc/api/ISteamController
+////////////////////////////////////////////////////////////////
+
+// ESteamInputType
+//--------------------------------------------------------------
+// Represents the device model for a given piece of hardware.
+#constant k_ESteamInputType_Unknown				0	// Catch-all for unrecognized devices
+#constant k_ESteamInputType_SteamController		1	// Valve's Steam Controller
+#constant k_ESteamInputType_XBox360Controller	2	// Microsoft's XBox 360 Controller
+#constant k_ESteamInputType_XBoxOneController	3	// Microsoft's XBox One Controller
+#constant k_ESteamInputType_GenericXInput		4	// Any generic 3rd-party XInput device
+#constant k_ESteamInputType_PS4Controller		5	// Sony's Playstation 4 Controller
+
+// ESteamControllerPad
+//--------------------------------------------------------------
+// A touchpad region on a Steam Controller Device.
+#constant k_ESteamControllerPad_Left	0	// The left touchpad region on a Steam Controller Device. Compatible models: VSC, DS4
+#constant k_ESteamControllerPad_Right	1	// The right region on a Steam Controller Device. Compatible models: VSC, DS4
+
+
+////////////////////////////////////////////////////////////////
 // ISteamFriends
 // https://partner.steamgames.com/doc/api/ISteamFriends
 ////////////////////////////////////////////////////////////////

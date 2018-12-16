@@ -188,6 +188,9 @@ private:
 	// Cloud method: FileReadAsync
 	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
 	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
+	// Controller
+	int m_ControllerCount;
+	ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -476,6 +479,13 @@ public:
 	//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
+	// Controller
+	bool InitSteamController();
+	bool ShutdownSteamController();
+	int GetConnectedControllers();
+	ESteamInputType GetInputTypeForHandle(int controllerIndex);
+	void TriggerControllerHapticPulse(int index, ESteamControllerPad eTargetPad, unsigned short duration);
+	void TriggerControllerVibration(int index, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
 #endif // STEAMPLUGIN_H_
