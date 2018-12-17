@@ -2220,10 +2220,22 @@ bool SteamPlugin::ShowBindingPanel(ControllerHandle_t controllerHandle)
 /*
 Controller Action Sets and Layers
 */
+void SteamPlugin::ActivateActionSet(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle)
+{
+	CheckInitialized(SteamController, );
+	SteamController()->ActivateActionSet(controllerHandle, actionSetHandle);
+}
+
 ControllerActionSetHandle_t SteamPlugin::GetActionSetHandle(const char *pszActionSetName)
 {
 	CheckInitialized(SteamController, 0);
 	return SteamController()->GetActionSetHandle(pszActionSetName);
+}
+
+ControllerActionSetHandle_t SteamPlugin::GetCurrentActionSet(ControllerHandle_t controllerHandle)
+{
+	CheckInitialized(SteamController, 0);
+	return SteamController()->GetCurrentActionSet(controllerHandle);
 }
 
 /*
@@ -2233,6 +2245,15 @@ ControllerAnalogActionHandle_t SteamPlugin::GetAnalogActionHandle(const char *ps
 {
 	CheckInitialized(SteamController, 0);
 	return SteamController()->GetAnalogActionHandle(pszActionName);
+}
+
+ControllerDigitalActionData_t SteamPlugin::GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle)
+{
+	ControllerDigitalActionData_t empty;
+	empty.bActive = false;
+	empty.bState = false;
+	CheckInitialized(SteamController, empty);
+	return SteamController()->GetDigitalActionData(controllerHandle, digitalActionHandle);
 }
 
 ControllerDigitalActionHandle_t SteamPlugin::GetDigitalActionHandle(const char *pszActionName)

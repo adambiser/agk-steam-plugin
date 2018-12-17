@@ -16,25 +16,15 @@ SetButtonEnabled(BINDING_PANEL_BUTTON, 0)
 SetButtonEnabled(VIBRATE_BUTTON, 0)
 SetButtonEnabled(HAPTIC_BUTTON, 0)
 
-global ActionHandles as ActionHandlesType
-Type ActionHandlesType
-	// ship_controls
-	turnLeft as integer
-	turnRight as integer
-	forwardThrust as integer
-	backwardThrust as integer
-	fireLasers as integer
-	pauseMenu as integer
-	// menu_controls
-	menuUp as integer
-	menuDown as integer
-	menuLeft as integer
-	menuRight as integer
-	menuSelect as integer
-	menuCancel as integer
-	// analog
-	analogControls as integer
-EndType
+#constant TAB chr(9)
+
+global controllerCount as integer
+
+global digitalActionNames as string[11] = ["turn_left", "turn_right", "forward_thrust", "backward_thrust", "fire_lasers", "pause_menu", "menu_up", "menu_down", "menu_left", "menu_right", "menu_select", "menu_cancel"]
+global digitalActionHandles as integer[11]
+
+global analogActionNames as string[0] = ["analog_controls"]
+global analogActionHandles as integer[0]
 
 global ActionSetHandles as ActionSetHandlesType
 Type ActionSetHandlesType
@@ -53,28 +43,20 @@ EndType
 //~ next x
 
 AddStatus("Init Steam Controller: " + TF(Steam.InitSteamController()))
+AddStatus("Digital Action Handles:")
+for x = 0 to digitalActionNames.length
+	digitalActionHandles[x] = Steam.GetDigitalActionHandle(digitalActionNames[x])
+	AddStatus(TAB + digitalActionNames[x] + " = " + str(digitalActionHandles[x]))
+next
 
-// ship_controls
-ActionHandles.turnLeft = Steam.GetControllerDigitalActionHandle("turn_left")
-ActionHandles.turnRight = Steam.GetControllerDigitalActionHandle("turn_right")
-ActionHandles.forwardThrust = Steam.GetControllerDigitalActionHandle("forward_thrust")
-ActionHandles.backwardThrust = Steam.GetControllerDigitalActionHandle("backward_thrust")
-ActionHandles.fireLasers = Steam.GetControllerDigitalActionHandle("fire_lasers")
-ActionHandles.pauseMenu = Steam.GetControllerDigitalActionHandle("pause_menu")
-// menu_controls
-ActionHandles.menuUp = Steam.GetControllerDigitalActionHandle("menu_up")
-ActionHandles.menuDown = Steam.GetControllerDigitalActionHandle("menu_down")
-ActionHandles.menuLeft = Steam.GetControllerDigitalActionHandle("menu_left")
-ActionHandles.menuRight = Steam.GetControllerDigitalActionHandle("menu_right")
-ActionHandles.menuSelect = Steam.GetControllerDigitalActionHandle("menu_select")
-ActionHandles.menuCancel = Steam.GetControllerDigitalActionHandle("menu_cancel")
-// analog
-ActionHandles.analogControls = Steam.GetControllerAnalogActionHandle("analog_controls")
+AddStatus("Analog Action Handles:")
+for x = 0 to analogActionNames.length
+	analogActionHandles[x] = Steam.GetDigitalActionHandle(analogActionNames[x])
+	AddStatus(TAB + analogActionNames[x] + " = " + str(analogActionHandles[x]))
+next
 
-AddStatus("Action handles: " + ActionHandles.tojson())
-
-ActionSetHandles.shipControls = Steam.GetControllerActionSetHandle("ship_controls")
-ActionSetHandles.menuControls = Steam.GetControllerActionSetHandle("menu_controls")
+ActionSetHandles.shipControls = Steam.GetActionSetHandle("ship_controls")
+ActionSetHandles.menuControls = Steam.GetActionSetHandle("menu_controls")
 
 AddStatus("Action set handles: " + ActionSetHandles.tojson())
 
@@ -97,9 +79,18 @@ loop
 //
 Function CheckInput()
 	x as integer
-	j as integer
-	b as integer
+	//~ j as integer
+	//~ b as integer
 
+	Steam.RunFrame()
+	if controllerCount
+		Steam.ActivateActionSet(1, ActionSetHandles.shipControls)
+		for x = 0 to digitalActionHandles.length
+			if Steam.GetDigitalActionDataState(1, digitalActionHandles[x])
+				AddStatus("Digital action: " + digitalActionNames[x])
+			endif
+		next
+	endif
 	//~ for x = 0 to joysticks.length
 		//~ j = joysticks[x]
 		//~ for b = 1 to 64
@@ -110,18 +101,18 @@ Function CheckInput()
 			//~ endif
 		//~ next
 	//~ next
-	//~ Steam.RunControllerFrame()
 	// Scrollable text.
 	PerformVerticalScroll(statusArea)
 	if GetVirtualButtonPressed(DETECT_BUTTON)
-		controllerCount as integer
 		controllerCount = Steam.GetConnectedControllers()
 		AddStatus("Connected controllers: " + str(controllerCount))
 		SetButtonEnabled(BINDING_PANEL_BUTTON, controllerCount > 0)
 		SetButtonEnabled(VIBRATE_BUTTON, controllerCount > 0)
 		SetButtonEnabled(HAPTIC_BUTTON, controllerCount > 0)
 		for x = 1 to controllerCount
-			AddStatus("Controller type " + str(x) + ": " + GetControllerInputTypeName(Steam.GetControllerInputType(x)))
+			AddStatus("Controller type " + str(x) + ": " + GetInputTypeName(Steam.GetInputTypeForHandle(x)))
+			AddStatus("Controller action set " + str(x) + ": " + str(Steam.GetCurrentActionSet(x)))
+			
 		next
 	endif
 	if GetVirtualButtonPressed(BINDING_PANEL_BUTTON)
@@ -147,7 +138,7 @@ Function ProcessCallbacks()
 	index as integer
 EndFunction
 
-Function GetControllerInputTypeName(value as integer)
+Function GetInputTypeName(value as integer)
 	select value
 		case k_ESteamInputType_Unknown
 			ExitFunction "Unknown"

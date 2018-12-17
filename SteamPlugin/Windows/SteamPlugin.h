@@ -491,11 +491,14 @@ public:
 	/*
 	Controller Action Sets and Layers
 	*/
+	void ActivateActionSet(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle);
 	ControllerActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
+	ControllerActionSetHandle_t GetCurrentActionSet(ControllerHandle_t controllerHandle);
 	/*
 	Controller Actions and Motion
 	*/
 	ControllerAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
+	ControllerDigitalActionData_t GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle);
 	ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
 	/*
 	Controller Effects

@@ -2031,7 +2031,7 @@ extern "C" DLL_EXPORT int GetConnectedControllers();
 @param hController The handle of the controller.
 @api ISteamController#GetInputTypeForHandle
 */
-extern "C" DLL_EXPORT int GetControllerInputType(int hController);
+extern "C" DLL_EXPORT int GetInputTypeForHandle(int hController);
 /*
 @desc Returns the associated controller handle for the specified emulated gamepad.
 @param hController The index of the emulated gamepad you want to get a controller handle for.
@@ -2051,7 +2051,7 @@ extern "C" DLL_EXPORT int GetControllerInputType(int hController);
 This is performed automatically by RunCallbacks, but for the absolute lowest possible latency, you can call this directly before reading controller state.
 @api ISteamController#RunFrame
 */
-extern "C" DLL_EXPORT void RunControllerFrame();
+extern "C" DLL_EXPORT void RunFrame();
 /*
 @desc Invokes the Steam overlay and brings up the binding screen.
 @param hController The handle of the controller you want to bring up the binding screen for.
@@ -2070,21 +2070,21 @@ This is cheap, and can be safely called repeatedly. It's often easier to repeate
 @param hActionSet The handle of the action set you want to activate.
 @api ISteamController#ActivateActionSet
 */
-//extern "C" DLL_EXPORT void ActivateActionSet(int hController, ControllerActionSetHandle_t hActionSet);
+extern "C" DLL_EXPORT void ActivateActionSet(int hController, int hActionSet);
 /*
 @desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
 @param actionSetName The string identifier of an action set defined in the game's VDF file.
 @return The handle of the specified action set.
 @api ISteamController#GetActionSetHandle
 */
-extern "C" DLL_EXPORT int GetControllerActionSetHandle(const char *actionSetName);
+extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName);
 /*
 @desc Get the currently active action set for the specified controller.
 @param hController The handle of the controller you want to query.
 @return The handle of the action set activated for the specified controller.
 @api ISteamController#GetCurrentActionSet
 */
-//extern "C" DLL_EXPORT ControllerActionSetHandle_t GetCurrentActionSet(int hController);
+extern "C" DLL_EXPORT int GetCurrentActionSet(int hController);
 /*
 @desc Reconfigure the controller to use the specified action set layer.
 @param hController The handle of the controller you want to activate an action set layer for.
@@ -2134,7 +2134,7 @@ In other words, if you use an action called "up" in two different action sets, t
 @return
 @api ISteamController#GetAnalogActionHandle
 */
-extern "C" DLL_EXPORT int GetControllerAnalogActionHandle(const char *actionName);
+extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName);
 /*
 @desc Get the origin(s) for an analog action within an action set by filling originsOut with EControllerActionOrigin handles.
 Use this to display the appropriate on-screen prompt for the action.
@@ -2150,9 +2150,10 @@ Use this to display the appropriate on-screen prompt for the action.
 @param hController The handle of the controller you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
 @return The current state of the specified digital action.
-@api ISteamController#GetDigitalActionData
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-//extern "C" DLL_EXPORT ControllerDigitalActionData_t GetDigitalActionData(int hController, ControllerDigitalActionHandle_t hDigitalAction);
+extern "C" DLL_EXPORT int GetDigitalActionDataActive(int hController, int hDigitalAction);
+extern "C" DLL_EXPORT int GetDigitalActionDataState(int hController, int hDigitalAction);
 /*
 @desc Get the handle of the specified digital action.
 
@@ -2162,7 +2163,7 @@ In other words, if you use an action called "up" in two different action sets, t
 @return The handle of the specified digital action.
 @api ISteamController#GetDigitalActionHandle
 */
-extern "C" DLL_EXPORT int GetControllerDigitalActionHandle(const char *actionName);
+extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName);
 /*
 @desc Get the origin(s) for a digital action within an action set by filling originsOut with EControllerActionOrigin handles.
 Use this to display the appropriate on-screen prompt for the action.

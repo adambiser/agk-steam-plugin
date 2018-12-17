@@ -341,17 +341,17 @@ SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,0
 InitSteamController,I,0,InitSteamController,0,0,0,0,0
 ShutdownSteamController,I,0,ShutdownSteamController,0,0,0,0,0
 GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,0
-GetControllerInputType,I,I,GetControllerInputType,0,0,0,0,0
+GetInputTypeForHandle,I,I,GetInputTypeForHandle,0,0,0,0,0
 #GetControllerForGamepadIndex
 #GetGamepadIndexForController
-RunControllerFrame,0,0,RunControllerFrame,0,0,0,0,0
+RunFrame,0,0,RunFrame,0,0,0,0,0
 ShowBindingPanel,I,I,ShowBindingPanel,0,0,0,0,0
 #
 # Controllers: Action Sets and Layers
 #
-#ActivateActionSet
-GetControllerActionSetHandle,I,S,GetControllerActionSetHandle,0,0,0,0,0
-#GetCurrentActionSet
+ActivateActionSet,0,II,ActivateActionSet,0,0,0,0,0
+GetActionSetHandle,I,S,GetActionSetHandle,0,0,0,0,0
+GetCurrentActionSet,I,I,GetCurrentActionSet,0,0,0,0,0
 #ActivateActionSetLayer
 #DeactivateActionSetLayer
 #DeactivateAllActionSetLayers
@@ -360,10 +360,11 @@ GetControllerActionSetHandle,I,S,GetControllerActionSetHandle,0,0,0,0,0
 # Controllers: Actions and Motion
 #
 #GetAnalogActionData
-GetControllerAnalogActionHandle,I,S,GetControllerAnalogActionHandle,0,0,0,0,0
+GetAnalogActionHandle,I,S,GetAnalogActionHandle,0,0,0,0,0
 #GetAnalogActionOrigins
-#GetDigitalActionData
-GetControllerDigitalActionHandle,I,S,GetControllerDigitalActionHandle,0,0,0,0,0
+GetDigitalActionDataActive,I,II,GetDigitalActionDataActive,0,0,0,0,0
+GetDigitalActionDataState,I,II,GetDigitalActionDataState,0,0,0,0,0
+GetDigitalActionHandle,I,S,GetDigitalActionHandle,0,0,0,0,0
 #GetDigitalActionOrigins
 #GetGlyphForActionOrigin
 #GetMotionData

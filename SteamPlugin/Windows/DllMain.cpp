@@ -2317,14 +2317,14 @@ int GetConnectedControllers()
 	return m_ControllerCount;
 }
 
-int GetControllerInputType(int hController)
+int GetInputTypeForHandle(int hController)
 {
 	CheckInitialized(0);
 	ValidateControllerHandle(hController, k_ESteamInputType_Unknown);
 	return Steam->GetInputTypeForHandle(m_ControllerHandles[hController]);
 }
 
-void RunControllerFrame()
+void RunFrame()
 {
 	CheckInitialized(NORETURN);
 	Steam->RunFrame();
@@ -2341,22 +2341,65 @@ int ShowBindingPanel(int hController)
 Controller Action Sets and Layers
 */
 
-int GetControllerActionSetHandle(const char *actionSetName)
+void ActivateActionSet(int hController, int hActionSet)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	ControllerActionSetHandle_t actionSetHandle = GetActionHandle(hActionSet, &m_ActionSetHandles);
+	if (!actionSetHandle)
+	{
+		return;
+	}
+	Steam->ActivateActionSet(m_ControllerHandles[hController], actionSetHandle);
+}
+
+int GetActionSetHandle(const char *actionSetName)
 {
 	CheckInitialized(0);
 	return GetActionHandleIndex(Steam->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
 }
 
+int GetCurrentActionSet(int hController)
+{
+	CheckInitialized(0);
+	ValidateControllerHandle(hController, false);
+	return GetActionHandleIndex(Steam->GetCurrentActionSet(m_ControllerHandles[hController]), &m_ActionSetHandles);
+}
+
 /*
 Controller Actions and Motion
 */
-int GetControllerAnalogActionHandle(const char *actionName)
+int GetAnalogActionHandle(const char *actionName)
 {
 	CheckInitialized(0);
 	return GetActionHandleIndex(Steam->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
 }
 
-int GetControllerDigitalActionHandle(const char *actionName)
+int GetDigitalActionDataActive(int hController, int hDigitalAction)
+{
+	CheckInitialized(0);
+	ValidateControllerHandle(hController, false);
+	ControllerDigitalActionHandle_t digitalActionHandle = GetActionHandle(hDigitalAction, &m_DigitalActionHandles);
+	if (!digitalActionHandle)
+	{
+		return false;
+	}
+	return Steam->GetDigitalActionData(m_ControllerHandles[hController], digitalActionHandle).bActive;
+}
+
+int GetDigitalActionDataState(int hController, int hDigitalAction)
+{
+	CheckInitialized(0);
+	ValidateControllerHandle(hController, false);
+	ControllerDigitalActionHandle_t digitalActionHandle = GetActionHandle(hDigitalAction, &m_DigitalActionHandles);
+	if (!digitalActionHandle)
+	{
+		return false;
+	}
+	return Steam->GetDigitalActionData(m_ControllerHandles[hController], digitalActionHandle).bState;
+}
+
+int GetDigitalActionHandle(const char *actionName)
 {
 	CheckInitialized(0);
 	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
