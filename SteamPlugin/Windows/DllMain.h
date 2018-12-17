@@ -2001,7 +2001,9 @@ See the [Steam Input](https://partner.steamgames.com/doc/features/steam_controll
 
 See also [Getting Started for Developers](https://partner.steamgames.com/doc/features/steam_controller/getting_started_for_devs).
 */
-/* @page Controller */
+/*
+	@page Controller Information
+*/
 /*
 @desc Must be called when starting use of the ISteamController interface.
 @return Always 1 if the Steam plugin has been initialized; otherwise 0.
@@ -2025,210 +2027,238 @@ Must be called before controllers can be used because it loads the internal cont
 */
 extern "C" DLL_EXPORT int GetConnectedControllers();
 /*
-@desc Reconfigure the controller to use the specified action set (ie "Menu", "Walk", or "Drive").
-
-This is cheap, and can be safely called repeatedly. It's often easier to repeatedly call it in your state loops, instead of trying to place it in all of your state transitions.
-@param controller The handle of the controller you want to activate an action set for.
-@param actionSet The handle of the action set you want to activate.
-@api ISteamController#ActivateActionSet
+@desc Returns the input type (device model) for the specified controller. This tells you if a given controller is a Steam controller, XBox 360 controller, PS4 controller, etc.
+@param hController The handle of the controller.
+@api ISteamController#GetInputTypeForHandle
 */
-//void ActivateActionSet(int controller, ControllerActionSetHandle_t actionSetHandle);
+extern "C" DLL_EXPORT int GetControllerInputType(int hController);
 /*
-@desc Reconfigure the controller to use the specified action set layer.
-@param controller The handle of the controller you want to activate an action set layer for.
-@param actionSetLayer The handle of the action set layer you want to activate.
-@api ISteamController#ActivateActionSetLayer
-*/
-//void ActivateActionSetLayer(int controller, ControllerActionSetHandle_t actionSetLayerHandle);
-/*
-@desc Reconfigure the controller to stop using the specified action set layer.
-@param controller The handle of the controller you want to deactivate an action set layer for.
-@param actionSetLayer The handle of the action set layer you want to deactivate.
-@api ISteamController#DeactivateActionSetLayer
-*/
-//void DeactivateActionSetLayer(int controller, ControllerActionSetHandle_t actionSetLayerHandle);
-/*
-@desc Reconfigure the controller to stop using all action set layers.
-@param controller The handle of the controller you want to deactivate all action set layers for.
-@api ISteamController#DeactivateAllActionSetLayers
-*/
-//void DeactivateAllActionSetLayers(int controller);
-/*
-@desc Gets the number of active action set layers for the given controller.
-
-Must be called before action set layers can be used for the controller because it also loads the internal list of action set layer handles.
-@param controller The handle of the controller you want to get active action set layers for.
-@return
-@api ISteamController#GetActiveActionSetLayers
-*/
-//int GetActiveActionSetLayers(int controller, ControllerActionSetHandle_t *handlesOut);
-/*
-@desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
-@param actionSetName The string identifier of an action set defined in the game's VDF file.
-@return
-@api ISteamController#GetActionSetHandle
-*/
-//ControllerActionSetHandle_t GetActionSetHandle(const char *actionSetName);
-/*
-@desc Returns the current state of the supplied analog game action.
-@param controller The handle of the controller you want to query.
-@param analogAction The handle of the analog action you want to query.
-@return The current state of the specified analog action.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
-*/
-//ControllerAnalogActionData_t GetAnalogActionData(int controller, ControllerAnalogActionHandle_t analogActionHandle);
-/*
-@desc Get the handle of the specified Analog action.
-
-**NOTE:** This function does not take an action set handle parameter.
-That means that each action in your VDF file must have a unique string identifier.
-In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
-@param controller 
-@return
-@api ISteamController#GetAnalogActionHandle
-*/
-//ControllerAnalogActionHandle_t GetAnalogActionHandle(const char *actionName);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetAnalogActionOrigins
-*/
-//int GetAnalogActionOrigins(int controller, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut);
-/*
-@desc
-@param controller
-@return
+@desc Returns the associated controller handle for the specified emulated gamepad.
+@param hController The index of the emulated gamepad you want to get a controller handle for.
+@return The associated controller handle for the specified emulated gamepad.
 @api ISteamController#GetControllerForGamepadIndex
 */
-//ControllerHandle_t GetControllerForGamepadIndex(int nIndex);
+//extern "C" DLL_EXPORT ControllerHandle_t GetControllerForGamepadIndex(int nIndex);
 /*
-@desc
-@param controller
-@return
-@api ISteamController#GetCurrentActionSet
-*/
-//ControllerActionSetHandle_t GetCurrentActionSet(int controller);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetDigitalActionData
-*/
-//ControllerDigitalActionData_t GetDigitalActionData(int controller, ControllerDigitalActionHandle_t digitalActionHandle);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetDigitalActionHandle
-*/
-//ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetDigitalActionOrigins
-*/
-//int GetDigitalActionOrigins(int controller, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut);
-/*
-@desc
-@param controller
-@return
+@desc Returns the associated gamepad index for the specified controller, if emulating a gamepad.
+@param hController The handle of the controller you want to get a gamepad index for.
+@return An integer.
 @api ISteamController#GetGamepadIndexForController
 */
-//int GetGamepadIndexForController(ControllerHandle_t ulControllerHandle);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetGlyphForActionOrigin
-*/
-//const char * GetGlyphForActionOrigin(EControllerActionOrigin eOrigin);
-/*
-@desc Returns the input type (device model) for the specified controller. This tells you if a given controller is a Steam controller, XBox 360 controller, PS4 controller, etc.
-@param controller The index of the controller.
-@api ISteamController#GetControllerType
-*/
-extern "C" DLL_EXPORT int GetControllerType(int controller);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetMotionData
-*/
-//ControllerMotionData_t GetMotionData(int controller);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#GetStringForActionOrigin
-*/
-//const char * GetStringForActionOrigin(EControllerActionOrigin eOrigin);
+//extern "C" DLL_EXPORT int GetGamepadIndexForController(ControllerHandle_t ulController);
 /*
 @desc Synchronize API state with the latest Steam Controller inputs available.
 This is performed automatically by RunCallbacks, but for the absolute lowest possible latency, you can call this directly before reading controller state.
 @api ISteamController#RunFrame
 */
-//void RunFrame();
+extern "C" DLL_EXPORT void RunControllerFrame();
 /*
-@desc
-@param controller
-@api ISteamController#SetLEDColor
-*/
-//void SetLEDColor(int controller, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
-/*
-@desc
-@param controller
-@return
-@api ISteamController#ShowAnalogActionOrigins
-*/
-//bool ShowAnalogActionOrigins(int controller, ControllerAnalogActionHandle_t analogActionHandle, float flScale, float flXPosition, float flYPosition);
-/*
-@desc
-@param controller
-@return
+@desc Invokes the Steam overlay and brings up the binding screen.
+@param hController The handle of the controller you want to bring up the binding screen for.
+@return 1 for success; 0 if overlay is disabled/unavailable, or the user is not in Big Picture Mode.
 @api ISteamController#ShowBindingPanel
 */
-//bool ShowBindingPanel(int controller);
+extern "C" DLL_EXPORT int ShowBindingPanel(int hController);
 /*
-@desc
-@param controller
-@return
-@api ISteamController#ShowDigitalActionOrigins
+	@page Controller Action Sets and Layers
 */
-//bool ShowDigitalActionOrigins(int controller, ControllerDigitalActionHandle_t digitalActionHandle, float flScale, float flXPosition, float flYPosition);
 /*
-@desc
-@param controller
+@desc Reconfigure the controller to use the specified action set (ie "Menu", "Walk", or "Drive").
+
+This is cheap, and can be safely called repeatedly. It's often easier to repeatedly call it in your state loops, instead of trying to place it in all of your state transitions.
+@param hController The handle of the controller you want to activate an action set for.
+@param hActionSet The handle of the action set you want to activate.
+@api ISteamController#ActivateActionSet
+*/
+//extern "C" DLL_EXPORT void ActivateActionSet(int hController, ControllerActionSetHandle_t hActionSet);
+/*
+@desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
+@param actionSetName The string identifier of an action set defined in the game's VDF file.
+@return The handle of the specified action set.
+@api ISteamController#GetActionSetHandle
+*/
+extern "C" DLL_EXPORT int GetControllerActionSetHandle(const char *actionSetName);
+/*
+@desc Get the currently active action set for the specified controller.
+@param hController The handle of the controller you want to query.
+@return The handle of the action set activated for the specified controller.
+@api ISteamController#GetCurrentActionSet
+*/
+//extern "C" DLL_EXPORT ControllerActionSetHandle_t GetCurrentActionSet(int hController);
+/*
+@desc Reconfigure the controller to use the specified action set layer.
+@param hController The handle of the controller you want to activate an action set layer for.
+@param hActionSetLayer The handle of the action set layer you want to activate.
+@api ISteamController#ActivateActionSetLayer
+*/
+//extern "C" DLL_EXPORT void ActivateActionSetLayer(int hController, ControllerActionSetHandle_t hActionSetLayer);
+/*
+@desc Reconfigure the controller to stop using the specified action set layer.
+@param hController The handle of the controller you want to deactivate an action set layer for.
+@param hActionSetLayer The handle of the action set layer you want to deactivate.
+@api ISteamController#DeactivateActionSetLayer
+*/
+//extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hController, ControllerActionSetHandle_t hActionSetLayer);
+/*
+@desc Reconfigure the controller to stop using all action set layers.
+@param hController The handle of the controller you want to deactivate all action set layers for.
+@api ISteamController#DeactivateAllActionSetLayers
+*/
+//extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hController);
+/*
+@desc Gets the number of active action set layers for the given controller.
+
+Must be called before action set layers can be used for the controller because it also loads the internal list of action set layer handles.
+@param hController The handle of the controller you want to get active action set layers for.
+@return The number of active action set layers.
+@api ISteamController#GetActiveActionSetLayers
+*/
+//extern "C" DLL_EXPORT int GetActiveActionSetLayers(int hController, ControllerActionSetHandle_t *handlesOut);
+/*
+	@page Controller Actions and Motion
+*/
+/*
+@desc Returns the current state of the supplied analog game action.
+@param hController The handle of the controller you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
+@return The current state of the specified analog action.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+//extern "C" DLL_EXPORT ControllerAnalogActionData_t GetAnalogActionData(int hController, ControllerAnalogActionHandle_t hAnalogAction);
+/*
+@desc Get the handle of the specified Analog action.
+
+**NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
+In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
+@param controller 
+@return
+@api ISteamController#GetAnalogActionHandle
+*/
+extern "C" DLL_EXPORT int GetControllerAnalogActionHandle(const char *actionName);
+/*
+@desc Get the origin(s) for an analog action within an action set by filling originsOut with EControllerActionOrigin handles.
+Use this to display the appropriate on-screen prompt for the action.
+@param hController The handle of the controller you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
+@return The number of origins supplied in originsOut.
+@api ISteamController#GetAnalogActionOrigins
+*/
+//extern "C" DLL_EXPORT int GetAnalogActionOrigins(int hController, ControllerActionSetHandle_t hActionSet, ControllerAnalogActionHandle_t hAnalogAction, EControllerActionOrigin *originsOut);
+/*
+@desc Returns the current state of the supplied digital game action.
+@param hController The handle of the controller you want to query.
+@param hDigitalAction The handle of the digital action you want to query.
+@return The current state of the specified digital action.
+@api ISteamController#GetDigitalActionData
+*/
+//extern "C" DLL_EXPORT ControllerDigitalActionData_t GetDigitalActionData(int hController, ControllerDigitalActionHandle_t hDigitalAction);
+/*
+@desc Get the handle of the specified digital action.
+
+**NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
+In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
+@param actionName The string identifier of the digital action defined in the game's VDF file.
+@return The handle of the specified digital action.
+@api ISteamController#GetDigitalActionHandle
+*/
+extern "C" DLL_EXPORT int GetControllerDigitalActionHandle(const char *actionName);
+/*
+@desc Get the origin(s) for a digital action within an action set by filling originsOut with EControllerActionOrigin handles.
+Use this to display the appropriate on-screen prompt for the action.
+@param hController The handle of the controller you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hDigitalAction The handle of the digital aciton you want to query.
+@return The number of origins supplied in originsOut.
+@api ISteamController#GetDigitalActionOrigins
+*/
+//extern "C" DLL_EXPORT int GetDigitalActionOrigins(int hController, ControllerActionSetHandle_t actionSet, ControllerDigitalActionHandle_t hDigitalAction, EControllerActionOrigin *originsOut);
+/*
+@desc Get a local path to art for on-screen glyph for a particular origin.
+@param eOrigin The origin you want to get the glyph for.
+@return The path to the png file for the glyph.
+@api ISteamController#GetGlyphForActionOrigin
+*/
+//extern "C" DLL_EXPORT const char * GetGlyphForActionOrigin(EControllerActionOrigin eOrigin);
+/*
+@desc Returns raw motion data for the specified controller.
+@param hController The handle of the controller you want to get motion data for.
+@return The raw motion data for the specified controller.
+@api ISteamController#GetMotionData
+*/
+//extern "C" DLL_EXPORT ControllerMotionData_t GetMotionData(int hController);
+/*
+@desc Returns a localized string (from Steam's language setting) for the specified origin.
+@param eOrigin The origin you want to get the string for.
+@return The localized string for the specified origin.
+@api ISteamController#GetStringForActionOrigin
+*/
+//extern "C" DLL_EXPORT const char * GetStringForActionOrigin(EControllerActionOrigin eOrigin);
+/*
+@desc Stops the momentum of an analog action (where applicable, ie a touchpad w/ virtual trackball settings).
+@param hController The handle of the controller to affect.
+@param eAction The analog action to stop momentum for.
 @api ISteamController#StopAnalogActionMomentum
 */
-//void StopAnalogActionMomentum(int controller, ControllerAnalogActionHandle_t eAction);
+//extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hController, ControllerAnalogActionHandle_t eAction);
+/*
+	@page Controller Effects
+*/
+/*
+@desc Set the controller LED color on supported controllers.
+@param hController The handle of the controller to affect.
+@param red The red component of the color to set (0-255).
+@param green The green component of the color to set (0-255).
+@param blue The blue component of the color to set (0-255).
+@api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
+*/
+extern "C" DLL_EXPORT void SetControllerLEDColor(int hController, int red, int green, int blue);
+/*
+@desc Set the controller LED color back to the default (out-of-game) settings.
+@param hController The handle of the controller to affect.
+@api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
+*/
+extern "C" DLL_EXPORT void ResetControllerLEDColor(int hController);
 /*
 @desc Triggers a (low-level) haptic pulse on supported controllers.
 
+**NOTES**  
 Currently only the VSC supports haptic pulses.  This API call will be ignored for all other controller models.
-@param controller The index of the controller to affect.
+@param hController The handle of the controller to affect.
 @param eTargetPad Which haptic touch pad to affect.
 @param-api ISteamController#ESteamControllerPad
 @param duration Duration of the pulse, in microseconds (1/1,000,000th of a second)
 @api ISteamController#TriggerHapticPulse
 */
-extern "C" DLL_EXPORT void TriggerControllerHapticPulse(int controller, int eTargetPad, int duration);
+extern "C" DLL_EXPORT void TriggerControllerHapticPulse(int hController, int eTargetPad, int duration);
 /*
-@desc
-@param controller
+@desc Triggers a repeated haptic pulse on supported controllers.
+
+**NOTES**  
+Currently only the VSC supports haptic pulses.  
+This API call will be ignored for incompatible controller models.  
+This is a more user-friendly function to call than TriggerHapticPulse as it can generate pulse patterns long enough to be actually noticed by the user.  
+@param hController The handle of the controller to affect.
+@param eTargetPad Which haptic touch pad to affect.
+@param-api eTargetPad ISteamController#ESteamControllerPad
+@param onDuration Duration of the pulse, in microseconds (1/1,000,000th of a second).
+@param offDuration Duration of the pause between pulses, in microseconds.
+@param repeat Number of times to repeat the onDuration / offDuration duty cycle.
+@param flags Currently unused and reserved for future use.
 @api ISteamController#TriggerRepeatedHapticPulse
 */
-//void TriggerRepeatedHapticPulse(int controller, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags);
+//extern "C" DLL_EXPORT void TriggerRepeatedHapticPulse(int hController, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
 /*
 @desc Trigger a vibration event on supported controllers.
 
 This API call will be ignored for incompatible controller models.
-@param controller The index of the controller to affect.
+@param hController The handle of the controller to affect.
 @param leftSpeed The period of the left rumble motor's vibration, in microseconds.
 @param rightSpeed The period of the right rumble motor's vibration, in microseconds.
 @api ISteamController#TriggerVibration
 */
-extern "C" DLL_EXPORT void TriggerControllerVibration(int controller, int leftSpeed, int rightSpeed);
+extern "C" DLL_EXPORT void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed);
+// DEPRECATED // bool ShowAnalogActionOrigins(int hController, ControllerAnalogActionHandle_t hAnalogAction, float flScale, float flXPosition, float flYPosition);
+// DEPRECATED // bool ShowDigitalActionOrigins(int hController, ControllerDigitalActionHandle_t hDigitalAction, float scale, float x, float y);
 
 #endif // DLLMAIN_H_

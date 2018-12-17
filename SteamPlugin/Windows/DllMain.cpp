@@ -80,6 +80,9 @@ char *CreateString(std::string text)
 	return CreateString(text.c_str());
 }
 
+/*
+	CSteamID Handle Methods
+*/
 std::vector <CSteamID> m_CSteamIDs;
 
 CSteamID GetSteamID(int handle)
@@ -112,6 +115,67 @@ void ClearSteamIDHandleList()
 	m_CSteamIDs.push_back(k_steamIDNil);
 }
 
+/*
+	ControllerHandle_t Handle Methods
+*/
+int m_ControllerCount = 0;
+ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
+
+// Handles are 1-based!
+#define ValidateControllerHandle(index, returnValue)		\
+	index--;												\
+	if (index < 0 || index >= m_ControllerCount)			\
+	{														\
+		agk::PluginError("Invalid controller handle.");		\
+		return returnValue;									\
+	}
+
+/*
+CSteamID Handle Methods
+*/
+std::vector <ControllerActionSetHandle_t> m_ActionSetHandles;
+std::vector <ControllerDigitalActionHandle_t> m_DigitalActionHandles;
+std::vector <ControllerAnalogActionHandle_t> m_AnalogActionHandles;
+
+template <typename T>
+inline T GetActionHandle(int handle, std::vector<T> *vector)
+{
+	// Handles are 1-based!
+	if (handle >= 0 && handle < (int)vector->size())
+	{
+		return (*vector)[handle];
+	}
+	agk::PluginError("Invalid handle.");
+	return 0;
+}
+
+template <typename T>
+inline int GetActionHandleIndex(T handle, std::vector<T> *vector)
+{
+	int index = std::find(vector->begin(), vector->end(), handle) - vector->begin();
+	if (index < (int)vector->size())
+	{
+		// Handles are 1-based!
+		return index;
+	}
+	vector->push_back(handle);
+	return vector->size() - 1;
+}
+
+void ClearActionSetHandleList()
+{
+	m_ActionSetHandles.clear();
+	m_DigitalActionHandles.clear();
+	m_AnalogActionHandles.clear();
+	// Handle 0 is always 0.
+	m_ActionSetHandles.push_back(0);
+	m_DigitalActionHandles.push_back(0);
+	m_AnalogActionHandles.push_back(0);
+}
+
+/*
+	IP Address Parsing Methods
+*/
 bool ParseIP(const char *ipv4, uint32 *ip)
 {
 	int ip1, ip2, ip3, ip4;
@@ -147,6 +211,14 @@ bool ParseIP(const char *ipv4, uint32 *ip)
 //	return TRUE;
 //}
 
+void ResetVariables()
+{
+
+	ClearSteamIDHandleList();
+	ClearActionSetHandleList();
+	m_ControllerCount = 0;
+}
+
 /*
 This method should be called before attempting to do anything else with this plugin.
 Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
@@ -159,7 +231,7 @@ int Init()
 	{
 		Steam = new SteamPlugin();
 	}
-	ClearSteamIDHandleList();
+	ResetVariables();
 	if (Steam)
 	{
 		if (Steam->Init())
@@ -176,7 +248,7 @@ Shuts down the plugin and frees memory.
 */
 void Shutdown()
 {
-	ClearSteamIDHandleList();
+	ResetVariables();
 	if (Steam)
 	{
 		delete[] Steam;
@@ -2223,6 +2295,9 @@ int GetCachedUGCCount()
 //SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *location, uint32 unPriority);
 //int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
+/*
+Controller Information
+*/
 int InitSteamController()
 {
 	CheckInitialized(0);
@@ -2238,26 +2313,88 @@ int ShutdownSteamController()
 int GetConnectedControllers()
 {
 	CheckInitialized(0);
-	return Steam->GetConnectedControllers();
+	m_ControllerCount = Steam->GetConnectedControllers(m_ControllerHandles);
+	return m_ControllerCount;
 }
 
-int GetControllerType(int controller)
+int GetControllerInputType(int hController)
 {
 	CheckInitialized(0);
-	return Steam->GetInputTypeForHandle(controller);
+	ValidateControllerHandle(hController, k_ESteamInputType_Unknown);
+	return Steam->GetInputTypeForHandle(m_ControllerHandles[hController]);
 }
 
-void TriggerControllerHapticPulse(int controllerIndex, int eTargetPad, int duration)
+void RunControllerFrame()
 {
 	CheckInitialized(NORETURN);
+	Steam->RunFrame();
+}
+
+int ShowBindingPanel(int hController)
+{
+	CheckInitialized(false);
+	ValidateControllerHandle(hController, false);
+	return Steam->ShowBindingPanel(m_ControllerHandles[hController]);
+}
+
+/*
+Controller Action Sets and Layers
+*/
+
+int GetControllerActionSetHandle(const char *actionSetName)
+{
+	CheckInitialized(0);
+	return GetActionHandleIndex(Steam->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
+}
+
+/*
+Controller Actions and Motion
+*/
+int GetControllerAnalogActionHandle(const char *actionName)
+{
+	CheckInitialized(0);
+	return GetActionHandleIndex(Steam->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
+}
+
+int GetControllerDigitalActionHandle(const char *actionName)
+{
+	CheckInitialized(0);
+	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
+}
+
+/*
+Controller Effects
+*/
+void SetControllerLEDColor(int hController, int red, int green, int blue)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	Clamp(red, 0, UINT8_MAX);
+	Clamp(green, 0, UINT8_MAX);
+	Clamp(blue, 0, UINT8_MAX);
+	Steam->SetLEDColor(m_ControllerHandles[hController], red, green, blue, k_ESteamControllerLEDFlag_SetColor);
+}
+
+void ResetControllerLEDColor(int hController)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	Steam->SetLEDColor(m_ControllerHandles[hController], 0, 0, 0, k_ESteamControllerLEDFlag_RestoreUserDefault);
+}
+
+void TriggerControllerHapticPulse(int hController, int eTargetPad, int duration)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
 	Clamp(duration, 0, USHRT_MAX);
-	Steam->TriggerControllerHapticPulse(controllerIndex, (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+	Steam->TriggerControllerHapticPulse(m_ControllerHandles[hController], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
 }
 
-void TriggerControllerVibration(int controllerIndex, int leftSpeed, int rightSpeed)
+void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed)
 {
 	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
-	Steam->TriggerControllerVibration(controllerIndex, (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+	Steam->TriggerControllerVibration(m_ControllerHandles[hController], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
 }

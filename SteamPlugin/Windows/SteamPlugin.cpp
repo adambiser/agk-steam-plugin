@@ -39,13 +39,6 @@ THE SOFTWARE.
 		return returnValue;											\
 	}
 
-#define CheckControllerIndex(index, returnValue)		\
-	if (index < 0 || index >= m_ControllerCount)		\
-	{													\
-		agk::PluginError("Invalid controller index.");	\
-		return returnValue;								\
-	}
-
 extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
 {
 	agk::Log(pchDebugText);
@@ -162,8 +155,7 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackLowBatteryPower(this, &SteamPlugin::OnLowBatteryPower),
 	m_IsSteamShuttingDown(false),
 	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
-	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed),
-	m_ControllerCount(0)
+	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
 	// Nothing for now
 }
@@ -250,7 +242,6 @@ void SteamPlugin::Shutdown()
 		m_IsSteamShuttingDown = false;
 		FreeClearMap(m_FileWriteAsyncItemMap);
 		FreeClearMap(m_FileReadAsyncItemMap);
-		m_ControllerCount = 0;
 	}
 }
 
@@ -2182,7 +2173,9 @@ int32 SteamPlugin::GetCachedUGCCount()
 //SteamAPICall_t SteamPlugin::UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 //int32 SteamPlugin::UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
-// Controller
+/*
+Controller Information
+*/
 bool SteamPlugin::InitSteamController()
 {
 	CheckInitialized(SteamController, 0);
@@ -2201,30 +2194,70 @@ bool SteamPlugin::ShutdownSteamController()
 	return SteamController()->Shutdown();
 }
 
-int SteamPlugin::GetConnectedControllers()
+int SteamPlugin::GetConnectedControllers(ControllerHandle_t *handlesOut)
 {
 	CheckInitialized(SteamController, 0);
-	m_ControllerCount = SteamController()->GetConnectedControllers(m_ControllerHandles);
-	return m_ControllerCount;
+	return SteamController()->GetConnectedControllers(handlesOut);
 }
 
-ESteamInputType SteamPlugin::GetInputTypeForHandle(int index)
+ESteamInputType SteamPlugin::GetInputTypeForHandle(ControllerHandle_t controllerHandle)
 {
 	CheckInitialized(SteamController, k_ESteamInputType_Unknown);
-	CheckControllerIndex(index, k_ESteamInputType_Unknown);
-	return SteamController()->GetInputTypeForHandle(m_ControllerHandles[index]);
+	return SteamController()->GetInputTypeForHandle(controllerHandle);
 }
 
-void SteamPlugin::TriggerControllerHapticPulse(int index, ESteamControllerPad eTargetPad, unsigned short duration)
+void SteamPlugin::RunFrame()
 {
-	CheckInitialized(SteamController, );
-	CheckControllerIndex(index, );
-	SteamController()->TriggerHapticPulse(m_ControllerHandles[index], eTargetPad, duration);
+	SteamController()->RunFrame();
 }
 
-void SteamPlugin::TriggerControllerVibration(int index, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+bool SteamPlugin::ShowBindingPanel(ControllerHandle_t controllerHandle)
+{
+	CheckInitialized(SteamController, false);
+	return SteamController()->ShowBindingPanel(controllerHandle);
+}
+
+/*
+Controller Action Sets and Layers
+*/
+ControllerActionSetHandle_t SteamPlugin::GetActionSetHandle(const char *pszActionSetName)
+{
+	CheckInitialized(SteamController, 0);
+	return SteamController()->GetActionSetHandle(pszActionSetName);
+}
+
+/*
+Controller Actions and Motion
+*/
+ControllerAnalogActionHandle_t SteamPlugin::GetAnalogActionHandle(const char *pszActionName)
+{
+	CheckInitialized(SteamController, 0);
+	return SteamController()->GetAnalogActionHandle(pszActionName);
+}
+
+ControllerDigitalActionHandle_t SteamPlugin::GetDigitalActionHandle(const char *pszActionName)
+{
+	CheckInitialized(SteamController, 0);
+	return SteamController()->GetDigitalActionHandle(pszActionName);
+}
+
+/*
+Controller Effects
+*/
+void SteamPlugin::SetLEDColor(ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags)
 {
 	CheckInitialized(SteamController, );
-	CheckControllerIndex(index, );
-	SteamController()->TriggerVibration(m_ControllerHandles[index], usLeftSpeed, usRightSpeed);
+	SteamController()->SetLEDColor(controllerHandle, nColorR, nColorG, nColorB, nFlags);
+}
+
+void SteamPlugin::TriggerControllerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration)
+{
+	CheckInitialized(SteamController, );
+	SteamController()->TriggerHapticPulse(controllerHandle, eTargetPad, duration);
+}
+
+void SteamPlugin::TriggerControllerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+{
+	CheckInitialized(SteamController, );
+	SteamController()->TriggerVibration(controllerHandle, usLeftSpeed, usRightSpeed);
 }

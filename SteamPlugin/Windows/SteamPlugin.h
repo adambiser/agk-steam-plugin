@@ -189,8 +189,8 @@ private:
 	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
 	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
 	// Controller
-	int m_ControllerCount;
-	ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
+	//int m_ControllerCount;
+	//ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -479,13 +479,30 @@ public:
 	//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
-	// Controller
+	/*
+	Controller Information
+	*/
 	bool InitSteamController();
 	bool ShutdownSteamController();
-	int GetConnectedControllers();
-	ESteamInputType GetInputTypeForHandle(int controllerIndex);
-	void TriggerControllerHapticPulse(int index, ESteamControllerPad eTargetPad, unsigned short duration);
-	void TriggerControllerVibration(int index, unsigned short usLeftSpeed, unsigned short usRightSpeed);
+	int GetConnectedControllers(ControllerHandle_t *handlesOut);
+	ESteamInputType GetInputTypeForHandle(ControllerHandle_t controllerHandle);
+	void RunFrame();
+	bool ShowBindingPanel(ControllerHandle_t controllerHandle);
+	/*
+	Controller Action Sets and Layers
+	*/
+	ControllerActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
+	/*
+	Controller Actions and Motion
+	*/
+	ControllerAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
+	ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
+	/*
+	Controller Effects
+	*/
+	void SetLEDColor(ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
+	void TriggerControllerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration);
+	void TriggerControllerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
 #endif // STEAMPLUGIN_H_
