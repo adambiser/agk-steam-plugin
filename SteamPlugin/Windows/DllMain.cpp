@@ -2427,7 +2427,7 @@ void GetAnalogActionData(int hController, int hAnalogAction)
 	CheckInitialized(NORETURN);
 	ValidateControllerHandle(hController, );
 	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	return Steam->GetAnalogActionData(m_ControllerHandles[hController], analogActionHandle);
+	Steam->GetAnalogActionData(m_ControllerHandles[hController], analogActionHandle);
 }
 
 int GetAnalogActionDataActive()
@@ -2442,6 +2442,7 @@ int GetAnalogActionDataMode()
 	return Steam->m_AnalogActionData.eMode;
 }
 
+// TODO Add a per-controller dead zone.
 float GetAnalogActionDataX()
 {
 	CheckInitialized(0);
@@ -2465,7 +2466,7 @@ void StopAnalogActionMomentum(int hController, int hAnalogAction)
 	CheckInitialized(NORETURN);
 	ValidateControllerHandle(hController, );
 	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	return Steam->StopAnalogActionMomentum(m_ControllerHandles[hController], analogActionHandle);
+	Steam->StopAnalogActionMomentum(m_ControllerHandles[hController], analogActionHandle);
 }
 
 void GetDigitalActionData(int hController, int hDigitalAction)
