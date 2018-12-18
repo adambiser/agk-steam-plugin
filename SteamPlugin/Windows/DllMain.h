@@ -2091,69 +2091,117 @@ extern "C" DLL_EXPORT int GetCurrentActionSet(int hController);
 @param hActionSetLayer The handle of the action set layer you want to activate.
 @api ISteamController#ActivateActionSetLayer
 */
-//extern "C" DLL_EXPORT void ActivateActionSetLayer(int hController, ControllerActionSetHandle_t hActionSetLayer);
+extern "C" DLL_EXPORT void ActivateActionSetLayer(int hController,  int hActionSetLayer);
 /*
 @desc Reconfigure the controller to stop using the specified action set layer.
 @param hController The handle of the controller you want to deactivate an action set layer for.
 @param hActionSetLayer The handle of the action set layer you want to deactivate.
 @api ISteamController#DeactivateActionSetLayer
 */
-//extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hController, ControllerActionSetHandle_t hActionSetLayer);
+extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hController, int hActionSetLayer);
 /*
 @desc Reconfigure the controller to stop using all action set layers.
 @param hController The handle of the controller you want to deactivate all action set layers for.
 @api ISteamController#DeactivateAllActionSetLayers
 */
-//extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hController);
+extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hController);
 /*
-@desc Gets the number of active action set layers for the given controller.
-
-Must be called before action set layers can be used for the controller because it also loads the internal list of action set layer handles.
+@desc Gets the active action set layers for the given controller.
 @param hController The handle of the controller you want to get active action set layers for.
-@return The number of active action set layers.
+@return A JSON integer array of active action set layers.
 @api ISteamController#GetActiveActionSetLayers
 */
-//extern "C" DLL_EXPORT int GetActiveActionSetLayers(int hController, ControllerActionSetHandle_t *handlesOut);
+extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hController);
 /*
 	@page Controller Actions and Motion
 */
 /*
-@desc Returns the current state of the supplied analog game action.
+@desc Returns the current state of the supplied analog game action and stores it so that it can be returned by GetAnalogActionDataActive, GetAnalogActionDataMode, GetAnalogActionDataX, and GetAnalogActionDataY.
 @param hController The handle of the controller you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
-@return The current state of the specified analog action.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-//extern "C" DLL_EXPORT ControllerAnalogActionData_t GetAnalogActionData(int hController, ControllerAnalogActionHandle_t hAnalogAction);
+extern "C" DLL_EXPORT void GetAnalogActionData(int hController, int hAnalogAction);
+/*
+@desc Returns the current availability to be bound in the active action set of the analog game action read by the last GetAnalogActionData call.
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+@return Whether or not this action is currently available to be bound in the active action set.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+
+*/
+extern "C" DLL_EXPORT int GetAnalogActionDataActive();
+/*
+@desc Returns the type of data coming from this action as read by the last GetAnalogActionData call
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+@return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT int GetAnalogActionDataMode();
+/*
+@desc Returns the current state of this action on the horizontal axis read by the last GetAnalogActionData call
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+@return The current state of this action on the horizontal axis.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT float GetAnalogActionDataX();
+/*
+@desc Returns the current state of this action on the vertical axis read by the last GetAnalogActionData call
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+@return The current state of this action on the vertical axis.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT float GetAnalogActionDataY();
+
 /*
 @desc Get the handle of the specified Analog action.
 
 **NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
 In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
 @param controller 
-@return
+@return The analog action handle.
 @api ISteamController#GetAnalogActionHandle
 */
 extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName);
 /*
-@desc Get the origin(s) for an analog action within an action set by filling originsOut with EControllerActionOrigin handles.
-Use this to display the appropriate on-screen prompt for the action.
-@param hController The handle of the controller you want to query.
-@param hActionSet The handle of the action set you want to query.
-@param hAnalogAction The handle of the analog action you want to query.
-@return The number of origins supplied in originsOut.
-@api ISteamController#GetAnalogActionOrigins
+@desc Stops the momentum of an analog action (where applicable, ie a touchpad w/ virtual trackball settings).
+@param hController The handle of the controller to affect.
+@param hAnalogAction The analog action handle to stop momentum for.
+@api ISteamController#StopAnalogActionMomentum
 */
-//extern "C" DLL_EXPORT int GetAnalogActionOrigins(int hController, ControllerActionSetHandle_t hActionSet, ControllerAnalogActionHandle_t hAnalogAction, EControllerActionOrigin *originsOut);
+extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hController, int hAnalogAction);
 /*
-@desc Returns the current state of the supplied digital game action.
+@desc Returns the current state of the supplied digital game action and stores it so that it can be returned by GetDigitalActionDataActive and GetDigitalActionDataState.
 @param hController The handle of the controller you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
-@return The current state of the specified digital action.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT int GetDigitalActionDataActive(int hController, int hDigitalAction);
-extern "C" DLL_EXPORT int GetDigitalActionDataState(int hController, int hDigitalAction);
+extern "C" DLL_EXPORT void GetDigitalActionData(int hController, int hDigitalAction);
+/*
+@desc Returns the current availability to be bound in the active action set of the digital game action read by the last GetDigitalActionData call.
+
+**NOTE:**  
+GetDigitalActionData MUST be called in order to populate the internal value returned by this method.
+@return Whether or not this action is currently available to be bound in the active action set.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT int GetDigitalActionDataActive();
+/*
+@desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
+
+**NOTE:**
+GetDigitalActionData MUST be called in order to populate the internal value returned by this method.
+@return The current state of this action; 1 if the action is currently pressed, otherwise 0.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT int GetDigitalActionDataState();
 /*
 @desc Get the handle of the specified digital action.
 
@@ -2165,23 +2213,6 @@ In other words, if you use an action called "up" in two different action sets, t
 */
 extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName);
 /*
-@desc Get the origin(s) for a digital action within an action set by filling originsOut with EControllerActionOrigin handles.
-Use this to display the appropriate on-screen prompt for the action.
-@param hController The handle of the controller you want to query.
-@param hActionSet The handle of the action set you want to query.
-@param hDigitalAction The handle of the digital aciton you want to query.
-@return The number of origins supplied in originsOut.
-@api ISteamController#GetDigitalActionOrigins
-*/
-//extern "C" DLL_EXPORT int GetDigitalActionOrigins(int hController, ControllerActionSetHandle_t actionSet, ControllerDigitalActionHandle_t hDigitalAction, EControllerActionOrigin *originsOut);
-/*
-@desc Get a local path to art for on-screen glyph for a particular origin.
-@param eOrigin The origin you want to get the glyph for.
-@return The path to the png file for the glyph.
-@api ISteamController#GetGlyphForActionOrigin
-*/
-//extern "C" DLL_EXPORT const char * GetGlyphForActionOrigin(EControllerActionOrigin eOrigin);
-/*
 @desc Returns raw motion data for the specified controller.
 @param hController The handle of the controller you want to get motion data for.
 @return The raw motion data for the specified controller.
@@ -2189,19 +2220,42 @@ Use this to display the appropriate on-screen prompt for the action.
 */
 //extern "C" DLL_EXPORT ControllerMotionData_t GetMotionData(int hController);
 /*
+	@page Controller Action Origins
+*/
+/*
+@desc Get the origin(s) for an analog action within an action set by filling originsOut with EControllerActionOrigin handles.
+Use this to display the appropriate on-screen prompt for the action.
+@param hController The handle of the controller you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
+@return The number of origins supplied in originsOut.
+@api ISteamController#GetAnalogActionOrigins
+*/
+extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hController, int hActionSet, int hAnalogAction);
+/*
+@desc Get a JSON integer array the origin(s) for a digital action within an action set.
+Use this to display the appropriate on-screen prompt for the action.
+@param hController The handle of the controller you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hDigitalAction The handle of the digital aciton you want to query.
+@return A JSON integer array of the action origins.
+@api ISteamController#GetDigitalActionOrigins
+*/
+extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hController, int hActionSet, int hDigitalAction);
+/*
+@desc Get a local path to art for on-screen glyph for a particular origin.
+@param eOrigin The origin you want to get the glyph for.
+@return The path to the png file for the glyph.
+@api ISteamController#GetGlyphForActionOrigin, ISteamController#EControllerActionOrigin
+*/
+extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
+/*
 @desc Returns a localized string (from Steam's language setting) for the specified origin.
 @param eOrigin The origin you want to get the string for.
 @return The localized string for the specified origin.
-@api ISteamController#GetStringForActionOrigin
+@api ISteamController#GetStringForActionOrigin, ISteamController#EControllerActionOrigin
 */
-//extern "C" DLL_EXPORT const char * GetStringForActionOrigin(EControllerActionOrigin eOrigin);
-/*
-@desc Stops the momentum of an analog action (where applicable, ie a touchpad w/ virtual trackball settings).
-@param hController The handle of the controller to affect.
-@param eAction The analog action to stop momentum for.
-@api ISteamController#StopAnalogActionMomentum
-*/
-//extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hController, ControllerAnalogActionHandle_t eAction);
+extern "C" DLL_EXPORT char * GetStringForActionOrigin(int eOrigin);
 /*
 	@page Controller Effects
 */
@@ -2245,10 +2299,9 @@ This is a more user-friendly function to call than TriggerHapticPulse as it can 
 @param onDuration Duration of the pulse, in microseconds (1/1,000,000th of a second).
 @param offDuration Duration of the pause between pulses, in microseconds.
 @param repeat Number of times to repeat the onDuration / offDuration duty cycle.
-@param flags Currently unused and reserved for future use.
 @api ISteamController#TriggerRepeatedHapticPulse
 */
-//extern "C" DLL_EXPORT void TriggerRepeatedHapticPulse(int hController, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
+extern "C" DLL_EXPORT void TriggerControllerRepeatedHapticPulse(int hController, int eTargetPad, int onDuration, int offDuration, int repeat);
 /*
 @desc Trigger a vibration event on supported controllers.
 
@@ -2259,7 +2312,5 @@ This API call will be ignored for incompatible controller models.
 @api ISteamController#TriggerVibration
 */
 extern "C" DLL_EXPORT void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed);
-// DEPRECATED // bool ShowAnalogActionOrigins(int hController, ControllerAnalogActionHandle_t hAnalogAction, float flScale, float flXPosition, float flYPosition);
-// DEPRECATED // bool ShowDigitalActionOrigins(int hController, ControllerDigitalActionHandle_t hDigitalAction, float scale, float x, float y);
 
 #endif // DLLMAIN_H_

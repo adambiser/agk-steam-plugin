@@ -47,6 +47,7 @@ If it has not been, return a default value.
 	}
 // Token for passing an empty returnValue into CheckInitialized();
 #define NORETURN
+#define NULL_STRING CreateString(NULL)
 
 #define Clamp(value, min, max)			\
 	if (value < min)					\
@@ -137,17 +138,25 @@ std::vector <ControllerActionSetHandle_t> m_ActionSetHandles;
 std::vector <ControllerDigitalActionHandle_t> m_DigitalActionHandles;
 std::vector <ControllerAnalogActionHandle_t> m_AnalogActionHandles;
 
-template <typename T>
-inline T GetActionHandle(int handle, std::vector<T> *vector)
-{
-	// Handles are 1-based!
-	if (handle >= 0 && handle < (int)vector->size())
-	{
-		return (*vector)[handle];
-	}
-	agk::PluginError("Invalid handle.");
-	return 0;
-}
+//template <typename T>
+//inline T GetActionHandle(int handle, std::vector<T> *vector)
+//{
+//	// Handles are 1-based!
+//	if (handle >= 0 && handle < (int)vector->size())
+//	{
+//		return (*vector)[handle];
+//	}
+//	agk::PluginError("Invalid handle.");
+//	return 0;
+//}
+
+#define ValidateActionHandle(handleType, handleVar, handleIndex, vector, returnValue)	\
+	if (handleIndex <= 0 || handleIndex >= (int)vector.size())	\
+	{															\
+		agk::PluginError("Invalid " #handleType " handle.");		\
+		return returnValue;										\
+	}															\
+	handleType handleVar = vector[handleIndex]
 
 template <typename T>
 inline int GetActionHandleIndex(T handle, std::vector<T> *vector)
@@ -389,7 +398,7 @@ char *GetSteamPath()
 			return CreateString(szValue);
 		}
 	}
-	return CreateString(NULL);
+	return NULL_STRING;
 }
 
 // App/DLC methods
@@ -509,7 +518,7 @@ int GetAppBuildID()
 
 char *GetAppInstallDir(int appID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	char folder[MAX_PATH];
 	uint32 length = Steam->GetAppInstallDir(appID, folder, sizeof(folder));
 	if (length)
@@ -523,7 +532,7 @@ char *GetAppInstallDir(int appID)
 	}
 	else
 	{
-		return CreateString(NULL);
+		return NULL_STRING;
 	}
 }
 
@@ -535,24 +544,24 @@ int GetAppOwner()
 
 char *GetAvailableGameLanguages()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetAvailableGameLanguages());
 }
 
 char *GetCurrentBetaName()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	char name[256];
 	if (Steam->GetCurrentBetaName(name, sizeof(name)))
 	{
 		return CreateString(name);
 	}
-	return CreateString(NULL);
+	return NULL_STRING;
 }
 
 char *GetCurrentGameLanguage()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetCurrentGameLanguage());
 }
 
@@ -614,7 +623,7 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 
 char * GetLaunchQueryParam(const char *key)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetLaunchQueryParam(key));
 }
 
@@ -693,7 +702,7 @@ void ActivateGameOverlayToWebPage(const char *url)
 
 char *GetPersonaName()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetPersonaName());
 }
 
@@ -716,7 +725,7 @@ int GetAccountID(int hUserSteamID)
 
 char *GetSteamID3(int hUserSteamID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	CSteamID steamID = GetSteamID(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
@@ -753,12 +762,12 @@ char *GetSteamID3(int hUserSteamID)
 		steam3 << "]";
 		return CreateString(steam3.str());
 	}
-	return CreateString(NULL);
+	return NULL_STRING;
 }
 
 char *GetSteamID64(int hUserSteamID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
 	_i64toa(GetSteamID(hUserSteamID).ConvertToUint64(), id64, 10);
 	return CreateString(id64);
@@ -862,7 +871,7 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 
 char *GetFriendPersonaName(int hUserSteamID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
 }
 
@@ -886,7 +895,7 @@ int GetFriendSteamLevel(int hUserSteamID)
 
 char *GetPlayerNickname(int hUserSteamID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
 }
 
@@ -941,7 +950,7 @@ char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array
 
 char *GetFriendsGroupName(int hFriendsGroupID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetFriendsGroupName(hFriendsGroupID));
 }
 
@@ -1045,19 +1054,19 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 */
 char *GetAchievementAPIName(int index)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetAchievementAPIName(index));
 }
 
 char *GetAchievementDisplayName(const char *name)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetAchievementDisplayAttribute(name, "name"));
 }
 
 char *GetAchievementDisplayDesc(const char *name)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetAchievementDisplayAttribute(name, "desc"));
 }
 
@@ -1219,7 +1228,7 @@ int GetLeaderboardHandle()
 
 char *GetLeaderboardName(int hLeaderboard)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetLeaderboardName(hLeaderboard));
 }
 
@@ -1548,7 +1557,7 @@ char *GetLobbyGameCreatedJSON()
 // Lobby methods: Data
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
 }
 
@@ -1578,7 +1587,7 @@ char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
 
 char *GetLobbyDataJSON(int hLobbySteamID)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
 	std::ostringstream json;
 	json << "[";
@@ -1638,7 +1647,7 @@ int GetLobbyDataUpdatedID()
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
 }
 
@@ -1722,7 +1731,7 @@ int GetLobbyChatMessageUser()
 
 char *GetLobbyChatMessageText()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	char msg[4096];
 	Steam->GetLobbyChatMessageText(msg);
 	return CreateString(msg);
@@ -1813,7 +1822,7 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 
 //char *GetPublicIP()
 //{
-//	CheckInitialized(CreateString(NULL));
+//	CheckInitialized(NULL_STRING);
 //	uint32 ip = Steam->GetPublicIP();
 //	std::ostringstream ipc;
 //	ipc << ConvertIPToString(ip);
@@ -1901,7 +1910,7 @@ int GetIPCCallCount()
 
 char *GetIPCountry()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetIPCountry());
 }
 
@@ -1925,7 +1934,7 @@ int GetServerRealTime()
 
 char *GetSteamUILanguage()
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	return CreateString(Steam->GetSteamUILanguage());
 }
 
@@ -2173,7 +2182,7 @@ int GetCloudFileCount()
 
 char * GetCloudFileName(int index)
 {
-	CheckInitialized(CreateString(NULL));
+	CheckInitialized(NULL_STRING);
 	int32 pnFileSizeInBytes;
 	return CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
 }
@@ -2345,11 +2354,7 @@ void ActivateActionSet(int hController, int hActionSet)
 {
 	CheckInitialized(NORETURN);
 	ValidateControllerHandle(hController, );
-	ControllerActionSetHandle_t actionSetHandle = GetActionHandle(hActionSet, &m_ActionSetHandles);
-	if (!actionSetHandle)
-	{
-		return;
-	}
+	ValidateActionHandle(ControllerActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
 	Steam->ActivateActionSet(m_ControllerHandles[hController], actionSetHandle);
 }
 
@@ -2366,43 +2371,193 @@ int GetCurrentActionSet(int hController)
 	return GetActionHandleIndex(Steam->GetCurrentActionSet(m_ControllerHandles[hController]), &m_ActionSetHandles);
 }
 
+void ActivateActionSetLayer(int hController, int hActionSetLayer)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	ValidateActionHandle(ControllerActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
+	Steam->ActivateActionSetLayer(m_ControllerHandles[hController], actionSetLayerHandle);
+}
+
+void DeactivateActionSetLayer(int hController, int hActionSetLayer)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	ValidateActionHandle(ControllerActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
+	Steam->DeactivateActionSetLayer(m_ControllerHandles[hController], actionSetLayerHandle);
+}
+
+void DeactivateAllActionSetLayers(int hController)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	Steam->DeactivateAllActionSetLayers(m_ControllerHandles[hController]);
+}
+
+char *GetActiveActionSetLayersJSON(int hController)
+{
+	CheckInitialized(CreateString("[]"));
+	ValidateControllerHandle(hController, CreateString("[]"));
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		// TODO The API document has incorrect information.  Is STEAM_CONTROLLER_MAX_COUNT correct?
+		ControllerActionSetHandle_t *handlesOut = new ControllerActionSetHandle_t[STEAM_CONTROLLER_MAX_COUNT];
+		int count = Steam->GetActiveActionSetLayers(m_ControllerHandles[hController], handlesOut);
+		for (int index = 0; index < count; index++)
+		{
+			if (index > 0)
+			{
+				json << ",";
+			}
+			json << GetActionHandleIndex(handlesOut[index], &m_ActionSetHandles);
+		}
+		delete[] handlesOut;
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
 /*
 Controller Actions and Motion
 */
+void GetAnalogActionData(int hController, int hAnalogAction)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
+	return Steam->GetAnalogActionData(m_ControllerHandles[hController], analogActionHandle);
+}
+
+int GetAnalogActionDataActive()
+{
+	CheckInitialized(0);
+	return Steam->m_AnalogActionData.bActive;
+}
+
+int GetAnalogActionDataMode()
+{
+	CheckInitialized(0);
+	return Steam->m_AnalogActionData.eMode;
+}
+
+float GetAnalogActionDataX()
+{
+	CheckInitialized(0);
+	return Steam->m_AnalogActionData.x;
+}
+
+float GetAnalogActionDataY()
+{
+	CheckInitialized(0);
+	return Steam->m_AnalogActionData.y;
+}
+
 int GetAnalogActionHandle(const char *actionName)
 {
 	CheckInitialized(0);
 	return GetActionHandleIndex(Steam->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
 }
 
-int GetDigitalActionDataActive(int hController, int hDigitalAction)
+void StopAnalogActionMomentum(int hController, int hAnalogAction)
 {
-	CheckInitialized(0);
-	ValidateControllerHandle(hController, false);
-	ControllerDigitalActionHandle_t digitalActionHandle = GetActionHandle(hDigitalAction, &m_DigitalActionHandles);
-	if (!digitalActionHandle)
-	{
-		return false;
-	}
-	return Steam->GetDigitalActionData(m_ControllerHandles[hController], digitalActionHandle).bActive;
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
+	return Steam->StopAnalogActionMomentum(m_ControllerHandles[hController], analogActionHandle);
 }
 
-int GetDigitalActionDataState(int hController, int hDigitalAction)
+void GetDigitalActionData(int hController, int hDigitalAction)
 {
-	CheckInitialized(0);
-	ValidateControllerHandle(hController, false);
-	ControllerDigitalActionHandle_t digitalActionHandle = GetActionHandle(hDigitalAction, &m_DigitalActionHandles);
-	if (!digitalActionHandle)
-	{
-		return false;
-	}
-	return Steam->GetDigitalActionData(m_ControllerHandles[hController], digitalActionHandle).bState;
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	ValidateActionHandle(ControllerDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
+	Steam->GetDigitalActionData(m_ControllerHandles[hController], digitalActionHandle);
+}
+
+int GetDigitalActionDataActive()
+{
+	CheckInitialized(false);
+	return Steam->m_DigitalActionData.bActive;
+}
+
+int GetDigitalActionDataState()
+{
+	CheckInitialized(false);
+	return Steam->m_DigitalActionData.bState;
 }
 
 int GetDigitalActionHandle(const char *actionName)
 {
 	CheckInitialized(0);
 	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
+}
+
+/*
+Controller Action Origins
+*/
+
+char *GetAnalogActionOriginsJSON(int hController, int hActionSet, int hAnalogAction)
+{
+	ValidateControllerHandle(hController, CreateString("[]"));
+	ValidateActionHandle(ControllerActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
+	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, CreateString("[]"));
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		EControllerActionOrigin *origins = new EControllerActionOrigin[STEAM_CONTROLLER_MAX_ORIGINS];
+		int count = Steam->GetAnalogActionOrigins(m_ControllerHandles[hController], actionSetHandle, analogActionHandle, origins);
+		for (int index = 0; index < count; index++)
+		{
+			if (index > 0)
+			{
+				json << ",";
+			}
+			json << origins[index];
+		}
+		delete[] origins;
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetDigitalActionOriginsJSON(int hController, int hActionSet, int hDigitalAction)
+{
+	ValidateControllerHandle(hController, CreateString("[]"));
+	ValidateActionHandle(ControllerActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
+	ValidateActionHandle(ControllerDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, CreateString("[]"));
+	std::ostringstream json;
+	json << "[";
+	if (Steam)
+	{
+		EControllerActionOrigin *origins = new EControllerActionOrigin[STEAM_CONTROLLER_MAX_ORIGINS];
+		int count = Steam->GetDigitalActionOrigins(m_ControllerHandles[hController], actionSetHandle, digitalActionHandle, origins);
+		for (int index = 0; index < count; index++)
+		{
+			if (index > 0)
+			{
+				json << ",";
+			}
+			json << origins[index];
+		}
+		delete[] origins;
+	}
+	json << "]";
+	return CreateString(json.str());
+}
+
+char *GetGlyphForActionOrigin(int eOrigin)
+{
+	CheckInitialized(NULL_STRING);
+	return CreateString(Steam->GetGlyphForActionOrigin((EControllerActionOrigin)eOrigin));
+}
+
+char *GetStringForActionOrigin(int eOrigin)
+{
+	CheckInitialized(NULL_STRING);
+	return CreateString(Steam->GetStringForActionOrigin((EControllerActionOrigin)eOrigin));
 }
 
 /*
@@ -2430,7 +2585,17 @@ void TriggerControllerHapticPulse(int hController, int eTargetPad, int duration)
 	CheckInitialized(NORETURN);
 	ValidateControllerHandle(hController, );
 	Clamp(duration, 0, USHRT_MAX);
-	Steam->TriggerControllerHapticPulse(m_ControllerHandles[hController], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+	Steam->TriggerHapticPulse(m_ControllerHandles[hController], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+}
+
+void TriggerControllerRepeatedHapticPulse(int hController, int eTargetPad, int onDuration, int offDuration, int repeat)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	Clamp(onDuration, 0, USHRT_MAX);
+	Clamp(offDuration, 0, USHRT_MAX);
+	Clamp(repeat, 0, USHRT_MAX);
+	Steam->TriggerRepeatedHapticPulse(m_ControllerHandles[hController], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
 }
 
 void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed)
@@ -2439,5 +2604,5 @@ void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed)
 	ValidateControllerHandle(hController, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
-	Steam->TriggerControllerVibration(m_ControllerHandles[hController], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+	Steam->TriggerVibration(m_ControllerHandles[hController], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
 }

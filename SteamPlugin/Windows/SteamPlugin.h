@@ -494,18 +494,34 @@ public:
 	void ActivateActionSet(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle);
 	ControllerActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
 	ControllerActionSetHandle_t GetCurrentActionSet(ControllerHandle_t controllerHandle);
+	void ActivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t hActionSetLayer);
+	void DeactivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t hActionSetLayer);
+	void DeactivateAllActionSetLayers(ControllerHandle_t controllerHandle);
+	int GetActiveActionSetLayers(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t *handlesOut);
 	/*
 	Controller Actions and Motion
 	*/
+	ControllerAnalogActionData_t m_AnalogActionData;
+	void GetAnalogActionData(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle);
 	ControllerAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
-	ControllerDigitalActionData_t GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle);
+	void StopAnalogActionMomentum(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle);
+	ControllerDigitalActionData_t m_DigitalActionData;
+	void GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle);
 	ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
+	/*
+	Controller Action Origins.
+	*/
+	int GetAnalogActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut);
+	int GetDigitalActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut);
+	const char *GetGlyphForActionOrigin(EControllerActionOrigin eOrigin);
+	const char *GetStringForActionOrigin(EControllerActionOrigin eOrigin);
 	/*
 	Controller Effects
 	*/
 	void SetLEDColor(ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
-	void TriggerControllerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration);
-	void TriggerControllerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
+	void TriggerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration);
+	void TriggerRepeatedHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
+	void TriggerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
 #endif // STEAMPLUGIN_H_

@@ -32,15 +32,15 @@ Type ActionSetHandlesType
 	menuControls as integer
 EndType
 
-//~ global joysticks as integer[]
-//~ CompleteRawJoystickDetection()
-//~ AddStatus("Checking raw joysticks...")
-//~ for x = 1 to 8
-	//~ AddStatus("AGK Controller " + str(x) + ": Exists: " + TF(GetRawJoystickExists(x)) + ", Connected: " + TF(GetRawJoystickConnected(x)) + ", Name: " + GetRawJoystickName(x))
-	//~ if GetRawJoystickExists(x) and GetRawJoystickConnected(x)
-		//~ joysticks.insert(x)
-	//~ endif
-//~ next x
+#constant SHOW_ACTION_NAME_INDEX 4
+
+CreateTextEx(0, 80, digitalActionNames[SHOW_ACTION_NAME_INDEX] + ": ")
+global buttonSprite as integer
+buttonSprite = CreateSprite(0) // LoadImage("raw:C:\Program Files (x86)\Steam\tenfoot\resource\images\library\controller\api\xbox_button_dpad_w.png"))
+SetSpritePosition(buttonSprite, 80, 80)
+SetSpriteSize(buttonSprite, 64, 64)
+
+
 
 AddStatus("Init Steam Controller: " + TF(Steam.InitSteamController()))
 AddStatus("Digital Action Handles:")
@@ -51,7 +51,7 @@ next
 
 AddStatus("Analog Action Handles:")
 for x = 0 to analogActionNames.length
-	analogActionHandles[x] = Steam.GetDigitalActionHandle(analogActionNames[x])
+	analogActionHandles[x] = Steam.GetAnalogActionHandle(analogActionNames[x])
 	AddStatus(TAB + analogActionNames[x] + " = " + str(analogActionHandles[x]))
 next
 
@@ -79,28 +79,28 @@ loop
 //
 Function CheckInput()
 	x as integer
-	//~ j as integer
-	//~ b as integer
 
+	// Check action data
 	Steam.RunFrame()
 	if controllerCount
 		Steam.ActivateActionSet(1, ActionSetHandles.shipControls)
+		// Space War has an action set layer, but I don't know its name.  Pretending menu_controls is an action set layer for now.
+		Steam.ActivateActionSetLayer(1, ActionSetHandles.menuControls) // Hit DETECT again to see this layer activated.
 		for x = 0 to digitalActionHandles.length
-			if Steam.GetDigitalActionDataState(1, digitalActionHandles[x])
+			// Must call GetDigitalActionData before checking GetDigitalActionDataState and/or GetDigitalActionDataActive!
+			Steam.GetDigitalActionData(1, digitalActionHandles[x])
+			if Steam.GetDigitalActionDataState()
 				AddStatus("Digital action: " + digitalActionNames[x])
 			endif
 		next
+		for x = 0 to analogActionHandles.length
+			// Must call GetAnalogActionData before checking GetAnalogActionDataActive, !
+			Steam.GetAnalogActionData(1, analogActionHandles[x])
+			if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
+				AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
+			endif
+		next
 	endif
-	//~ for x = 0 to joysticks.length
-		//~ j = joysticks[x]
-		//~ for b = 1 to 64
-			//~ if GetRawJoystickButtonPressed(j, b)
-				//~ AddStatus("Controller " + str(j) + " Button " + str(b) + " = pressed")
-			//~ elseif GetRawJoystickButtonReleased(j, b)
-				//~ AddStatus("Controller " + str(j) + " Button " + str(b) + " = released")
-			//~ endif
-		//~ next
-	//~ next
 	// Scrollable text.
 	PerformVerticalScroll(statusArea)
 	if GetVirtualButtonPressed(DETECT_BUTTON)
@@ -112,13 +112,35 @@ Function CheckInput()
 		for x = 1 to controllerCount
 			AddStatus("Controller type " + str(x) + ": " + GetInputTypeName(Steam.GetInputTypeForHandle(x)))
 			AddStatus("Controller action set " + str(x) + ": " + str(Steam.GetCurrentActionSet(x)))
-			
 		next
+		if controllerCount > 0
+			origins as integer[]
+			origins.fromjson(Steam.GetDigitalActionOriginsJSON(1, ActionSetHandles.shipControls, digitalActionHandles[SHOW_ACTION_NAME_INDEX]))
+			AddStatus(digitalActionNames[SHOW_ACTION_NAME_INDEX] + " origins: " + origins.tojson())
+			for x = 0 to origins.length
+				AddStatus("Action origin " + str(x) + ": " + Steam.GetStringForActionOrigin(origins[x]))
+				glyphPath as String
+				glyphPath = Steam.GetGlyphForActionOrigin(origins[x])
+				AddStatus("Glyph path " + str(x) +": " + glyphPath)
+				if x = 0
+					SetSpriteImage(buttonSprite, LoadImage("raw:" + glyphPath))
+				endif
+			next
+			origins.fromjson(Steam.GetAnalogActionOriginsJSON(1, ActionSetHandles.shipControls, analogActionHandles[0]))
+			if origins.length >= 0
+				AddStatus(analogActionNames[0] + " origins: " + origins.tojson())
+				AddStatus("Action origin: " + Steam.GetStringForActionOrigin(origins[0]))
+			endif
+			layers as integer[]
+			layers.fromjson(Steam.GetActiveActionSetLayersJSON(1))
+			AddStatus("Active Action Set Layers: " + layers.tojson())
+		endif
 	endif
 	if GetVirtualButtonPressed(BINDING_PANEL_BUTTON)
 		AddStatus("Show binding panel for controller 1: " + TF(Steam.ShowBindingPanel(1)))
-		while Steam.IsGameOverlayActive()
-			AddStatus("..")
+		// No real way of knowing when the binding panel closes!
+		while not GetResumed() or GetPaused()
+			Sync()
 		endwhile
 	endif
 	if GetVirtualButtonPressed(VIBRATE_BUTTON)
