@@ -8,7 +8,7 @@ A plugin to give basic steam_api.dll access to games developed using AppGameKit'
 
 * [AppGameKit](https://www.appgamekit.com/) for developing your game.
 * [Visual Studio 2015 Community Edition](https://www.visualstudio.com/vs/older-downloads/) was used to compile the plugin.
-* [Steamworks SDK](https://partner.steamgames.com) v1.41 was used when compiling.
+* [Steamworks SDK](https://partner.steamgames.com) v1.42 was used when compiling.
 
 ### Installing and Using the Plugin
 
