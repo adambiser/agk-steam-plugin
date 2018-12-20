@@ -188,6 +188,9 @@ private:
 	// Cloud method: FileReadAsync
 	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
 	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
+	// Controller
+	//int m_ControllerCount;
+	//ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -476,6 +479,51 @@ public:
 	//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
+	/*
+	Controller Information
+	*/
+	bool InitSteamController();
+	bool ShutdownSteamController();
+	int GetConnectedControllers(ControllerHandle_t *handlesOut);
+	ESteamInputType GetInputTypeForHandle(ControllerHandle_t controllerHandle);
+	void RunFrame();
+	bool ShowBindingPanel(ControllerHandle_t controllerHandle);
+	/*
+	Controller Action Sets and Layers
+	*/
+	void ActivateActionSet(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle);
+	ControllerActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
+	ControllerActionSetHandle_t GetCurrentActionSet(ControllerHandle_t controllerHandle);
+	void ActivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t hActionSetLayer);
+	void DeactivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t hActionSetLayer);
+	void DeactivateAllActionSetLayers(ControllerHandle_t controllerHandle);
+	int GetActiveActionSetLayers(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t *handlesOut);
+	/*
+	Controller Actions and Motion
+	*/
+	ControllerAnalogActionData_t m_AnalogActionData;
+	void GetAnalogActionData(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle);
+	ControllerAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
+	void StopAnalogActionMomentum(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle);
+	ControllerDigitalActionData_t m_DigitalActionData;
+	void GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle);
+	ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
+	ControllerMotionData_t m_MotionData;
+	void GetMotionData(ControllerHandle_t controllerHandle);
+	/*
+	Controller Action Origins.
+	*/
+	int GetAnalogActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut);
+	int GetDigitalActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut);
+	const char *GetGlyphForActionOrigin(EControllerActionOrigin eOrigin);
+	const char *GetStringForActionOrigin(EControllerActionOrigin eOrigin);
+	/*
+	Controller Effects
+	*/
+	void SetLEDColor(ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
+	void TriggerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration);
+	void TriggerRepeatedHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
+	void TriggerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
 #endif // STEAMPLUGIN_H_

@@ -335,3 +335,64 @@ SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,0
 #SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 #SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 #int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
+#
+# Controllers
+#
+InitSteamController,I,0,InitSteamController,0,0,0,0,0
+ShutdownSteamController,I,0,ShutdownSteamController,0,0,0,0,0
+GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,0
+GetInputTypeForHandle,I,I,GetInputTypeForHandle,0,0,0,0,0
+#GetControllerForGamepadIndex
+#GetGamepadIndexForController
+RunFrame,0,0,RunFrame,0,0,0,0,0
+ShowBindingPanel,I,I,ShowBindingPanel,0,0,0,0,0
+#
+# Controllers: Action Sets and Layers
+#
+ActivateActionSet,0,II,ActivateActionSet,0,0,0,0,0
+GetActionSetHandle,I,S,GetActionSetHandle,0,0,0,0,0
+GetCurrentActionSet,I,I,GetCurrentActionSet,0,0,0,0,0
+ActivateActionSetLayer,0,II,ActivateActionSetLayer,0,0,0,0,0
+DeactivateActionSetLayer,0,II,DeactivateActionSetLayer,0,0,0,0,0
+DeactivateAllActionSetLayers,0,I,DeactivateAllActionSetLayers,0,0,0,0,0
+GetActiveActionSetLayersJSON,S,I,GetActiveActionSetLayersJSON,0,0,0,0,0
+#
+# Controllers: Actions and Motion
+#
+GetAnalogActionData,0,II,GetAnalogActionData,0,0,0,0,0
+GetAnalogActionDataActive,I,0,GetAnalogActionDataActive,0,0,0,0,0
+GetAnalogActionDataMode,I,0,GetAnalogActionDataMode,0,0,0,0,0
+GetAnalogActionDataX,F,0,GetAnalogActionDataX,0,0,0,0,0
+GetAnalogActionDataY,F,0,GetAnalogActionDataY,0,0,0,0,0
+GetAnalogActionHandle,I,S,GetAnalogActionHandle,0,0,0,0,0
+StopAnalogActionMomentum,0,II,StopAnalogActionMomentum,0,0,0,0,0
+GetDigitalActionData,0,II,GetDigitalActionData,0,0,0,0,0
+GetDigitalActionDataActive,I,0,GetDigitalActionDataActive,0,0,0,0,0
+GetDigitalActionDataState,I,0,GetDigitalActionDataState,0,0,0,0,0
+GetDigitalActionHandle,I,S,GetDigitalActionHandle,0,0,0,0,0
+GetMotionData,0,I,GetMotionData,0,0,0,0,0
+GetMotionDataPosAccelX,F,0,GetMotionDataPosAccelX,0,0,0,0,0
+GetMotionDataPosAccelY,F,0,GetMotionDataPosAccelY,0,0,0,0,0
+GetMotionDataPosAccelZ,F,0,GetMotionDataPosAccelZ,0,0,0,0,0
+GetMotionDataRotQuatW,F,0,GetMotionDataRotQuatW,0,0,0,0,0
+GetMotionDataRotQuatX,F,0,GetMotionDataRotQuatX,0,0,0,0,0
+GetMotionDataRotQuatY,F,0,GetMotionDataRotQuatY,0,0,0,0,0
+GetMotionDataRotQuatZ,F,0,GetMotionDataRotQuatZ,0,0,0,0,0
+GetMotionDataRotVelX,F,0,GetMotionDataRotVelX,0,0,0,0,0
+GetMotionDataRotVelY,F,0,GetMotionDataRotVelY,0,0,0,0,0
+GetMotionDataRotVelZ,F,0,GetMotionDataRotVelZ,0,0,0,0,0
+#
+# Controllers: Action Origins
+#
+GetAnalogActionOriginsJSON,S,III,GetAnalogActionOriginsJSON,0,0,0,0,0
+GetDigitalActionOriginsJSON,S,III,GetDigitalActionOriginsJSON,0,0,0,0,0
+GetGlyphForActionOrigin,S,I,GetGlyphForActionOrigin,0,0,0,0,0
+GetStringForActionOrigin,S,I,GetStringForActionOrigin,0,0,0,0,0
+#
+# Controllers: Effects
+#
+SetControllerLEDColor,0,IIII,SetControllerLEDColor,0,0,0,0,0
+ResetControllerLEDColor,0,I,ResetControllerLEDColor,0,0,0,0,0
+TriggerControllerHapticPulse,0,III,TriggerControllerHapticPulse,0,0,0,0,0
+TriggerControllerRepeatedHapticPulse,0,IIIII,TriggerControllerRepeatedHapticPulse,0,0,0,0,0
+TriggerControllerVibration,0,III,TriggerControllerVibration,0,0,0,0,0

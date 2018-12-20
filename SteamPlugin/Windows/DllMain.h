@@ -101,7 +101,7 @@ extern "C" DLL_EXPORT int IsSteamIDValid(int hSteamID);
 @param steamID64 A SteamID64 string.
 @return A Steam ID handle or 0.
 */
-extern "C" DLL_EXPORT int GetHandleFromSteamID64(char *steamID64);
+extern "C" DLL_EXPORT int GetHandleFromSteamID64(const char *steamID64);
 /*
 @desc
 Allows asynchronous Steam API calls to handle any new results.
@@ -192,7 +192,7 @@ extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots);
 @return The key value or an empty string if the key doesn't exist.
 @api ISteamApps#GetLaunchQueryParam
 */
-extern "C" DLL_EXPORT char *GetLaunchQueryParam(char *key);
+extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key);
 /*
 @desc Posted after the user executes a steam url with query parameters while running.
 Once a post has been reported, this method returns 0 until another post arrives.
@@ -1023,7 +1023,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int slotsAvai
 @param valueToBeCloseTo The value that lobbies will be sorted on.
 @api ISteamMatchmaking#AddRequestLobbyListNearValueFilter
 */
-extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *keyToMatch, int valueToBeCloseTo);
+extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(const char *keyToMatch, int valueToBeCloseTo);
 /*
 @desc Adds a numerical comparison filter to the next RequestLobbyList call.
 @param keyToMatch The filter key name to match.
@@ -1032,7 +1032,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(char *keyToMatch, 
 @param-api eComparisonType ISteamMatchmaking#ELobbyComparison
 @api ISteamMatchmaking#AddRequestLobbyListNumericalFilter
 */
-extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(char *keyToMatch, int valueToMatch, int eComparisonType);
+extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(const char *keyToMatch, int valueToMatch, int eComparisonType);
 /*
 @desc Sets the maximum number of lobbies to return.
 @param maxResults The maximum number of lobbies to return.
@@ -1047,7 +1047,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults);
 @param-api eComparisonType ISteamMatchmaking#ELobbyComparison
 @api ISteamMatchmaking#AddRequestLobbyListStringFilter
 */
-extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(char *keyToMatch, char *valueToMatch, int eComparisonType);
+extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueToMatch, int eComparisonType);
 /*
 @desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
 
@@ -1212,7 +1212,7 @@ _This can only be set by the owner of the lobby._
 @return 1 when the call succeeds; otherwise 0.
 @api ISteamMatchmaking#SetLobbyGameServer
 */
-extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, char *gameServerIP, int gameServerPort, int hGameServerSteamID); // Triggers a LobbyGameCreated_t callback.
+extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID); // Triggers a LobbyGameCreated_t callback.
 /*
 @desc Indicates that a lobby game was created since the last call.
 @return 1 when a lobby game was created; otherwise 0.
@@ -1242,7 +1242,7 @@ extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
 @return The value for the given key or an empty string if the key or lobby doesn't exist.
 @api ISteamMatchmaking#GetLobbyData
 */
-extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, char *key);
+extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, const char *key);
 /*
 @desc Gets the number of metadata keys set on the specified lobby.
 @param hLobbySteamID The Steam ID of the lobby to get the data count from.
@@ -1279,7 +1279,7 @@ _This can only be set by the owner of the lobby._
 @param value The value to set.
 @api ISteamMatchmaking#SetLobbyData
 */
-extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, char *key, char *value);
+extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, const char *key, const char *value);
 /*
 @desc Removes a metadata key from the lobby.
 
@@ -1289,7 +1289,7 @@ _This can only be set by the owner of the lobby._
 @return 1 when the request succeeds; otherwise 0.
 @api ISteamMatchmaking#DeleteLobbyData
 */
-extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, char *key);
+extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, const char *key);
 /*
 @desc Refreshes all of the metadata for a lobby that you're not in right now.
 @param hLobbySteamID The Steam ID of the lobby to refresh the metadata of.
@@ -1323,7 +1323,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
 @return The value for the given key or an empty string if the key, member, or lobby doesn't exist.
 @api ISteamMatchmaking#GetLobbyMemberData
 */
-extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, char *key);
+extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key);
 /*
 @desc Sets per-user metadata for the local user.
 
@@ -1333,7 +1333,7 @@ Each user in the lobby will be receive notification of the lobby data change via
 @param value The value to set.
 @api ISteamMatchmaking#SetLobbyMemberData
 */
-extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, char *key, char *value);
+extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value);
 /* @page Lobby Members and Status */
 /*
 @desc Returns the current lobby owner.
@@ -1441,7 +1441,7 @@ extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
 @return 1 when the send succeeds; otherwise 0.
 @api ISteamMatchmaking#SendLobbyChatMessage
 */
-extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, char *message);
+extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, const char *message);
 /* @page Favorite Games */
 /*
 @desc Adds the game server to the local favorites list or updates the time played of the server if it already exists in the list.
@@ -1456,7 +1456,7 @@ _The plugin sets the API call's rTime32LastPlayedOnServer parameter internally t
 @return An integer.  This appears to be an index position, but is not defined by the API.
 @api ISteamMatchmaking#AddFavoriteGame, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
 */
-extern "C" DLL_EXPORT int AddFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);//, int time32LastPlayedOnServer);
+extern "C" DLL_EXPORT int AddFavoriteGame(int appID, const char *ip, int connectPort, int queryPort, int flags);//, int time32LastPlayedOnServer);
 /*
 @desc Gets the number of favorite and recent game servers the user has stored locally.
 @return An integer.
@@ -1491,7 +1491,7 @@ extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
 @return 1 if the server was removed; otherwise, 0 if the specified server was not on the users local favorites list.
 @api ISteamMatchmaking#RemoveFavoriteGame, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
 */
-extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, char *ip, int connectPort, int queryPort, int flags);
+extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, const char *ip, int connectPort, int queryPort, int flags);
 // Game server
 //extern "C" DLL_EXPORT char *GetPublicIP();
 /* @page Music */
@@ -1660,7 +1660,7 @@ Note: charMax is limited to 512 characters.
 @return 1 if the input overlay opens; otherwise 0.
 @api ISteamUtils#ShowGamepadTextInput
 */
-extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, char *description, int charMax, char *existingText);
+extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText);
 /*
 @desc Returns 1 when the big picture gamepad text input has been closed.
 @return 1 when the big picture gamepad text input has closed; otherwise 0.
@@ -1817,14 +1817,14 @@ When a file has been deleted it can be re-written with FileWrite to reupload it 
 @return 1 if the file exists and has been successfully deleted; otherwise, 0 if the file did not exist.
 @api ISteamRemoteStorage#FileDelete
 */
-extern "C" DLL_EXPORT int CloudFileDelete(char *filename);
+extern "C" DLL_EXPORT int CloudFileDelete(const char *filename);
 /*
 @desc Checks whether the specified file exists.
 @param filename The name of the file.
 @return 1 if the file exists; otherwise, 0.
 @api ISteamRemoteStorage#FileExists
 */
-extern "C" DLL_EXPORT int CloudFileExists(char *filename);
+extern "C" DLL_EXPORT int CloudFileExists(const char *filename);
 /*
 @desc
 Deletes the file from remote storage, but leaves it on the local disk and remains accessible from the API.
@@ -1841,7 +1841,7 @@ Once a file has been deleted or forgotten, calling FileWrite will resynchronize 
 @return	1 if the file exists and has been successfully forgotten; otherwise, 0.
 @api ISteamRemoteStorage#FileForget
 */
-extern "C" DLL_EXPORT int CloudFileForget(char *filename);
+extern "C" DLL_EXPORT int CloudFileForget(const char *filename);
 /*
 @desc
 Checks if a specific file is persisted in the steam cloud.
@@ -1851,7 +1851,7 @@ Checks if a specific file is persisted in the steam cloud.
 0 if FileForget was called on it and is only available locally.
 @api ISteamRemoteStorage#FilePersisted
 */
-extern "C" DLL_EXPORT int CloudFilePersisted(char *filename);
+extern "C" DLL_EXPORT int CloudFilePersisted(const char *filename);
 /*
 @desc
 Opens a binary file, reads the contents of the file into a memblock, and then closes the file.
@@ -1865,7 +1865,7 @@ A memblock ID containing the data read from the file.
 Returns 0 if the file doesn't exist or the read fails.
 @api ISteamRemoteStorage#FileRead
 */
-extern "C" DLL_EXPORT int CloudFileRead(char *filename);
+extern "C" DLL_EXPORT int CloudFileRead(const char *filename);
 /*
 @desc Starts an asynchronous read from a file.
 
@@ -1878,28 +1878,28 @@ Check GetCloudFileReadAsyncCallbackState to see when the callback completes.
 @return 1 if the request succeeds; otherwise 0.
 @api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
-extern "C" DLL_EXPORT int CloudFileReadAsync(char *filename, int offset, int length);
+extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, int length);
 /*
 @desc Returns the state of the RemoteStorageFileReadAsyncComplete_t callback.
 @param filename The name of the file read from.
 @return [A callback state.](Callbacks-and-Call-Results#states)
 @api ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
-extern "C" DLL_EXPORT int GetCloudFileReadAsyncCallbackState(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncCallbackState(const char *filename);
 /*
 @desc Returns the result of the CloudFileReadAsync callback operation.
 @param filename The name of the file read from.
 @return The result of the operation.
 @api steam_api#EResult
 */
-extern "C" DLL_EXPORT int GetCloudFileReadAsyncResult(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncResult(const char *filename);
 /*
 @desc Returns a memblock of the data returned by the CloudFileReadAsync callback operation.
 @param filename The name of the file read from.
 @return A memblock ID.
 @api steam_api#EResult
 */
-extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(const char *filename);
 //extern "C" DLL_EXPORT SteamAPICall_t CloudFileShare(const char *filename);
 /*
 @desc
@@ -1920,7 +1920,7 @@ Otherwise, 0 under the following conditions:
 * Steam could not write to the disk, the location might be read-only.
 @api ISteamRemoteStorage#FileWrite
 */
-extern "C" DLL_EXPORT int CloudFileWrite(char *filename, int memblockID);
+extern "C" DLL_EXPORT int CloudFileWrite(const char *filename, int memblockID);
 /*
 @desc Creates a new file and asynchronously writes the raw byte data to the Steam Cloud, and then closes the file. If the target file already exists, it is overwritten.
 
@@ -1930,21 +1930,21 @@ Check GetCloudFileWriteAsyncCallbackState to see when the callback completes.
 @return 1 if the request succeeds; otherwise 0.
 @api ISteamRemoteStorage#FileWriteAsync, ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
 */
-extern "C" DLL_EXPORT int CloudFileWriteAsync(char *filename, int memblockID);
+extern "C" DLL_EXPORT int CloudFileWriteAsync(const char *filename, int memblockID);
 /*
 @desc Returns the state of the RemoteStorageFileWriteAsyncComplete_t callback.
 @param filename The name of the file to write to.
 @return [A callback state.](Callbacks-and-Call-Results#states)
 @api ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
 */
-extern "C" DLL_EXPORT int GetCloudFileWriteAsyncCallbackState(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileWriteAsyncCallbackState(const char *filename);
 /*
 @desc Returns the result of the CloudFileWriteAsync callback operation.
 @param filename The name of the file to write to.
 @return The result of the operation.
 @api steam_api#EResult
 */
-extern "C" DLL_EXPORT int GetCloudFileWriteAsyncResult(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileWriteAsyncResult(const char *filename);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *filename);
@@ -1955,7 +1955,7 @@ extern "C" DLL_EXPORT int GetCloudFileWriteAsyncResult(char *filename);
 @return The size of the file in bytes. Returns 0 if the file does not exist.
 @api ISteamRemoteStorage#GetFileSize
 */
-extern "C" DLL_EXPORT int GetCloudFileSize(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileSize(const char *filename);
 /*
 @desc
 Gets the specified file's last modified timestamp in Unix epoch format (seconds since Jan 1st 1970).
@@ -1963,14 +1963,14 @@ Gets the specified file's last modified timestamp in Unix epoch format (seconds 
 @return The last modified timestamp in Unix epoch format.
 @api ISteamRemoteStorage#GetFileTimestamp
 */
-extern "C" DLL_EXPORT int GetCloudFileTimestamp(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileTimestamp(const char *filename);
 /*
 @desc Obtains the platforms that the specified file will syncronize to.
 @param filename The name of the file.
 @return Bitfield containing the platforms that the file was set to with SetSyncPlatforms.
 @api ISteamRemoteStorage#GetSyncPlatforms, ISteamRemoteStorage#ERemoteStoragePlatform
 */
-extern "C" DLL_EXPORT int GetCloudFileSyncPlatforms(char *filename);
+extern "C" DLL_EXPORT int GetCloudFileSyncPlatforms(const char *filename);
 /*
 @desc
 Allows you to specify which operating systems a file will be synchronized to.
@@ -1984,16 +1984,425 @@ Files default to k_ERemoteStoragePlatformAll when they are first created. You ca
 @return 1 if the file exists, otherwise 0.
 @api ISteamRemoteStorage#SetSyncPlatforms
 */
-extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(char *filename, int eRemoteStoragePlatform);
+extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform);
 /* @page User-Generated Content */
 //extern "C" DLL_EXPORT int GetCachedUGCCount();
 //extern "C" DLL_EXPORT UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
-//extern "C" DLL_EXPORT bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
+//extern "C" DLL_EXPORT bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, const char **pname, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
 //extern "C" DLL_EXPORT bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
 //extern "C" DLL_EXPORT SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
 //extern "C" DLL_EXPORT SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *location, uint32 unPriority);
 //extern "C" DLL_EXPORT int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
 //SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+
+/*
+	@page Controller Information
+See the [Steam Input](https://partner.steamgames.com/doc/features/steam_controller) documentation for more information.
+
+See also [Getting Started for Developers](https://partner.steamgames.com/doc/features/steam_controller/getting_started_for_devs).
+*/
+/*
+@desc Must be called when starting use of the ISteamController interface.
+@return Always 1 if the Steam plugin has been initialized; otherwise 0.
+@api ISteamController#Init
+*/
+extern "C" DLL_EXPORT int InitSteamController();
+/*
+@desc Must be called when ending use of the Steam Controller interface.
+
+This is called within Shutdown and also while unloading the plugin, so calling it explictly should not be necessary.
+@return Always 1 if the Steam plugin has been initialized; otherwise 0.
+@api ISteamController#Shutdown
+*/
+extern "C" DLL_EXPORT int ShutdownSteamController();
+/*
+@desc Enumerates currently connected controllers.
+
+Must be called before controllers can be used because it loads the internal controller handles.
+@return The number of controllers found.
+@api ISteamController#GetConnectedControllers
+*/
+extern "C" DLL_EXPORT int GetConnectedControllers();
+/*
+@desc Returns the input type (device model) for the specified controller. This tells you if a given controller is a Steam controller, XBox 360 controller, PS4 controller, etc.
+@param hController The handle of the controller.
+@return Returns the input type (device model) for the specified controller.
+@api ISteamController#GetInputTypeForHandle
+*/
+extern "C" DLL_EXPORT int GetInputTypeForHandle(int hController);
+/*
+@desc Returns the associated controller handle for the specified emulated gamepad.
+@param hController The index of the emulated gamepad you want to get a controller handle for.
+@return The associated controller handle for the specified emulated gamepad.
+@api ISteamController#GetControllerForGamepadIndex
+*/
+//extern "C" DLL_EXPORT ControllerHandle_t GetControllerForGamepadIndex(int nIndex);
+/*
+@desc Returns the associated gamepad index for the specified controller, if emulating a gamepad.
+@param hController The handle of the controller you want to get a gamepad index for.
+@return An integer.
+@api ISteamController#GetGamepadIndexForController
+*/
+//extern "C" DLL_EXPORT int GetGamepadIndexForController(ControllerHandle_t ulController);
+/*
+@desc Synchronize API state with the latest Steam Controller inputs available.
+This is performed automatically by RunCallbacks, but for the absolute lowest possible latency, you can call this directly before reading controller state.
+@api ISteamController#RunFrame
+*/
+extern "C" DLL_EXPORT void RunFrame();
+/*
+@desc Invokes the Steam overlay and brings up the binding screen.
+@param hController The handle of the controller you want to bring up the binding screen for.
+@return 1 for success; 0 if overlay is disabled/unavailable, or the user is not in Big Picture Mode.
+@api ISteamController#ShowBindingPanel
+*/
+extern "C" DLL_EXPORT int ShowBindingPanel(int hController);
+/*
+	@page Controller Action Sets and Layers
+*/
+/*
+@desc Reconfigure the controller to use the specified action set (ie "Menu", "Walk", or "Drive").
+
+This is cheap, and can be safely called repeatedly. It's often easier to repeatedly call it in your state loops, instead of trying to place it in all of your state transitions.
+@param hController The handle of the controller you want to activate an action set for.
+@param hActionSet The handle of the action set you want to activate.
+@api ISteamController#ActivateActionSet
+*/
+extern "C" DLL_EXPORT void ActivateActionSet(int hController, int hActionSet);
+/*
+@desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
+@param actionSetName The string identifier of an action set defined in the game's VDF file.
+@return The handle of the specified action set.
+@api ISteamController#GetActionSetHandle
+*/
+extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName);
+/*
+@desc Get the currently active action set for the specified controller.
+@param hController The handle of the controller you want to query.
+@return The handle of the action set activated for the specified controller.
+@api ISteamController#GetCurrentActionSet
+*/
+extern "C" DLL_EXPORT int GetCurrentActionSet(int hController);
+/*
+@desc Reconfigure the controller to use the specified action set layer.
+@param hController The handle of the controller you want to activate an action set layer for.
+@param hActionSetLayer The handle of the action set layer you want to activate.
+@api ISteamController#ActivateActionSetLayer
+*/
+extern "C" DLL_EXPORT void ActivateActionSetLayer(int hController,  int hActionSetLayer);
+/*
+@desc Reconfigure the controller to stop using the specified action set layer.
+@param hController The handle of the controller you want to deactivate an action set layer for.
+@param hActionSetLayer The handle of the action set layer you want to deactivate.
+@api ISteamController#DeactivateActionSetLayer
+*/
+extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hController, int hActionSetLayer);
+/*
+@desc Reconfigure the controller to stop using all action set layers.
+@param hController The handle of the controller you want to deactivate all action set layers for.
+@api ISteamController#DeactivateAllActionSetLayers
+*/
+extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hController);
+/*
+@desc Gets the active action set layers for the given controller.
+@param hController The handle of the controller you want to get active action set layers for.
+@return A JSON integer array of active action set layers.
+@api ISteamController#GetActiveActionSetLayers
+*/
+extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hController);
+/*
+	@page Controller Actions and Motion
+*/
+/*
+@desc Reads and stores the current state of the supplied analog game action so that it can be returned by GetAnalogActionDataActive, GetAnalogActionDataMode, GetAnalogActionDataX, and GetAnalogActionDataY.
+@param hController The handle of the controller you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT void GetAnalogActionData(int hController, int hAnalogAction);
+/*
+@desc Returns the current availability to be bound in the active action set of the analog game action read by the last GetAnalogActionData call.
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@return Whether or not this action is currently available to be bound in the active action set.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+
+*/
+extern "C" DLL_EXPORT int GetAnalogActionDataActive();
+/*
+@desc Returns the type of data coming from this action as read by the last GetAnalogActionData call
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT int GetAnalogActionDataMode();
+/*
+@desc Returns the current state of this action on the horizontal axis read by the last GetAnalogActionData call
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@return The current state of this action on the horizontal axis.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT float GetAnalogActionDataX();
+/*
+@desc Returns the current state of this action on the vertical axis read by the last GetAnalogActionData call
+
+**NOTE:**
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@return The current state of this action on the vertical axis.
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT float GetAnalogActionDataY();
+
+/*
+@desc Get the handle of the specified Analog action.
+
+**NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
+In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
+@param actionName The string identifier of the analog action defined in the game's VDF file.
+@return The analog action handle.
+@api ISteamController#GetAnalogActionHandle
+*/
+extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName);
+/*
+@desc Stops the momentum of an analog action (where applicable, ie a touchpad w/ virtual trackball settings).
+@param hController The handle of the controller to affect.
+@param hAnalogAction The analog action handle to stop momentum for.
+@api ISteamController#StopAnalogActionMomentum
+*/
+extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hController, int hAnalogAction);
+/*
+@desc Reads and stores the current state of the supplied digital game action so that it can be returned by GetDigitalActionDataActive and GetDigitalActionDataState.
+@param hController The handle of the controller you want to query.
+@param hDigitalAction The handle of the digital action you want to query.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT void GetDigitalActionData(int hController, int hDigitalAction);
+/*
+@desc Returns the current availability to be bound in the active action set of the digital game action read by the last GetDigitalActionData call.
+
+**NOTE:**  
+GetDigitalActionData MUST be called in order to populate the value returned by this method.
+@return Whether or not this action is currently available to be bound in the active action set.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT int GetDigitalActionDataActive();
+/*
+@desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
+
+**NOTE:**
+GetDigitalActionData MUST be called in order to populate the value returned by this method.
+@return The current state of this action; 1 if the action is currently pressed, otherwise 0.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT int GetDigitalActionDataState();
+/*
+@desc Get the handle of the specified digital action.
+
+**NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
+In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
+@param actionName The string identifier of the digital action defined in the game's VDF file.
+@return The handle of the specified digital action.
+@api ISteamController#GetDigitalActionHandle
+*/
+extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName);
+/*
+@desc Reads and stores the raw motion data for the specified controller so that it can be returned by 
+GetMotionDataPosAccelX, GetMotionDataPosAccelY, GetMotionDataPosAccelZ,
+GetMotionDataPosRotQuatW, GetMotionDataPosRotQuatX, GetMotionDataPosRotQuatY, GetMotionDataPosRotQuatZ,
+GetMotionDataPosRotVelX, GetMotionDataPosRotVelY, and GetMotionDataPosRotVelZ.
+
+@param hController The handle of the controller you want to get motion data for.
+@api ISteamController#GetMotionData, ISteamController#ControllerMotionData_t
+*/
+extern "C" DLL_EXPORT void GetMotionData(int hController);
+/*
+@desc Returns the positional acceleration, x axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Positional acceleration, x axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataPosAccelX();
+/*
+@desc Returns the positional acceleration, y axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Positional acceleration, y axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataPosAccelY();
+/*
+@desc Returns the positional acceleration, z axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Positional acceleration, z axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataPosAccelZ();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), w axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), w axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatW();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), x axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), x axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatX();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), y axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), y axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatY();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), z axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), z axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatZ();
+/*
+@desc Returns the angular velocity, x axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Angular velocity, x axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotVelX();
+/*
+@desc Returns the angular velocity, y axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Angular velocity, y axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotVelY();
+/*
+@desc Returns the angular velocity, z axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Angular velocity, z axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotVelZ();
+/*
+	@page Controller Action Origins
+*/
+/*
+@desc Get the origin(s) for an analog action within an action set by filling originsOut with EControllerActionOrigin handles.
+Use this to display the appropriate on-screen prompt for the action.
+@param hController The handle of the controller you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
+@return The number of origins supplied in originsOut.
+@api ISteamController#GetAnalogActionOrigins
+*/
+extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hController, int hActionSet, int hAnalogAction);
+/*
+@desc Get a JSON integer array the origin(s) for a digital action within an action set.
+Use this to display the appropriate on-screen prompt for the action.
+@param hController The handle of the controller you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hDigitalAction The handle of the digital aciton you want to query.
+@return A JSON integer array of the action origins.
+@api ISteamController#GetDigitalActionOrigins
+*/
+extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hController, int hActionSet, int hDigitalAction);
+/*
+@desc Get a local path to art for on-screen glyph for a particular origin.
+@param eOrigin The origin you want to get the glyph for.
+@return The path to the png file for the glyph.
+@api ISteamController#GetGlyphForActionOrigin, ISteamController#EControllerActionOrigin
+*/
+extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
+/*
+@desc Returns a localized string (from Steam's language setting) for the specified origin.
+@param eOrigin The origin you want to get the string for.
+@return The localized string for the specified origin.
+@api ISteamController#GetStringForActionOrigin, ISteamController#EControllerActionOrigin
+*/
+extern "C" DLL_EXPORT char * GetStringForActionOrigin(int eOrigin);
+/*
+	@page Controller Effects
+*/
+/*
+@desc Set the controller LED color on supported controllers.
+@param hController The handle of the controller to affect.
+@param red The red component of the color to set (0-255).
+@param green The green component of the color to set (0-255).
+@param blue The blue component of the color to set (0-255).
+@api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
+*/
+extern "C" DLL_EXPORT void SetControllerLEDColor(int hController, int red, int green, int blue);
+/*
+@desc Set the controller LED color back to the default (out-of-game) settings.
+@param hController The handle of the controller to affect.
+@api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
+*/
+extern "C" DLL_EXPORT void ResetControllerLEDColor(int hController);
+/*
+@desc Triggers a (low-level) haptic pulse on supported controllers.
+
+**NOTES**  
+Currently only the VSC supports haptic pulses.  This API call will be ignored for all other controller models.
+@param hController The handle of the controller to affect.
+@param eTargetPad Which haptic touch pad to affect.
+@param-api eTargetPad ISteamController#ESteamControllerPad
+@param duration Duration of the pulse, in microseconds (1/1,000,000th of a second)
+@api ISteamController#TriggerHapticPulse
+*/
+extern "C" DLL_EXPORT void TriggerControllerHapticPulse(int hController, int eTargetPad, int duration);
+/*
+@desc Triggers a repeated haptic pulse on supported controllers.
+
+**NOTES**  
+Currently only the VSC supports haptic pulses.  
+This API call will be ignored for incompatible controller models.  
+This is a more user-friendly function to call than TriggerHapticPulse as it can generate pulse patterns long enough to be actually noticed by the user.  
+@param hController The handle of the controller to affect.
+@param eTargetPad Which haptic touch pad to affect.
+@param-api eTargetPad ISteamController#ESteamControllerPad
+@param onDuration Duration of the pulse, in microseconds (1/1,000,000th of a second).
+@param offDuration Duration of the pause between pulses, in microseconds.
+@param repeat Number of times to repeat the onDuration / offDuration duty cycle.
+@api ISteamController#TriggerRepeatedHapticPulse
+*/
+extern "C" DLL_EXPORT void TriggerControllerRepeatedHapticPulse(int hController, int eTargetPad, int onDuration, int offDuration, int repeat);
+/*
+@desc Trigger a vibration event on supported controllers.
+
+This API call will be ignored for incompatible controller models.
+@param hController The handle of the controller to affect.
+@param leftSpeed The period of the left rumble motor's vibration, in microseconds.
+@param rightSpeed The period of the right rumble motor's vibration, in microseconds.
+@api ISteamController#TriggerVibration
+*/
+extern "C" DLL_EXPORT void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed);
 
 #endif // DLLMAIN_H_
