@@ -88,18 +88,32 @@ Function CheckInput()
 		Steam.ActivateActionSetLayer(1, ActionSetHandles.menuControls) // Hit DETECT again to see this layer activated.
 		for x = 0 to digitalActionHandles.length
 			// Must call GetDigitalActionData before checking GetDigitalActionDataState and/or GetDigitalActionDataActive!
+			// Note that this only indicates the current state.  You'd have to keep track of these values if you want to know when pressed or released.
 			Steam.GetDigitalActionData(1, digitalActionHandles[x])
 			if Steam.GetDigitalActionDataState()
 				AddStatus("Digital action: " + digitalActionNames[x])
 			endif
 		next
 		for x = 0 to analogActionHandles.length
-			// Must call GetAnalogActionData before checking GetAnalogActionDataActive, !
+			// Must call GetAnalogActionData before checking GetAnalogActionDataX or GetAnalogActionDataY!
+			// Note that the Steam API does not have a dead zone value, so you'd have to implement one yourself.
 			Steam.GetAnalogActionData(1, analogActionHandles[x])
 			if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
 				AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
 			endif
 		next
+		// Check for motion data.
+		Steam.GetMotionData(1)
+		AddStatusIfNotZero("PosAccelX", Steam.GetMotionDataPosAccelX())
+		AddStatusIfNotZero("PosAccelY", Steam.GetMotionDataPosAccelY())
+		AddStatusIfNotZero("PosAccelZ", Steam.GetMotionDataPosAccelZ())
+		AddStatusIfNotZero("RotQuatW", Steam.GetMotionDataRotQuatW())
+		AddStatusIfNotZero("RotQuatX", Steam.GetMotionDataRotQuatX())
+		AddStatusIfNotZero("RotQuatY", Steam.GetMotionDataRotQuatY())
+		AddStatusIfNotZero("RotQuatZ", Steam.GetMotionDataRotQuatZ())
+		AddStatusIfNotZero("RotVelX", Steam.GetMotionDataRotVelX())
+		AddStatusIfNotZero("RotVelY", Steam.GetMotionDataRotVelY())
+		AddStatusIfNotZero("RotVelZ", Steam.GetMotionDataRotVelZ())
 	endif
 	// Scrollable text.
 	PerformVerticalScroll(statusArea)
@@ -158,6 +172,12 @@ EndFunction
 //
 Function ProcessCallbacks()
 	index as integer
+EndFunction
+
+Function AddStatusIfNotZero(label as string, value as float)
+	if value <> 0
+		AddStatus(label + ": " + str(value))
+	endif
 EndFunction
 
 Function GetInputTypeName(value as integer)

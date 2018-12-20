@@ -163,6 +163,16 @@ SteamPlugin::SteamPlugin() :
 	m_AnalogActionData.eMode = k_EControllerSourceMode_None;
 	m_AnalogActionData.x = 0;
 	m_AnalogActionData.y = 0;
+	m_MotionData.posAccelX = 0;
+	m_MotionData.posAccelY = 0;
+	m_MotionData.posAccelZ = 0;
+	m_MotionData.rotQuatW = 0;
+	m_MotionData.rotQuatX = 0;
+	m_MotionData.rotQuatY = 0;
+	m_MotionData.rotQuatZ = 0;
+	m_MotionData.rotVelX = 0;
+	m_MotionData.rotVelY = 0;
+	m_MotionData.rotVelZ = 0;
 }
 
 SteamPlugin::~SteamPlugin(void)
@@ -253,6 +263,16 @@ void SteamPlugin::Shutdown()
 		m_AnalogActionData.eMode = k_EControllerSourceMode_None;
 		m_AnalogActionData.x = 0;
 		m_AnalogActionData.y = 0;
+		m_MotionData.posAccelX = 0;
+		m_MotionData.posAccelY = 0;
+		m_MotionData.posAccelZ = 0;
+		m_MotionData.rotQuatW = 0;
+		m_MotionData.rotQuatX = 0;
+		m_MotionData.rotQuatY = 0;
+		m_MotionData.rotQuatZ = 0;
+		m_MotionData.rotVelX = 0;
+		m_MotionData.rotVelY = 0;
+		m_MotionData.rotVelZ = 0;
 	}
 }
 
@@ -2304,6 +2324,12 @@ ControllerDigitalActionHandle_t SteamPlugin::GetDigitalActionHandle(const char *
 {
 	CheckInitialized(SteamController, 0);
 	return SteamController()->GetDigitalActionHandle(pszActionName);
+}
+
+ void SteamPlugin::GetMotionData(ControllerHandle_t controllerHandle)
+{
+	 CheckInitialized(SteamController, );
+	 m_MotionData = SteamController()->GetMotionData(controllerHandle);
 }
 
 /*

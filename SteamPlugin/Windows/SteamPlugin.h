@@ -508,6 +508,8 @@ public:
 	ControllerDigitalActionData_t m_DigitalActionData;
 	void GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle);
 	ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
+	ControllerMotionData_t m_MotionData;
+	void GetMotionData(ControllerHandle_t controllerHandle);
 	/*
 	Controller Action Origins.
 	*/

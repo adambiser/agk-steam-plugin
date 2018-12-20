@@ -2495,6 +2495,73 @@ int GetDigitalActionHandle(const char *actionName)
 	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
 }
 
+void GetMotionData(int hController)
+{
+	CheckInitialized(NORETURN);
+	ValidateControllerHandle(hController, );
+	Steam->GetMotionData(m_ControllerHandles[hController]);
+}
+
+float GetMotionDataPosAccelX()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.posAccelX;
+}
+
+float GetMotionDataPosAccelY()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.posAccelY;
+}
+
+float GetMotionDataPosAccelZ()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.posAccelZ;
+}
+
+float GetMotionDataRotQuatW()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotQuatW;
+}
+
+float GetMotionDataRotQuatX()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotQuatX;
+}
+
+float GetMotionDataRotQuatY()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotQuatY;
+}
+
+float GetMotionDataRotQuatZ()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotQuatZ;
+}
+
+float GetMotionDataRotVelX()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotVelX;
+}
+
+float GetMotionDataRotVelY()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotVelY;
+}
+
+float GetMotionDataRotVelZ()
+{
+	CheckInitialized(0);
+	return Steam->m_MotionData.rotVelZ;
+}
+
 /*
 Controller Action Origins
 */

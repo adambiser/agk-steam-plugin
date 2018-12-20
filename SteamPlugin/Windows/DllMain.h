@@ -2029,6 +2029,7 @@ extern "C" DLL_EXPORT int GetConnectedControllers();
 /*
 @desc Returns the input type (device model) for the specified controller. This tells you if a given controller is a Steam controller, XBox 360 controller, PS4 controller, etc.
 @param hController The handle of the controller.
+@return Returns the input type (device model) for the specified controller.
 @api ISteamController#GetInputTypeForHandle
 */
 extern "C" DLL_EXPORT int GetInputTypeForHandle(int hController);
@@ -2116,7 +2117,7 @@ extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hController);
 	@page Controller Actions and Motion
 */
 /*
-@desc Returns the current state of the supplied analog game action and stores it so that it can be returned by GetAnalogActionDataActive, GetAnalogActionDataMode, GetAnalogActionDataX, and GetAnalogActionDataY.
+@desc Reads and stores the current state of the supplied analog game action so that it can be returned by GetAnalogActionDataActive, GetAnalogActionDataMode, GetAnalogActionDataX, and GetAnalogActionDataY.
 @param hController The handle of the controller you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
@@ -2126,7 +2127,7 @@ extern "C" DLL_EXPORT void GetAnalogActionData(int hController, int hAnalogActio
 @desc Returns the current availability to be bound in the active action set of the analog game action read by the last GetAnalogActionData call.
 
 **NOTE:**
-GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
 @return Whether or not this action is currently available to be bound in the active action set.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 
@@ -2136,7 +2137,7 @@ extern "C" DLL_EXPORT int GetAnalogActionDataActive();
 @desc Returns the type of data coming from this action as read by the last GetAnalogActionData call
 
 **NOTE:**
-GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
 @return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
@@ -2145,7 +2146,7 @@ extern "C" DLL_EXPORT int GetAnalogActionDataMode();
 @desc Returns the current state of this action on the horizontal axis read by the last GetAnalogActionData call
 
 **NOTE:**
-GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
 @return The current state of this action on the horizontal axis.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
@@ -2154,7 +2155,7 @@ extern "C" DLL_EXPORT float GetAnalogActionDataX();
 @desc Returns the current state of this action on the vertical axis read by the last GetAnalogActionData call
 
 **NOTE:**
-GetAnalogActionData MUST be called in order to populate the internal value returned by this method.
+GetAnalogActionData MUST be called in order to populate the value returned by this method.
 @return The current state of this action on the vertical axis.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
@@ -2165,7 +2166,7 @@ extern "C" DLL_EXPORT float GetAnalogActionDataY();
 
 **NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
 In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
-@param controller 
+@param actionName The string identifier of the analog action defined in the game's VDF file.
 @return The analog action handle.
 @api ISteamController#GetAnalogActionHandle
 */
@@ -2178,7 +2179,7 @@ extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName);
 */
 extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hController, int hAnalogAction);
 /*
-@desc Returns the current state of the supplied digital game action and stores it so that it can be returned by GetDigitalActionDataActive and GetDigitalActionDataState.
+@desc Reads and stores the current state of the supplied digital game action so that it can be returned by GetDigitalActionDataActive and GetDigitalActionDataState.
 @param hController The handle of the controller you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
@@ -2188,7 +2189,7 @@ extern "C" DLL_EXPORT void GetDigitalActionData(int hController, int hDigitalAct
 @desc Returns the current availability to be bound in the active action set of the digital game action read by the last GetDigitalActionData call.
 
 **NOTE:**  
-GetDigitalActionData MUST be called in order to populate the internal value returned by this method.
+GetDigitalActionData MUST be called in order to populate the value returned by this method.
 @return Whether or not this action is currently available to be bound in the active action set.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
@@ -2197,7 +2198,7 @@ extern "C" DLL_EXPORT int GetDigitalActionDataActive();
 @desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
 
 **NOTE:**
-GetDigitalActionData MUST be called in order to populate the internal value returned by this method.
+GetDigitalActionData MUST be called in order to populate the value returned by this method.
 @return The current state of this action; 1 if the action is currently pressed, otherwise 0.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
@@ -2213,12 +2214,105 @@ In other words, if you use an action called "up" in two different action sets, t
 */
 extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName);
 /*
-@desc Returns raw motion data for the specified controller.
+@desc Reads and stores the raw motion data for the specified controller so that it can be returned by 
+GetMotionDataPosAccelX, GetMotionDataPosAccelY, GetMotionDataPosAccelZ,
+GetMotionDataPosRotQuatW, GetMotionDataPosRotQuatX, GetMotionDataPosRotQuatY, GetMotionDataPosRotQuatZ,
+GetMotionDataPosRotVelX, GetMotionDataPosRotVelY, and GetMotionDataPosRotVelZ.
+
 @param hController The handle of the controller you want to get motion data for.
-@return The raw motion data for the specified controller.
-@api ISteamController#GetMotionData
+@api ISteamController#GetMotionData, ISteamController#ControllerMotionData_t
 */
-//extern "C" DLL_EXPORT ControllerMotionData_t GetMotionData(int hController);
+extern "C" DLL_EXPORT void GetMotionData(int hController);
+/*
+@desc Returns the positional acceleration, x axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Positional acceleration, x axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataPosAccelX();
+/*
+@desc Returns the positional acceleration, y axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Positional acceleration, y axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataPosAccelY();
+/*
+@desc Returns the positional acceleration, z axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Positional acceleration, z axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataPosAccelZ();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), w axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), w axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatW();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), x axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), x axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatX();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), y axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), y axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatY();
+/*
+@desc Returns the sensor-fused absolute rotation (will drift in heading), z axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Sensor-fused absolute rotation (will drift in heading), z axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotQuatZ();
+/*
+@desc Returns the angular velocity, x axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Angular velocity, x axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotVelX();
+/*
+@desc Returns the angular velocity, y axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Angular velocity, y axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotVelY();
+/*
+@desc Returns the angular velocity, z axis of the controller motion data read by the last GetMotionData call.
+
+**NOTE:**
+GetMotionData MUST be called in order to populate the value returned by this method.
+@return Angular velocity, z axis.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT float GetMotionDataRotVelZ();
 /*
 	@page Controller Action Origins
 */
@@ -2281,7 +2375,7 @@ extern "C" DLL_EXPORT void ResetControllerLEDColor(int hController);
 Currently only the VSC supports haptic pulses.  This API call will be ignored for all other controller models.
 @param hController The handle of the controller to affect.
 @param eTargetPad Which haptic touch pad to affect.
-@param-api ISteamController#ESteamControllerPad
+@param-api eTargetPad ISteamController#ESteamControllerPad
 @param duration Duration of the pulse, in microseconds (1/1,000,000th of a second)
 @api ISteamController#TriggerHapticPulse
 */
