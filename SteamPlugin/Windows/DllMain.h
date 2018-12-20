@@ -1996,13 +1996,11 @@ extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eR
 
 //SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 
-/* 
+/*
+	@page Controller Information
 See the [Steam Input](https://partner.steamgames.com/doc/features/steam_controller) documentation for more information.
 
 See also [Getting Started for Developers](https://partner.steamgames.com/doc/features/steam_controller/getting_started_for_devs).
-*/
-/*
-	@page Controller Information
 */
 /*
 @desc Must be called when starting use of the ISteamController interface.
