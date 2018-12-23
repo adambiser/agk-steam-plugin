@@ -1,4 +1,3 @@
-UpdateAGKFolder.bat
 Examples/*/*.exe
 Examples/*/media/bytecode.byc
 Examples/*/Plugins/SteamPlugin/Windows.dll
