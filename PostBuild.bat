@@ -38,7 +38,7 @@ echo Compiler path: !AGK_COMPILER_PATH!
 echo Plugin path: !AGK_PLUGIN_PATH!
 
 echo Copying plugin into AppGameKit plugin folder.
-SET AGKPATH=E:\SteamApps\steamapps\common\App Game Kit 2
+Copy "%1" "AGKPlugin\SteamPlugin\Windows.dll"
 COPY "AGKPlugin\SteamPlugin" "%AGK_PLUGIN_PATH%" > nul
 
 echo Compiling example projects.
