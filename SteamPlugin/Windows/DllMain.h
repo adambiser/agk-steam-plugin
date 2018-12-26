@@ -125,6 +125,13 @@ _Note: This command is not part of the Steam API, but is included as a convenien
 @return The Steam path.
 */
 extern "C" DLL_EXPORT char *GetSteamPath();
+/*
+@desc Attempts to detect when Steam is being emulated.  Emulation is sometimes used with pirated games, but it can also be used for valid reasons.
+
+_Note: This command is not part of the Steam API, but is included as a convenience._
+@return 1 when Steam emulation is detected, otherwise 0.
+*/
+extern "C" DLL_EXPORT int IsSteamEmulated();
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.

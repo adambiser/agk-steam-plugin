@@ -26,9 +26,22 @@ THE SOFTWARE.
 #include <shellapi.h>
 #include <vector>
 #include <sstream>
+#include <psapi.h>
 #include "DllMain.h"
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
+
+/*
+TODO? Detect SmartSteamEmu
+File list:
+* SmartSteamEmu.dll
+* SmartSteamEmu.ini
+* SmartSteamEmu.txt
+* SmartSteamEmu64.dll
+* SmartSteamEmu folder
+* LAUNCHER.exe
+* LAUNCHER_x64.exe.
+*/
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -47,7 +60,7 @@ If it has not been, return a default value.
 	}
 // Token for passing an empty returnValue into CheckInitialized();
 #define NORETURN
-#define NULL_STRING CreateString(NULL)
+#define NULL_STRING CreateString((const char *)NULL)
 
 #define Clamp(value, min, max)			\
 	if (value < min)					\
@@ -80,6 +93,23 @@ char *CreateString(std::string text)
 {
 	return CreateString(text.c_str());
 }
+
+char *CreateString(const WCHAR* text)
+{
+	size_t length = wcslen(text) + 1;
+	char *result = agk::CreateString((int)length);
+	size_t size;
+	wcstombs_s(&size, result, length, text, length);
+	return result;
+	//char *ctext = new char[length];
+	//size_t size;
+	//if (wcstombs_s(&size, ctext, length, text, length) == 0)
+	//{
+	//	
+	//}
+	//delete[] ctext;
+}
+
 
 /*
 	CSteamID Handle Methods
@@ -366,7 +396,8 @@ char *GetCommandLineArgsJSON()
 			{
 				json << ",";
 			}
-			wcstombs(arg, szArglist[i], MAX_PATH);
+			size_t size;
+			wcstombs_s(&size, arg, szArglist[i], MAX_PATH);
 			json << "\"" << arg << "\"";
 		}
 		// Free memory.
@@ -376,22 +407,19 @@ char *GetCommandLineArgsJSON()
 	return CreateString(json.str());
 }
 
-#define STEAM_REGISTRY_SUBKEY "Software\\Valve\\Steam"
-#define STEAM_REGISTRY_VALUE "SteamPath"
+#define STEAM_REGISTRY_SUBKEY TEXT("Software\\Valve\\Steam")
+#define STEAM_REGISTRY_VALUE TEXT("SteamPath")
 
 char *GetSteamPath()
 {
-	// Given a HKEY and value name returns a string from the registry.
-	// Upon successful return the string should be freed using free()
-	// eg. RegGetString(hKey, TEXT("my value"), &szString);
 	HKEY hKey = 0;
-	if (RegOpenKeyExA(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 	{
 		DWORD dwType = REG_SZ;
-		CHAR szValue[1024];
-		DWORD dwDataSize = sizeof(szValue);
+		TCHAR szValue[1024];
+		DWORD dwDataSize = sizeof(szValue) / sizeof(TCHAR);
 		// Query string value
-		LSTATUS result = RegQueryValueExA(hKey, STEAM_REGISTRY_VALUE, NULL, &dwType, reinterpret_cast<LPBYTE>(&szValue), &dwDataSize);
+		LSTATUS result = RegQueryValueEx(hKey, STEAM_REGISTRY_VALUE, NULL, &dwType, (LPBYTE)(&szValue), &dwDataSize);
 		RegCloseKey(hKey);
 		if (result == ERROR_SUCCESS)
 		{
@@ -399,6 +427,37 @@ char *GetSteamPath()
 		}
 	}
 	return NULL_STRING;
+}
+
+int IsSteamEmulated()
+{
+	HANDLE hProcess = GetCurrentProcess();
+	HMODULE hModules[1024];
+	DWORD cbNeeded;
+
+	bool emulated = false;
+	if (EnumProcessModules(hProcess, hModules, sizeof(hModules), &cbNeeded))
+	{
+		for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			TCHAR szModName[MAX_PATH];
+			if (GetModuleFileNameEx(hProcess, hModules[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+			{
+#if UNICODE
+				std::wstring s = szModName;
+				if (s.find(TEXT("SmartSteamEmu.dll")) != std::wstring::npos)
+#else
+				std::string s = szModName;
+				if (s.find("SmartSteamEmu.dll") != std::string::npos)
+#endif
+				{
+					agk::Log("SmartSteamEmu emulation detected.");
+					emulated = true;
+				}
+			}
+		}
+	}
+	return emulated;
 }
 
 // App/DLC methods

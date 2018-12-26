@@ -13,6 +13,7 @@ GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,0
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,0
 GetCommandLineArgsJSON,S,0,GetCommandLineArgsJSON,0,0,0,0,0
 GetSteamPath,S,0,GetSteamPath,0,0,0,0,0
+IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,0
 #
 # App/DLC methods
 #
