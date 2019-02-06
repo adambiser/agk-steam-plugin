@@ -2,11 +2,13 @@
 REM This is needed for errorlevel to work in the for loop, also need ! instead of %.
 setlocal EnableDelayedExpansion
 
+if [%1] == [] goto :blankparam
+if [%2] == [] goto :blankparam
+
+SET PLUGIN_NAME=SteamPlugin
+
 REM Must be run from the batch file's path.
 cd /d %~dp0
-
-REM set PLUGIN_FILE=AGKPlugin\SteamPlugin\Windows.dll
-REM SET AGK_PATH=E:\SteamApps\steamapps\common\App Game Kit 2\Tier 1\Compiler
 
 REM Determine the path to the compiler.
 REM Start by finding the path to the AGK editor using the AGK File type association.
@@ -25,7 +27,7 @@ if defined AGK_PATH (
 	set AGK_PATH=!AGK_PATH:"=!
 	REM Add the path to the compiler.
 	set AGK_COMPILER_PATH=!AGK_PATH!\Compiler\AGKCompiler.exe
-	set AGK_PLUGIN_PATH=!AGK_PATH!\Compiler\Plugins\SteamPlugin
+	set AGK_PLUGIN_PATH=!AGK_PATH!\Compiler\Plugins\%PLUGIN_NAME%
 )
 REM Verify compiler path.
 if not defined AGK_COMPILER_PATH set NO_COMPILER=1
@@ -38,12 +40,13 @@ echo Compiler path: !AGK_COMPILER_PATH!
 echo Plugin path: !AGK_PLUGIN_PATH!
 
 echo Copying plugin into AppGameKit plugin folder.
-Copy "%1" "AGKPlugin\SteamPlugin\Windows.dll"
-COPY "AGKPlugin\SteamPlugin" "%AGK_PLUGIN_PATH%" > nul
+MkDir "%AGK_PLUGIN_PATH%"
+Copy "%1" "AGKPlugin\%PLUGIN_NAME%\%2.dll"
+COPY "AGKPlugin\%PLUGIN_NAME%" "%AGK_PLUGIN_PATH%" > nul
 
 echo Compiling example projects.
 for /D %%G in ("Examples\*") do (
-	REM copy %PLUGIN_FILE% "%%G\Plugins\SteamPlugin\Windows.dll" > nul
+	REM copy %PLUGIN_FILE% "%%G\Plugins\%PLUGIN_NAME%\Windows.dll" > nul
 	REM if !errorlevel! neq 0 echo ERROR: "%%G" plugin copy failed!
 	echo    %%G
 	pushd "%%G"
@@ -52,4 +55,8 @@ for /D %%G in ("Examples\*") do (
 	popd
 )
 
+exit /B 0
+
+:blankparam
+echo ERROR: This BAT file requires two parameters. 1) Path to the compiled DLL.  2) End file name for DLL in plugins folder (Windows or Windows64).
 exit /B 0
