@@ -69,7 +69,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>Copy "$(TargetDir)$(TargetFileName)" "..\..\AGKPlugin\SteamPlugin\Windows.dll"</Command>
+      <Command>..\..\PostBuild.bat "$(TargetDir)$(TargetFileName)" Windows</Command>
       <Message>Move DLL to AGKPlugin Folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -95,7 +95,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>..\..\PostBuild.bat "$(TargetDir)$(TargetFileName)"</Command>
+      <Command>..\..\PostBuild.bat "$(TargetDir)$(TargetFileName)" Windows</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Move DLL to AGKPlugin Folder</Message>
@@ -103,9 +103,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
-    <ClCompile Include="CFileReadAsyncItem.cpp" />
-    <ClCompile Include="CFileWriteAsyncItem.cpp" />
-    <ClCompile Include="DllMain.cpp">
+    <ClCompile Include="..\Common\CFileReadAsyncItem.cpp" />
+    <ClCompile Include="..\Common\CFileWriteAsyncItem.cpp" />
+    <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -113,15 +113,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SteamPlugin.cpp" />
+    <ClCompile Include="..\Common\SteamPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
-    <ClInclude Include="CFileReadAsyncItem.h" />
-    <ClInclude Include="CFileWriteAsyncItem.h" />
-    <ClInclude Include="DllMain.h" />
+    <ClInclude Include="..\Common\CFileReadAsyncItem.h" />
+    <ClInclude Include="..\Common\CFileWriteAsyncItem.h" />
+    <ClInclude Include="..\Common\DllMain.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SteamPlugin.h" />
+    <ClInclude Include="..\Common\SteamPlugin.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SteamPlugin.rc" />
