@@ -1,6 +1,8 @@
 # AGK Steam Plugin
 
-A plugin to give basic steam_api.dll access to games developed using AppGameKit's Tier 1 system.
+A plugin to give basic steam_api access to games developed using AppGameKit's Tier 1 system.
+
+This plugin currently has Windows 32-bit and Windows 64-bit versions only.
 
 ## Getting Started
 
