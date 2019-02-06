@@ -30,7 +30,13 @@ THE SOFTWARE.
 #include <sstream>
 #include "..\AGKLibraryCommands.h"
 
+#if defined(_WINDOWS)
+#if defined(_WIN64)
+#pragma comment(lib, "steam_api64.lib")
+#else
 #pragma comment(lib, "steam_api.lib")
+#endif
+#endif
 
 #define CheckInitialized(steamInterface, returnValue)				\
 	if (!m_SteamInitialized || (NULL == steamInterface()))			\
@@ -1671,7 +1677,7 @@ bool SteamPlugin::HasLobbyChatMessage()
 bool SteamPlugin::SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody)
 {
 	CheckInitialized(SteamMatchmaking, false);
-	return SteamMatchmaking()->SendLobbyChatMsg(steamIDLobby, pvMsgBody, strlen(pvMsgBody) + 1);
+	return SteamMatchmaking()->SendLobbyChatMsg(steamIDLobby, pvMsgBody, (int)strlen(pvMsgBody) + 1);
 }
 
 // Lobby methods: Favorite games
