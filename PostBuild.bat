@@ -5,7 +5,7 @@ setlocal EnableDelayedExpansion
 if [%1] == [] goto :blankparam
 if [%2] == [] goto :blankparam
 
-SET PLUGIN_NAME=SteamPlugin
+SET PLUGIN_NAME=%~n1
 
 REM Must be run from the batch file's path.
 cd /d %~dp0
@@ -38,6 +38,8 @@ if defined NO_COMPILER (
 )
 echo Compiler path: !AGK_COMPILER_PATH!
 echo Plugin path: !AGK_PLUGIN_PATH!
+echo Plugin name: %PLUGIN_NAME%
+echo Plugin OS: %2
 
 echo Copying plugin into AppGameKit plugin folder.
 MkDir "%AGK_PLUGIN_PATH%"
