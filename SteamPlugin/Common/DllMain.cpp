@@ -32,18 +32,6 @@ THE SOFTWARE.
 #include "..\AGKLibraryCommands.h"
 
 /*
-TODO? Detect SmartSteamEmu
-File list:
-* SmartSteamEmu.dll
-* SmartSteamEmu.ini
-* SmartSteamEmu.txt
-* SmartSteamEmu64.dll
-* SmartSteamEmu folder
-* LAUNCHER.exe
-* LAUNCHER_x64.exe.
-*/
-
-/*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
 
