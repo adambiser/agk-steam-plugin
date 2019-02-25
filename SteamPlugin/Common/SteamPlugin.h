@@ -51,7 +51,7 @@ private:
 	bool m_SteamInitialized;
 	// App/DLC methods
 	bool m_HasNewLaunchQueryParameters;
-	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewLaunchQueryParameters_t, m_CallbackNewLaunchQueryParameters);
+	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewUrlLaunchParameters_t, m_CallbackNewLaunchQueryParameters);
 	bool m_OnDlcInstalledEnabled;
 	std::list<AppId_t> m_DlcInstalledList;
 	AppId_t m_NewDlcInstalled;
@@ -188,9 +188,9 @@ private:
 	// Cloud method: FileReadAsync
 	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
 	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
-	// Controller
-	//int m_ControllerCount;
-	//ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
+	// Input
+	//int m_InputCount;
+	//InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 
 	// Return to Idle after reporting Done.
 	ECallbackState getCallbackState(ECallbackState *callbackState)
@@ -240,6 +240,7 @@ public:
 	uint32 GetInstalledDepots(AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots);
 	const char * GetLaunchQueryParam(const char *pchKey);
 	bool HasNewLaunchQueryParameters();
+	// TODO GetLaunchCommandLine
 	bool HasNewDlcInstalled();
 	AppId_t GetNewDlcInstalled() { return m_NewDlcInstalled; }
 	void InstallDLC(AppId_t nAppID); // Triggers a DlcInstalled_t callback.
@@ -480,50 +481,50 @@ public:
 	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 	/*
-	Controller Information
+	Input Information
 	*/
-	bool InitSteamController();
-	bool ShutdownSteamController();
-	int GetConnectedControllers(ControllerHandle_t *handlesOut);
-	ESteamInputType GetInputTypeForHandle(ControllerHandle_t controllerHandle);
+	bool InitSteamInput();
+	bool ShutdownSteamInput();
+	int GetConnectedControllers(InputHandle_t *handlesOut);
+	ESteamInputType GetInputTypeForHandle(InputHandle_t inputHandle);
 	void RunFrame();
-	bool ShowBindingPanel(ControllerHandle_t controllerHandle);
+	bool ShowBindingPanel(InputHandle_t inputHandle);
 	/*
-	Controller Action Sets and Layers
+	Input Action Sets and Layers
 	*/
-	void ActivateActionSet(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle);
-	ControllerActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
-	ControllerActionSetHandle_t GetCurrentActionSet(ControllerHandle_t controllerHandle);
-	void ActivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t hActionSetLayer);
-	void DeactivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t hActionSetLayer);
-	void DeactivateAllActionSetLayers(ControllerHandle_t controllerHandle);
-	int GetActiveActionSetLayers(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t *handlesOut);
+	void ActivateActionSet(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle);
+	InputActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
+	InputActionSetHandle_t GetCurrentActionSet(InputHandle_t inputHandle);
+	void ActivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t hActionSetLayer);
+	void DeactivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t hActionSetLayer);
+	void DeactivateAllActionSetLayers(InputHandle_t inputHandle);
+	int GetActiveActionSetLayers(InputHandle_t inputHandle, InputActionSetHandle_t *handlesOut);
 	/*
-	Controller Actions and Motion
+	Input Actions and Motion
 	*/
-	ControllerAnalogActionData_t m_AnalogActionData;
-	void GetAnalogActionData(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle);
-	ControllerAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
-	void StopAnalogActionMomentum(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle);
-	ControllerDigitalActionData_t m_DigitalActionData;
-	void GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle);
-	ControllerDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
-	ControllerMotionData_t m_MotionData;
-	void GetMotionData(ControllerHandle_t controllerHandle);
+	InputAnalogActionData_t m_AnalogActionData;
+	void GetAnalogActionData(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle);
+	InputAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
+	void StopAnalogActionMomentum(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle);
+	InputDigitalActionData_t m_DigitalActionData;
+	void GetDigitalActionData(InputHandle_t inputHandle, InputDigitalActionHandle_t digitalActionHandle);
+	InputDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
+	InputMotionData_t m_MotionData;
+	void GetMotionData(InputHandle_t inputHandle);
 	/*
-	Controller Action Origins.
+	Input Action Origins.
 	*/
-	int GetAnalogActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut);
-	int GetDigitalActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut);
-	const char *GetGlyphForActionOrigin(EControllerActionOrigin eOrigin);
-	const char *GetStringForActionOrigin(EControllerActionOrigin eOrigin);
+	int GetAnalogActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut);
+	int GetDigitalActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
+	const char *GetGlyphForActionOrigin(EInputActionOrigin eOrigin);
+	const char *GetStringForActionOrigin(EInputActionOrigin eOrigin);
 	/*
-	Controller Effects
+	Input Effects
 	*/
-	void SetLEDColor(ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
-	void TriggerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration);
-	void TriggerRepeatedHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
-	void TriggerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
+	void SetLEDColor(InputHandle_t inputHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
+	void TriggerHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short duration);
+	void TriggerRepeatedHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
+	void TriggerVibration(InputHandle_t inputHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
 #endif // STEAMPLUGIN_H_

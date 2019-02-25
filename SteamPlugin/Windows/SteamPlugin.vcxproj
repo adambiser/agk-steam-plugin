@@ -45,13 +45,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\public\steam;$(IncludePath)</IncludePath>
-    <LibraryPath>..\redistributable_bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\SteamworksSDK\public\steam;$(IncludePath)</IncludePath>
+    <LibraryPath>..\SteamworksSDK\redistributable_bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\public\steam;$(IncludePath)</IncludePath>
-    <LibraryPath>..\redistributable_bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\SteamworksSDK\public\steam;$(IncludePath)</IncludePath>
+    <LibraryPath>..\SteamworksSDK\redistributable_bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

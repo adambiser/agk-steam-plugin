@@ -135,26 +135,26 @@ void ClearSteamIDHandleList()
 }
 
 /*
-	ControllerHandle_t Handle Methods
+	InputHandle_t Handle Methods
 */
-int m_ControllerCount = 0;
-ControllerHandle_t m_ControllerHandles[STEAM_CONTROLLER_MAX_COUNT];
+int m_InputCount = 0;
+InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 
 // Handles are 1-based!
-#define ValidateControllerHandle(index, returnValue)		\
+#define ValidateInputHandle(index, returnValue)		\
 	index--;												\
-	if (index < 0 || index >= m_ControllerCount)			\
+	if (index < 0 || index >= m_InputCount)			\
 	{														\
-		agk::PluginError("Invalid controller handle.");		\
+		agk::PluginError("Invalid input handle.");		\
 		return returnValue;									\
 	}
 
 /*
 CSteamID Handle Methods
 */
-std::vector <ControllerActionSetHandle_t> m_ActionSetHandles;
-std::vector <ControllerDigitalActionHandle_t> m_DigitalActionHandles;
-std::vector <ControllerAnalogActionHandle_t> m_AnalogActionHandles;
+std::vector <InputActionSetHandle_t> m_ActionSetHandles;
+std::vector <InputDigitalActionHandle_t> m_DigitalActionHandles;
+std::vector <InputAnalogActionHandle_t> m_AnalogActionHandles;
 
 //template <typename T>
 //inline T GetActionHandle(int handle, std::vector<T> *vector)
@@ -243,7 +243,7 @@ void ResetVariables()
 
 	ClearSteamIDHandleList();
 	ClearActionSetHandleList();
-	m_ControllerCount = 0;
+	m_InputCount = 0;
 }
 
 /*
@@ -2352,32 +2352,32 @@ int GetCachedUGCCount()
 //int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
 /*
-Controller Information
+Input Information
 */
-int InitSteamController()
+int InitSteamInput()
 {
 	CheckInitialized(0);
-	return Steam->InitSteamController();
+	return Steam->InitSteamInput();
 }
 
-int ShutdownSteamController()
+int ShutdownSteamInput()
 {
 	CheckInitialized(0);
-	return Steam->ShutdownSteamController();
+	return Steam->ShutdownSteamInput();
 }
 
 int GetConnectedControllers()
 {
 	CheckInitialized(0);
-	m_ControllerCount = Steam->GetConnectedControllers(m_ControllerHandles);
-	return m_ControllerCount;
+	m_InputCount = Steam->GetConnectedControllers(m_InputHandles);
+	return m_InputCount;
 }
 
-int GetInputTypeForHandle(int hController)
+int GetInputTypeForHandle(int hInput)
 {
 	CheckInitialized(0);
-	ValidateControllerHandle(hController, k_ESteamInputType_Unknown);
-	return Steam->GetInputTypeForHandle(m_ControllerHandles[hController]);
+	ValidateInputHandle(hInput, k_ESteamInputType_Unknown);
+	return Steam->GetInputTypeForHandle(m_InputHandles[hInput]);
 }
 
 void RunFrame()
@@ -2386,23 +2386,23 @@ void RunFrame()
 	Steam->RunFrame();
 }
 
-int ShowBindingPanel(int hController)
+int ShowBindingPanel(int hInput)
 {
 	CheckInitialized(false);
-	ValidateControllerHandle(hController, false);
-	return Steam->ShowBindingPanel(m_ControllerHandles[hController]);
+	ValidateInputHandle(hInput, false);
+	return Steam->ShowBindingPanel(m_InputHandles[hInput]);
 }
 
 /*
-Controller Action Sets and Layers
+Input Action Sets and Layers
 */
 
-void ActivateActionSet(int hController, int hActionSet)
+void ActivateActionSet(int hInput, int hActionSet)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	ValidateActionHandle(ControllerActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
-	Steam->ActivateActionSet(m_ControllerHandles[hController], actionSetHandle);
+	ValidateInputHandle(hInput, );
+	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
+	Steam->ActivateActionSet(m_InputHandles[hInput], actionSetHandle);
 }
 
 int GetActionSetHandle(const char *actionSetName)
@@ -2411,47 +2411,47 @@ int GetActionSetHandle(const char *actionSetName)
 	return GetActionHandleIndex(Steam->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
 }
 
-int GetCurrentActionSet(int hController)
+int GetCurrentActionSet(int hInput)
 {
 	CheckInitialized(0);
-	ValidateControllerHandle(hController, false);
-	return GetActionHandleIndex(Steam->GetCurrentActionSet(m_ControllerHandles[hController]), &m_ActionSetHandles);
+	ValidateInputHandle(hInput, false);
+	return GetActionHandleIndex(Steam->GetCurrentActionSet(m_InputHandles[hInput]), &m_ActionSetHandles);
 }
 
-void ActivateActionSetLayer(int hController, int hActionSetLayer)
+void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	ValidateActionHandle(ControllerActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
-	Steam->ActivateActionSetLayer(m_ControllerHandles[hController], actionSetLayerHandle);
+	ValidateInputHandle(hInput, );
+	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
+	Steam->ActivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
 }
 
-void DeactivateActionSetLayer(int hController, int hActionSetLayer)
+void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	ValidateActionHandle(ControllerActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
-	Steam->DeactivateActionSetLayer(m_ControllerHandles[hController], actionSetLayerHandle);
+	ValidateInputHandle(hInput, );
+	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
+	Steam->DeactivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
 }
 
-void DeactivateAllActionSetLayers(int hController)
+void DeactivateAllActionSetLayers(int hInput)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	Steam->DeactivateAllActionSetLayers(m_ControllerHandles[hController]);
+	ValidateInputHandle(hInput, );
+	Steam->DeactivateAllActionSetLayers(m_InputHandles[hInput]);
 }
 
-char *GetActiveActionSetLayersJSON(int hController)
+char *GetActiveActionSetLayersJSON(int hInput)
 {
 	CheckInitialized(CreateString("[]"));
-	ValidateControllerHandle(hController, CreateString("[]"));
+	ValidateInputHandle(hInput, CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
 	{
-		// TODO The API document has incorrect information.  Is STEAM_CONTROLLER_MAX_COUNT correct?
-		ControllerActionSetHandle_t *handlesOut = new ControllerActionSetHandle_t[STEAM_CONTROLLER_MAX_COUNT];
-		int count = Steam->GetActiveActionSetLayers(m_ControllerHandles[hController], handlesOut);
+		// TODO The API document has incorrect information.  Is STEAM_INPUT_MAX_COUNT correct?
+		InputActionSetHandle_t *handlesOut = new InputActionSetHandle_t[STEAM_INPUT_MAX_COUNT];
+		int count = Steam->GetActiveActionSetLayers(m_InputHandles[hInput], handlesOut);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -2467,14 +2467,14 @@ char *GetActiveActionSetLayersJSON(int hController)
 }
 
 /*
-Controller Actions and Motion
+Input Actions and Motion
 */
-void GetAnalogActionData(int hController, int hAnalogAction)
+void GetAnalogActionData(int hInput, int hAnalogAction)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	Steam->GetAnalogActionData(m_ControllerHandles[hController], analogActionHandle);
+	ValidateInputHandle(hInput, );
+	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
+	Steam->GetAnalogActionData(m_InputHandles[hInput], analogActionHandle);
 }
 
 int GetAnalogActionDataActive()
@@ -2489,7 +2489,7 @@ int GetAnalogActionDataMode()
 	return Steam->m_AnalogActionData.eMode;
 }
 
-// TODO Add a per-controller dead zone.
+// TODO Add a per-Input dead zone.
 float GetAnalogActionDataX()
 {
 	CheckInitialized(0);
@@ -2508,20 +2508,20 @@ int GetAnalogActionHandle(const char *actionName)
 	return GetActionHandleIndex(Steam->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
 }
 
-void StopAnalogActionMomentum(int hController, int hAnalogAction)
+void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	Steam->StopAnalogActionMomentum(m_ControllerHandles[hController], analogActionHandle);
+	ValidateInputHandle(hInput, );
+	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
+	Steam->StopAnalogActionMomentum(m_InputHandles[hInput], analogActionHandle);
 }
 
-void GetDigitalActionData(int hController, int hDigitalAction)
+void GetDigitalActionData(int hInput, int hDigitalAction)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	ValidateActionHandle(ControllerDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
-	Steam->GetDigitalActionData(m_ControllerHandles[hController], digitalActionHandle);
+	ValidateInputHandle(hInput, );
+	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
+	Steam->GetDigitalActionData(m_InputHandles[hInput], digitalActionHandle);
 }
 
 int GetDigitalActionDataActive()
@@ -2542,11 +2542,11 @@ int GetDigitalActionHandle(const char *actionName)
 	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
 }
 
-void GetMotionData(int hController)
+void GetMotionData(int hInput)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	Steam->GetMotionData(m_ControllerHandles[hController]);
+	ValidateInputHandle(hInput, );
+	Steam->GetMotionData(m_InputHandles[hInput]);
 }
 
 float GetMotionDataPosAccelX()
@@ -2610,20 +2610,20 @@ float GetMotionDataRotVelZ()
 }
 
 /*
-Controller Action Origins
+Input Action Origins
 */
 
-char *GetAnalogActionOriginsJSON(int hController, int hActionSet, int hAnalogAction)
+char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 {
-	ValidateControllerHandle(hController, CreateString("[]"));
-	ValidateActionHandle(ControllerActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
-	ValidateActionHandle(ControllerAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, CreateString("[]"));
+	ValidateInputHandle(hInput, CreateString("[]"));
+	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
+	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
 	{
-		EControllerActionOrigin *origins = new EControllerActionOrigin[STEAM_CONTROLLER_MAX_ORIGINS];
-		int count = Steam->GetAnalogActionOrigins(m_ControllerHandles[hController], actionSetHandle, analogActionHandle, origins);
+		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
+		int count = Steam->GetAnalogActionOrigins(m_InputHandles[hInput], actionSetHandle, analogActionHandle, origins);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -2638,17 +2638,17 @@ char *GetAnalogActionOriginsJSON(int hController, int hActionSet, int hAnalogAct
 	return CreateString(json.str());
 }
 
-char *GetDigitalActionOriginsJSON(int hController, int hActionSet, int hDigitalAction)
+char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction)
 {
-	ValidateControllerHandle(hController, CreateString("[]"));
-	ValidateActionHandle(ControllerActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
-	ValidateActionHandle(ControllerDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, CreateString("[]"));
+	ValidateInputHandle(hInput, CreateString("[]"));
+	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
+	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
 	{
-		EControllerActionOrigin *origins = new EControllerActionOrigin[STEAM_CONTROLLER_MAX_ORIGINS];
-		int count = Steam->GetDigitalActionOrigins(m_ControllerHandles[hController], actionSetHandle, digitalActionHandle, origins);
+		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
+		int count = Steam->GetDigitalActionOrigins(m_InputHandles[hInput], actionSetHandle, digitalActionHandle, origins);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -2666,58 +2666,58 @@ char *GetDigitalActionOriginsJSON(int hController, int hActionSet, int hDigitalA
 char *GetGlyphForActionOrigin(int eOrigin)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetGlyphForActionOrigin((EControllerActionOrigin)eOrigin));
+	return CreateString(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 char *GetStringForActionOrigin(int eOrigin)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetStringForActionOrigin((EControllerActionOrigin)eOrigin));
+	return CreateString(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 /*
-Controller Effects
+Input Effects
 */
-void SetControllerLEDColor(int hController, int red, int green, int blue)
+void SetInputLEDColor(int hInput, int red, int green, int blue)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
+	ValidateInputHandle(hInput, );
 	Clamp(red, 0, UINT8_MAX);
 	Clamp(green, 0, UINT8_MAX);
 	Clamp(blue, 0, UINT8_MAX);
-	Steam->SetLEDColor(m_ControllerHandles[hController], red, green, blue, k_ESteamControllerLEDFlag_SetColor);
+	Steam->SetLEDColor(m_InputHandles[hInput], red, green, blue, k_ESteamInputLEDFlag_SetColor);
 }
 
-void ResetControllerLEDColor(int hController)
+void ResetInputLEDColor(int hInput)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
-	Steam->SetLEDColor(m_ControllerHandles[hController], 0, 0, 0, k_ESteamControllerLEDFlag_RestoreUserDefault);
+	ValidateInputHandle(hInput, );
+	Steam->SetLEDColor(m_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
 }
 
-void TriggerControllerHapticPulse(int hController, int eTargetPad, int duration)
+void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
+	ValidateInputHandle(hInput, );
 	Clamp(duration, 0, USHRT_MAX);
-	Steam->TriggerHapticPulse(m_ControllerHandles[hController], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+	Steam->TriggerHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
 }
 
-void TriggerControllerRepeatedHapticPulse(int hController, int eTargetPad, int onDuration, int offDuration, int repeat)
+void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
+	ValidateInputHandle(hInput, );
 	Clamp(onDuration, 0, USHRT_MAX);
 	Clamp(offDuration, 0, USHRT_MAX);
 	Clamp(repeat, 0, USHRT_MAX);
-	Steam->TriggerRepeatedHapticPulse(m_ControllerHandles[hController], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
+	Steam->TriggerRepeatedHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
 }
 
-void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed)
+void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 {
 	CheckInitialized(NORETURN);
-	ValidateControllerHandle(hController, );
+	ValidateInputHandle(hInput, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
-	Steam->TriggerVibration(m_ControllerHandles[hController], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+	Steam->TriggerVibration(m_InputHandles[hInput], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
 }

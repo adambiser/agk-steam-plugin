@@ -42,7 +42,7 @@ SetSpriteSize(buttonSprite, 64, 64)
 
 
 
-AddStatus("Init Steam Controller: " + TF(Steam.InitSteamController()))
+AddStatus("Init Steam Input: " + TF(Steam.InitSteamInput()))
 AddStatus("Digital Action Handles:")
 for x = 0 to digitalActionNames.length
 	digitalActionHandles[x] = Steam.GetDigitalActionHandle(digitalActionNames[x])
@@ -124,8 +124,8 @@ Function CheckInput()
 		SetButtonEnabled(VIBRATE_BUTTON, controllerCount > 0)
 		SetButtonEnabled(HAPTIC_BUTTON, controllerCount > 0)
 		for x = 1 to controllerCount
-			AddStatus("Controller type " + str(x) + ": " + GetInputTypeName(Steam.GetInputTypeForHandle(x)))
-			AddStatus("Controller action set " + str(x) + ": " + str(Steam.GetCurrentActionSet(x)))
+			AddStatus("Input type " + str(x) + ": " + GetInputTypeName(Steam.GetInputTypeForHandle(x)))
+			AddStatus("Input action set " + str(x) + ": " + str(Steam.GetCurrentActionSet(x)))
 		next
 		if controllerCount > 0
 			origins as integer[]
@@ -151,19 +151,19 @@ Function CheckInput()
 		endif
 	endif
 	if GetVirtualButtonPressed(BINDING_PANEL_BUTTON)
-		AddStatus("Show binding panel for controller 1: " + TF(Steam.ShowBindingPanel(1)))
+		AddStatus("Show binding panel for input 1: " + TF(Steam.ShowBindingPanel(1)))
 		// No real way of knowing when the binding panel closes!
 		while not GetResumed() or GetPaused()
 			Sync()
 		endwhile
 	endif
 	if GetVirtualButtonPressed(VIBRATE_BUTTON)
-		AddStatus("Vibrating controller 1...")
-		Steam.TriggerControllerVibration(1, 2000, 1000)
+		AddStatus("Vibrating input 1...")
+		Steam.TriggerInputVibration(1, 2000, 1000)
 	endif
 	if GetVirtualButtonPressed(HAPTIC_BUTTON)
-		AddStatus("Sending haptic pulse to controller 1 left pad...")
-		Steam.TriggerControllerHapticPulse(1, k_ESteamControllerPad_Left, 1000)
+		AddStatus("Sending haptic pulse to input 1 left pad...")
+		Steam.TriggerInputHapticPulse(1, k_ESteamControllerPad_Left, 1000)
 	endif
 EndFunction
 

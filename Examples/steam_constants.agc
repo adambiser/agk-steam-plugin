@@ -476,205 +476,6 @@ EndType
 #constant QUERY_PORT_NOT_INITIALIZED		0xFFFF		// Constants used for query ports.  We haven't asked the GS for this query port's actual value yet.
 
 ////////////////////////////////////////////////////////////////
-// ISteamController
-// https://partner.steamgames.com/doc/api/ISteamController
-////////////////////////////////////////////////////////////////
-
-// EControllerActionOrigin
-//--------------------------------------------------------------
-// Inputs the player binds to actions in the Steam Controller Configurator.
-// The chief purpose of these values is to direct which on-screen button glyphs should appear for a given action, such as "Press [A] to Jump".
-#constant k_EControllerActionOrigin_None							0	
-#constant k_EControllerActionOrigin_A								1	// (Valve Steam Controller) digital face button A
-#constant k_EControllerActionOrigin_B								2	// (Valve Steam Controller) digital face button B
-#constant k_EControllerActionOrigin_X								3	// (Valve Steam Controller) digital face button X
-#constant k_EControllerActionOrigin_Y								4	// (Valve Steam Controller) digital face button Y
-#constant k_EControllerActionOrigin_LeftBumper						5	// (Valve Steam Controller) digital left shoulder button // (aka "left bumper")
-#constant k_EControllerActionOrigin_RightBumper						6	// (Valve Steam Controller) digital right shoulder button // (aka "right bumper")
-#constant k_EControllerActionOrigin_LeftGrip						7	// (Valve Steam Controller) digital left grip paddle
-#constant k_EControllerActionOrigin_RightGrip						8	// (Valve Steam Controller) digital right grip paddle
-#constant k_EControllerActionOrigin_Start							9	// (Valve Steam Controller) digital start button
-#constant k_EControllerActionOrigin_Back							10	// (Valve Steam Controller) digital back button
-#constant k_EControllerActionOrigin_LeftPad_Touch					11	// (Valve Steam Controller) left haptic touchpad, in simple contact with a finger
-#constant k_EControllerActionOrigin_LeftPad_Swipe					12	// (Valve Steam Controller) left haptic touchpad, touch input on any axis
-#constant k_EControllerActionOrigin_LeftPad_Click					13	// (Valve Steam Controller) left haptic touchpad, digital click // (for the whole thing)
-#constant k_EControllerActionOrigin_LeftPad_DPadNorth				14	// (Valve Steam Controller) left haptic touchpad, digital click // (upper quadrant)
-#constant k_EControllerActionOrigin_LeftPad_DPadSouth				15	// (Valve Steam Controller) left haptic touchpad, digital click // (lower quadrant)
-#constant k_EControllerActionOrigin_LeftPad_DPadWest				16	// (Valve Steam Controller) left haptic touchpad, digital click // (left quadrant)
-#constant k_EControllerActionOrigin_LeftPad_DPadEast				17	// (Valve Steam Controller) left haptic touchpad, digital click // (right quadrant)
-#constant k_EControllerActionOrigin_RightPad_Touch					18	// (Valve Steam Controller) right haptic touchpad, in simple contact with a finger
-#constant k_EControllerActionOrigin_RightPad_Swipe					19	// (Valve Steam Controller) right haptic touchpad, touch input on any axis
-#constant k_EControllerActionOrigin_RightPad_Click					20	// (Valve Steam Controller) right haptic touchpad, digital click // (for the whole thing)
-#constant k_EControllerActionOrigin_RightPad_DPadNorth				21	// (Valve Steam Controller) right haptic touchpad, digital click // (upper quadrant)
-#constant k_EControllerActionOrigin_RightPad_DPadSouth				22	// (Valve Steam Controller) right haptic touchpad, digital click // (lower quadrant)
-#constant k_EControllerActionOrigin_RightPad_DPadWest				23	// (Valve Steam Controller) right haptic touchpad, digital click // (left quadrant)
-#constant k_EControllerActionOrigin_RightPad_DPadEast				24	// (Valve Steam Controller) right haptic touchpad, digital click // (right quadrant)
-#constant k_EControllerActionOrigin_LeftTrigger_Pull				25	// (Valve Steam Controller) left analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_LeftTrigger_Click				26	// (Valve Steam Controller) left analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_RightTrigger_Pull				27	// (Valve Steam Controller) right analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_RightTrigger_Click				28	// (Valve Steam Controller) right analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_LeftStick_Move					29	// (Valve Steam Controller) left joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_LeftStick_Click					30	// (Valve Steam Controller) left joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_LeftStick_DPadNorth				31	// (Valve Steam Controller) left joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_LeftStick_DPadSouth				32	// (Valve Steam Controller) left joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_LeftStick_DPadWest				33	// (Valve Steam Controller) left joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_LeftStick_DPadEast				34	// (Valve Steam Controller) left joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_Gyro_Move						35	// (Valve Steam Controller) gyroscope, analog movement in any axis
-#constant k_EControllerActionOrigin_Gyro_Pitch						36	// (Valve Steam Controller) gyroscope, analog movement on the Pitch axis // (point head up to ceiling, point head down to floor)
-#constant k_EControllerActionOrigin_Gyro_Yaw						37	// (Valve Steam Controller) gyroscope, analog movement on the Yaw axis // (turn head left to face one wall, turn head right to face other)
-#constant k_EControllerActionOrigin_Gyro_Roll						38	// (Valve Steam Controller) gyroscope, analog movement on the Roll axis // (tilt head left towards shoulder, tilt head right towards other)
-#constant k_EControllerActionOrigin_PS4_X							39	// (Sony Dualshock 4) digital face button X
-#constant k_EControllerActionOrigin_PS4_Circle						40	// (Sony Dualshock 4) digital face button Circle
-#constant k_EControllerActionOrigin_PS4_Triangle					41	// (Sony Dualshock 4) digital face button Triangle
-#constant k_EControllerActionOrigin_PS4_Square						42	// (Sony Dualshock 4) digital face button Square
-#constant k_EControllerActionOrigin_PS4_LeftBumper					43	// (Sony Dualshock 4) digital left shoulder button // (aka "left bumper")
-#constant k_EControllerActionOrigin_PS4_RightBumper					44	// (Sony Dualshock 4) digital right shoulder button // (aka "right bumper")
-#constant k_EControllerActionOrigin_PS4_Options						45	// (Sony Dualshock 4) digital options button // (aka "Start")
-#constant k_EControllerActionOrigin_PS4_Share						46	// (Sony Dualshock 4) digital back button // (aka "Back")
-#constant k_EControllerActionOrigin_PS4_LeftPad_Touch				47	// (Sony Dualshock 4) left half of the touchpad, in simple contact with a finger
-#constant k_EControllerActionOrigin_PS4_LeftPad_Swipe				48	// (Sony Dualshock 4) left half of the touchpad, touch input on any axis
-#constant k_EControllerActionOrigin_PS4_LeftPad_Click				49	// (Sony Dualshock 4) left half of the touchpad, digital click // (for the whole thing)
-#constant k_EControllerActionOrigin_PS4_LeftPad_DPadNorth			50	// (Sony Dualshock 4) left half of the touchpad, digital click // (upper quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftPad_DPadSouth			51	// (Sony Dualshock 4) left half of the touchpad, digital click // (lower quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftPad_DPadWest			52	// (Sony Dualshock 4) left half of the touchpad, digital click // (left quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftPad_DPadEast			53	// (Sony Dualshock 4) left half of the touchpad, digital click // (right quadrant)
-#constant k_EControllerActionOrigin_PS4_RightPad_Touch				54	// (Sony Dualshock 4) right half of the touchpad, in simple contact with a finger
-#constant k_EControllerActionOrigin_PS4_RightPad_Swipe				55	// (Sony Dualshock 4) right half of the touchpad, touch input on any axis
-#constant k_EControllerActionOrigin_PS4_RightPad_Click				56	// (Sony Dualshock 4) right half of the touchpad, digital click // (for the whole thing)
-#constant k_EControllerActionOrigin_PS4_RightPad_DPadNorth			57	// (Sony Dualshock 4) right half of the touchpad, digital click // (upper quadrant)
-#constant k_EControllerActionOrigin_PS4_RightPad_DPadSouth			58	// (Sony Dualshock 4) right half of the touchpad, digital click // (lower quadrant)
-#constant k_EControllerActionOrigin_PS4_RightPad_DPadWest			59	// (Sony Dualshock 4) right half of the touchpad, digital click // (left quadrant)
-#constant k_EControllerActionOrigin_PS4_RightPad_DPadEast			60	// (Sony Dualshock 4) right half of the touchpad, digital click // (right quadrant)
-#constant k_EControllerActionOrigin_PS4_CenterPad_Touch				61	// (Sony Dualshock 4) unified touchpad, in simple contact with a finger
-#constant k_EControllerActionOrigin_PS4_CenterPad_Swipe				62	// (Sony Dualshock 4) unified touchpad, touch input on any axis
-#constant k_EControllerActionOrigin_PS4_CenterPad_Click				63	// (Sony Dualshock 4) unified touchpad, digital click // (for the whole thing)
-#constant k_EControllerActionOrigin_PS4_CenterPad_DPadNorth			64	// (Sony Dualshock 4) unified touchpad, digital click // (upper quadrant)
-#constant k_EControllerActionOrigin_PS4_CenterPad_DPadSouth			65	// (Sony Dualshock 4) unified touchpad, digital click // (lower quadrant)
-#constant k_EControllerActionOrigin_PS4_CenterPad_DPadWest			66	// (Sony Dualshock 4) unified touchpad, digital click // (left quadrant)
-#constant k_EControllerActionOrigin_PS4_CenterPad_DPadEast			67	// (Sony Dualshock 4) unified touchpad, digital click // (right quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftTrigger_Pull			68	// (Sony Dualshock 4) left analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_PS4_LeftTrigger_Click			69	// (Sony Dualshock 4) left analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_PS4_RightTrigger_Pull			70	// (Sony Dualshock 4) right analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_PS4_RightTrigger_Click			71	// (Sony Dualshock 4) right analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_PS4_LeftStick_Move				72	// (Sony Dualshock 4) left joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_PS4_LeftStick_Click				73	// (Sony Dualshock 4) left joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_PS4_LeftStick_DPadNorth			74	// (Sony Dualshock 4) left joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftStick_DPadSouth			75	// (Sony Dualshock 4) left joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftStick_DPadWest			76	// (Sony Dualshock 4) left joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_PS4_LeftStick_DPadEast			77	// (Sony Dualshock 4) left joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_PS4_RightStick_Move				78	// (Sony Dualshock 4) right joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_PS4_RightStick_Click			79	// (Sony Dualshock 4) right joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_PS4_RightStick_DPadNorth		80	// (Sony Dualshock 4) right joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_PS4_RightStick_DPadSouth		81	// (Sony Dualshock 4) right joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_PS4_RightStick_DPadWest			82	// (Sony Dualshock 4) right joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_PS4_RightStick_DPadEast			83	// (Sony Dualshock 4) right joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_PS4_DPad_North					84	// (Sony Dualshock 4) digital pad, pressed // (upper quadrant)
-#constant k_EControllerActionOrigin_PS4_DPad_South					85	// (Sony Dualshock 4) digital pad, pressed // (lower quadrant)
-#constant k_EControllerActionOrigin_PS4_DPad_West					86	// (Sony Dualshock 4) digital pad, pressed // (left quadrant)
-#constant k_EControllerActionOrigin_PS4_DPad_East					87	// (Sony Dualshock 4) digital pad, pressed // (right quadrant)
-#constant k_EControllerActionOrigin_PS4_Gyro_Move					88	// (Sony Dualshock 4) gyroscope, analog movement in any axis
-#constant k_EControllerActionOrigin_PS4_Gyro_Pitch					89	// (Sony Dualshock 4) gyroscope, analog movement on the Pitch axis // (point head up to ceiling, point head down to floor)
-#constant k_EControllerActionOrigin_PS4_Gyro_Yaw					90	// (Sony Dualshock 4) gyroscope, analog movement on the Yaw axis // (turn head left to face one wall, turn head right to face other)
-#constant k_EControllerActionOrigin_PS4_Gyro_Roll					91	// (Sony Dualshock 4) gyroscope, analog movement on the Roll axis // (tilt head left towards shoulder, tilt head right towards other shoulder)
-#constant k_EControllerActionOrigin_XBoxOne_A						92	// (XB1) digital face button A
-#constant k_EControllerActionOrigin_XBoxOne_B						93	// (XB1) digital face button B
-#constant k_EControllerActionOrigin_XBoxOne_X						94	// (XB1) digital face button X
-#constant k_EControllerActionOrigin_XBoxOne_Y						95	// (XB1) digital face button Y
-#constant k_EControllerActionOrigin_XBoxOne_LeftBumper				96	// (XB1) digital left shoulder button // (aka "left bumper")
-#constant k_EControllerActionOrigin_XBoxOne_RightBumper				97	// (XB1) digital right shoulder button // (aka "right bumper")
-#constant k_EControllerActionOrigin_XBoxOne_Menu					98	// (XB1) digital menu button // (aka "start")
-#constant k_EControllerActionOrigin_XBoxOne_View					99	// (XB1) digital view button // (aka "back")
-#constant k_EControllerActionOrigin_XBoxOne_LeftTrigger_Pull		100	// (XB1) left analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_XBoxOne_LeftTrigger_Click		101	// (XB1) left analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_XBoxOne_RightTrigger_Pull		102	// (XB1) right analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_XBoxOne_RightTrigger_Click		103	// (XB1) right analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_XBoxOne_LeftStick_Move			104	// (XB1) left joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_XBoxOne_LeftStick_Click			105	// (XB1) left joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_XBoxOne_LeftStick_DPadNorth		106	// (XB1) left joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_LeftStick_DPadSouth		107	// (XB1) left joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_LeftStick_DPadWest		108	// (XB1) left joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_LeftStick_DPadEast		109	// (XB1) left joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_RightStick_Move			110	// (XB1) right joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_XBoxOne_RightStick_Click		111	// (XB1) right joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_XBoxOne_RightStick_DPadNorth	112	// (XB1) right joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_RightStick_DPadSouth	113	// (XB1) right joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_RightStick_DPadWest		114	// (XB1) right joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_RightStick_DPadEast		115	// (XB1) right joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_DPad_North				116	// (XB1) digital pad, pressed // (upper quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_DPad_South				117	// (XB1) digital pad, pressed // (lower quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_DPad_West				118	// (XB1) digital pad, pressed // (left quadrant)
-#constant k_EControllerActionOrigin_XBoxOne_DPad_East				119	// (XB1) digital pad, pressed // (right quadrant)
-#constant k_EControllerActionOrigin_XBox360_A						120	// (X360) digital face button A
-#constant k_EControllerActionOrigin_XBox360_B						121	// (X360) digital face button B
-#constant k_EControllerActionOrigin_XBox360_X						122	// (X360) digital face button X
-#constant k_EControllerActionOrigin_XBox360_Y						123	// (X360) digital face button Y
-#constant k_EControllerActionOrigin_XBox360_LeftBumper				124	// (X360) digital left shoulder button // (aka "left bumper")
-#constant k_EControllerActionOrigin_XBox360_RightBumper				125	// (X360) digital right shoulder button // (aka "right bumper")
-#constant k_EControllerActionOrigin_XBox360_Start					126	// (X360) digital start button
-#constant k_EControllerActionOrigin_XBox360_Back					127	// (X360) digital back button
-#constant k_EControllerActionOrigin_XBox360_LeftTrigger_Pull		128	// (X360) left analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_XBox360_LeftTrigger_Click		129	// (X360) left analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_XBox360_RightTrigger_Pull		130	// (X360) right analog trigger, pulled by any amount // (analog value)
-#constant k_EControllerActionOrigin_XBox360_RightTrigger_Click		131	// (X360) right analog trigger, pulled in all the way // (digital value)
-#constant k_EControllerActionOrigin_XBox360_LeftStick_Move			132	// (X360) left joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_XBox360_LeftStick_Click			133	// (X360) left joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_XBox360_LeftStick_DPadNorth		134	// (X360) left joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_XBox360_LeftStick_DPadSouth		135	// (X360) left joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_XBox360_LeftStick_DPadWest		136	// (X360) left joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_XBox360_LeftStick_DPadEast		137	// (X360) left joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_XBox360_RightStick_Move			138	// (X360) right joystick, movement on any axis // (analog value)
-#constant k_EControllerActionOrigin_XBox360_RightStick_Click		139	// (X360) right joystick, clicked in // (digital value)
-#constant k_EControllerActionOrigin_XBox360_RightStick_DPadNorth	140	// (X360) right joystick, digital movement // (upper quadrant)
-#constant k_EControllerActionOrigin_XBox360_RightStick_DPadSouth	141	// (X360) right joystick, digital movement // (lower quadrant)
-#constant k_EControllerActionOrigin_XBox360_RightStick_DPadWest		142	// (X360) right joystick, digital movement // (left quadrant)
-#constant k_EControllerActionOrigin_XBox360_RightStick_DPadEast		143	// (X360) right joystick, digital movement // (right quadrant)
-#constant k_EControllerActionOrigin_XBox360_DPad_North				144	// (X360) digital pad, pressed // (upper quadrant)
-#constant k_EControllerActionOrigin_XBox360_DPad_South				145	// (X360) digital pad, pressed // (lower quadrant)
-#constant k_EControllerActionOrigin_XBox360_DPad_West				146	// (X360) digital pad, pressed // (left quadrant)
-#constant k_EControllerActionOrigin_XBox360_DPad_East				147	// (X360) digital pad, pressed // (right quadrant)
-#constant k_EControllerActionOrigin_Count							196	// The number of values in this enum, useful for iterating.
-
-// EControllerSourceMode
-//--------------------------------------------------------------
-// The virtual input mode imposed by the configurator upon a controller source. 
-// For instance, the configurator can make an analog joystick behave like a Dpad with four digital inputs; the EControllerSource would be k_EControllerSource_Joystick and the EControllerSourceMode would be k_EControllerSourceMode_Dpad.
-// The mode also changes the input data received by any associated actions.
-#constant k_EControllerSourceMode_None				0	// No input mode.
-#constant k_EControllerSourceMode_Dpad				1	// A digital pad -- four digital directional buttons fused together in a cross pattern, such that only one button from each axis can be pressed at any given time.
-#constant k_EControllerSourceMode_Buttons			2	// ???
-#constant k_EControllerSourceMode_FourButtons		3	// Four digital face buttons, any of which can be pressed simultaneously
-#constant k_EControllerSourceMode_AbsoluteMouse		4	
-#constant k_EControllerSourceMode_RelativeMouse		5	
-#constant k_EControllerSourceMode_JoystickMove		6	
-#constant k_EControllerSourceMode_JoystickMouse		7	
-#constant k_EControllerSourceMode_JoystickCamera	8	
-#constant k_EControllerSourceMode_ScrollWheel		9	
-#constant k_EControllerSourceMode_Trigger			10	
-#constant k_EControllerSourceMode_TouchMenu			11	
-#constant k_EControllerSourceMode_MouseJoystick		12	
-#constant k_EControllerSourceMode_MouseRegion		13	
-#constant k_EControllerSourceMode_RadialMenu		14	
-#constant k_EControllerSourceMode_SingleButton		15	
-#constant k_EControllerSourceMode_Switches			16	
-
-// ESteamInputType
-//--------------------------------------------------------------
-// Represents the device model for a given piece of hardware.
-#constant k_ESteamInputType_Unknown				0	// Catch-all for unrecognized devices
-#constant k_ESteamInputType_SteamController		1	// Valve's Steam Controller
-#constant k_ESteamInputType_XBox360Controller	2	// Microsoft's XBox 360 Controller
-#constant k_ESteamInputType_XBoxOneController	3	// Microsoft's XBox One Controller
-#constant k_ESteamInputType_GenericXInput		4	// Any generic 3rd-party XInput device
-#constant k_ESteamInputType_PS4Controller		5	// Sony's Playstation 4 Controller
-
-// ESteamControllerPad
-//--------------------------------------------------------------
-// A touchpad region on a Steam Controller Device.
-#constant k_ESteamControllerPad_Left	0	// The left touchpad region on a Steam Controller Device. Compatible models: VSC, DS4
-#constant k_ESteamControllerPad_Right	1	// The right region on a Steam Controller Device. Compatible models: VSC, DS4
-
-
-////////////////////////////////////////////////////////////////
 // ISteamFriends
 // https://partner.steamgames.com/doc/api/ISteamFriends
 ////////////////////////////////////////////////////////////////
@@ -784,6 +585,329 @@ EndType
 //~ #constant k_cwchPersonaNameMax				32		// The maximum amount of UTF-16 characters in a users persona (display) name.
 //~ #constant k_FriendsGroupID_Invalid			-1		// Invalid friends group identifier.
 //~ #constant STEAMFRIENDS_INTERFACE_VERSION	"SteamFriends015"	
+
+////////////////////////////////////////////////////////////////
+// ISteamInput
+// https://partner.steamgames.com/doc/api/ISteamInput
+////////////////////////////////////////////////////////////////
+
+// EInputActionOrigin
+//--------------------------------------------------------------
+// Inputs the player binds to actions in the Steam Input Configurator.
+// The chief purpose of these values is to direct which on-screen button glyphs should appear for a given action, such as "Press [A] to Jump".
+// Steam Controller
+#constant k_EInputActionOrigin_SteamController_None					0	
+#constant k_EInputActionOrigin_SteamController_A					1	// (Valve Steam Controller) digital face button A
+#constant k_EInputActionOrigin_SteamController_B					2	// (Valve Steam Controller) digital face button B
+#constant k_EInputActionOrigin_SteamController_X					3	// (Valve Steam Controller) digital face button X
+#constant k_EInputActionOrigin_SteamController_Y					4	// (Valve Steam Controller) digital face button Y
+#constant k_EInputActionOrigin_SteamController_LeftBumper			5	// (Valve Steam Controller) digital left shoulder button // (aka "left bumper")
+#constant k_EInputActionOrigin_SteamController_RightBumper			6	// (Valve Steam Controller) digital right shoulder button // (aka "right bumper")
+#constant k_EInputActionOrigin_SteamController_LeftGrip				7	// (Valve Steam Controller) digital left grip paddle
+#constant k_EInputActionOrigin_SteamController_RightGrip			8	// (Valve Steam Controller) digital right grip paddle
+#constant k_EInputActionOrigin_SteamController_Start				9	// (Valve Steam Controller) digital start button
+#constant k_EInputActionOrigin_SteamController_Back					10	// (Valve Steam Controller) digital back button
+#constant k_EInputActionOrigin_SteamController_LeftPad_Touch		11	// (Valve Steam Controller) left haptic touchpad, in simple contact with a finger
+#constant k_EInputActionOrigin_SteamController_LeftPad_Swipe		12	// (Valve Steam Controller) left haptic touchpad, touch input on any axis
+#constant k_EInputActionOrigin_SteamController_LeftPad_Click		13	// (Valve Steam Controller) left haptic touchpad, digital click // (for the whole thing)
+#constant k_EInputActionOrigin_SteamController_LeftPad_DPadNorth	14	// (Valve Steam Controller) left haptic touchpad, digital click // (upper quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftPad_DPadSouth	15	// (Valve Steam Controller) left haptic touchpad, digital click // (lower quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftPad_DPadWest		16	// (Valve Steam Controller) left haptic touchpad, digital click // (left quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftPad_DPadEast		17	// (Valve Steam Controller) left haptic touchpad, digital click // (right quadrant)
+#constant k_EInputActionOrigin_SteamController_RightPad_Touch		18	// (Valve Steam Controller) right haptic touchpad, in simple contact with a finger
+#constant k_EInputActionOrigin_SteamController_RightPad_Swipe		19	// (Valve Steam Controller) right haptic touchpad, touch input on any axis
+#constant k_EInputActionOrigin_SteamController_RightPad_Click		20	// (Valve Steam Controller) right haptic touchpad, digital click // (for the whole thing)
+#constant k_EInputActionOrigin_SteamController_RightPad_DPadNorth	21	// (Valve Steam Controller) right haptic touchpad, digital click // (upper quadrant)
+#constant k_EInputActionOrigin_SteamController_RightPad_DPadSouth	22	// (Valve Steam Controller) right haptic touchpad, digital click // (lower quadrant)
+#constant k_EInputActionOrigin_SteamController_RightPad_DPadWest	23	// (Valve Steam Controller) right haptic touchpad, digital click // (left quadrant)
+#constant k_EInputActionOrigin_SteamController_RightPad_DPadEast	24	// (Valve Steam Controller) right haptic touchpad, digital click // (right quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftTrigger_Pull		25	// (Valve Steam Controller) left analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_SteamController_LeftTrigger_Click	26	// (Valve Steam Controller) left analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_SteamController_RightTrigger_Pull	27	// (Valve Steam Controller) right analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_SteamController_RightTrigger_Click	28	// (Valve Steam Controller) right analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_SteamController_LeftStick_Move		29	// (Valve Steam Controller) left joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_SteamController_LeftStick_Click		30	// (Valve Steam Controller) left joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_SteamController_LeftStick_DPadNorth	31	// (Valve Steam Controller) left joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftStick_DPadSouth	32	// (Valve Steam Controller) left joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftStick_DPadWest	33	// (Valve Steam Controller) left joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_SteamController_LeftStick_DPadEast	34	// (Valve Steam Controller) left joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_SteamController_Gyro_Move			35	// (Valve Steam Controller) gyroscope, analog movement in any axis
+#constant k_EInputActionOrigin_SteamController_Gyro_Pitch			36	// (Valve Steam Controller) gyroscope, analog movement on the Pitch axis // (point head up to ceiling, point head down to floor)
+#constant k_EInputActionOrigin_SteamController_Gyro_Yaw				37	// (Valve Steam Controller) gyroscope, analog movement on the Yaw axis // (turn head left to face one wall, turn head right to face other)
+#constant k_EInputActionOrigin_SteamController_Gyro_Roll			38	// (Valve Steam Controller) gyroscope, analog movement on the Roll axis // (tilt head left towards shoulder, tilt head right towards other)
+#constant k_EInputActionOrigin_SteamController_Reserved0			39
+#constant k_EInputActionOrigin_SteamController_Reserved1			40
+#constant k_EInputActionOrigin_SteamController_Reserved2			41
+#constant k_EInputActionOrigin_SteamController_Reserved3			42
+#constant k_EInputActionOrigin_SteamController_Reserved4			43
+#constant k_EInputActionOrigin_SteamController_Reserved5			44
+#constant k_EInputActionOrigin_SteamController_Reserved6			45
+#constant k_EInputActionOrigin_SteamController_Reserved7			46
+#constant k_EInputActionOrigin_SteamController_Reserved8			47
+#constant k_EInputActionOrigin_SteamController_Reserved9			48
+#constant k_EInputActionOrigin_SteamController_Reserved10			49
+
+// PS4 Dual Shock
+#constant k_EInputActionOrigin_PS4_X							50	// (Sony Dualshock 4) digital face button X
+#constant k_EInputActionOrigin_PS4_Circle						51	// (Sony Dualshock 4) digital face button Circle
+#constant k_EInputActionOrigin_PS4_Triangle						52	// (Sony Dualshock 4) digital face button Triangle
+#constant k_EInputActionOrigin_PS4_Square						53	// (Sony Dualshock 4) digital face button Square
+#constant k_EInputActionOrigin_PS4_LeftBumper					54	// (Sony Dualshock 4) digital left shoulder button // (aka "left bumper")
+#constant k_EInputActionOrigin_PS4_RightBumper					55	// (Sony Dualshock 4) digital right shoulder button // (aka "right bumper")
+#constant k_EInputActionOrigin_PS4_Options						56	// (Sony Dualshock 4) digital options button // (aka "Start")
+#constant k_EInputActionOrigin_PS4_Share						57	// (Sony Dualshock 4) digital back button // (aka "Back")
+#constant k_EInputActionOrigin_PS4_LeftPad_Touch				58	// (Sony Dualshock 4) left half of the touchpad, in simple contact with a finger
+#constant k_EInputActionOrigin_PS4_LeftPad_Swipe				59	// (Sony Dualshock 4) left half of the touchpad, touch input on any axis
+#constant k_EInputActionOrigin_PS4_LeftPad_Click				60	// (Sony Dualshock 4) left half of the touchpad, digital click // (for the whole thing)
+#constant k_EInputActionOrigin_PS4_LeftPad_DPadNorth			61	// (Sony Dualshock 4) left half of the touchpad, digital click // (upper quadrant)
+#constant k_EInputActionOrigin_PS4_LeftPad_DPadSouth			62	// (Sony Dualshock 4) left half of the touchpad, digital click // (lower quadrant)
+#constant k_EInputActionOrigin_PS4_LeftPad_DPadWest				63	// (Sony Dualshock 4) left half of the touchpad, digital click // (left quadrant)
+#constant k_EInputActionOrigin_PS4_LeftPad_DPadEast				64	// (Sony Dualshock 4) left half of the touchpad, digital click // (right quadrant)
+#constant k_EInputActionOrigin_PS4_RightPad_Touch				65	// (Sony Dualshock 4) right half of the touchpad, in simple contact with a finger
+#constant k_EInputActionOrigin_PS4_RightPad_Swipe				66	// (Sony Dualshock 4) right half of the touchpad, touch input on any axis
+#constant k_EInputActionOrigin_PS4_RightPad_Click				67	// (Sony Dualshock 4) right half of the touchpad, digital click // (for the whole thing)
+#constant k_EInputActionOrigin_PS4_RightPad_DPadNorth			68	// (Sony Dualshock 4) right half of the touchpad, digital click // (upper quadrant)
+#constant k_EInputActionOrigin_PS4_RightPad_DPadSouth			69	// (Sony Dualshock 4) right half of the touchpad, digital click // (lower quadrant)
+#constant k_EInputActionOrigin_PS4_RightPad_DPadWest			70	// (Sony Dualshock 4) right half of the touchpad, digital click // (left quadrant)
+#constant k_EInputActionOrigin_PS4_RightPad_DPadEast			71	// (Sony Dualshock 4) right half of the touchpad, digital click // (right quadrant)
+#constant k_EInputActionOrigin_PS4_CenterPad_Touch				72	// (Sony Dualshock 4) unified touchpad, in simple contact with a finger
+#constant k_EInputActionOrigin_PS4_CenterPad_Swipe				73	// (Sony Dualshock 4) unified touchpad, touch input on any axis
+#constant k_EInputActionOrigin_PS4_CenterPad_Click				74	// (Sony Dualshock 4) unified touchpad, digital click // (for the whole thing)
+#constant k_EInputActionOrigin_PS4_CenterPad_DPadNorth			75	// (Sony Dualshock 4) unified touchpad, digital click // (upper quadrant)
+#constant k_EInputActionOrigin_PS4_CenterPad_DPadSouth			76	// (Sony Dualshock 4) unified touchpad, digital click // (lower quadrant)
+#constant k_EInputActionOrigin_PS4_CenterPad_DPadWest			77	// (Sony Dualshock 4) unified touchpad, digital click // (left quadrant)
+#constant k_EInputActionOrigin_PS4_CenterPad_DPadEast			78	// (Sony Dualshock 4) unified touchpad, digital click // (right quadrant)
+#constant k_EInputActionOrigin_PS4_LeftTrigger_Pull				79	// (Sony Dualshock 4) left analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_PS4_LeftTrigger_Click			80	// (Sony Dualshock 4) left analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_PS4_RightTrigger_Pull			81	// (Sony Dualshock 4) right analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_PS4_RightTrigger_Click			82	// (Sony Dualshock 4) right analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_PS4_LeftStick_Move				83	// (Sony Dualshock 4) left joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_PS4_LeftStick_Click				84	// (Sony Dualshock 4) left joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_PS4_LeftStick_DPadNorth			85	// (Sony Dualshock 4) left joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_PS4_LeftStick_DPadSouth			86	// (Sony Dualshock 4) left joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_PS4_LeftStick_DPadWest			87	// (Sony Dualshock 4) left joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_PS4_LeftStick_DPadEast			88	// (Sony Dualshock 4) left joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_PS4_RightStick_Move				89	// (Sony Dualshock 4) right joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_PS4_RightStick_Click				90	// (Sony Dualshock 4) right joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_PS4_RightStick_DPadNorth			91	// (Sony Dualshock 4) right joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_PS4_RightStick_DPadSouth			92	// (Sony Dualshock 4) right joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_PS4_RightStick_DPadWest			93	// (Sony Dualshock 4) right joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_PS4_RightStick_DPadEast			94	// (Sony Dualshock 4) right joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_PS4_DPad_North					95	// (Sony Dualshock 4) digital pad, pressed // (upper quadrant)
+#constant k_EInputActionOrigin_PS4_DPad_South					96	// (Sony Dualshock 4) digital pad, pressed // (lower quadrant)
+#constant k_EInputActionOrigin_PS4_DPad_West					97	// (Sony Dualshock 4) digital pad, pressed // (left quadrant)
+#constant k_EInputActionOrigin_PS4_DPad_East					98	// (Sony Dualshock 4) digital pad, pressed // (right quadrant)
+#constant k_EInputActionOrigin_PS4_Gyro_Move					99	// (Sony Dualshock 4) gyroscope, analog movement in any axis
+#constant k_EInputActionOrigin_PS4_Gyro_Pitch					100	// (Sony Dualshock 4) gyroscope, analog movement on the Pitch axis // (point head up to ceiling, point head down to floor)
+#constant k_EInputActionOrigin_PS4_Gyro_Yaw						101	// (Sony Dualshock 4) gyroscope, analog movement on the Yaw axis // (turn head left to face one wall, turn head right to face other)
+#constant k_EInputActionOrigin_PS4_Gyro_Roll					102	// (Sony Dualshock 4) gyroscope, analog movement on the Roll axis // (tilt head left towards shoulder, tilt head right towards other shoulder)
+#constant k_EInputActionOrigin_PS4_Reserved0					103
+#constant k_EInputActionOrigin_PS4_Reserved1					104
+#constant k_EInputActionOrigin_PS4_Reserved2					105
+#constant k_EInputActionOrigin_PS4_Reserved3					106
+#constant k_EInputActionOrigin_PS4_Reserved4					107
+#constant k_EInputActionOrigin_PS4_Reserved5					108
+#constant k_EInputActionOrigin_PS4_Reserved6					109
+#constant k_EInputActionOrigin_PS4_Reserved7					110
+#constant k_EInputActionOrigin_PS4_Reserved8					111
+#constant k_EInputActionOrigin_PS4_Reserved9					112
+#constant k_EInputActionOrigin_PS4_Reserved10					113
+
+// XBox One
+#constant k_EInputActionOrigin_XBoxOne_A						114	// (XB1) digital face button A
+#constant k_EInputActionOrigin_XBoxOne_B						115	// (XB1) digital face button B
+#constant k_EInputActionOrigin_XBoxOne_X						116	// (XB1) digital face button X
+#constant k_EInputActionOrigin_XBoxOne_Y						117	// (XB1) digital face button Y
+#constant k_EInputActionOrigin_XBoxOne_LeftBumper				118	// (XB1) digital left shoulder button // (aka "left bumper")
+#constant k_EInputActionOrigin_XBoxOne_RightBumper				119	// (XB1) digital right shoulder button // (aka "right bumper")
+#constant k_EInputActionOrigin_XBoxOne_Menu						120	// (XB1) digital menu button // (aka "start")
+#constant k_EInputActionOrigin_XBoxOne_View						121	// (XB1) digital view button // (aka "back")
+#constant k_EInputActionOrigin_XBoxOne_LeftTrigger_Pull			122	// (XB1) left analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_XBoxOne_LeftTrigger_Click		123	// (XB1) left analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_XBoxOne_RightTrigger_Pull		124	// (XB1) right analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_XBoxOne_RightTrigger_Click		125	// (XB1) right analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_XBoxOne_LeftStick_Move			126	// (XB1) left joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_XBoxOne_LeftStick_Click			127	// (XB1) left joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_XBoxOne_LeftStick_DPadNorth		128	// (XB1) left joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_XBoxOne_LeftStick_DPadSouth		129	// (XB1) left joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_XBoxOne_LeftStick_DPadWest		130	// (XB1) left joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_XBoxOne_LeftStick_DPadEast		131	// (XB1) left joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_XBoxOne_RightStick_Move			132	// (XB1) right joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_XBoxOne_RightStick_Click			133	// (XB1) right joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_XBoxOne_RightStick_DPadNorth		134	// (XB1) right joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_XBoxOne_RightStick_DPadSouth		135	// (XB1) right joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_XBoxOne_RightStick_DPadWest		136	// (XB1) right joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_XBoxOne_RightStick_DPadEast		137	// (XB1) right joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_XBoxOne_DPad_North				138	// (XB1) digital pad, pressed // (upper quadrant)
+#constant k_EInputActionOrigin_XBoxOne_DPad_South				139	// (XB1) digital pad, pressed // (lower quadrant)
+#constant k_EInputActionOrigin_XBoxOne_DPad_West				140	// (XB1) digital pad, pressed // (left quadrant)
+#constant k_EInputActionOrigin_XBoxOne_DPad_East				141	// (XB1) digital pad, pressed // (right quadrant)
+#constant k_EInputActionOrigin_XBoxOne_Reserved0				142
+#constant k_EInputActionOrigin_XBoxOne_Reserved1				143
+#constant k_EInputActionOrigin_XBoxOne_Reserved2				144
+#constant k_EInputActionOrigin_XBoxOne_Reserved3				145
+#constant k_EInputActionOrigin_XBoxOne_Reserved4				146
+#constant k_EInputActionOrigin_XBoxOne_Reserved5				147
+#constant k_EInputActionOrigin_XBoxOne_Reserved6				148
+#constant k_EInputActionOrigin_XBoxOne_Reserved7				149
+#constant k_EInputActionOrigin_XBoxOne_Reserved8				150
+#constant k_EInputActionOrigin_XBoxOne_Reserved9				151
+#constant k_EInputActionOrigin_XBoxOne_Reserved10				152
+
+// XBox 360
+#constant k_EInputActionOrigin_XBox360_A						153	// (X360) digital face button A
+#constant k_EInputActionOrigin_XBox360_B						154	// (X360) digital face button B
+#constant k_EInputActionOrigin_XBox360_X						155	// (X360) digital face button X
+#constant k_EInputActionOrigin_XBox360_Y						156	// (X360) digital face button Y
+#constant k_EInputActionOrigin_XBox360_LeftBumper				157	// (X360) digital left shoulder button // (aka "left bumper")
+#constant k_EInputActionOrigin_XBox360_RightBumper				158	// (X360) digital right shoulder button // (aka "right bumper")
+#constant k_EInputActionOrigin_XBox360_Start					159	// (X360) digital start button
+#constant k_EInputActionOrigin_XBox360_Back						160	// (X360) digital back button
+#constant k_EInputActionOrigin_XBox360_LeftTrigger_Pull			161	// (X360) left analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_XBox360_LeftTrigger_Click		162	// (X360) left analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_XBox360_RightTrigger_Pull		163	// (X360) right analog trigger, pulled by any amount // (analog value)
+#constant k_EInputActionOrigin_XBox360_RightTrigger_Click		164	// (X360) right analog trigger, pulled in all the way // (digital value)
+#constant k_EInputActionOrigin_XBox360_LeftStick_Move			165	// (X360) left joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_XBox360_LeftStick_Click			166	// (X360) left joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_XBox360_LeftStick_DPadNorth		167	// (X360) left joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_XBox360_LeftStick_DPadSouth		168	// (X360) left joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_XBox360_LeftStick_DPadWest		169	// (X360) left joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_XBox360_LeftStick_DPadEast		170	// (X360) left joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_XBox360_RightStick_Move			171	// (X360) right joystick, movement on any axis // (analog value)
+#constant k_EInputActionOrigin_XBox360_RightStick_Click			172	// (X360) right joystick, clicked in // (digital value)
+#constant k_EInputActionOrigin_XBox360_RightStick_DPadNorth		173	// (X360) right joystick, digital movement // (upper quadrant)
+#constant k_EInputActionOrigin_XBox360_RightStick_DPadSouth		174	// (X360) right joystick, digital movement // (lower quadrant)
+#constant k_EInputActionOrigin_XBox360_RightStick_DPadWest		175	// (X360) right joystick, digital movement // (left quadrant)
+#constant k_EInputActionOrigin_XBox360_RightStick_DPadEast		176	// (X360) right joystick, digital movement // (right quadrant)
+#constant k_EInputActionOrigin_XBox360_DPad_North				177	// (X360) digital pad, pressed // (upper quadrant)
+#constant k_EInputActionOrigin_XBox360_DPad_South				178	// (X360) digital pad, pressed // (lower quadrant)
+#constant k_EInputActionOrigin_XBox360_DPad_West				179	// (X360) digital pad, pressed // (left quadrant)
+#constant k_EInputActionOrigin_XBox360_DPad_East				180	// (X360) digital pad, pressed // (right quadrant)
+#constant k_EInputActionOrigin_XBox360_Reserved0				181
+#constant k_EInputActionOrigin_XBox360_Reserved1				182
+#constant k_EInputActionOrigin_XBox360_Reserved2				183
+#constant k_EInputActionOrigin_XBox360_Reserved3				184
+#constant k_EInputActionOrigin_XBox360_Reserved4				185
+#constant k_EInputActionOrigin_XBox360_Reserved5				186
+#constant k_EInputActionOrigin_XBox360_Reserved6				187
+#constant k_EInputActionOrigin_XBox360_Reserved7				188
+#constant k_EInputActionOrigin_XBox360_Reserved8				189
+#constant k_EInputActionOrigin_XBox360_Reserved9				190
+#constant k_EInputActionOrigin_XBox360_Reserved10				191
+
+// Switch - Pro or Joycons used as a single input device.
+// This does not apply to a single joycon
+#constant k_EInputActionOrigin_Switch_A							192
+#constant k_EInputActionOrigin_Switch_B							193
+#constant k_EInputActionOrigin_Switch_X							194
+#constant k_EInputActionOrigin_Switch_Y							195
+#constant k_EInputActionOrigin_Switch_LeftBumper				196
+#constant k_EInputActionOrigin_Switch_RightBumper				197
+#constant k_EInputActionOrigin_Switch_Plus						198	//Start
+#constant k_EInputActionOrigin_Switch_Minus						199	//Back
+#constant k_EInputActionOrigin_Switch_Capture					200
+#constant k_EInputActionOrigin_Switch_LeftTrigger_Pull			201
+#constant k_EInputActionOrigin_Switch_LeftTrigger_Click			202
+#constant k_EInputActionOrigin_Switch_RightTrigger_Pull			203
+#constant k_EInputActionOrigin_Switch_RightTrigger_Click		204
+#constant k_EInputActionOrigin_Switch_LeftStick_Move			205
+#constant k_EInputActionOrigin_Switch_LeftStick_Click			206
+#constant k_EInputActionOrigin_Switch_LeftStick_DPadNorth		207
+#constant k_EInputActionOrigin_Switch_LeftStick_DPadSouth		208
+#constant k_EInputActionOrigin_Switch_LeftStick_DPadWest		209
+#constant k_EInputActionOrigin_Switch_LeftStick_DPadEast		210
+#constant k_EInputActionOrigin_Switch_RightStick_Move			211
+#constant k_EInputActionOrigin_Switch_RightStick_Click			212
+#constant k_EInputActionOrigin_Switch_RightStick_DPadNorth		213
+#constant k_EInputActionOrigin_Switch_RightStick_DPadSouth		214
+#constant k_EInputActionOrigin_Switch_RightStick_DPadWest		215
+#constant k_EInputActionOrigin_Switch_RightStick_DPadEast		216
+#constant k_EInputActionOrigin_Switch_DPad_North				217
+#constant k_EInputActionOrigin_Switch_DPad_South				218
+#constant k_EInputActionOrigin_Switch_DPad_West					219
+#constant k_EInputActionOrigin_Switch_DPad_East					220
+#constant k_EInputActionOrigin_Switch_ProGyro_Move				221	// Primary Gyro in Pro Controller, or Right JoyCon
+#constant k_EInputActionOrigin_Switch_ProGyro_Pitch				222	// Primary Gyro in Pro Controller, or Right JoyCon
+#constant k_EInputActionOrigin_Switch_ProGyro_Yaw				223	// Primary Gyro in Pro Controller, or Right JoyCon
+#constant k_EInputActionOrigin_Switch_ProGyro_Roll				224	// Primary Gyro in Pro Controller, or Right JoyCon
+#constant k_EInputActionOrigin_Switch_Reserved0					225
+#constant k_EInputActionOrigin_Switch_Reserved1					226
+#constant k_EInputActionOrigin_Switch_Reserved2					227
+#constant k_EInputActionOrigin_Switch_Reserved3					228
+#constant k_EInputActionOrigin_Switch_Reserved4					229
+#constant k_EInputActionOrigin_Switch_Reserved5					230
+#constant k_EInputActionOrigin_Switch_Reserved6					231
+#constant k_EInputActionOrigin_Switch_Reserved7					232
+#constant k_EInputActionOrigin_Switch_Reserved8					233
+#constant k_EInputActionOrigin_Switch_Reserved9					234
+#constant k_EInputActionOrigin_Switch_Reserved10				235
+
+// Switch JoyCon Specific
+#constant k_EInputActionOrigin_Switch_RightGyro_Move			236	// Right JoyCon Gyro generally should correspond to Pro's single gyro
+#constant k_EInputActionOrigin_Switch_RightGyro_Pitch			237	// Right JoyCon Gyro generally should correspond to Pro's single gyro
+#constant k_EInputActionOrigin_Switch_RightGyro_Yaw				238	// Right JoyCon Gyro generally should correspond to Pro's single gyro
+#constant k_EInputActionOrigin_Switch_RightGyro_Roll			239	// Right JoyCon Gyro generally should correspond to Pro's single gyro
+#constant k_EInputActionOrigin_Switch_LeftGyro_Move				240
+#constant k_EInputActionOrigin_Switch_LeftGyro_Pitch			241
+#constant k_EInputActionOrigin_Switch_LeftGyro_Yaw				242
+#constant k_EInputActionOrigin_Switch_LeftGyro_Roll				243
+#constant k_EInputActionOrigin_Switch_LeftGrip_Lower			244	// Left JoyCon SR Button
+#constant k_EInputActionOrigin_Switch_LeftGrip_Upper			245	// Left JoyCon SL Button
+#constant k_EInputActionOrigin_Switch_RightGrip_Lower			246	// Right JoyCon SL Button
+#constant k_EInputActionOrigin_Switch_RightGrip_Upper			247	// Right JoyCon SR Button
+#constant k_EInputActionOrigin_Switch_Reserved11				248
+#constant k_EInputActionOrigin_Switch_Reserved12				249
+#constant k_EInputActionOrigin_Switch_Reserved13				250
+#constant k_EInputActionOrigin_Switch_Reserved14				251
+#constant k_EInputActionOrigin_Switch_Reserved15				252
+#constant k_EInputActionOrigin_Switch_Reserved16				253
+#constant k_EInputActionOrigin_Switch_Reserved17				254
+#constant k_EInputActionOrigin_Switch_Reserved18				255
+#constant k_EInputActionOrigin_Switch_Reserved19				256
+#constant k_EInputActionOrigin_Switch_Reserved20				257
+
+#constant k_EInputActionOrigin_Count							258	// The number of values in this enum, useful for iterating.
+//#constant k_EInputActionOrigin_MaximumPossibleValue			32767	// Origins are currently a maximum of 16 bits.
+
+// EInputSourceMode
+//--------------------------------------------------------------
+// The virtual input mode imposed by the configurator upon a input source. 
+// For instance, the configurator can make an analog joystick behave like a Dpad with four digital inputs; the EInputSource would be k_EInputSource_Joystick and the EInputSourceMode would be k_EInputSourceMode_Dpad.
+// The mode also changes the input data received by any associated actions.
+#constant k_EInputSourceMode_None				0	// No input mode.
+#constant k_EInputSourceMode_Dpad				1	// A digital pad -- four digital directional buttons fused together in a cross pattern, such that only one button from each axis can be pressed at any given time.
+#constant k_EInputSourceMode_Buttons			2	// ???
+#constant k_EInputSourceMode_FourButtons		3	// Four digital face buttons, any of which can be pressed simultaneously
+#constant k_EInputSourceMode_AbsoluteMouse		4	
+#constant k_EInputSourceMode_RelativeMouse		5	
+#constant k_EInputSourceMode_JoystickMove		6	
+#constant k_EInputSourceMode_JoystickMouse		7	
+#constant k_EInputSourceMode_JoystickCamera	8	
+#constant k_EInputSourceMode_ScrollWheel		9	
+#constant k_EInputSourceMode_Trigger			10	
+#constant k_EInputSourceMode_TouchMenu			11	
+#constant k_EInputSourceMode_MouseJoystick		12	
+#constant k_EInputSourceMode_MouseRegion		13	
+#constant k_EInputSourceMode_RadialMenu		14	
+#constant k_EInputSourceMode_SingleButton		15	
+#constant k_EInputSourceMode_Switches			16	
+
+// ESteamInputType
+//--------------------------------------------------------------
+// Represents the device model for a given piece of hardware.
+#constant k_ESteamInputType_Unknown				0	// Catch-all for unrecognized devices
+#constant k_ESteamInputType_SteamController		1	// Valve's Steam Controller
+#constant k_ESteamInputType_XBox360Controller	2	// Microsoft's XBox 360 Controller
+#constant k_ESteamInputType_XBoxOneController	3	// Microsoft's XBox One Controller
+#constant k_ESteamInputType_GenericXInput		4	// Any generic 3rd-party XInput device
+#constant k_ESteamInputType_PS4Controller		5	// Sony's Playstation 4 Controller
+
+// ESteamControllerPad
+//--------------------------------------------------------------
+// A touchpad region on a Steam Controller Device.
+#constant k_ESteamControllerPad_Left	0	// The left touchpad region on a Steam Controller Device. Compatible models: VSC, DS4
+#constant k_ESteamControllerPad_Right	1	// The right region on a Steam Controller Device. Compatible models: VSC, DS4
+
 
 ////////////////////////////////////////////////////////////////
 // ISteamMatchmaking

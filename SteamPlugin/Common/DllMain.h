@@ -2004,79 +2004,82 @@ extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eR
 //SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 
 /*
-	@page Controller Information
-See the [Steam Input](https://partner.steamgames.com/doc/features/steam_controller) documentation for more information.
+	@page Input Information
+See the [Steam Input](https://partner.steamgames.com/doc/features/steam_input) documentation for more information.
+[Steam Controller](https://partner.steamgames.com/doc/features/steam_controller) has been deprecated.
+
+Until the Steam Input API documentation has been posted, this will still link to ISteamController.
 
 See also [Getting Started for Developers](https://partner.steamgames.com/doc/features/steam_controller/getting_started_for_devs).
 */
 /*
-@desc Must be called when starting use of the ISteamController interface.
+@desc Must be called when starting use of the ISteamInput interface.
 @return Always 1 if the Steam plugin has been initialized; otherwise 0.
 @api ISteamController#Init
 */
-extern "C" DLL_EXPORT int InitSteamController();
+extern "C" DLL_EXPORT int InitSteamInput();
 /*
-@desc Must be called when ending use of the Steam Controller interface.
+@desc Must be called when ending use of the Steam Input interface.
 
 This is called within Shutdown and also while unloading the plugin, so calling it explictly should not be necessary.
 @return Always 1 if the Steam plugin has been initialized; otherwise 0.
 @api ISteamController#Shutdown
 */
-extern "C" DLL_EXPORT int ShutdownSteamController();
+extern "C" DLL_EXPORT int ShutdownSteamInput();
 /*
 @desc Enumerates currently connected controllers.
 
-Must be called before controllers can be used because it loads the internal controller handles.
-@return The number of controllers found.
+Must be called before controllers can be used because it loads the internal input handles.
+@return The number of inputs found.
 @api ISteamController#GetConnectedControllers
 */
 extern "C" DLL_EXPORT int GetConnectedControllers();
 /*
-@desc Returns the input type (device model) for the specified controller. This tells you if a given controller is a Steam controller, XBox 360 controller, PS4 controller, etc.
-@param hController The handle of the controller.
-@return Returns the input type (device model) for the specified controller.
+@desc Returns the input type (device model) for the specified input. This tells you if a given input is a Steam controller, XBox 360 controller, PS4 controller, etc.
+@param hInput The handle of the input.
+@return Returns the input type (device model) for the specified input.
 @api ISteamController#GetInputTypeForHandle
 */
-extern "C" DLL_EXPORT int GetInputTypeForHandle(int hController);
+extern "C" DLL_EXPORT int GetInputTypeForHandle(int hInput);
 /*
-@desc Returns the associated controller handle for the specified emulated gamepad.
-@param hController The index of the emulated gamepad you want to get a controller handle for.
-@return The associated controller handle for the specified emulated gamepad.
+@desc Returns the associated input handle for the specified emulated gamepad.
+@param hInput The index of the emulated gamepad you want to get an input handle for.
+@return The associated input handle for the specified emulated gamepad.
 @api ISteamController#GetControllerForGamepadIndex
 */
 //extern "C" DLL_EXPORT ControllerHandle_t GetControllerForGamepadIndex(int nIndex);
 /*
-@desc Returns the associated gamepad index for the specified controller, if emulating a gamepad.
-@param hController The handle of the controller you want to get a gamepad index for.
+@desc Returns the associated gamepad index for the specified input, if emulating a gamepad.
+@param hInput The handle of the input you want to get a gamepad index for.
 @return An integer.
 @api ISteamController#GetGamepadIndexForController
 */
 //extern "C" DLL_EXPORT int GetGamepadIndexForController(ControllerHandle_t ulController);
 /*
-@desc Synchronize API state with the latest Steam Controller inputs available.
-This is performed automatically by RunCallbacks, but for the absolute lowest possible latency, you can call this directly before reading controller state.
+@desc Synchronize API state with the latest Steam Input inputs available.
+This is performed automatically by RunCallbacks, but for the absolute lowest possible latency, you can call this directly before reading input state.
 @api ISteamController#RunFrame
 */
 extern "C" DLL_EXPORT void RunFrame();
 /*
 @desc Invokes the Steam overlay and brings up the binding screen.
-@param hController The handle of the controller you want to bring up the binding screen for.
+@param hInput The handle of the input you want to bring up the binding screen for.
 @return 1 for success; 0 if overlay is disabled/unavailable, or the user is not in Big Picture Mode.
 @api ISteamController#ShowBindingPanel
 */
-extern "C" DLL_EXPORT int ShowBindingPanel(int hController);
+extern "C" DLL_EXPORT int ShowBindingPanel(int hInput);
 /*
-	@page Controller Action Sets and Layers
+	@page Input Action Sets and Layers
 */
 /*
-@desc Reconfigure the controller to use the specified action set (ie "Menu", "Walk", or "Drive").
+@desc Reconfigure the input to use the specified action set (ie "Menu", "Walk", or "Drive").
 
 This is cheap, and can be safely called repeatedly. It's often easier to repeatedly call it in your state loops, instead of trying to place it in all of your state transitions.
-@param hController The handle of the controller you want to activate an action set for.
+@param hInput The handle of the input you want to activate an action set for.
 @param hActionSet The handle of the action set you want to activate.
 @api ISteamController#ActivateActionSet
 */
-extern "C" DLL_EXPORT void ActivateActionSet(int hController, int hActionSet);
+extern "C" DLL_EXPORT void ActivateActionSet(int hInput, int hActionSet);
 /*
 @desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
 @param actionSetName The string identifier of an action set defined in the game's VDF file.
@@ -2085,49 +2088,49 @@ extern "C" DLL_EXPORT void ActivateActionSet(int hController, int hActionSet);
 */
 extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName);
 /*
-@desc Get the currently active action set for the specified controller.
-@param hController The handle of the controller you want to query.
-@return The handle of the action set activated for the specified controller.
+@desc Get the currently active action set for the specified input.
+@param hInput The handle of the input you want to query.
+@return The handle of the action set activated for the specified input.
 @api ISteamController#GetCurrentActionSet
 */
-extern "C" DLL_EXPORT int GetCurrentActionSet(int hController);
+extern "C" DLL_EXPORT int GetCurrentActionSet(int hInput);
 /*
-@desc Reconfigure the controller to use the specified action set layer.
-@param hController The handle of the controller you want to activate an action set layer for.
+@desc Reconfigure the input to use the specified action set layer.
+@param hInput The handle of the input you want to activate an action set layer for.
 @param hActionSetLayer The handle of the action set layer you want to activate.
 @api ISteamController#ActivateActionSetLayer
 */
-extern "C" DLL_EXPORT void ActivateActionSetLayer(int hController,  int hActionSetLayer);
+extern "C" DLL_EXPORT void ActivateActionSetLayer(int hInput,  int hActionSetLayer);
 /*
-@desc Reconfigure the controller to stop using the specified action set layer.
-@param hController The handle of the controller you want to deactivate an action set layer for.
+@desc Reconfigure the input to stop using the specified action set layer.
+@param hInput The handle of the input you want to deactivate an action set layer for.
 @param hActionSetLayer The handle of the action set layer you want to deactivate.
 @api ISteamController#DeactivateActionSetLayer
 */
-extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hController, int hActionSetLayer);
+extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hInput, int hActionSetLayer);
 /*
-@desc Reconfigure the controller to stop using all action set layers.
-@param hController The handle of the controller you want to deactivate all action set layers for.
+@desc Reconfigure the input to stop using all action set layers.
+@param hInput The handle of the input you want to deactivate all action set layers for.
 @api ISteamController#DeactivateAllActionSetLayers
 */
-extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hController);
+extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput);
 /*
-@desc Gets the active action set layers for the given controller.
-@param hController The handle of the controller you want to get active action set layers for.
+@desc Gets the active action set layers for the given input.
+@param hInput The handle of the input you want to get active action set layers for.
 @return A JSON integer array of active action set layers.
 @api ISteamController#GetActiveActionSetLayers
 */
-extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hController);
+extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hInput);
 /*
-	@page Controller Actions and Motion
+	@page Input Actions and Motion
 */
 /*
 @desc Reads and stores the current state of the supplied analog game action so that it can be returned by GetAnalogActionDataActive, GetAnalogActionDataMode, GetAnalogActionDataX, and GetAnalogActionDataY.
-@param hController The handle of the controller you want to query.
+@param hInput The handle of the input you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT void GetAnalogActionData(int hController, int hAnalogAction);
+extern "C" DLL_EXPORT void GetAnalogActionData(int hInput, int hAnalogAction);
 /*
 @desc Returns the current availability to be bound in the active action set of the analog game action read by the last GetAnalogActionData call.
 
@@ -2178,18 +2181,18 @@ In other words, if you use an action called "up" in two different action sets, t
 extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName);
 /*
 @desc Stops the momentum of an analog action (where applicable, ie a touchpad w/ virtual trackball settings).
-@param hController The handle of the controller to affect.
+@param hInput The handle of the input to affect.
 @param hAnalogAction The analog action handle to stop momentum for.
 @api ISteamController#StopAnalogActionMomentum
 */
-extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hController, int hAnalogAction);
+extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hInput, int hAnalogAction);
 /*
 @desc Reads and stores the current state of the supplied digital game action so that it can be returned by GetDigitalActionDataActive and GetDigitalActionDataState.
-@param hController The handle of the controller you want to query.
+@param hInput The handle of the input you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT void GetDigitalActionData(int hController, int hDigitalAction);
+extern "C" DLL_EXPORT void GetDigitalActionData(int hInput, int hDigitalAction);
 /*
 @desc Returns the current availability to be bound in the active action set of the digital game action read by the last GetDigitalActionData call.
 
@@ -2219,15 +2222,14 @@ In other words, if you use an action called "up" in two different action sets, t
 */
 extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName);
 /*
-@desc Reads and stores the raw motion data for the specified controller so that it can be returned by 
+@desc Reads and stores the raw motion data for the specified input so that it can be returned by 
 GetMotionDataPosAccelX, GetMotionDataPosAccelY, GetMotionDataPosAccelZ,
 GetMotionDataPosRotQuatW, GetMotionDataPosRotQuatX, GetMotionDataPosRotQuatY, GetMotionDataPosRotQuatZ,
 GetMotionDataPosRotVelX, GetMotionDataPosRotVelY, and GetMotionDataPosRotVelZ.
-
-@param hController The handle of the controller you want to get motion data for.
+@param hInput The handle of the input you want to get motion data for.
 @api ISteamController#GetMotionData, ISteamController#ControllerMotionData_t
 */
-extern "C" DLL_EXPORT void GetMotionData(int hController);
+extern "C" DLL_EXPORT void GetMotionData(int hInput);
 /*
 @desc Returns the positional acceleration, x axis of the controller motion data read by the last GetMotionData call.
 
@@ -2238,7 +2240,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelX();
 /*
-@desc Returns the positional acceleration, y axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the positional acceleration, y axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2247,7 +2249,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelY();
 /*
-@desc Returns the positional acceleration, z axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the positional acceleration, z axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2256,7 +2258,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelZ();
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), w axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), w axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2265,7 +2267,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatW();
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), x axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), x axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2274,7 +2276,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatX();
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), y axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), y axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2283,7 +2285,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatY();
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), z axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), z axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2292,7 +2294,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatZ();
 /*
-@desc Returns the angular velocity, x axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the angular velocity, x axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2301,7 +2303,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelX();
 /*
-@desc Returns the angular velocity, y axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the angular velocity, y axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2310,7 +2312,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelY();
 /*
-@desc Returns the angular velocity, z axis of the controller motion data read by the last GetMotionData call.
+@desc Returns the angular velocity, z axis of the input motion data read by the last GetMotionData call.
 
 **NOTE:**
 GetMotionData MUST be called in order to populate the value returned by this method.
@@ -2319,28 +2321,28 @@ GetMotionData MUST be called in order to populate the value returned by this met
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelZ();
 /*
-	@page Controller Action Origins
+	@page Input Action Origins
 */
 /*
-@desc Get the origin(s) for an analog action within an action set by filling originsOut with EControllerActionOrigin handles.
+@desc Get the origin(s) for an analog action within an action set by filling originsOut with EInputActionOrigin handles.
 Use this to display the appropriate on-screen prompt for the action.
-@param hController The handle of the controller you want to query.
+@param hInput The handle of the input you want to query.
 @param hActionSet The handle of the action set you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
 @return The number of origins supplied in originsOut.
 @api ISteamController#GetAnalogActionOrigins
 */
-extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hController, int hActionSet, int hAnalogAction);
+extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction);
 /*
 @desc Get a JSON integer array the origin(s) for a digital action within an action set.
 Use this to display the appropriate on-screen prompt for the action.
-@param hController The handle of the controller you want to query.
+@param hInput The handle of the input you want to query.
 @param hActionSet The handle of the action set you want to query.
 @param hDigitalAction The handle of the digital aciton you want to query.
 @return A JSON integer array of the action origins.
 @api ISteamController#GetDigitalActionOrigins
 */
-extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hController, int hActionSet, int hDigitalAction);
+extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction);
 /*
 @desc Get a local path to art for on-screen glyph for a particular origin.
 @param eOrigin The origin you want to get the glyph for.
@@ -2356,43 +2358,43 @@ extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
 */
 extern "C" DLL_EXPORT char * GetStringForActionOrigin(int eOrigin);
 /*
-	@page Controller Effects
+	@page Input Effects
 */
 /*
-@desc Set the controller LED color on supported controllers.
-@param hController The handle of the controller to affect.
+@desc Set the input LED color on supported inputs.
+@param hInput The handle of the input to affect.
 @param red The red component of the color to set (0-255).
 @param green The green component of the color to set (0-255).
 @param blue The blue component of the color to set (0-255).
 @api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
 */
-extern "C" DLL_EXPORT void SetControllerLEDColor(int hController, int red, int green, int blue);
+extern "C" DLL_EXPORT void SetInputLEDColor(int hInput, int red, int green, int blue);
 /*
-@desc Set the controller LED color back to the default (out-of-game) settings.
-@param hController The handle of the controller to affect.
+@desc Set the input LED color back to the default (out-of-game) settings.
+@param hInput The handle of the input to affect.
 @api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
 */
-extern "C" DLL_EXPORT void ResetControllerLEDColor(int hController);
+extern "C" DLL_EXPORT void ResetInputLEDColor(int hInput);
 /*
-@desc Triggers a (low-level) haptic pulse on supported controllers.
+@desc Triggers a (low-level) haptic pulse on supported inputs.
 
 **NOTES**  
-Currently only the VSC supports haptic pulses.  This API call will be ignored for all other controller models.
-@param hController The handle of the controller to affect.
+Currently only the VSC supports haptic pulses.  This API call will be ignored for all other input models.
+@param hInput The handle of the input to affect.
 @param eTargetPad Which haptic touch pad to affect.
 @param-api eTargetPad ISteamController#ESteamControllerPad
 @param duration Duration of the pulse, in microseconds (1/1,000,000th of a second)
 @api ISteamController#TriggerHapticPulse
 */
-extern "C" DLL_EXPORT void TriggerControllerHapticPulse(int hController, int eTargetPad, int duration);
+extern "C" DLL_EXPORT void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration);
 /*
-@desc Triggers a repeated haptic pulse on supported controllers.
+@desc Triggers a repeated haptic pulse on supported inputs.
 
 **NOTES**  
 Currently only the VSC supports haptic pulses.  
-This API call will be ignored for incompatible controller models.  
+This API call will be ignored for incompatible input models.  
 This is a more user-friendly function to call than TriggerHapticPulse as it can generate pulse patterns long enough to be actually noticed by the user.  
-@param hController The handle of the controller to affect.
+@param hInput The handle of the input to affect.
 @param eTargetPad Which haptic touch pad to affect.
 @param-api eTargetPad ISteamController#ESteamControllerPad
 @param onDuration Duration of the pulse, in microseconds (1/1,000,000th of a second).
@@ -2400,16 +2402,16 @@ This is a more user-friendly function to call than TriggerHapticPulse as it can 
 @param repeat Number of times to repeat the onDuration / offDuration duty cycle.
 @api ISteamController#TriggerRepeatedHapticPulse
 */
-extern "C" DLL_EXPORT void TriggerControllerRepeatedHapticPulse(int hController, int eTargetPad, int onDuration, int offDuration, int repeat);
+extern "C" DLL_EXPORT void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat);
 /*
-@desc Trigger a vibration event on supported controllers.
+@desc Trigger a vibration event on supported inputs.
 
-This API call will be ignored for incompatible controller models.
-@param hController The handle of the controller to affect.
+This API call will be ignored for incompatible input models.
+@param hInput The handle of the input to affect.
 @param leftSpeed The period of the left rumble motor's vibration, in microseconds.
 @param rightSpeed The period of the right rumble motor's vibration, in microseconds.
 @api ISteamController#TriggerVibration
 */
-extern "C" DLL_EXPORT void TriggerControllerVibration(int hController, int leftSpeed, int rightSpeed);
+extern "C" DLL_EXPORT void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed);
 
 #endif // DLLMAIN_H_

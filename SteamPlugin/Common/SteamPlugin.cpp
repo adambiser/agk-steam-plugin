@@ -166,7 +166,7 @@ SteamPlugin::SteamPlugin() :
 	m_DigitalActionData.bActive = false;
 	m_DigitalActionData.bState = false;
 	m_AnalogActionData.bActive = false;
-	m_AnalogActionData.eMode = k_EControllerSourceMode_None;
+	m_AnalogActionData.eMode = k_EInputSourceMode_None;
 	m_AnalogActionData.x = 0;
 	m_AnalogActionData.y = 0;
 	m_MotionData.posAccelX = 0;
@@ -203,7 +203,7 @@ void SteamPlugin::Shutdown()
 {
 	if (m_SteamInitialized)
 	{
-		ShutdownSteamController();
+		ShutdownSteamInput();
 		// Disconnect from any lobbies.
 		while (m_JoinedLobbies.size() > 0)
 		{
@@ -266,7 +266,7 @@ void SteamPlugin::Shutdown()
 		m_DigitalActionData.bActive = false;
 		m_DigitalActionData.bState = false;
 		m_AnalogActionData.bActive = false;
-		m_AnalogActionData.eMode = k_EControllerSourceMode_None;
+		m_AnalogActionData.eMode = k_EInputSourceMode_None;
 		m_AnalogActionData.x = 0;
 		m_AnalogActionData.y = 0;
 		m_MotionData.posAccelX = 0;
@@ -437,7 +437,7 @@ const char * SteamPlugin::GetLaunchQueryParam(const char *pchKey)
 	return SteamApps()->GetLaunchQueryParam(pchKey);
 }
 
-void SteamPlugin::OnNewLaunchQueryParameters(NewLaunchQueryParameters_t *pParam)
+void SteamPlugin::OnNewLaunchQueryParameters(NewUrlLaunchParameters_t *pParam)
 {
 	agk::Log("Callback: New Launch Query Parameters");
 	m_HasNewLaunchQueryParameters = true;
@@ -2211,183 +2211,183 @@ int32 SteamPlugin::GetCachedUGCCount()
 //int32 SteamPlugin::UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 
 /*
-Controller Information
+Input Information
 */
-bool SteamPlugin::InitSteamController()
+bool SteamPlugin::InitSteamInput()
 {
-	CheckInitialized(SteamController, 0);
-	if (SteamController()->Init())
+	CheckInitialized(SteamInput, 0);
+	if (SteamInput()->Init())
 	{
-		// Give the API some time to refresh the controllers.
-		SteamController()->RunFrame();
+		// Give the API some time to refresh the inputs.
+		SteamInput()->RunFrame();
 		return true;
 	}
 	return false;
 }
 
-bool SteamPlugin::ShutdownSteamController()
+bool SteamPlugin::ShutdownSteamInput()
 {
-	CheckInitialized(SteamController, 0);
-	return SteamController()->Shutdown();
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->Shutdown();
 }
 
-int SteamPlugin::GetConnectedControllers(ControllerHandle_t *handlesOut)
+int SteamPlugin::GetConnectedControllers(InputHandle_t *handlesOut)
 {
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetConnectedControllers(handlesOut);
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetConnectedControllers(handlesOut);
 }
 
-ESteamInputType SteamPlugin::GetInputTypeForHandle(ControllerHandle_t controllerHandle)
+ESteamInputType SteamPlugin::GetInputTypeForHandle(InputHandle_t inputHandle)
 {
-	CheckInitialized(SteamController, k_ESteamInputType_Unknown);
-	return SteamController()->GetInputTypeForHandle(controllerHandle);
+	CheckInitialized(SteamInput, k_ESteamInputType_Unknown);
+	return SteamInput()->GetInputTypeForHandle(inputHandle);
 }
 
 void SteamPlugin::RunFrame()
 {
-	SteamController()->RunFrame();
+	SteamInput()->RunFrame();
 }
 
-bool SteamPlugin::ShowBindingPanel(ControllerHandle_t controllerHandle)
+bool SteamPlugin::ShowBindingPanel(InputHandle_t inputHandle)
 {
-	CheckInitialized(SteamController, false);
-	return SteamController()->ShowBindingPanel(controllerHandle);
-}
-
-/*
-Controller Action Sets and Layers
-*/
-void SteamPlugin::ActivateActionSet(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle)
-{
-	CheckInitialized(SteamController, );
-	SteamController()->ActivateActionSet(controllerHandle, actionSetHandle);
-}
-
-ControllerActionSetHandle_t SteamPlugin::GetActionSetHandle(const char *pszActionSetName)
-{
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetActionSetHandle(pszActionSetName);
-}
-
-ControllerActionSetHandle_t SteamPlugin::GetCurrentActionSet(ControllerHandle_t controllerHandle)
-{
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetCurrentActionSet(controllerHandle);
-}
-
-void SteamPlugin::ActivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle)
-{
-	CheckInitialized(SteamController, );
-	SteamController()->ActivateActionSetLayer(controllerHandle, actionSetLayerHandle);
-}
-
-void SteamPlugin::DeactivateActionSetLayer(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle)
-{
-	CheckInitialized(SteamController, );
-	SteamController()->DeactivateActionSetLayer(controllerHandle, actionSetLayerHandle);
-}
-
-void SteamPlugin::DeactivateAllActionSetLayers(ControllerHandle_t controllerHandle)
-{
-	CheckInitialized(SteamController, );
-	SteamController()->DeactivateAllActionSetLayers(controllerHandle);
-}
-
-int SteamPlugin::GetActiveActionSetLayers(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t *handlesOut)
-{
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetActiveActionSetLayers(controllerHandle, handlesOut);
+	CheckInitialized(SteamInput, false);
+	return SteamInput()->ShowBindingPanel(inputHandle);
 }
 
 /*
-Controller Actions and Motion
+Input Action Sets and Layers
 */
-void SteamPlugin::GetAnalogActionData(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle)
+void SteamPlugin::ActivateActionSet(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle)
 {
-	CheckInitialized(SteamController, );
-	m_AnalogActionData = SteamController()->GetAnalogActionData(controllerHandle, analogActionHandle);
+	CheckInitialized(SteamInput, );
+	SteamInput()->ActivateActionSet(inputHandle, actionSetHandle);
 }
 
-ControllerAnalogActionHandle_t SteamPlugin::GetAnalogActionHandle(const char *pszActionName)
+InputActionSetHandle_t SteamPlugin::GetActionSetHandle(const char *pszActionSetName)
 {
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetAnalogActionHandle(pszActionName);
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetActionSetHandle(pszActionSetName);
 }
 
-void SteamPlugin::StopAnalogActionMomentum(ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle)
+InputActionSetHandle_t SteamPlugin::GetCurrentActionSet(InputHandle_t inputHandle)
 {
-	CheckInitialized(SteamController, );
-	return SteamController()->StopAnalogActionMomentum(controllerHandle, analogActionHandle);
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetCurrentActionSet(inputHandle);
 }
 
-void SteamPlugin::GetDigitalActionData(ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle)
+void SteamPlugin::ActivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t actionSetLayerHandle)
 {
-	CheckInitialized(SteamController, );
-	m_DigitalActionData = SteamController()->GetDigitalActionData(controllerHandle, digitalActionHandle);
+	CheckInitialized(SteamInput, );
+	SteamInput()->ActivateActionSetLayer(inputHandle, actionSetLayerHandle);
 }
 
-ControllerDigitalActionHandle_t SteamPlugin::GetDigitalActionHandle(const char *pszActionName)
+void SteamPlugin::DeactivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t actionSetLayerHandle)
 {
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetDigitalActionHandle(pszActionName);
+	CheckInitialized(SteamInput, );
+	SteamInput()->DeactivateActionSetLayer(inputHandle, actionSetLayerHandle);
 }
 
- void SteamPlugin::GetMotionData(ControllerHandle_t controllerHandle)
+void SteamPlugin::DeactivateAllActionSetLayers(InputHandle_t inputHandle)
 {
-	 CheckInitialized(SteamController, );
-	 m_MotionData = SteamController()->GetMotionData(controllerHandle);
+	CheckInitialized(SteamInput, );
+	SteamInput()->DeactivateAllActionSetLayers(inputHandle);
+}
+
+int SteamPlugin::GetActiveActionSetLayers(InputHandle_t inputHandle, InputActionSetHandle_t *handlesOut)
+{
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetActiveActionSetLayers(inputHandle, handlesOut);
 }
 
 /*
-Controller Action Origins.
+Input Actions and Motion
 */
-int SteamPlugin::GetAnalogActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut)
+void SteamPlugin::GetAnalogActionData(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle)
 {
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetAnalogActionOrigins(controllerHandle, actionSetHandle, analogActionHandle, originsOut);
+	CheckInitialized(SteamInput, );
+	m_AnalogActionData = SteamInput()->GetAnalogActionData(inputHandle, analogActionHandle);
 }
 
-int SteamPlugin::GetDigitalActionOrigins(ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut)
+InputAnalogActionHandle_t SteamPlugin::GetAnalogActionHandle(const char *pszActionName)
 {
-	CheckInitialized(SteamController, 0);
-	return SteamController()->GetDigitalActionOrigins(controllerHandle, actionSetHandle, digitalActionHandle, originsOut);
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetAnalogActionHandle(pszActionName);
 }
 
-const char *SteamPlugin::GetGlyphForActionOrigin(EControllerActionOrigin eOrigin)
+void SteamPlugin::StopAnalogActionMomentum(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle)
 {
-	CheckInitialized(SteamController, NULL);
-	return SteamController()->GetGlyphForActionOrigin(eOrigin);
+	CheckInitialized(SteamInput, );
+	return SteamInput()->StopAnalogActionMomentum(inputHandle, analogActionHandle);
 }
 
-const char *SteamPlugin::GetStringForActionOrigin(EControllerActionOrigin eOrigin)
+void SteamPlugin::GetDigitalActionData(InputHandle_t inputHandle, InputDigitalActionHandle_t digitalActionHandle)
 {
-	CheckInitialized(SteamController, NULL);
-	return SteamController()->GetStringForActionOrigin(eOrigin);
+	CheckInitialized(SteamInput, );
+	m_DigitalActionData = SteamInput()->GetDigitalActionData(inputHandle, digitalActionHandle);
+}
+
+InputDigitalActionHandle_t SteamPlugin::GetDigitalActionHandle(const char *pszActionName)
+{
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetDigitalActionHandle(pszActionName);
+}
+
+ void SteamPlugin::GetMotionData(InputHandle_t inputHandle)
+{
+	 CheckInitialized(SteamInput, );
+	 m_MotionData = SteamInput()->GetMotionData(inputHandle);
 }
 
 /*
-Controller Effects
+Input Action Origins.
 */
-void SteamPlugin::SetLEDColor(ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags)
+int SteamPlugin::GetAnalogActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut)
 {
-	CheckInitialized(SteamController, );
-	SteamController()->SetLEDColor(controllerHandle, nColorR, nColorG, nColorB, nFlags);
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetAnalogActionOrigins(inputHandle, actionSetHandle, analogActionHandle, originsOut);
 }
 
-void SteamPlugin::TriggerHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short duration)
+int SteamPlugin::GetDigitalActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut)
 {
-	CheckInitialized(SteamController, );
-	SteamController()->TriggerHapticPulse(controllerHandle, eTargetPad, duration);
+	CheckInitialized(SteamInput, 0);
+	return SteamInput()->GetDigitalActionOrigins(inputHandle, actionSetHandle, digitalActionHandle, originsOut);
 }
 
-void SteamPlugin::TriggerRepeatedHapticPulse(ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags)
+const char *SteamPlugin::GetGlyphForActionOrigin(EInputActionOrigin eOrigin)
 {
-	CheckInitialized(SteamController, );
-	SteamController()->TriggerRepeatedHapticPulse(controllerHandle, eTargetPad, usDurationMicroSec, usOffMicroSec, unRepeat, nFlags);
+	CheckInitialized(SteamInput, NULL);
+	return SteamInput()->GetGlyphForActionOrigin(eOrigin);
 }
 
-void SteamPlugin::TriggerVibration(ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+const char *SteamPlugin::GetStringForActionOrigin(EInputActionOrigin eOrigin)
 {
-	CheckInitialized(SteamController, );
-	SteamController()->TriggerVibration(controllerHandle, usLeftSpeed, usRightSpeed);
+	CheckInitialized(SteamInput, NULL);
+	return SteamInput()->GetStringForActionOrigin(eOrigin);
+}
+
+/*
+Input Effects
+*/
+void SteamPlugin::SetLEDColor(InputHandle_t inputHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags)
+{
+	CheckInitialized(SteamInput, );
+	SteamInput()->SetLEDColor(inputHandle, nColorR, nColorG, nColorB, nFlags);
+}
+
+void SteamPlugin::TriggerHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short duration)
+{
+	CheckInitialized(SteamInput, );
+	SteamInput()->TriggerHapticPulse(inputHandle, eTargetPad, duration);
+}
+
+void SteamPlugin::TriggerRepeatedHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags)
+{
+	CheckInitialized(SteamInput, );
+	SteamInput()->TriggerRepeatedHapticPulse(inputHandle, eTargetPad, usDurationMicroSec, usOffMicroSec, unRepeat, nFlags);
+}
+
+void SteamPlugin::TriggerVibration(InputHandle_t inputHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+{
+	CheckInitialized(SteamInput, );
+	SteamInput()->TriggerVibration(inputHandle, usLeftSpeed, usRightSpeed);
 }
