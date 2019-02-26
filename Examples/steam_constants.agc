@@ -596,7 +596,7 @@ EndType
 // Inputs the player binds to actions in the Steam Input Configurator.
 // The chief purpose of these values is to direct which on-screen button glyphs should appear for a given action, such as "Press [A] to Jump".
 // Steam Controller
-#constant k_EInputActionOrigin_SteamController_None					0	
+#constant k_EInputActionOrigin_None									0	
 #constant k_EInputActionOrigin_SteamController_A					1	// (Valve Steam Controller) digital face button A
 #constant k_EInputActionOrigin_SteamController_B					2	// (Valve Steam Controller) digital face button B
 #constant k_EInputActionOrigin_SteamController_X					3	// (Valve Steam Controller) digital face button X
@@ -899,7 +899,7 @@ EndType
 #constant k_ESteamInputType_SteamController		1	// Valve's Steam Controller
 #constant k_ESteamInputType_XBox360Controller	2	// Microsoft's XBox 360 Controller
 #constant k_ESteamInputType_XBoxOneController	3	// Microsoft's XBox One Controller
-#constant k_ESteamInputType_GenericXInput		4	// Any generic 3rd-party XInput device
+#constant k_ESteamInputType_GenericGamepad		4	// DirectInput controllers
 #constant k_ESteamInputType_PS4Controller		5	// Sony's Playstation 4 Controller
 #constant k_ESteamInputType_AppleMFiController	6	// Unused
 #constant k_ESteamInputType_AndroidController	7	// Unused

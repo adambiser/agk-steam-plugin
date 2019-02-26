@@ -194,8 +194,8 @@ Function GetInputTypeName(value as integer)
 		case k_ESteamInputType_XBoxOneController
 			ExitFunction "XBox One Controller"
 		endcase
-		case k_ESteamInputType_GenericXInput
-			ExitFunction "XInput Controller"
+		case k_ESteamInputType_GenericGamepad
+			ExitFunction "DirectX Controller"
 		endcase
 		case k_ESteamInputType_PS4Controller
 			ExitFunction "PS4 Controller"
