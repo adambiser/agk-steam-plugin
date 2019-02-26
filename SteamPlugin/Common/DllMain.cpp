@@ -135,11 +135,11 @@ InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 
 // Handles are 1-based!
 #define ValidateInputHandle(index, returnValue)		\
-	index--;												\
+	index--;										\
 	if (index < 0 || index >= m_InputCount)			\
-	{														\
-		agk::PluginError("Invalid input handle.");		\
-		return returnValue;									\
+	{												\
+		agk::PluginError("Invalid input handle.");	\
+		return returnValue;							\
 	}
 
 /*
@@ -215,22 +215,6 @@ bool ParseIP(const char *ipv4, uint32 *ip)
 
 #define ConvertIPToString(ip) ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff)
 
-//BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-//{
-//	switch (fdwReason)
-//	{
-//	case DLL_PROCESS_ATTACH:
-//		break;
-//	case DLL_THREAD_ATTACH:
-//		break;
-//	case DLL_THREAD_DETACH:
-//		break;
-//	case DLL_PROCESS_DETACH:
-//		break;
-//	}
-//	return TRUE;
-//}
-
 void ResetVariables()
 {
 
@@ -271,7 +255,7 @@ void Shutdown()
 	ResetVariables();
 	if (Steam)
 	{
-		delete[] Steam;
+		delete Steam;
 	}
 }
 
@@ -301,7 +285,7 @@ int RestartAppIfNecessary(int ownAppID)
 	}
 	if (doDelete)
 	{
-		delete[] Steam;
+		delete Steam;
 	}
 	return result;
 }
@@ -2713,4 +2697,21 @@ void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
 	Steam->TriggerVibration(m_InputHandles[hInput], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+{
+	switch (fdwReason)
+	{
+	case DLL_PROCESS_ATTACH:
+		break;
+	case DLL_THREAD_ATTACH:
+		break;
+	case DLL_THREAD_DETACH:
+		break;
+	case DLL_PROCESS_DETACH:
+		Shutdown();
+		break;
+	}
+	return TRUE;
 }
