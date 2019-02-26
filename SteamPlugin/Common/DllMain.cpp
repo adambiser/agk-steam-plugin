@@ -89,13 +89,6 @@ char *CreateString(const WCHAR* text)
 	size_t size;
 	wcstombs_s(&size, result, length, text, length);
 	return result;
-	//char *ctext = new char[length];
-	//size_t size;
-	//if (wcstombs_s(&size, ctext, length, text, length) == 0)
-	//{
-	//	
-	//}
-	//delete[] ctext;
 }
 
 

@@ -882,13 +882,13 @@ EndType
 #constant k_EInputSourceMode_RelativeMouse		5	
 #constant k_EInputSourceMode_JoystickMove		6	
 #constant k_EInputSourceMode_JoystickMouse		7	
-#constant k_EInputSourceMode_JoystickCamera	8	
+#constant k_EInputSourceMode_JoystickCamera		8	
 #constant k_EInputSourceMode_ScrollWheel		9	
 #constant k_EInputSourceMode_Trigger			10	
 #constant k_EInputSourceMode_TouchMenu			11	
 #constant k_EInputSourceMode_MouseJoystick		12	
 #constant k_EInputSourceMode_MouseRegion		13	
-#constant k_EInputSourceMode_RadialMenu		14	
+#constant k_EInputSourceMode_RadialMenu			14	
 #constant k_EInputSourceMode_SingleButton		15	
 #constant k_EInputSourceMode_Switches			16	
 
@@ -901,6 +901,15 @@ EndType
 #constant k_ESteamInputType_XBoxOneController	3	// Microsoft's XBox One Controller
 #constant k_ESteamInputType_GenericXInput		4	// Any generic 3rd-party XInput device
 #constant k_ESteamInputType_PS4Controller		5	// Sony's Playstation 4 Controller
+#constant k_ESteamInputType_AppleMFiController	6	// Unused
+#constant k_ESteamInputType_AndroidController	7	// Unused
+#constant k_ESteamInputType_SwitchJoyConPair	8	// Unused
+#constant k_ESteamInputType_SwitchJoyConSingle	9	// Unused
+#constant k_ESteamInputType_SwitchProController	10
+#constant k_ESteamInputType_MobileTouch			11	// Steam Link App On-screen Virtual Controller
+#constant k_ESteamInputType_PS3Controller		12	// Currently uses PS4 Origins
+#constant k_ESteamInputType_Count				13
+//#constant k_ESteamInputType_MaximumPossibleValue	255
 
 // ESteamControllerPad
 //--------------------------------------------------------------
