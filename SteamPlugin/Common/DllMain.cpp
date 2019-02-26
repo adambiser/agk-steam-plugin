@@ -77,6 +77,14 @@ char *CreateString(const char* text)
 	return result;
 }
 
+// This version also deletes the given text pointer.
+char *CreateStringEx(const char* text)
+{
+	char *result = CreateString(text);
+	delete[] text;
+	return result;
+}
+
 char *CreateString(std::string text)
 {
 	return CreateString(text.c_str());
@@ -90,7 +98,6 @@ char *CreateString(const WCHAR* text)
 	wcstombs_s(&size, result, length, text, length);
 	return result;
 }
-
 
 /*
 	CSteamID Handle Methods
@@ -253,10 +260,8 @@ Shuts down the plugin and frees memory.
 void Shutdown()
 {
 	ResetVariables();
-	if (Steam)
-	{
-		delete Steam;
-	}
+	delete Steam;
+	Steam = NULL;
 }
 
 /*
@@ -286,6 +291,7 @@ int RestartAppIfNecessary(int ownAppID)
 	if (doDelete)
 	{
 		delete Steam;
+		Steam = NULL;
 	}
 	return result;
 }
@@ -569,7 +575,7 @@ int GetAppOwner()
 char *GetAvailableGameLanguages()
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetAvailableGameLanguages());
+	return CreateStringEx(Steam->GetAvailableGameLanguages());
 }
 
 char *GetCurrentBetaName()
@@ -586,7 +592,7 @@ char *GetCurrentBetaName()
 char *GetCurrentGameLanguage()
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetCurrentGameLanguage());
+	return CreateStringEx(Steam->GetCurrentGameLanguage());
 }
 
 int GetDLCCount()
@@ -648,7 +654,7 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 char * GetLaunchQueryParam(const char *key)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetLaunchQueryParam(key));
+	return CreateStringEx(Steam->GetLaunchQueryParam(key));
 }
 
 int HasNewLaunchQueryParameters()
@@ -656,6 +662,12 @@ int HasNewLaunchQueryParameters()
 	CheckInitialized(false);
 	return Steam->HasNewLaunchQueryParameters();
 }
+
+//char *GetLaunchCommandLine()
+//{
+//	CheckInitialized(NULL_STRING);
+//	return CreateStringEx(Steam->GetLaunchCommandLine());
+//}
 
 int HasNewDLCInstalled()
 {
@@ -727,7 +739,7 @@ void ActivateGameOverlayToWebPage(const char *url)
 char *GetPersonaName()
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetPersonaName());
+	return CreateStringEx(Steam->GetPersonaName());
 }
 
 int GetSteamID()
@@ -896,7 +908,7 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 char *GetFriendPersonaName(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
+	return CreateStringEx(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
 }
 
 int GetFriendPersonaState(int hUserSteamID)
@@ -920,7 +932,7 @@ int GetFriendSteamLevel(int hUserSteamID)
 char *GetPlayerNickname(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
+	return CreateStringEx(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
 }
 
 int HasFriend(int hUserSteamID, int friendFlags)
@@ -975,7 +987,7 @@ char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array
 char *GetFriendsGroupName(int hFriendsGroupID)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetFriendsGroupName(hFriendsGroupID));
+	return CreateStringEx(Steam->GetFriendsGroupName(hFriendsGroupID));
 }
 
 int LoadImageFromHandle(int hImage)
@@ -1079,19 +1091,19 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 char *GetAchievementAPIName(int index)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetAchievementAPIName(index));
+	return CreateStringEx(Steam->GetAchievementAPIName(index));
 }
 
 char *GetAchievementDisplayName(const char *name)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetAchievementDisplayAttribute(name, "name"));
+	return CreateStringEx(Steam->GetAchievementDisplayAttribute(name, "name"));
 }
 
 char *GetAchievementDisplayDesc(const char *name)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetAchievementDisplayAttribute(name, "desc"));
+	return CreateStringEx(Steam->GetAchievementDisplayAttribute(name, "desc"));
 }
 
 int GetAchievementDisplayHidden(const char *name)
@@ -1253,7 +1265,7 @@ int GetLeaderboardHandle()
 char *GetLeaderboardName(int hLeaderboard)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetLeaderboardName(hLeaderboard));
+	return CreateStringEx(Steam->GetLeaderboardName(hLeaderboard));
 }
 
 int GetLeaderboardEntryCount(int hLeaderboard)
@@ -1582,7 +1594,7 @@ char *GetLobbyGameCreatedJSON()
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+	return CreateStringEx(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
 }
 
 int GetLobbyDataCount(int hLobbySteamID)
@@ -1672,7 +1684,7 @@ int GetLobbyDataUpdatedID()
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
+	return CreateStringEx(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
 }
 
 void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
@@ -1935,7 +1947,7 @@ int GetIPCCallCount()
 char *GetIPCountry()
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetIPCountry());
+	return CreateStringEx(Steam->GetIPCountry());
 }
 
 int GetSecondsSinceAppActive()
@@ -1959,7 +1971,7 @@ int GetServerRealTime()
 char *GetSteamUILanguage()
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetSteamUILanguage());
+	return CreateStringEx(Steam->GetSteamUILanguage());
 }
 
 int IsOverlayEnabled()
@@ -2208,7 +2220,7 @@ char * GetCloudFileName(int index)
 {
 	CheckInitialized(NULL_STRING);
 	int32 pnFileSizeInBytes;
-	return CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
+	return CreateStringEx(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
 }
 
 char *GetCloudFileListJSON()
@@ -2643,13 +2655,13 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 char *GetGlyphForActionOrigin(int eOrigin)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
+	return CreateStringEx(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 char *GetStringForActionOrigin(int eOrigin)
 {
 	CheckInitialized(NULL_STRING);
-	return CreateString(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
+	return CreateStringEx(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 /*
