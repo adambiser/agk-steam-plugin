@@ -1,5 +1,17 @@
 #option_explicit
 
+#constant OPEN_URL_BUTTON			1
+#constant OPEN_URL_MODAL_BUTTON		2
+
+global buttonText as string[1] = ["Open URL", "Open URL_(Modal)"]
+x as integer
+for x = 0 to buttonText.length
+	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
+	SetButtonEnabled(x + 1, 1)
+next
+
+#constant URL_TO_OPEN	"https://store.steampowered.com/developer/fascimania"
+
 infoTextID as integer
 infoTextID = CreateTextEx(0, 100, "")
 
@@ -42,6 +54,13 @@ loop
 Function CheckInput()
 	// Scrollable text.
 	PerformVerticalScroll(statusArea)
+	if GetVirtualButtonPressed(OPEN_URL_BUTTON)
+		AddStatus("Open URL")
+		Steam.ActivateGameOverlayToWebPage(URL_TO_OPEN)
+	elseif GetVirtualButtonPressed(OPEN_URL_MODAL_BUTTON)
+		AddStatus("Open URL Modal")
+		Steam.ActivateGameOverlayToWebPageModal(URL_TO_OPEN)
+	endif
 EndFunction
 
 //
