@@ -357,6 +357,12 @@ bool SteamPlugin::IsSubscribedApp(AppId_t appID)
 	return SteamApps()->BIsSubscribedApp(appID);
 }
 
+bool SteamPlugin::IsSubscribedFromFamilySharing()
+{
+	CheckInitialized(SteamApps, false);
+	return SteamApps()->BIsSubscribedFromFamilySharing();
+}
+
 bool SteamPlugin::IsSubscribedFromFreeWeekend()
 {
 	CheckInitialized(SteamApps, false);
@@ -454,6 +460,12 @@ bool SteamPlugin::HasNewLaunchQueryParameters()
 	return false;
 }
 
+int SteamPlugin::GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine)
+{
+	CheckInitialized(SteamApps, 0);
+	return SteamApps()->GetLaunchCommandLine(pchCommandLine, cubCommandLine);
+}
+
 void SteamPlugin::OnDlcInstalled(DlcInstalled_t *pParam)
 {
 	agk::Log("Callback: DLC Installed");
@@ -528,10 +540,10 @@ void SteamPlugin::ActivateGameOverlayToUser(const char *pchDialog, CSteamID stea
 	SteamFriends()->ActivateGameOverlayToUser(pchDialog, steamID);
 }
 
-void SteamPlugin::ActivateGameOverlayToWebPage(const char *pchURL)
+void SteamPlugin::ActivateGameOverlayToWebPage(const char *pchURL, EActivateGameOverlayToWebPageMode eMode)
 {
 	CheckInitialized(SteamFriends, );
-	SteamFriends()->ActivateGameOverlayToWebPage(pchURL);
+	SteamFriends()->ActivateGameOverlayToWebPage(pchURL, eMode);
 }
 
 const char *SteamPlugin::GetPersonaName()
@@ -1066,7 +1078,7 @@ bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 	}
 }
 
-const char * SteamPlugin::GetLeaderboardName(SteamLeaderboard_t hLeaderboard)
+const char *SteamPlugin::GetLeaderboardName(SteamLeaderboard_t hLeaderboard)
 {
 	if (!m_StatsInitialized || !hLeaderboard)
 	{
@@ -2363,6 +2375,30 @@ const char *SteamPlugin::GetStringForActionOrigin(EInputActionOrigin eOrigin)
 {
 	CheckInitialized(SteamInput, NULL);
 	return SteamInput()->GetStringForActionOrigin(eOrigin);
+}
+
+EInputActionOrigin SteamPlugin::GetActionOriginFromXboxOrigin(InputHandle_t inputHandle, EXboxOrigin eOrigin)
+{
+	CheckInitialized(SteamInput, k_EInputActionOrigin_None);
+	return SteamInput()->GetActionOriginFromXboxOrigin(inputHandle, eOrigin);
+}
+
+const char *SteamPlugin::GetStringForXboxOrigin(EXboxOrigin eOrigin)
+{
+	CheckInitialized(SteamInput, NULL);
+	return SteamInput()->GetStringForXboxOrigin(eOrigin);
+}
+
+const char *SteamPlugin::GetGlyphForXboxOrigin(EXboxOrigin eOrigin)
+{
+	CheckInitialized(SteamInput, NULL);
+	return SteamInput()->GetGlyphForXboxOrigin(eOrigin);
+}
+
+EInputActionOrigin SteamPlugin::TranslateActionOrigin(ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin)
+{
+	CheckInitialized(SteamInput, k_EInputActionOrigin_None);
+	return SteamInput()->TranslateActionOrigin(eDestinationInputType, eSourceOrigin);
 }
 
 /*

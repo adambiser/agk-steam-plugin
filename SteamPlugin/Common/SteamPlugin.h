@@ -225,22 +225,23 @@ public:
 	bool IsLowViolence();
 	bool IsSubscribed();
 	bool IsSubscribedApp(AppId_t appID);
+	bool IsSubscribedFromFamilySharing();
 	bool IsSubscribedFromFreeWeekend();
 	bool IsVACBanned();
 	int GetAppBuildId();
 	uint32 GetAppInstallDir(AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize);
 	CSteamID GetAppOwner();
-	const char * GetAvailableGameLanguages();
+	const char *GetAvailableGameLanguages();
 	bool GetCurrentBetaName(char *pchName, int cchNameBufferSize);
-	const char * GetCurrentGameLanguage();
+	const char *GetCurrentGameLanguage();
 	int GetDLCCount();
 	bool GetDlcDownloadProgress(AppId_t nAppID, uint64 *punBytesDownloaded, uint64 *punBytesTotal);
 	uint32 GetEarliestPurchaseUnixTime(AppId_t nAppID);
 	//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 	uint32 GetInstalledDepots(AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots);
-	const char * GetLaunchQueryParam(const char *pchKey);
+	const char *GetLaunchQueryParam(const char *pchKey);
 	bool HasNewLaunchQueryParameters();
-	// TODO GetLaunchCommandLine
+	int GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine);
 	bool HasNewDlcInstalled();
 	AppId_t GetNewDlcInstalled() { return m_NewDlcInstalled; }
 	void InstallDLC(AppId_t nAppID); // Triggers a DlcInstalled_t callback.
@@ -252,7 +253,7 @@ public:
 	void ActivateGameOverlayInviteDialog(CSteamID steamIDLobby);
 	void ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag);
 	void ActivateGameOverlayToUser(const char *pchDialog, CSteamID steamID);
-	void ActivateGameOverlayToWebPage(const char *pchURL);
+	void ActivateGameOverlayToWebPage(const char *pchURL, EActivateGameOverlayToWebPageMode eMode);
 	// User/Friend methods
 	const char *GetPersonaName();
 	//EPersonaState GetPersonaState();
@@ -518,6 +519,10 @@ public:
 	int GetDigitalActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
 	const char *GetGlyphForActionOrigin(EInputActionOrigin eOrigin);
 	const char *GetStringForActionOrigin(EInputActionOrigin eOrigin);
+	EInputActionOrigin GetActionOriginFromXboxOrigin(InputHandle_t inputHandle, EXboxOrigin eOrigin);
+	const char *GetStringForXboxOrigin(EXboxOrigin eOrigin);
+	const char *GetGlyphForXboxOrigin(EXboxOrigin eOrigin);
+	EInputActionOrigin TranslateActionOrigin(ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin);
 	/*
 	Input Effects
 	*/

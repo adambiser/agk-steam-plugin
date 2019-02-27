@@ -207,8 +207,12 @@ Once a post has been reported, this method returns 0 until another post arrives.
 @api ISteamApps#NewLaunchQueryParameters_t
 */
 extern "C" DLL_EXPORT int HasNewLaunchQueryParameters();
-// TODO GetLaunchCommandLine
-//extern "C" DLL_EXPORT char *GetLaunchCommandLine();
+/*
+@desc Gets the command line if game was launched via Steam URL, e.g. steam://run/<appid>//<command line>/.
+@return The command line if launched via Steam URL.
+@api ISteamApps#GetLaunchCommandLine
+*/
+extern "C" DLL_EXPORT char *GetLaunchCommandLine();
 /*
 @desc Checks whether the current App ID is for Cyber Cafes.
 @return 1 if a cyber cafe; otherwise 0.
@@ -234,7 +238,12 @@ Only use this if you need to check ownership of another game related to yours, a
 @api ISteamApps#BIsSubscribedApp
 */
 extern "C" DLL_EXPORT int IsSubscribedApp(int appID);
-// TODO BIsSubscribedFromFamilySharing
+/*
+@desc Check if user borrowed this game via Family Sharing, If true, call GetAppOwner() to get the lender SteamID
+@return 1 if the active user borrowed this game via Family Sharing; otherwise 0.
+@api ISteamApps#BIsSubscribedFromFamilySharing
+*/
+extern "C" DLL_EXPORT int IsSubscribedFromFamilySharing();
 /*
 @desc Checks if the user is subscribed to the current App ID through a free weekend.
 @return 1 if the active user is subscribed to the current App Id via a free weekend; otherwise 0 for any other kind of license.
@@ -380,14 +389,14 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *dialogName, int
 @param url The webpage to open. (A fully qualified address with the protocol is required.)
 @api ISteamFriends#ActivateGameOverlayToWebPage
 */
-// TODO 
-// k_EActivateGameOverlayToWebPageMode_Default = 0,		// Browser will open next to all other windows that the user has open in the overlay.
-//														// The window will remain open, even if the user closes then re-opens the overlay.
-//
-//	k_EActivateGameOverlayToWebPageMode_Modal = 1			// Browser will be opened in a special overlay configuration which hides all other windows
-//															// that the user has open in the overlay. When the user closes the overlay, the browser window
-//															// will also close. When the user closes the browser window, the overlay will automatically close.
 extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url);
+/*
+@desc Activates Steam Overlay web browser directly to the specified URL.
+The browser will be opened in a special overlay configuration which hides all other windows that the user has open in the overlay.
+@param url The webpage to open. (A fully qualified address with the protocol is required.)
+@api ISteamFriends#ActivateGameOverlayToWebPage
+*/
+extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url);
 /*
 @desc Sets the inset of the overlay notification from the corner specified by SetOverlayNotificationPosition.
 @param horizontalInset The horizontal (left-right) distance in pixels from the corner.
@@ -2333,8 +2342,6 @@ extern "C" DLL_EXPORT float GetMotionDataRotVelZ();
 /*
 	@page Input Action Origins
 */
-// TODO * Added GetActionOriginFromXboxOrigin, GetStringForXboxOrigin and GetGlyphForXboxOrigin to allow Xinput games to easily query glyphs for devices coming in through Steam Input’s Xinput emulation, ex: “A button”->”Cross button” on a PS4 controller. This is a simple translation of the button and does not take user remapping into account – the full action based API is required for that.
-// TODO * Added TranslateActionOrigin which allows Steam Input API games to which are using look up tables to translate action origins from an recognized device released after the game was last built into origins they recognize.
 /*
 @desc Get the origin(s) for an analog action within an action set by filling originsOut with EInputActionOrigin handles.
 Use this to display the appropriate on-screen prompt for the action.
@@ -2369,6 +2376,30 @@ extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
 @api ISteamController#GetStringForActionOrigin, ISteamController#EControllerActionOrigin
 */
 extern "C" DLL_EXPORT char * GetStringForActionOrigin(int eOrigin);
+/*
+
+@param-api eOrigin EXboxOrigin
+@api ISteamInput#GetActionOriginFromXboxOrigin, ISteamInput#EInputActionOrigin
+*/
+extern "C" DLL_EXPORT int GetActionOriginFromXboxOrigin(int hInput, int eOrigin);
+/*
+
+@param-api eOrigin EXboxOrigin
+@api ISteamInput#GetStringForXboxOrigin
+*/
+extern "C" DLL_EXPORT char *GetStringForXboxOrigin(int eOrigin);
+/*
+
+@param-api eOrigin EXboxOrigin
+@api ISteamInput#GetGlyphForXboxOrigin
+*/
+extern "C" DLL_EXPORT char *GetGlyphForXboxOrigin(int eOrigin);
+/*
+@param-api eDestinationInputType ISteamInput#ESteamInputType
+@param-api eSourceOrigin ISteamInput#EInputActionOrigin
+@api ISteamInput#TranslateActionOrigin, ISteamInput#EInputActionOrigin
+*/
+extern "C" DLL_EXPORT int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin);
 /*
 	@page Input Effects
 */

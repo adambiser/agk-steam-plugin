@@ -528,6 +528,12 @@ int IsSubscribedApp(int appID)
 	return Steam->IsSubscribedApp(appID);
 }
 
+int IsSubscribedFromFamilySharing()
+{
+	CheckInitialized(false);
+	return Steam->IsSubscribedFromFamilySharing();
+}
+
 int IsSubscribedFromFreeWeekend()
 {
 	CheckInitialized(false);
@@ -663,11 +669,14 @@ int HasNewLaunchQueryParameters()
 	return Steam->HasNewLaunchQueryParameters();
 }
 
-//char *GetLaunchCommandLine()
-//{
-//	CheckInitialized(NULL_STRING);
-//	return CreateStringEx(Steam->GetLaunchCommandLine());
-//}
+char *GetLaunchCommandLine()
+{
+	CheckInitialized(NULL_STRING);
+	char cmd[2084];
+	int length = Steam->GetLaunchCommandLine(cmd, 2084);
+	cmd[length] = 0;
+	return CreateString(cmd);
+}
 
 int HasNewDLCInstalled()
 {
@@ -733,7 +742,13 @@ void ActivateGameOverlayToUser(const char *dialogName, int hSteamID)
 void ActivateGameOverlayToWebPage(const char *url)
 {
 	CheckInitialized(NORETURN);
-	Steam->ActivateGameOverlayToWebPage(url);
+	Steam->ActivateGameOverlayToWebPage(url, k_EActivateGameOverlayToWebPageMode_Default);
+}
+
+void ActivateGameOverlayToWebPageModal(const char *url)
+{
+	CheckInitialized(NORETURN);
+	Steam->ActivateGameOverlayToWebPage(url, k_EActivateGameOverlayToWebPageMode_Modal);
 }
 
 char *GetPersonaName()
@@ -2662,6 +2677,31 @@ char *GetStringForActionOrigin(int eOrigin)
 {
 	CheckInitialized(NULL_STRING);
 	return CreateStringEx(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
+}
+
+int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
+{
+	ValidateInputHandle(hInput, k_EInputActionOrigin_None);
+	CheckInitialized(k_EInputActionOrigin_None);
+	return Steam->GetActionOriginFromXboxOrigin(m_InputHandles[hInput], (EXboxOrigin)eOrigin);
+}
+
+char *GetStringForXboxOrigin(int eOrigin)
+{
+	CheckInitialized(NULL_STRING);
+	return CreateStringEx(Steam->GetStringForXboxOrigin((EXboxOrigin)eOrigin));
+}
+
+char *GetGlyphForXboxOrigin(int eOrigin)
+{
+	CheckInitialized(NULL_STRING);
+	return CreateStringEx(Steam->GetGlyphForXboxOrigin((EXboxOrigin)eOrigin));
+}
+
+int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin)
+{
+	CheckInitialized(k_EInputActionOrigin_None);
+	return Steam->TranslateActionOrigin((ESteamInputType)eDestinationInputType,(EInputActionOrigin)eSourceOrigin);
 }
 
 /*
