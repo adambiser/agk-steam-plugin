@@ -5,6 +5,12 @@
 
 #import_plugin SteamPlugin As Steam
 
+// This is here only because the AppGameKit IDE deletes Steam files when the interpreter exits.
+#constant FILE_ATTRIBUTE_READONLY	1
+Steam.SetFileAttributes("steam_api.dll", FILE_ATTRIBUTE_READONLY)
+Steam.SetFileAttributes("steam_api64.dll", FILE_ATTRIBUTE_READONLY)
+Steam.SetFileAttributes("steam_appid.txt", FILE_ATTRIBUTE_READONLY)
+
 // Uncommenting these lines forces the app to be run through the Steam client (a simple DRM).
 // Note that the existence of the steam_appid.txt file will cause this to always return 0 (useful for development).
 //~ if Steam.RestartAppIfNecessary(480) // 480 is your game's appid.

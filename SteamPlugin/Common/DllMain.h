@@ -132,6 +132,15 @@ _Note: This command is not part of the Steam API, but is included as a convenien
 @return 1 when Steam emulation is detected, otherwise 0.
 */
 extern "C" DLL_EXPORT int IsSteamEmulated();
+/*
+@desc Sets the attributes of a file.
+This is only included to help with development because the AppGameKit IDE deletes Steam files 
+in the project folder when the interpreter exits.
+@param filename The name of the file whose attributes are to be set.
+@param attributes The file attributes to set for the file.
+*/
+#undef SetFileAttributes
+extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.

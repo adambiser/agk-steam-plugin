@@ -431,6 +431,12 @@ int IsSteamEmulated()
 	return emulated;
 }
 
+#undef SetFileAttributes
+int SetFileAttributes(const char *filename, int attributes)
+{
+	return SetFileAttributesA(filename, attributes);
+}
+
 // App/DLC methods
 char *GetDLCDataJSON()
 {
