@@ -132,14 +132,15 @@ _Note: This command is not part of the Steam API, but is included as a convenien
 @return 1 when Steam emulation is detected, otherwise 0.
 */
 extern "C" DLL_EXPORT int IsSteamEmulated();
+#undef SetFileAttributes
 /*
 @desc Sets the attributes of a file.
 This is only included to help with development because the AppGameKit IDE deletes Steam files 
 in the project folder when the interpreter exits.
 @param filename The name of the file whose attributes are to be set.
 @param attributes The file attributes to set for the file.
+@return 1 if successful; otherwise, 0.
 */
-#undef SetFileAttributes
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes);
 /* @page App Information */
 /*
@@ -2386,26 +2387,45 @@ extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
 */
 extern "C" DLL_EXPORT char * GetStringForActionOrigin(int eOrigin);
 /*
+@desc Get the equivalent ActionOrigin for a given Xbox controller origin.
+This can be chained with GetGlyphForActionOrigin to provide future proof glyphs for non-Steam Input API action games.
 
-@param-api eOrigin EXboxOrigin
+Note - this only translates the buttons directly and doesn't take into account any remapping a user has made in their configuration
+@param hInput The handle of the input you want to query.
+@param eOrigin The Xbox controller origin.
+@param-api eOrigin ISteamInput#EXboxOrigin
+@return The ActionOrigin for a given Xbox controller origin.
 @api ISteamInput#GetActionOriginFromXboxOrigin, ISteamInput#EInputActionOrigin
 */
 extern "C" DLL_EXPORT int GetActionOriginFromXboxOrigin(int hInput, int eOrigin);
 /*
-
-@param-api eOrigin EXboxOrigin
+@desc Returns a localized string (from Steam's language setting) for the specified Xbox controller origin.
+@param eOrigin The Xbox controller origin.
+@param-api eOrigin ISteamInput#EXboxOrigin
+@return The localized string for the specified Xbox controller origin.
 @api ISteamInput#GetStringForXboxOrigin
 */
 extern "C" DLL_EXPORT char *GetStringForXboxOrigin(int eOrigin);
 /*
-
-@param-api eOrigin EXboxOrigin
+@desc Returns the local path to art for the on-screen glyph for a particular Xbox controller origin.
+@param eOrigin The Xbox controller origin.
+@param-api eOrigin ISteamInput#EXboxOrigin
+@return The path to art for the on-screen glyph for a particular Xbox controller origin.
 @api ISteamInput#GetGlyphForXboxOrigin
 */
 extern "C" DLL_EXPORT char *GetGlyphForXboxOrigin(int eOrigin);
 /*
+@desc Convert an origin to another controller type.
+For inputs not present on the other controller type this will return k_EInputActionOrigin_None.
+
+When a new input type is added you will be able to pass in k_ESteamInputType_Unknown amd the closest 
+origin that your version of the SDK regonized will be returned
+ex: if a Playstation 5 controller was released this function would return Playstation 4 origins.
+@param eDestinationInputType The input type to convert from.
 @param-api eDestinationInputType ISteamInput#ESteamInputType
+@param eSourceOrigin The action origin to convert from.
 @param-api eSourceOrigin ISteamInput#EInputActionOrigin
+@return The action origin for the destination input type.
 @api ISteamInput#TranslateActionOrigin, ISteamInput#EInputActionOrigin
 */
 extern "C" DLL_EXPORT int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin);
