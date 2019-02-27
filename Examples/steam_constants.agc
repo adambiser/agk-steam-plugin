@@ -892,6 +892,38 @@ EndType
 #constant k_EInputSourceMode_SingleButton		15	
 #constant k_EInputSourceMode_Switches			16	
 
+// EXboxOrigin
+//--------------------------------------------------------------
+#constant k_EXboxOrigin_A						0
+#constant k_EXboxOrigin_B						1
+#constant k_EXboxOrigin_X						2
+#constant k_EXboxOrigin_Y						3
+#constant k_EXboxOrigin_LeftBumper				4
+#constant k_EXboxOrigin_RightBumper				5
+#constant k_EXboxOrigin_Menu					6	//Start
+#constant k_EXboxOrigin_View					7	//Back
+#constant k_EXboxOrigin_LeftTrigger_Pull		8
+#constant k_EXboxOrigin_LeftTrigger_Click		9
+#constant k_EXboxOrigin_RightTrigger_Pull		10
+#constant k_EXboxOrigin_RightTrigger_Click		11
+#constant k_EXboxOrigin_LeftStick_Move			12
+#constant k_EXboxOrigin_LeftStick_Click			13
+#constant k_EXboxOrigin_LeftStick_DPadNorth		14
+#constant k_EXboxOrigin_LeftStick_DPadSouth		15
+#constant k_EXboxOrigin_LeftStick_DPadWest		16
+#constant k_EXboxOrigin_LeftStick_DPadEast		17
+#constant k_EXboxOrigin_RightStick_Move			18
+#constant k_EXboxOrigin_RightStick_Click		19
+#constant k_EXboxOrigin_RightStick_DPadNorth	20
+#constant k_EXboxOrigin_RightStick_DPadSouth	21
+#constant k_EXboxOrigin_RightStick_DPadWest		22
+#constant k_EXboxOrigin_RightStick_DPadEast		23
+#constant k_EXboxOrigin_DPad_North				24
+#constant k_EXboxOrigin_DPad_South				25
+#constant k_EXboxOrigin_DPad_West				26
+#constant k_EXboxOrigin_DPad_East				27
+#constant k_EXboxOrigin_Count					28
+
 // ESteamInputType
 //--------------------------------------------------------------
 // Represents the device model for a given piece of hardware.
