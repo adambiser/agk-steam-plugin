@@ -117,14 +117,14 @@ CSteamID GetSteamID(int handle)
 
 int GetSteamIDHandle(CSteamID steamID)
 {
-	int index = std::find(m_CSteamIDs.begin(), m_CSteamIDs.end(), steamID) - m_CSteamIDs.begin();
+	int index = (int)(std::find(m_CSteamIDs.begin(), m_CSteamIDs.end(), steamID) - m_CSteamIDs.begin());
 	if (index < (int) m_CSteamIDs.size())
 	{
 		// Handles are 1-based!
 		return index;
 	}
 	m_CSteamIDs.push_back(steamID);
-	return m_CSteamIDs.size() - 1;
+	return (int)m_CSteamIDs.size() - 1;
 }
 
 void ClearSteamIDHandleList()
@@ -179,14 +179,14 @@ std::vector <InputAnalogActionHandle_t> m_AnalogActionHandles;
 template <typename T>
 inline int GetActionHandleIndex(T handle, std::vector<T> *vector)
 {
-	int index = std::find(vector->begin(), vector->end(), handle) - vector->begin();
+	int index = (int)(std::find(vector->begin(), vector->end(), handle) - vector->begin());
 	if (index < (int)vector->size())
 	{
 		// Handles are 1-based!
 		return index;
 	}
 	vector->push_back(handle);
-	return vector->size() - 1;
+	return (int)vector->size() - 1;
 }
 
 void ClearActionSetHandleList()
