@@ -10,7 +10,7 @@ This plugin currently has Windows 32-bit and Windows 64-bit versions only.
 
 * [AppGameKit](https://www.appgamekit.com/) for developing your game.
 * [Visual Studio 2015 Community Edition](https://www.visualstudio.com/vs/older-downloads/) was used to compile the plugin.
-* [Steamworks SDK](https://partner.steamgames.com) v1.42 was used when compiling.
+* [Steamworks SDK](https://partner.steamgames.com) v1.43 was used when compiling.
 
 ### Installing and Using the Plugin
 

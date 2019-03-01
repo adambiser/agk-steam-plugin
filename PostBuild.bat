@@ -1,14 +1,27 @@
 @ECHO OFF
 REM This is needed for errorlevel to work in the for loop, also need ! instead of %.
 setlocal EnableDelayedExpansion
+REM Needed for IF DEFINED.
+setlocal EnableExtensions
+
+REM Must be run from the batch file's path.
+cd /d %~dp0
 
 if [%1] == [] goto :blankparam
 if [%2] == [] goto :blankparam
 
 SET PLUGIN_NAME=%~n1
 
-REM Must be run from the batch file's path.
-cd /d %~dp0
+SET DEBUGTEST=%1
+if not x%DEBUGTEST:Debug=%==x%DEBUGTEST% SET DEBUG_MODE=1
+IF DEFINED DEBUG_MODE ECHO DEBUG MODE!
+
+if "%2" == "Windows" (
+	SET CONFIGURATION=release
+	IF DEFINED DEBUG_MODE SET CONFIGURATION=debug
+	ECHO Building 64-bit plugin: !CONFIGURATION!
+	C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe "%PLUGIN_NAME%\Windows\%PLUGIN_NAME%.vcxproj" /p:configuration=!CONFIGURATION! /p:platform=x64
+)
 
 REM Determine the path to the compiler.
 REM Start by finding the path to the AGK editor using the AGK File type association.
@@ -41,10 +54,30 @@ echo Plugin path: !AGK_PLUGIN_PATH!
 echo Plugin name: %PLUGIN_NAME%
 echo Plugin OS: %2
 
-echo Copying plugin into AppGameKit plugin folder.
-MkDir "%AGK_PLUGIN_PATH%"
-Copy "%1" "AGKPlugin\%PLUGIN_NAME%\%2.dll"
-COPY "AGKPlugin\%PLUGIN_NAME%" "%AGK_PLUGIN_PATH%" > nul
+echo Creating plugin folders.
+if not exist "AGKPlugin" MkDir "AGKPlugin"
+if not exist "AGKPlugin\%PLUGIN_NAME%" MkDir "AGKPlugin\%PLUGIN_NAME%"
+if not exist "%AGK_PLUGIN_PATH%" MkDir "%AGK_PLUGIN_PATH%"
+
+REM Commands.txt needs to exist.
+if not exist "AGKPlugin\%PLUGIN_NAME%\Commands.txt" (
+	echo ERROR: "AGKPlugin\%PLUGIN_NAME%\Commands.txt" does not exist.
+	exit /B 3
+)
+
+echo Copying plugin into the AppGameKit compiler's plugin folder.
+Copy /Y "%1" "AGKPlugin\%PLUGIN_NAME%\%2.dll" > nul
+Copy /Y "AGKPlugin\%PLUGIN_NAME%\Commands.txt" "%AGK_PLUGIN_PATH%\Commands.txt" > nul
+Copy /Y "AGKPlugin\%PLUGIN_NAME%\Windows.dll" "%AGK_PLUGIN_PATH%\Windows.dll" > nul
+Copy /Y "AGKPlugin\%PLUGIN_NAME%\Windows64.dll" "%AGK_PLUGIN_PATH%\Windows64.dll" > nul
+REM debug symbols
+IF DEFINED DEBUG_MODE (
+	Copy /Y "%~dpn1.pdb" "AGKPlugin\%PLUGIN_NAME%\Windows.pdb" > nul
+) else (
+	if exist "AGKPlugin\%PLUGIN_NAME%\Windows.pdb" (
+		Del "AGKPlugin\%PLUGIN_NAME%\Windows.pdb"
+	)
+)
 
 echo Compiling example projects.
 for /D %%G in ("Examples\*") do (
@@ -55,6 +88,14 @@ for /D %%G in ("Examples\*") do (
 	"%AGK_COMPILER_PATH%" -agk "main.agc"
 	if !errorlevel! neq 0 echo ERROR: "%%G" compilation failed!
 	popd
+	REM Copy the PDB after compiling.  Compiling will create the Plugins folder if it's not there already.
+	IF DEFINED DEBUG_MODE (
+		Copy /Y "%~dpn1.pdb" "%%G\Plugins\%PLUGIN_NAME%\Windows.pdb" > nul
+	) else (
+		if exist "%%G\Plugins\%PLUGIN_NAME%\Windows.pdb" (
+			Del "%%G\Plugins\%PLUGIN_NAME%\Windows.pdb"
+		)
+	)
 )
 
 exit /B 0

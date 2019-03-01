@@ -42,6 +42,8 @@ AddStatus("Subscribed From Free Weekend: " + TF(Steam.IsSubscribedFromFreeWeeken
 AddStatus("DLC Count: " + str(Steam.GetDLCCount()))
 AddStatus("DLC Data JSON: " + Steam.GetDLCDataJSON())
 AddStatus("GetLaunchQueryParam at startup.  param1 = " + Steam.GetLaunchQueryParam("param1"))
+AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
+
 
 // For reference: https://steamdb.info/app/480/
 // GetDLCDataJSON is the same as using GetDLCDataByIndexJSON for indices 0 to GetDLCCount.
@@ -86,7 +88,7 @@ Function CheckInput()
 	PerformVerticalScroll(statusArea)
 	if GetVirtualButtonPressed(RUN_480_BUTTON)
 		AddStatus("Calling Steam run 480 url")
-		OpenBrowser("steam://run/480//?param1=value1")
+		OpenBrowser("steam://run/480//?param1=value1&param2=value2")
 	endif
 	for x = 0 to dlcAppIDs.length
 		if GetVirtualButtonPressed(DLC_START_BUTTON + x)
@@ -135,6 +137,7 @@ Function ProcessCallbacks()
 	x as integer
 	If Steam.HasNewLaunchQueryParameters() // Reports when a steam://run/ command is called while running.
 		AddStatus("HasNewLaunchQueryParameters.  param1 = " + Steam.GetLaunchQueryParam("param1"))
+		AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
 	endif
 	// Check the status of uninstalling DLCs.
 	// DLCs appear to uninstall when the app exits.

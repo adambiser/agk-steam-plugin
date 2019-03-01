@@ -14,6 +14,7 @@ RunCallbacks,0,0,RunCallbacks,0,0,0,0,RunCallbacks
 GetCommandLineArgsJSON,S,0,GetCommandLineArgsJSON,0,0,0,0,GetCommandLineArgsJSON
 GetSteamPath,S,0,GetSteamPath,0,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,IsSteamEmulated
+SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
 # App/DLC methods
 #
@@ -40,6 +41,7 @@ GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,GetEarliestP
 GetInstalledDepotsJSON,S,II,GetInstalledDepotsJSON,0,0,0,0,GetInstalledDepotsJSON
 GetLaunchQueryParam,S,S,GetLaunchQueryParam,0,0,0,0,GetLaunchQueryParam
 HasNewLaunchQueryParameters,I,0,HasNewLaunchQueryParameters,0,0,0,0,HasNewLaunchQueryParameters
+GetLaunchCommandLine,S,0,GetLaunchCommandLine,0,0,0,0,GetLaunchCommandLine
 HasNewDLCInstalled,I,0,HasNewDLCInstalled,0,0,0,0,HasNewDLCInstalled
 GetNewDLCInstalled,I,0,GetNewDLCInstalled,0,0,0,0,GetNewDLCInstalled
 InstallDLC,0,I,InstallDLC,0,0,0,0,InstallDLC
@@ -54,6 +56,7 @@ ActivateGameOverlayInviteDialog,0,I,ActivateGameOverlayInviteDialog,0,0,0,0,Acti
 ActivateGameOverlayToStore,0,II,ActivateGameOverlayToStore,0,0,0,0,ActivateGameOverlayToStore
 ActivateGameOverlayToUser,0,SI,ActivateGameOverlayToUser,0,0,0,0,ActivateGameOverlayToUser
 ActivateGameOverlayToWebPage,0,S,ActivateGameOverlayToWebPage,0,0,0,0,ActivateGameOverlayToWebPage
+ActivateGameOverlayToWebPageModal,0,S,ActivateGameOverlayToWebPageModal,0,0,0,0,ActivateGameOverlayToWebPageModal
 #
 # User/Friend methods
 #
@@ -337,18 +340,18 @@ SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,SetCloudFileSyn
 #SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
 #int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 #
-# Controllers
+# Input
 #
-InitSteamController,I,0,InitSteamController,0,0,0,0,InitSteamController
-ShutdownSteamController,I,0,ShutdownSteamController,0,0,0,0,ShutdownSteamController
+InitSteamInput,I,0,InitSteamInput,0,0,0,0,InitSteamInput
+ShutdownSteamInput,I,0,ShutdownSteamInput,0,0,0,0,ShutdownSteamInput
 GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,GetConnectedControllers
 GetInputTypeForHandle,I,I,GetInputTypeForHandle,0,0,0,0,GetInputTypeForHandle
-#GetControllerForGamepadIndex
+#GetInputForGamepadIndex
 #GetGamepadIndexForController
 RunFrame,0,0,RunFrame,0,0,0,0,RunFrame
 ShowBindingPanel,I,I,ShowBindingPanel,0,0,0,0,ShowBindingPanel
 #
-# Controllers: Action Sets and Layers
+# Input Action Sets and Layers
 #
 ActivateActionSet,0,II,ActivateActionSet,0,0,0,0,ActivateActionSet
 GetActionSetHandle,I,S,GetActionSetHandle,0,0,0,0,GetActionSetHandle
@@ -358,7 +361,7 @@ DeactivateActionSetLayer,0,II,DeactivateActionSetLayer,0,0,0,0,DeactivateActionS
 DeactivateAllActionSetLayers,0,I,DeactivateAllActionSetLayers,0,0,0,0,DeactivateAllActionSetLayers
 GetActiveActionSetLayersJSON,S,I,GetActiveActionSetLayersJSON,0,0,0,0,GetActiveActionSetLayersJSON
 #
-# Controllers: Actions and Motion
+# Input Actions and Motion
 #
 GetAnalogActionData,0,II,GetAnalogActionData,0,0,0,0,GetAnalogActionData
 GetAnalogActionDataActive,I,0,GetAnalogActionDataActive,0,0,0,0,GetAnalogActionDataActive
@@ -383,17 +386,21 @@ GetMotionDataRotVelX,F,0,GetMotionDataRotVelX,0,0,0,0,GetMotionDataRotVelX
 GetMotionDataRotVelY,F,0,GetMotionDataRotVelY,0,0,0,0,GetMotionDataRotVelY
 GetMotionDataRotVelZ,F,0,GetMotionDataRotVelZ,0,0,0,0,GetMotionDataRotVelZ
 #
-# Controllers: Action Origins
+# Input Action Origins
 #
 GetAnalogActionOriginsJSON,S,III,GetAnalogActionOriginsJSON,0,0,0,0,GetAnalogActionOriginsJSON
 GetDigitalActionOriginsJSON,S,III,GetDigitalActionOriginsJSON,0,0,0,0,GetDigitalActionOriginsJSON
 GetGlyphForActionOrigin,S,I,GetGlyphForActionOrigin,0,0,0,0,GetGlyphForActionOrigin
 GetStringForActionOrigin,S,I,GetStringForActionOrigin,0,0,0,0,GetStringForActionOrigin
+GetActionOriginFromXboxOrigin,I,II,GetActionOriginFromXboxOrigin,0,0,0,0,GetActionOriginFromXboxOrigin
+GetStringForXboxOrigin,S,I,GetStringForXboxOrigin,0,0,0,0,GetStringForXboxOrigin
+GetGlyphForXboxOrigin,S,I,GetGlyphForXboxOrigin,0,0,0,0,GetGlyphForXboxOrigin
+TranslateActionOrigin,I,II,TranslateActionOrigin,0,0,0,0,TranslateActionOrigin
 #
-# Controllers: Effects
+# Input Effects
 #
-SetControllerLEDColor,0,IIII,SetControllerLEDColor,0,0,0,0,SetControllerLEDColor
-ResetControllerLEDColor,0,I,ResetControllerLEDColor,0,0,0,0,ResetControllerLEDColor
-TriggerControllerHapticPulse,0,III,TriggerControllerHapticPulse,0,0,0,0,TriggerControllerHapticPulse
-TriggerControllerRepeatedHapticPulse,0,IIIII,TriggerControllerRepeatedHapticPulse,0,0,0,0,TriggerControllerRepeatedHapticPulse
-TriggerControllerVibration,0,III,TriggerControllerVibration,0,0,0,0,TriggerControllerVibration
+SetInputLEDColor,0,IIII,SetInputLEDColor,0,0,0,0,SetInputLEDColor
+ResetInputLEDColor,0,I,ResetInputLEDColor,0,0,0,0,ResetInputLEDColor
+TriggerInputHapticPulse,0,III,TriggerInputHapticPulse,0,0,0,0,TriggerInputHapticPulse
+TriggerInputRepeatedHapticPulse,0,IIIII,TriggerInputRepeatedHapticPulse,0,0,0,0,TriggerInputRepeatedHapticPulse
+TriggerInputVibration,0,III,TriggerInputVibration,0,0,0,0,TriggerInputVibration
