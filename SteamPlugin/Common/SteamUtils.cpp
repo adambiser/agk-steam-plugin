@@ -1,5 +1,7 @@
 #include "SteamPlugin.h"
 
+#define MEMBLOCK_IMAGE_HEADER_LENGTH	12
+
 int SteamPlugin::GetAppID()
 {
 	CheckInitialized(SteamUtils, 0);
@@ -29,14 +31,15 @@ int SteamPlugin::LoadImageFromHandle(int imageID, int hImage)
 	uint8 *imageBuffer = new uint8[imageSizeInBytes];
 	if (SteamUtils()->GetImageRGBA(hImage, imageBuffer, imageSizeInBytes))
 	{
-		unsigned int memID = agk::CreateMemblock(imageSizeInBytes + 4 * 3);
+		unsigned int memID = agk::CreateMemblock(imageSizeInBytes + MEMBLOCK_IMAGE_HEADER_LENGTH);
 		agk::SetMemblockInt(memID, 0, width);
 		agk::SetMemblockInt(memID, 4, height);
 		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
-		for (int index = 0, offset = 12; index < imageSizeInBytes; index++, offset++)
-		{
-			agk::SetMemblockByte(memID, offset, imageBuffer[index]);
-		}
+		memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
+		//for (int index = 0, offset = 12; index < imageSizeInBytes; index++, offset++)
+		//{
+		//	agk::SetMemblockByte(memID, offset, imageBuffer[index]);
+		//}
 		if (imageID)
 		{
 			agk::CreateImageFromMemblock(imageID, memID);

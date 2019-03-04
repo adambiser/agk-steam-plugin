@@ -1180,7 +1180,7 @@ int(*AGKCommand1173)( unsigned int ) = 0;
 //int(*AGKCommand1177)( unsigned int, unsigned int ) = 0;
 //float(*AGKCommand1178)( unsigned int, unsigned int ) = 0;
 //char*(*AGKCommand1179)( unsigned int, unsigned int, unsigned int ) = 0;
-void(*AGKCommand1180)( unsigned int, unsigned int, int ) = 0;
+//void(*AGKCommand1180)( unsigned int, unsigned int, int ) = 0;
 //void(*AGKCommand1181)( unsigned int, unsigned int, int ) = 0;
 //void(*AGKCommand1182)( unsigned int, unsigned int, int ) = 0;
 void(*AGKCommand1183)( unsigned int, unsigned int, int ) = 0;
@@ -3077,7 +3077,7 @@ extern "C" DLL_EXPORT void ReceiveAGKPtr( AGKVoidFunc ptr )
 	//AGKCommand1177 = (int(*)(unsigned int,unsigned int)) GetAGKFunction( "GETMEMBLOCKINT_L_L_L" );
 	//AGKCommand1178 = (float(*)(unsigned int,unsigned int)) GetAGKFunction( "GETMEMBLOCKFLOAT_F_L_L" );
 	//AGKCommand1179 = (char*(*)(unsigned int,unsigned int,unsigned int)) GetAGKFunction( "GETMEMBLOCKSTRING_S_L_L_L" );
-	AGKCommand1180 = (void(*)(unsigned int,unsigned int,int)) GetAGKFunction( "SETMEMBLOCKBYTE_0_L_L_L" );
+	//AGKCommand1180 = (void(*)(unsigned int,unsigned int,int)) GetAGKFunction( "SETMEMBLOCKBYTE_0_L_L_L" );
 	//AGKCommand1181 = (void(*)(unsigned int,unsigned int,int)) GetAGKFunction( "SETMEMBLOCKBYTESIGNED_0_L_L_L" );
 	//AGKCommand1182 = (void(*)(unsigned int,unsigned int,int)) GetAGKFunction( "SETMEMBLOCKSHORT_0_L_L_L" );
 	AGKCommand1183 = (void(*)(unsigned int,unsigned int,int)) GetAGKFunction( "SETMEMBLOCKINT_0_L_L_L" );
