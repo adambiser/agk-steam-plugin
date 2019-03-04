@@ -41,12 +41,13 @@ static SteamPlugin *Steam;
 Check to see if the SteamPlugin has been initialized.
 If it has not been, return a default value.
 */
-#define CheckInitialized(returnValue)	\
+#define CheckInitializedPlugin(returnValue)	\
 	if (!Steam)							\
 	{									\
 		return returnValue;				\
 	}
-// Token for passing an empty returnValue into CheckInitialized();
+
+// Token for passing an empty returnValue into CheckInitializedPlugin();
 #define NORETURN
 #define NULL_STRING CreateString((const char *)NULL)
 
@@ -272,7 +273,7 @@ When it has, this method returns 1.  Otherwise 0 is returned.
 */
 int SteamInitialized()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SteamInitialized();
 }
 
@@ -302,7 +303,7 @@ Returns the AppID or 0 if the Steam API has not been not initialized or the AppI
 */
 int GetAppID()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetAppID();
 }
 
@@ -324,20 +325,20 @@ Returns 1 when logged into Steam.  Otherise returns 0.
 */
 int LoggedOn()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->LoggedOn();
 }
 
 int IsSteamIDValid(int hSteamID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	CSteamID steamID = GetSteamID(hSteamID);
 	return steamID.IsValid();
 }
 
 int GetHandleFromSteamID64(const char *steamID64)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	uint64 id = _atoi64(steamID64);
 	return GetSteamIDHandle(CSteamID(id));
 }
@@ -348,7 +349,7 @@ Should be used in conjunction with RequestStats and StoreStats to ensure the cal
 */
 void RunCallbacks()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->RunCallbacks();
 }
 
@@ -501,67 +502,67 @@ char *GetDLCDataByIndexJSON(int index)
 
 int IsAppInstalled(int appID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsAppInstalled(appID);
 }
 
 int IsCybercafe()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsCybercafe();
 }
 
 int IsDLCInstalled(int appID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsDlcInstalled(appID);
 }
 
 int IsLowViolence()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsLowViolence();
 }
 
 int IsSubscribed()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsSubscribed();
 }
 
 int IsSubscribedApp(int appID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsSubscribedApp(appID);
 }
 
 int IsSubscribedFromFamilySharing()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsSubscribedFromFamilySharing();
 }
 
 int IsSubscribedFromFreeWeekend()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsSubscribedFromFreeWeekend();
 }
 
 int IsVACBanned()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsVACBanned();
 }
 
 int GetAppBuildID()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->GetAppBuildId();
 }
 
 char *GetAppInstallDir(int appID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	char folder[MAX_PATH];
 	uint32 length = Steam->GetAppInstallDir(appID, folder, sizeof(folder));
 	if (length)
@@ -581,19 +582,19 @@ char *GetAppInstallDir(int appID)
 
 int GetAppOwner()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return GetSteamIDHandle(Steam->GetAppOwner());
 }
 
 char *GetAvailableGameLanguages()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetAvailableGameLanguages());
 }
 
 char *GetCurrentBetaName()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	char name[256];
 	if (Steam->GetCurrentBetaName(name, sizeof(name)))
 	{
@@ -604,13 +605,13 @@ char *GetCurrentBetaName()
 
 char *GetCurrentGameLanguage()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetCurrentGameLanguage());
 }
 
 int GetDLCCount()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->GetDLCCount();
 }
 
@@ -636,7 +637,7 @@ char *GetDLCDownloadProgressJSON(int appID)
 
 int GetEarliestPurchaseUnixTime(int appID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->GetEarliestPurchaseUnixTime(appID);
 }
 
@@ -666,19 +667,19 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 
 char * GetLaunchQueryParam(const char *key)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetLaunchQueryParam(key));
 }
 
 int HasNewLaunchQueryParameters()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasNewLaunchQueryParameters();
 }
 
 char *GetLaunchCommandLine()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	char cmd[2084];
 	int length = Steam->GetLaunchCommandLine(cmd, 2084);
 	cmd[length] = 0;
@@ -687,92 +688,92 @@ char *GetLaunchCommandLine()
 
 int HasNewDLCInstalled()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasNewDlcInstalled();
 }
 
 int GetNewDLCInstalled()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetNewDlcInstalled();
 }
 
 void InstallDLC(int appID) // Triggers a DlcInstalled_t callback.
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->InstallDLC(appID);
 }
 
 int MarkContentCorrupt(int missingFilesOnly)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->MarkContentCorrupt(missingFilesOnly != 0);
 }
 
 void UninstallDLC(int appID)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->UninstallDLC(appID);
 }
 
 // Overlay methods
 int IsGameOverlayActive()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsGameOverlayActive();
 }
 
 void ActivateGameOverlay(const char *dialogName)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->ActivateGameOverlay(dialogName);
 }
 
 void ActivateGameOverlayInviteDialog(int hLobbySteamID)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->ActivateGameOverlayInviteDialog(GetSteamID(hLobbySteamID));
 }
 
 void ActivateGameOverlayToStore(int appID, int flag)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->ActivateGameOverlayToStore(appID, (EOverlayToStoreFlag)flag);
 }
 
 void ActivateGameOverlayToUser(const char *dialogName, int hSteamID)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->ActivateGameOverlayToUser(dialogName, GetSteamID(hSteamID));
 }
 
 void ActivateGameOverlayToWebPage(const char *url)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->ActivateGameOverlayToWebPage(url, k_EActivateGameOverlayToWebPageMode_Default);
 }
 
 void ActivateGameOverlayToWebPageModal(const char *url)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->ActivateGameOverlayToWebPage(url, k_EActivateGameOverlayToWebPageMode_Modal);
 }
 
 char *GetPersonaName()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetPersonaName());
 }
 
 int GetSteamID()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetSteamID());
 }
 
 int GetAccountID(int hUserSteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	CSteamID steamID = GetSteamID(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
@@ -783,7 +784,7 @@ int GetAccountID(int hUserSteamID)
 
 char *GetSteamID3(int hUserSteamID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	CSteamID steamID = GetSteamID(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
@@ -825,7 +826,7 @@ char *GetSteamID3(int hUserSteamID)
 
 char *GetSteamID64(int hUserSteamID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
 	_i64toa(GetSteamID(hUserSteamID).ConvertToUint64(), id64, 10);
 	return CreateString(id64);
@@ -833,55 +834,55 @@ char *GetSteamID64(int hUserSteamID)
 
 int HasPersonaStateChanged()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasPersonaStateChanged();
 }
 
 int GetPersonaStateChangedUser()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetPersonaStateChangedUser());
 }
 
 int GetPersonaStateChangedFlags()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetPersonaStateChangedFlags();
 }
 
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->RequestUserInformation(GetSteamID(hUserSteamID), requireNameOnly != 0);
 }
 
 int HasAvatarImageLoaded()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasAvatarImageLoaded();
 }
 
 int GetAvatarImageLoadedUser()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetAvatarImageLoadedUser());
 }
 
 int GetFriendAvatar(int hUserSteamID, int size)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFriendAvatar(GetSteamID(hUserSteamID), (EAvatarSize)size);
 }
 
 int GetFriendCount(int friendFlags)
 {
-	CheckInitialized(-1);
+	CheckInitializedPlugin(-1);
 	return Steam->GetFriendCount((EFriendFlags)friendFlags);
 }
 
 int GetFriendByIndex(int index, int friendFlags)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetFriendByIndex(index, (EFriendFlags)friendFlags));
 }
 
@@ -929,55 +930,55 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 
 char *GetFriendPersonaName(int hUserSteamID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
 }
 
 int GetFriendPersonaState(int hUserSteamID)
 {
-	CheckInitialized(-1);
+	CheckInitializedPlugin(-1);
 	return Steam->GetFriendPersonaState(GetSteamID(hUserSteamID));
 }
 
 int GetFriendRelationship(int hUserSteamID)
 {
-	CheckInitialized(-1);
+	CheckInitializedPlugin(-1);
 	return Steam->GetFriendRelationship(GetSteamID(hUserSteamID));
 }
 
 int GetFriendSteamLevel(int hUserSteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFriendSteamLevel(GetSteamID(hUserSteamID));
 }
 
 char *GetPlayerNickname(int hUserSteamID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
 }
 
 int HasFriend(int hUserSteamID, int friendFlags)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasFriend(GetSteamID(hUserSteamID), (EFriendFlags)friendFlags);
 }
 
 int GetFriendsGroupCount()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFriendsGroupCount();
 }
 
 int GetFriendsGroupIDByIndex(int index)
 {
-	CheckInitialized(k_FriendsGroupID_Invalid);
+	CheckInitializedPlugin(k_FriendsGroupID_Invalid);
 	return Steam->GetFriendsGroupIDByIndex(index);
 }
 
 int GetFriendsGroupMembersCount(int hFriendsGroupID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFriendsGroupMembersCount(hFriendsGroupID);
 }
 
@@ -1008,19 +1009,19 @@ char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array
 
 char *GetFriendsGroupName(int hFriendsGroupID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetFriendsGroupName(hFriendsGroupID));
 }
 
 int LoadImageFromHandle(int hImage)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->LoadImageFromHandle(hImage);
 }
 
 void LoadImageIDFromHandle(int imageID, int hImage)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->LoadImageFromHandle(imageID, hImage);
 }
 
@@ -1031,13 +1032,13 @@ Use StatsInitialized() to determine when user stats are initialized.
 */
 int RequestStats()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->RequestStats();
 }
 
 int GetRequestStatsCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetRequestStatsCallbackState();
 }
 
@@ -1046,7 +1047,7 @@ Returns 1 when user stats are initialized.  Otherwise, returns 0.
 */
 int StatsInitialized()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->StatsInitialized();
 }
 
@@ -1057,7 +1058,7 @@ Use StatsStored() to determine when user stats have been stored.
 */
 int StoreStats()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->StoreStats();
 }
 
@@ -1067,13 +1068,13 @@ Should generally only be used while testing.
 */
 int ResetAllStats(int achievementsToo)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->ResetAllStats(achievementsToo != 0);
 }
 
 int GetStoreStatsCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetStoreStatsCallbackState();
 }
 
@@ -1082,7 +1083,7 @@ Returns 1 when user stats have been stored since the last StoreStats call.  Othe
 */
 int StatsStored()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->StatsStored();
 }
 
@@ -1091,7 +1092,7 @@ Returns 1 when an achievement has been stored since the last StoreStats call.  O
 */
 int AchievementStored()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->AchievementStored();
 }
 
@@ -1101,7 +1102,7 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 */
 int GetNumAchievements()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetNumAchievements();
 }
 
@@ -1112,31 +1113,31 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 */
 char *GetAchievementAPIName(int index)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetAchievementAPIName(index));
 }
 
 char *GetAchievementDisplayName(const char *name)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetAchievementDisplayAttribute(name, "name"));
 }
 
 char *GetAchievementDisplayDesc(const char *name)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetAchievementDisplayAttribute(name, "desc"));
 }
 
 int GetAchievementDisplayHidden(const char *name)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return (strcmp(Steam->GetAchievementDisplayAttribute(name, "hidden"), "1") == 0);
 }
 
 int GetAchievementIcon(const char *name)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetAchievementIcon(name);
 }
 
@@ -1148,7 +1149,7 @@ If the call fails, 0 is returned and the error is reported to the AGK interprete
 */
 int GetAchievement(const char *name)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	bool result = false;
 	if (Steam->GetAchievement(name, &result))
 	{
@@ -1160,7 +1161,7 @@ int GetAchievement(const char *name)
 
 int GetAchievementUnlockTime(const char *name)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	bool pbAchieved;
 	uint32 punUnlockTime;
 	if (SteamUserStats()->GetAchievementAndUnlockTime(name, &pbAchieved, &punUnlockTime))
@@ -1180,7 +1181,7 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 */
 int SetAchievement(const char *name)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SetAchievement(name);
 }
 
@@ -1191,7 +1192,7 @@ SetStat still needs to be used to set the progress stat value.
 */
 int IndicateAchievementProgress(const char *name, int curProgress, int maxProgress)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IndicateAchievementProgress(name, curProgress, maxProgress);
 }
 
@@ -1202,7 +1203,7 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 */
 int ClearAchievement(const char *name)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->ClearAchievement(name);
 }
 
@@ -1212,7 +1213,7 @@ If there is a problem, 0 is returned and the error is reported to the AGK interp
 */
 int GetStatInt(const char *name)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	int result = 0;
 	if (Steam->GetStat(name, &result)) {
 		return result;
@@ -1227,7 +1228,7 @@ If there is a problem, 0 is returned and the error is reported to the AGK interp
 */
 float GetStatFloat(const char *name)
 {
-	CheckInitialized(0.0);
+	CheckInitializedPlugin(0.0);
 	float result = 0.0;
 	if (Steam->GetStat(name, &result)) {
 		return result;
@@ -1242,7 +1243,7 @@ Returns 1 if the call succeeds.  Otherwise returns 0.
 */
 int SetStatInt(const char *name, int value)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SetStat(name, value);
 }
 
@@ -1252,7 +1253,7 @@ Returns 1 if the call succeeds.  Otherwise returns 0.
 */
 int SetStatFloat(const char *name, float value)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SetStat(name, value);
 }
 
@@ -1262,289 +1263,289 @@ Returns 1 if the call succeeds.  Otherwise returns 0.
 */
 int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLength)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->UpdateAvgRateStat(name, countThisSession, (double)sessionLength);
 }
 
 int FindLeaderboard(const char *leaderboardName)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->FindLeaderboard(leaderboardName);
 }
 
 int GetFindLeaderboardCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetFindLeaderboardCallbackState();
 }
 
 int GetLeaderboardHandle()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return (int) Steam->GetLeaderboardHandle();
 }
 
 char *GetLeaderboardName(int hLeaderboard)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetLeaderboardName(hLeaderboard));
 }
 
 int GetLeaderboardEntryCount(int hLeaderboard)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLeaderboardEntryCount(hLeaderboard);
 }
 
 int GetLeaderboardDisplayType(int hLeaderboard)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLeaderboardDisplayType(hLeaderboard);
 }
 
 int GetLeaderboardSortMethod(int hLeaderboard)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLeaderboardSortMethod(hLeaderboard);
 }
 
 // TODO Adde force parameter and allow for a data memblock of integers.
 int UploadLeaderboardScore(int hLeaderboard, int score)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score);
 }
 
 int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
 }
 
 int GetUploadLeaderboardScoreCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetUploadLeaderboardScoreCallbackState();
 }
 
 int LeaderboardScoreStored()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->LeaderboardScoreStored();
 }
 
 int LeaderboardScoreChanged()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->LeaderboardScoreChanged();
 }
 
 int GetLeaderboardUploadedScore()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLeaderboardUploadedScore();
 }
 
 int GetLeaderboardGlobalRankNew()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLeaderboardGlobalRankNew();
 }
 
 int GetLeaderboardGlobalRankPrevious()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLeaderboardGlobalRankPrevious();
 }
 
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->DownloadLeaderboardEntries(hLeaderboard, (ELeaderboardDataRequest) eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 }
 
 int GetDownloadLeaderboardEntriesCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetDownloadLeaderboardEntriesCallbackState();
 }
 
 int GetDownloadedLeaderboardEntryCount()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetDownloadedLeaderboardEntryCount();
 }
 
 int GetDownloadedLeaderboardEntryGlobalRank(int index)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetDownloadedLeaderboardEntryGlobalRank(index);
 }
 
 int GetDownloadedLeaderboardEntryScore(int index)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetDownloadedLeaderboardEntryScore(index);
 }
 
 int GetDownloadedLeaderboardEntryUser(int index)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(index));
 }
 
 void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->AddRequestLobbyListDistanceFilter((ELobbyDistanceFilter)eLobbyDistanceFilter);
 }
 
 void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->AddRequestLobbyListFilterSlotsAvailable(slotsAvailable);
 }
 
 void AddRequestLobbyListNearValueFilter(const char *keyToMatch, int valueToBeCloseTo)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->AddRequestLobbyListNearValueFilter(keyToMatch, valueToBeCloseTo);
 }
 
 void AddRequestLobbyListNumericalFilter(const char *keyToMatch, int valueToMatch, int eComparisonType)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->AddRequestLobbyListNumericalFilter(keyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
 }
 
 void AddRequestLobbyListResultCountFilter(int maxResults)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->AddRequestLobbyListResultCountFilter(maxResults);
 }
 
 void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueToMatch, int eComparisonType)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->AddRequestLobbyListStringFilter(keyToMatch, valueToMatch, (ELobbyComparison)eComparisonType);
 }
 
 int RequestLobbyList()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->RequestLobbyList();
 }
 
 int GetLobbyMatchListCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetLobbyMatchListCallbackState();
 }
 
 int GetLobbyMatchListCount() {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyMatchListCount();
 }
 
 int GetLobbyByIndex(int index)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyByIndex(index));
 }
 
 int CreateLobby(int eLobbyType, int maxMembers)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
 }
 
 int GetLobbyCreateCallbackState()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyCreateCallbackState();
 }
 
 int GetLobbyCreatedID()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyCreatedID());
 }
 
 int GetLobbyCreatedResult()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyCreatedResult();
 }
 
 //int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
 //{
-//	CheckInitialized(false);
+//	CheckInitializedPlugin(false);
 //	return Steam->SetLinkedLobby(GetSteamID(hLobbySteamID), GetSteamID(hLobbyDependentSteamID));
 //}
 
 int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SetLobbyJoinable(GetSteamID(hLobbySteamID), lobbyJoinable != 0);
 }
 
 int SetLobbyType(int hLobbySteamID, int eLobbyType)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SetLobbyType(GetSteamID(hLobbySteamID), (ELobbyType)eLobbyType);
 }
 
 int JoinLobby(int hLobbySteamID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->JoinLobby(GetSteamID(hLobbySteamID));
 }
 
 int GetLobbyEnterCallbackState()
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetLobbyEnterCallbackState();
 }
 
 int GetLobbyEnterID()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyEnterID());
 }
 
 int GetLobbyEnterBlocked()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->GetLobbyEnterBlocked();
 }
 
 int GetLobbyEnterResponse()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyEnterResponse();
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->InviteUserToLobby(GetSteamID(hLobbySteamID), GetSteamID(hInviteeSteamID));
 }
 
 int HasGameLobbyJoinRequest()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->HasGameLobbyJoinRequest();
 }
 
 int GetGameLobbyJoinRequestedLobby()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetGameLobbyJoinRequestedLobby());
 }
 
 void LeaveLobby(int hLobbySteamID)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->LeaveLobby(GetSteamID(hLobbySteamID));
 }
 
@@ -1572,7 +1573,7 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 
 int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	if (gameServerPort < 0 || gameServerPort > 0xffff)
 	{
 		agk::PluginError("SetLobbyGameServer: Invalid game server port.");
@@ -1589,7 +1590,7 @@ int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServ
 
 int HasLobbyGameCreated()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasLobbyGameCreated();
 }
 
@@ -1615,13 +1616,13 @@ char *GetLobbyGameCreatedJSON()
 // Lobby methods: Data
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
 }
 
 int GetLobbyDataCount(int hLobbySteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyDataCount(GetSteamID(hLobbySteamID));
 }
 
@@ -1645,7 +1646,7 @@ char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
 
 char *GetLobbyDataJSON(int hLobbySteamID)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
 	std::ostringstream json;
 	json << "[";
@@ -1669,127 +1670,127 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 
 void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
 }
 
 int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
 }
 
 int RequestLobbyData(int hLobbySteamID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->RequestLobbyData(GetSteamID(hLobbySteamID));
 }
 
 int HasLobbyDataUpdated()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasLobbyDataUpdated();
 }
 
 int GetLobbyDataUpdatedLobby()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyDataUpdatedLobby());
 }
 
 int GetLobbyDataUpdatedID()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyDataUpdatedID());
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
 }
 
 void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
 }
 
 int GetLobbyOwner(int hLobbySteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyOwner(GetSteamID(hLobbySteamID)));
 }
 
 int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->SetLobbyOwner(GetSteamID(hLobbySteamID), GetSteamID(hNewOwnerSteamID));
 }
 
 int GetLobbyMemberLimit(int hLobbySteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyMemberLimit(GetSteamID(hLobbySteamID));
 }
 
 int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->SetLobbyMemberLimit(GetSteamID(hLobbySteamID), maxMembers);
 }
 
 int GetNumLobbyMembers(int hLobbySteamID)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetNumLobbyMembers(GetSteamID(hLobbySteamID));
 }
 
 int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), index));
 }
 
 int HasLobbyChatUpdate()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasLobbyChatUpdate();
 }
 
 int GetLobbyChatUpdateUserChanged()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserChanged());
 }
 
 int GetLobbyChatUpdateUserState()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetLobbyChatUpdateUserState();
 }
 
 int GetLobbyChatUpdateUserMakingChange()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
 }
 
 int HasLobbyChatMessage()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasLobbyChatMessage();
 }
 
 int GetLobbyChatMessageUser()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetSteamIDHandle(Steam->GetLobbyChatMessageUser());
 }
 
 char *GetLobbyChatMessageText()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	char msg[4096];
 	Steam->GetLobbyChatMessageText(msg);
 	return CreateString(msg);
@@ -1797,14 +1798,14 @@ char *GetLobbyChatMessageText()
 
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->SendLobbyChatMessage(GetSteamID(hLobbySteamID), msg);
 }
 
 // Lobby methods: Favorite games
 int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags) //, int time32LastPlayedOnServer)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	if (connectPort < 0 || connectPort > 0xffff)
 	{
 		agk::PluginError("AddFavoriteGame: Invalid connection port.");
@@ -1827,7 +1828,7 @@ int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort,
 
 int GetFavoriteGameCount()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFavoriteGameCount();
 }
 
@@ -1859,7 +1860,7 @@ char *GetFavoriteGameJSON(int index)
 
 int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	if (connectPort < 0 || connectPort > 0xffff)
 	{
 		agk::PluginError("RemoveFavoriteGame: Invalid connection port.");
@@ -1880,7 +1881,7 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 
 //char *GetPublicIP()
 //{
-//	CheckInitialized(NULL_STRING);
+//	CheckInitializedPlugin(NULL_STRING);
 //	uint32 ip = Steam->GetPublicIP();
 //	std::ostringstream ipc;
 //	ipc << ConvertIPToString(ip);
@@ -1889,171 +1890,171 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 
 int IsMusicEnabled()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->IsMusicEnabled();
 }
 
 int IsMusicPlaying()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->IsMusicPlaying();
 }
 
 int GetMusicPlaybackStatus()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetMusicPlaybackStatus();
 }
 
 float GetMusicVolume()
 {
-	CheckInitialized(0.0);
+	CheckInitializedPlugin(0.0);
 	return Steam->GetMusicVolume();
 }
 
 void PauseMusic()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->PauseMusic();
 }
 
 void PlayMusic()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->PlayMusic();
 }
 
 void PlayNextSong()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->PlayNextSong();
 }
 
 void PlayPreviousSong()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->PlayPreviousSong();
 }
 
 void SetMusicVolume(float volume)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->SetMusicVolume(volume);
 }
 
 int HasMusicPlaybackStatusChanged()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->HasMusicPlaybackStatusChanged();
 }
 
 int HasMusicVolumeChanged()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->HasMusicVolumeChanged();
 }
 
 // Util methods
 int GetCurrentBatteryPower()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetCurrentBatteryPower();
 }
 
 int GetIPCCallCount()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetIPCCallCount();
 }
 
 char *GetIPCountry()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetIPCountry());
 }
 
 int GetSecondsSinceAppActive()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetSecondsSinceAppActive();
 }
 
 int GetSecondsSinceComputerActive()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetSecondsSinceComputerActive();
 }
 
 int GetServerRealTime()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetServerRealTime();
 }
 
 char *GetSteamUILanguage()
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetSteamUILanguage());
 }
 
 int IsOverlayEnabled()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->IsOverlayEnabled();
 }
 
 void SetOverlayNotificationInset(int horizontalInset, int verticalInset)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->SetOverlayNotificationInset(horizontalInset, verticalInset);
 }
 
 void SetOverlayNotificationPosition(int eNotificationPosition)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->SetOverlayNotificationPosition((ENotificationPosition) eNotificationPosition);
 }
 
 int HasIPCountryChanged()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasIPCountryChanged();
 }
 
 int HasLowBatteryWarning()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->HasLowBatteryWarning();
 }
 
 int GetMinutesBatteryLeft()
 {
-	CheckInitialized(255);
+	CheckInitializedPlugin(255);
 	return Steam->GetMinutesBatteryLeft();
 }
 
 int IsSteamShuttingDown()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsSteamShuttingDown();
 }
 
 void SetWarningMessageHook()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->SetWarningMessageHook();
 }
 
 // Big Picture methods
 int IsSteamInBigPictureMode()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->IsSteamInBigPictureMode();
 }
 
 int HasGamepadTextInputDismissedInfo()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->HasGamepadTextInputDismissedInfo();
 }
 
@@ -2078,82 +2079,82 @@ char *GetGamepadTextInputDismissedInfoJSON()
 
 int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
 // VR Methods
 int IsSteamRunningInVR()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsSteamRunningInVR();
 }
 
 void StartVRDashboard()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->StartVRDashboard();
 }
 
 void SetVRHeadsetStreamingEnabled(int enabled)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->SetVRHeadsetStreamingEnabled(enabled != 0);
 }
 
 int IsVRHeadsetStreamingEnabled()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsVRHeadsetStreamingEnabled();
 }
 
 // Cloud methods: Information
 int IsCloudEnabledForAccount()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsCloudEnabledForAccount();
 }
 
 int IsCloudEnabledForApp()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->IsCloudEnabledForApp();
 }
 
 void SetCloudEnabledForApp(int enabled)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	return Steam->SetCloudEnabledForApp(enabled != 0);
 }
 
 // Cloud methods: Files
 int CloudFileDelete(const char *filename)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->FileDelete(filename);
 }
 
 int CloudFileExists(const char *filename)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->FileExists(filename);
 }
 
 int CloudFileForget(const char *filename)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->FileForget(filename);
 }
 
 int CloudFilePersisted(const char *filename)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->FilePersisted(filename);
 }
 
 int CloudFileRead(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	int fileSize = Steam->GetFileSize(filename);
 	unsigned int memblock = agk::CreateMemblock(fileSize);
 	if (Steam->FileRead(filename, agk::GetMemblockPtr(memblock), fileSize))
@@ -2166,7 +2167,7 @@ int CloudFileRead(const char *filename)
 
 int CloudFileReadAsync(const char *filename, int offset, int length)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	if (length == -1)
 	{
 		length = Steam->GetFileSize(filename);
@@ -2176,19 +2177,19 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 
 int GetCloudFileReadAsyncCallbackState(const char *filename)
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetFileReadAsyncCallbackState(filename);
 }
 
 int GetCloudFileReadAsyncResult(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFileReadAsyncResult(filename);
 }
 
 int GetCloudFileReadAsyncMemblock(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFileReadAsyncMemblock(filename);
 }
 
@@ -2197,7 +2198,7 @@ int GetCloudFileReadAsyncMemblock(const char *filename)
 
 int CloudFileWrite(const char *filename, int memblockID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	if (agk::GetMemblockExists(memblockID))
 	{
 		return Steam->FileWrite(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
@@ -2207,7 +2208,7 @@ int CloudFileWrite(const char *filename, int memblockID)
 
 int CloudFileWriteAsync(const char *filename, int memblockID)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	if (agk::GetMemblockExists(memblockID))
 	{
 		return Steam->FileWriteAsync(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
@@ -2217,13 +2218,13 @@ int CloudFileWriteAsync(const char *filename, int memblockID)
 
 int GetCloudFileWriteAsyncCallbackState(const char *filename)
 {
-	CheckInitialized(ClientError);
+	CheckInitializedPlugin(ClientError);
 	return Steam->GetFileWriteAsyncCallbackState(filename);
 }
 
 int GetCloudFileWriteAsyncResult(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return (int)Steam->GetFileWriteAsyncResult(filename);
 }
 
@@ -2234,13 +2235,13 @@ int GetCloudFileWriteAsyncResult(const char *filename)
 
 int GetCloudFileCount()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFileCount();
 }
 
 char * GetCloudFileName(int index)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	int32 pnFileSizeInBytes;
 	return CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
 }
@@ -2280,20 +2281,20 @@ char *GetCloudFileListJSON()
 
 int GetCloudFileSize(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetFileSize(filename);
 }
 
 int GetCloudFileTimestamp(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	// NOTE: Dangerous conversion int64 to int.
 	return (int) Steam->GetFileTimestamp(filename);
 }
 
 int GetCloudQuotaAvailable()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	uint64 pnTotalBytes;
 	uint64 puAvailableBytes;
 	if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
@@ -2306,7 +2307,7 @@ int GetCloudQuotaAvailable()
 
 int GetCloudQuotaTotal()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	uint64 pnTotalBytes;
 	uint64 puAvailableBytes;
 	if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
@@ -2337,13 +2338,13 @@ char *GetCloudQuotaJSON()
 
 int GetCloudFileSyncPlatforms(const char *filename)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetSyncPlatforms(filename);
 }
 
 int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->SetSyncPlatforms(filename, (ERemoteStoragePlatform) eRemoteStoragePlatform);
 }
 
@@ -2351,7 +2352,7 @@ int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 
 int GetCachedUGCCount()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->GetCachedUGCCount();
 }
 
@@ -2367,39 +2368,39 @@ Input Information
 */
 int InitSteamInput()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->InitSteamInput();
 }
 
 int ShutdownSteamInput()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->ShutdownSteamInput();
 }
 
 int GetConnectedControllers()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	m_InputCount = Steam->GetConnectedControllers(m_InputHandles);
 	return m_InputCount;
 }
 
 int GetInputTypeForHandle(int hInput)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	ValidateInputHandle(hInput, k_ESteamInputType_Unknown);
 	return Steam->GetInputTypeForHandle(m_InputHandles[hInput]);
 }
 
 void RunFrame()
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	Steam->RunFrame();
 }
 
 int ShowBindingPanel(int hInput)
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	ValidateInputHandle(hInput, false);
 	return Steam->ShowBindingPanel(m_InputHandles[hInput]);
 }
@@ -2410,7 +2411,7 @@ Input Action Sets and Layers
 
 void ActivateActionSet(int hInput, int hActionSet)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
 	Steam->ActivateActionSet(m_InputHandles[hInput], actionSetHandle);
@@ -2418,20 +2419,20 @@ void ActivateActionSet(int hInput, int hActionSet)
 
 int GetActionSetHandle(const char *actionSetName)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetActionHandleIndex(Steam->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
 }
 
 int GetCurrentActionSet(int hInput)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	ValidateInputHandle(hInput, false);
 	return GetActionHandleIndex(Steam->GetCurrentActionSet(m_InputHandles[hInput]), &m_ActionSetHandles);
 }
 
 void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
 	Steam->ActivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
@@ -2439,7 +2440,7 @@ void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 
 void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
 	Steam->DeactivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
@@ -2447,14 +2448,14 @@ void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 
 void DeactivateAllActionSetLayers(int hInput)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Steam->DeactivateAllActionSetLayers(m_InputHandles[hInput]);
 }
 
 char *GetActiveActionSetLayersJSON(int hInput)
 {
-	CheckInitialized(CreateString("[]"));
+	CheckInitializedPlugin(CreateString("[]"));
 	ValidateInputHandle(hInput, CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
@@ -2482,7 +2483,7 @@ Input Actions and Motion
 */
 void GetAnalogActionData(int hInput, int hAnalogAction)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
 	Steam->GetAnalogActionData(m_InputHandles[hInput], analogActionHandle);
@@ -2490,38 +2491,38 @@ void GetAnalogActionData(int hInput, int hAnalogAction)
 
 int GetAnalogActionDataActive()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_AnalogActionData.bActive;
 }
 
 int GetAnalogActionDataMode()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_AnalogActionData.eMode;
 }
 
 // TODO Add a per-Input dead zone.
 float GetAnalogActionDataX()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_AnalogActionData.x;
 }
 
 float GetAnalogActionDataY()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_AnalogActionData.y;
 }
 
 int GetAnalogActionHandle(const char *actionName)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetActionHandleIndex(Steam->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
 }
 
 void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
 	Steam->StopAnalogActionMomentum(m_InputHandles[hInput], analogActionHandle);
@@ -2529,7 +2530,7 @@ void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 
 void GetDigitalActionData(int hInput, int hDigitalAction)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
 	Steam->GetDigitalActionData(m_InputHandles[hInput], digitalActionHandle);
@@ -2537,86 +2538,86 @@ void GetDigitalActionData(int hInput, int hDigitalAction)
 
 int GetDigitalActionDataActive()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->m_DigitalActionData.bActive;
 }
 
 int GetDigitalActionDataState()
 {
-	CheckInitialized(false);
+	CheckInitializedPlugin(false);
 	return Steam->m_DigitalActionData.bState;
 }
 
 int GetDigitalActionHandle(const char *actionName)
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
 }
 
 void GetMotionData(int hInput)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Steam->GetMotionData(m_InputHandles[hInput]);
 }
 
 float GetMotionDataPosAccelX()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.posAccelX;
 }
 
 float GetMotionDataPosAccelY()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.posAccelY;
 }
 
 float GetMotionDataPosAccelZ()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.posAccelZ;
 }
 
 float GetMotionDataRotQuatW()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotQuatW;
 }
 
 float GetMotionDataRotQuatX()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotQuatX;
 }
 
 float GetMotionDataRotQuatY()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotQuatY;
 }
 
 float GetMotionDataRotQuatZ()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotQuatZ;
 }
 
 float GetMotionDataRotVelX()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotVelX;
 }
 
 float GetMotionDataRotVelY()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotVelY;
 }
 
 float GetMotionDataRotVelZ()
 {
-	CheckInitialized(0);
+	CheckInitializedPlugin(0);
 	return Steam->m_MotionData.rotVelZ;
 }
 
@@ -2676,38 +2677,38 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 
 char *GetGlyphForActionOrigin(int eOrigin)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 char *GetStringForActionOrigin(int eOrigin)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 {
 	ValidateInputHandle(hInput, k_EInputActionOrigin_None);
-	CheckInitialized(k_EInputActionOrigin_None);
+	CheckInitializedPlugin(k_EInputActionOrigin_None);
 	return Steam->GetActionOriginFromXboxOrigin(m_InputHandles[hInput], (EXboxOrigin)eOrigin);
 }
 
 char *GetStringForXboxOrigin(int eOrigin)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetStringForXboxOrigin((EXboxOrigin)eOrigin));
 }
 
 char *GetGlyphForXboxOrigin(int eOrigin)
 {
-	CheckInitialized(NULL_STRING);
+	CheckInitializedPlugin(NULL_STRING);
 	return CreateString(Steam->GetGlyphForXboxOrigin((EXboxOrigin)eOrigin));
 }
 
 int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin)
 {
-	CheckInitialized(k_EInputActionOrigin_None);
+	CheckInitializedPlugin(k_EInputActionOrigin_None);
 	return Steam->TranslateActionOrigin((ESteamInputType)eDestinationInputType,(EInputActionOrigin)eSourceOrigin);
 }
 
@@ -2716,7 +2717,7 @@ Input Effects
 */
 void SetInputLEDColor(int hInput, int red, int green, int blue)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(red, 0, UINT8_MAX);
 	Clamp(green, 0, UINT8_MAX);
@@ -2726,14 +2727,14 @@ void SetInputLEDColor(int hInput, int red, int green, int blue)
 
 void ResetInputLEDColor(int hInput)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Steam->SetLEDColor(m_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
 }
 
 void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(duration, 0, USHRT_MAX);
 	Steam->TriggerHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
@@ -2741,7 +2742,7 @@ void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 
 void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(onDuration, 0, USHRT_MAX);
 	Clamp(offDuration, 0, USHRT_MAX);
@@ -2751,7 +2752,7 @@ void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration,
 
 void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 {
-	CheckInitialized(NORETURN);
+	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);

@@ -204,7 +204,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Common\SteamApps.cpp" />
+    <ClCompile Include="..\Common\SteamFriends.cpp" />
+    <ClCompile Include="..\Common\SteamInput.cpp" />
+    <ClCompile Include="..\Common\SteamMatchmaking.cpp" />
+    <ClCompile Include="..\Common\SteamMusic.cpp" />
     <ClCompile Include="..\Common\SteamPlugin.cpp" />
+    <ClCompile Include="..\Common\SteamRemoteStorage.cpp" />
+    <ClCompile Include="..\Common\SteamUser.cpp" />
+    <ClCompile Include="..\Common\SteamUserStats.cpp" />
+    <ClCompile Include="..\Common\SteamUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />

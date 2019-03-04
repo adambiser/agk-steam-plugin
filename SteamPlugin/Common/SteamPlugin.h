@@ -27,11 +27,17 @@ THE SOFTWARE.
 #include <map>
 #include <list>
 #include <vector>
-//#include <thread>
 #include <mutex>
-#include "DllMain.h"
 #include "CFileWriteAsyncItem.h"
 #include "CFileReadAsyncItem.h"
+
+#if defined(_WINDOWS)
+#if defined(_WIN64)
+#pragma comment(lib, "steam_api64.lib")
+#else
+#pragma comment(lib, "steam_api.lib")
+#endif
+#endif
 
 #define MAX_LEADERBOARD_ENTRIES 10
 #define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
@@ -42,6 +48,13 @@ enum EAvatarSize
 	Medium = 1,
 	Large = 2
 };
+
+#define CheckInitialized(steamInterface, returnValue)				\
+	if (!m_SteamInitialized || (NULL == steamInterface()))			\
+	{																\
+		agk::PluginError("Steam API has not been initialized.");	\
+		return returnValue;											\
+	}
 
 class SteamPlugin
 {
@@ -212,11 +225,25 @@ public:
 	bool Init();
 	void Shutdown();
 	bool SteamInitialized() { return m_SteamInitialized; }
-	bool RestartAppIfNecessary(uint32 unOwnAppID);
+	bool RestartAppIfNecessary(uint32 unOwnAppID)
+	{
+		return SteamAPI_RestartAppIfNecessary(unOwnAppID);
+	}
 	int GetAppID();
-	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax);
+	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
+	{
+		CheckInitialized(SteamAppList, 0);
+		return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
+	}
 	bool LoggedOn();
-	void RunCallbacks();
+	void RunCallbacks()
+	{
+		if (!m_SteamInitialized)
+		{
+			return;
+		}
+		SteamAPI_RunCallbacks();
+	}
 	// App/DLC methods
 	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
 	bool IsAppInstalled(AppId_t appID);
