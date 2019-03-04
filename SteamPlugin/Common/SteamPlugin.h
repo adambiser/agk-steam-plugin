@@ -39,7 +39,6 @@ THE SOFTWARE.
 #endif
 #endif
 
-#define MAX_LEADERBOARD_ENTRIES 10
 #define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
 
 enum EAvatarSize
@@ -110,8 +109,7 @@ private:
 	ECallbackState m_DownloadLeaderboardEntriesCallbackState;
 	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
 	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_CallResultDownloadScore;
-	int m_DownloadedLeaderboardEntryCount;
-	LeaderboardEntry_t m_DownloadedLeaderboardEntries[MAX_LEADERBOARD_ENTRIES];
+	std::vector<LeaderboardEntry_t> m_DownloadedLeaderboardEntries;
 	// Lobby methods: List
 	ECallbackState m_LobbyMatchListCallbackState;
 	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
@@ -360,7 +358,7 @@ public:
 	// Downloading entries.
 	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 	ECallbackState GetDownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
-	int GetDownloadedLeaderboardEntryCount() { return m_DownloadedLeaderboardEntryCount; }
+	int GetDownloadedLeaderboardEntryCount() { return (int)m_DownloadedLeaderboardEntries.size(); }
 	int GetDownloadedLeaderboardEntryGlobalRank(int index);
 	int GetDownloadedLeaderboardEntryScore(int index);
 	CSteamID GetDownloadedLeaderboardEntryUser(int index);

@@ -27,7 +27,7 @@ Type SteamServerInfo
 EndType
 
 // Additional UI for this demo.
-#constant ENTRIES_PER_PAGE		10 // Plugin has a limit of 10 downloaded entries.
+#constant ENTRIES_PER_PAGE		10
 #constant AVATAR_SIZE			32
 
 //~ CreateTextEx(0, 80, "Click an icon to toggle the achievement.")
@@ -290,7 +290,7 @@ Function ProcessCallbacks()
 				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
 				//~ AddStatus("Downloading user rank.")
 			elseif server.downloadPage
-				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobal, server.currentStartEntryNumber, server.currentStartEntryNumber + 10 - 1)
+				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobal, server.currentStartEntryNumber, server.currentStartEntryNumber + ENTRIES_PER_PAGE - 1)
 				//~ AddStatus("Downloading page of entries.")
 			endif
 		endcase

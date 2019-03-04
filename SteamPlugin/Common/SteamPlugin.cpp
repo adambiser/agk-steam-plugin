@@ -51,7 +51,6 @@ SteamPlugin::SteamPlugin() :
 	m_FindLeaderboardCallbackState(Idle),
 	m_UploadLeaderboardScoreCallbackState(Idle),
 	m_DownloadLeaderboardEntriesCallbackState(Idle),
-	m_DownloadedLeaderboardEntryCount(0),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
 	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored),
@@ -164,7 +163,7 @@ void SteamPlugin::Shutdown()
 		m_UploadLeaderboardScoreCallbackState = Idle;
 		//m_LeaderboardScoreUploaded
 		m_DownloadLeaderboardEntriesCallbackState = Idle;
-		m_DownloadedLeaderboardEntryCount = 0;
+		m_DownloadedLeaderboardEntries.clear();
 		m_LobbyMatchListCallbackState = Idle;
 		//m_LobbyMatchList
 		m_LobbyDataUpdatedLobby = k_steamIDNil;

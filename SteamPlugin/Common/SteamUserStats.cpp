@@ -379,10 +379,11 @@ void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool
 	{
 		agk::Log("Callback: Download Leaderboard Entries Succeeded");
 		m_DownloadLeaderboardEntriesCallbackState = Done;
-		m_DownloadedLeaderboardEntryCount = min(pCallback->m_cEntryCount, MAX_LEADERBOARD_ENTRIES);
-		for (int index = 0; index < m_DownloadedLeaderboardEntryCount; index++)
+		for (int index = 0; index < pCallback->m_cEntryCount; index++)
 		{
-			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallback->m_hSteamLeaderboardEntries, index, &m_DownloadedLeaderboardEntries[index], NULL, 0);
+			LeaderboardEntry_t entry;
+			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallback->m_hSteamLeaderboardEntries, index, &entry, NULL, 0);
+			m_DownloadedLeaderboardEntries.push_back(entry);
 		}
 	}
 	else
@@ -407,7 +408,7 @@ bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, EL
 	}
 	try
 	{
-		m_DownloadedLeaderboardEntryCount = 0;
+		m_DownloadedLeaderboardEntries.clear();
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 		m_CallResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
 		m_DownloadLeaderboardEntriesCallbackState = Running;
@@ -422,7 +423,7 @@ bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, EL
 
 int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int index)
 {
-	if (index < 0 || index >= m_DownloadedLeaderboardEntryCount)
+	if (index < 0 || index >= (int)m_DownloadedLeaderboardEntries.size())
 	{
 		agk::PluginError("GetDownloadedLeaderboardEntryGlobalRank index out of bounds.");
 		return 0;
@@ -432,7 +433,7 @@ int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int index)
 
 int SteamPlugin::GetDownloadedLeaderboardEntryScore(int index)
 {
-	if (index < 0 || index >= m_DownloadedLeaderboardEntryCount)
+	if (index < 0 || index >= (int)m_DownloadedLeaderboardEntries.size())
 	{
 		agk::PluginError("GetDownloadedLeaderboardEntryScore index out of bounds.");
 		return 0;
@@ -442,7 +443,7 @@ int SteamPlugin::GetDownloadedLeaderboardEntryScore(int index)
 
 CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int index)
 {
-	if (index < 0 || index >= m_DownloadedLeaderboardEntryCount)
+	if (index < 0 || index >= (int)m_DownloadedLeaderboardEntries.size())
 	{
 		agk::PluginError("GetDownloadedLeaderboardEntryAvatar index out of bounds.");
 		return k_steamIDNil;
