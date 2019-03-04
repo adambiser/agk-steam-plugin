@@ -1,6 +1,6 @@
 #include "SteamPlugin.h"
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
-#include <windows.h>
+
+#define min(a,b) (a < b) ? a : b;
 
 // Callback for RequestStats.
 void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
