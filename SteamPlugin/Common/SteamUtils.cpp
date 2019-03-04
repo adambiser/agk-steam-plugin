@@ -36,10 +36,6 @@ int SteamPlugin::LoadImageFromHandle(int imageID, int hImage)
 		agk::SetMemblockInt(memID, 4, height);
 		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
 		memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
-		//for (int index = 0, offset = 12; index < imageSizeInBytes; index++, offset++)
-		//{
-		//	agk::SetMemblockByte(memID, offset, imageBuffer[index]);
-		//}
 		if (imageID)
 		{
 			agk::CreateImageFromMemblock(imageID, memID);
