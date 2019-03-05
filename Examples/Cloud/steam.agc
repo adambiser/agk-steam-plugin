@@ -11,12 +11,6 @@
 #constant DELETE_BUTTON					6
 #constant OPEN_FOLDER_BUTTON			7
 
-// This array stores the valid DLC AppIDs for this app.
-global dlcAppIDs as integer[]
-// This array stores the list of DLCs we're waiting to download.
-global dlcsToDownload as integer[]
-global dlcsToUninstall as integer[]
-
 global buttonText as string[6] = ["TOGGLE_ENABLED", "SYNC_WRITE", "SYNC_READ", "ASYNC_WRITE", "ASYNC_READ", "DELETE", "OPEN_FOLDER"]
 x as integer
 for x = 0 to buttonText.length
@@ -52,25 +46,6 @@ endif
 cloudFiles.fromJSON(Steam.GetCloudFileListJSON())
 AddStatus("Files: " + cloudFiles.toJSON())
 
-
-// For reference: https://steamdb.info/app/480/
-// GetDLCDataJSON is the same as using GetDLCDataByIndexJSON for indices 0 to GetDLCCount.
-//~ for x = 0 to Steam.GetDLCCount() - 1
-	//~ dlcData as DLCData_t
-	//~ dlcData.fromjson(Steam.GetDLCDataByIndexJSON(x))
-	//~ if dlcData.AppID // Check whether DLC is hidden
-		//~ AddStatus("DLC " + str(dlcData.AppID) + ": " + dlcData.Name)
-		//~ AddStatus("Owned: " + TF(dlcData.Available)) // DLC app id
-		//~ AddStatus("Installed: " + TF(Steam.IsDLCInstalled(dlcData.AppID))) // DLC app id
-		//~ // Add button to toggle DLC installation
-		//~ dlcAppIDs.insert(dlcData.AppID)
-		//~ CreateButton(DLC_START_BUTTON + x, 752 + (DLC_START_BUTTON + x - 6) * 100, 40, "DLC" + NEWLINE + str(dlcData.AppID))
-		//~ // Enable the DLC button if the DLC is available/owned.
-		//~ if dlcData.Available
-			//~ SetButtonEnabled(DLC_START_BUTTON + x, 1)
-		//~ endif
-	//~ endif
-//~ next
 
 //
 // The main loop
@@ -233,33 +208,6 @@ Function ProcessCallbacks()
 			endcase
 		endselect
 	next
-	
-	//~ x as integer
-	//~ If Steam.HasNewLaunchQueryParameters() // Reports when a steam://run/ command is called while running.
-		//~ AddStatus("HasNewLaunchQueryParameters.  param1 = " + Steam.GetLaunchQueryParam("param1"))
-	//~ endif
-	//~ // Check for newly installed DLCs.
-	//~ while Steam.HasNewDLCInstalled()
-		//~ appID as integer
-		//~ appID = Steam.GetNewDLCInstalled()
-		//~ AddStatus("DLC " + str(appID) + " has finished downloading.")
-		//~ UpdateProgressBar(dlcDownloadBar, 0, 0, "Done")
-		//~ for x = 0 to dlcsToDownload.length
-			//~ if dlcsToDownload[x] = appID
-				//~ dlcsToDownload.remove(x)
-				//~ exit
-			//~ endif
-		//~ next
-	//~ endwhile
-	//~ // Check the status of downloading DLCs.
-	//~ for x = 0 to dlcsToDownload.length
-		//~ progress as DownloadProgress_t
-		//~ progress.fromjson(Steam.GetDLCDownloadProgressJSON(dlcsToDownload[x]))
-		//~ // If the AppID is 0, the DLC isn't being downloaded.
-		//~ if progress.AppID
-			//~ UpdateProgressBar(dlcDownloadBar, progress.BytesDownloaded, progress.BytesTotal, "")
-		//~ endif
-	//~ next
 EndFunction
 
 Function GetSyncPlatformList(flags as integer)
