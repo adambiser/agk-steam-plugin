@@ -2265,7 +2265,6 @@ char *GetCloudFileListJSON()
 			{
 				json << "\"Name\": \"" << name << "\", ";
 				json << "\"Size\": " << pnFileSizeInBytes;
-				delete[] name;
 			}
 			else
 			{

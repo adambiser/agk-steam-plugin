@@ -25,7 +25,7 @@ THE SOFTWARE.
 template <typename M> void FreeClearMap(M & map)
 {
 	for (typename M::iterator iter = map.begin(); iter != map.end(); iter++) {
-		delete[] iter->second;
+		delete iter->second;
 	}
 	map.clear();
 }
