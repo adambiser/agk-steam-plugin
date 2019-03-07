@@ -190,6 +190,7 @@
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
     <ClCompile Include="..\Common\CFileReadAsyncItem.cpp" />
     <ClCompile Include="..\Common\CFileWriteAsyncItem.cpp" />
+    <ClCompile Include="..\Common\CLeaderboardFindCallback.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -211,14 +212,18 @@
     <ClCompile Include="..\Common\SteamMusic.cpp" />
     <ClCompile Include="..\Common\SteamPlugin.cpp" />
     <ClCompile Include="..\Common\SteamRemoteStorage.cpp" />
+    <ClCompile Include="..\Common\SteamUGC.cpp" />
     <ClCompile Include="..\Common\SteamUser.cpp" />
     <ClCompile Include="..\Common\SteamUserStats.cpp" />
     <ClCompile Include="..\Common\SteamUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
+    <ClInclude Include="..\Common\AGKUtils.h" />
+    <ClInclude Include="..\Common\CCallbackItem.h" />
     <ClInclude Include="..\Common\CFileReadAsyncItem.h" />
     <ClInclude Include="..\Common\CFileWriteAsyncItem.h" />
+    <ClInclude Include="..\Common\CLeaderboardFindCallback.h" />
     <ClInclude Include="..\Common\DllMain.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\Common\SteamPlugin.h" />
