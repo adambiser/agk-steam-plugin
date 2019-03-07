@@ -18,8 +18,8 @@ SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
 # Callback methods
 #
-DeleteCallback,0,I,DeleteCallback,0,0,0,0,DeleteCallback
-GetCallbackState,I,I,GetCallbackState,0,0,0,0,GetCallbackState
+DeleteCallResult,0,I,DeleteCallResult,0,0,0,0,DeleteCallResult
+GetCallResultState,I,I,GetCallResultState,0,0,0,0,GetCallResultState
 #
 # App/DLC methods
 #

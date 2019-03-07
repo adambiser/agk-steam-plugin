@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CLeaderboardScoresDownloadedCallback.h"
+#include "CLeaderboardScoresDownloadedCallResult.h"
 #include "AGKUtils.h"
 
 #define CheckEntryIndex(index, returnValue) \
@@ -30,16 +30,16 @@ THE SOFTWARE.
 		return returnValue; \
 	}
 
-void CLeaderboardScoresDownloadedCallback::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool bIOFailure)
+void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallResult, bool bIOFailure)
 {
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + " succeeded.");
 		m_State = Done;
-		for (int index = 0; index < pCallback->m_cEntryCount; index++)
+		for (int index = 0; index < pCallResult->m_cEntryCount; index++)
 		{
 			LeaderboardEntry_t entry;
-			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallback->m_hSteamLeaderboardEntries, index, &entry, NULL, 0);
+			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &entry, NULL, 0);
 			m_Entries.push_back(entry);
 		}
 	}
@@ -50,30 +50,30 @@ void CLeaderboardScoresDownloadedCallback::OnDownloadScore(LeaderboardScoresDown
 	}
 }
 
-bool CLeaderboardScoresDownloadedCallback::Call()
+bool CLeaderboardScoresDownloadedCallResult::Call()
 {
 	SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(m_hLeaderboard, m_eLeaderboardDataRequest, m_nRangeStart, m_nRangeEnd);
 	if (hSteamAPICall == k_uAPICallInvalid)
 	{
 		return false;
 	}
-	m_CallResult.Set(hSteamAPICall, this, &CLeaderboardScoresDownloadedCallback::OnDownloadScore);
+	m_CallResult.Set(hSteamAPICall, this, &CLeaderboardScoresDownloadedCallResult::OnDownloadScore);
 	return true;
 }
 
-int CLeaderboardScoresDownloadedCallback::GetEntryGlobalRank(int index)
+int CLeaderboardScoresDownloadedCallResult::GetEntryGlobalRank(int index)
 {
 	CheckEntryIndex(index, 0);
 	return m_Entries[index].m_nGlobalRank;
 }
 
-int CLeaderboardScoresDownloadedCallback::GetEntryScore(int index)
+int CLeaderboardScoresDownloadedCallResult::GetEntryScore(int index)
 {
 	CheckEntryIndex(index, 0);
 	return m_Entries[index].m_nScore;
 }
 
-CSteamID CLeaderboardScoresDownloadedCallback::GetEntryUser(int index)
+CSteamID CLeaderboardScoresDownloadedCallResult::GetEntryUser(int index)
 {
 	CheckEntryIndex(index, k_steamIDNil);
 	return m_Entries[index].m_steamIDUser;

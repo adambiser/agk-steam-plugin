@@ -147,8 +147,8 @@ in the project folder when the interpreter exits.
 */
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes);
 /* @page Callbacks */
-extern "C" DLL_EXPORT void DeleteCallback(int hCallback);
-extern "C" DLL_EXPORT int GetCallbackState(int hCallback);
+extern "C" DLL_EXPORT void DeleteCallResult(int hCallback);
+extern "C" DLL_EXPORT int GetCallResultState(int hCallback);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.

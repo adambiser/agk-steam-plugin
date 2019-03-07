@@ -20,31 +20,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLEADERBOARDFINDCALLBACK_H_
-#define _CLEADERBOARDFINDCALLBACK_H_
+#ifndef _CLEADERBOARDFINDCALLRESULT_H_
+#define _CLEADERBOARDFINDCALLRESULT_H_
 #pragma once
 
-#include "CCallbackItem.h"
+#include "CCallResultItem.h"
 #include <steam_api.h>
 #include <string>
 
-class CLeaderboardFindCallback : public CCallbackItem
+class CLeaderboardFindCallResult : public CCallResultItem
 {
 public:
-	CLeaderboardFindCallback(std::string leaderboardName) :
-		CCallbackItem(),
+	CLeaderboardFindCallResult(std::string leaderboardName) :
+		CCallResultItem(),
 		m_Name(leaderboardName),
 		m_hLeaderboard(0) {}
-	virtual ~CLeaderboardFindCallback(void) {}
+	virtual ~CLeaderboardFindCallResult(void) {}
 	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
 	SteamLeaderboard_t GetLeaderboardHandle() { return m_hLeaderboard; }
 protected:
 	bool Call();
 private:
-	CCallResult<CLeaderboardFindCallback, LeaderboardFindResult_t> m_CallResult;
-	void OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure);
+	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
+	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
 	std::string m_Name;
 	SteamLeaderboard_t m_hLeaderboard;
 };
 
-#endif // _CLEADERBOARDFINDCALLBACK_H_
+#endif // _CLEADERBOARDFINDCALLRESULT_H_

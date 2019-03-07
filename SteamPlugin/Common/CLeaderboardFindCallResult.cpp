@@ -20,13 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CLeaderboardFindCallback.h"
+#include "CLeaderboardFindCallResult.h"
 #include "AGKUtils.h"
 
-void CLeaderboardFindCallback::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
+void CLeaderboardFindCallResult::OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure)
 {
-	m_hLeaderboard = pCallback->m_hSteamLeaderboard;
-	bool found = pCallback->m_bLeaderboardFound && !bIOFailure;
+	m_hLeaderboard = pCallResult->m_hSteamLeaderboard;
+	bool found = pCallResult->m_bLeaderboardFound && !bIOFailure;
 	utils::Log("OnFindLeaderboard: '" + m_Name + "'.  Found = " + std::to_string(found) + ", Handle = " + std::to_string(m_hLeaderboard));
 	if (found)
 	{
@@ -38,13 +38,13 @@ void CLeaderboardFindCallback::OnFindLeaderboard(LeaderboardFindResult_t *pCallb
 	}
 }
 
-bool CLeaderboardFindCallback::Call()
+bool CLeaderboardFindCallResult::Call()
 {
 	SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(m_Name.c_str());
 	if (hSteamAPICall == k_uAPICallInvalid)
 	{
 		return false;
 	}
-	m_CallResult.Set(hSteamAPICall, this, &CLeaderboardFindCallback::OnFindLeaderboard);
+	m_CallResult.Set(hSteamAPICall, this, &CLeaderboardFindCallResult::OnFindLeaderboard);
 	return true;
 }

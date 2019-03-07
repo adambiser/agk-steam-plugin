@@ -20,40 +20,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CLeaderboardScoreUploadedCallback.h"
+#ifndef _CCALLRESULTITEM_H_
+#define _CCALLRESULTITEM_H_
+#pragma once
+
+#include "DllMain.h"
 #include "AGKUtils.h"
+#include <typeinfo>
 
-#define CheckEntryIndex(index, returnValue) \
-	if (index < 0 || index >= (int)m_Entries.size()) \
-	{ \
-		utils::PluginError(GetName() + ": Index out of range: " + std::to_string(index)); \
-		return returnValue; \
-	}
-
-void CLeaderboardScoreUploadedCallback::OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOFailure)
+class CCallResultItem
 {
-	m_LeaderboardScoreUploaded = *pCallback;
-	// Factor in bIOFailure.
-	m_LeaderboardScoreUploaded.m_bSuccess = m_LeaderboardScoreUploaded.m_bSuccess && !bIOFailure;
-	if (m_LeaderboardScoreUploaded.m_bSuccess)
+public:
+	CCallResultItem() : m_State(Idle) {};
+	virtual ~CCallResultItem(void) {};
+	// Return a 'name' for the CCallResultItem object, usually indicates type and some useful parameter values.
+	virtual std::string GetName() = 0;
+	ECallbackState GetState()
 	{
-		utils::Log(GetName() + " succeeded.");
-		m_State = Done;
+		// Immediately return to Idle after reporting Done.
+		if (m_State == Done)
+		{
+			m_State = Idle;
+			return Done;
+		}
+		return m_State;
 	}
-	else
+	bool Run()
 	{
-		utils::Log(GetName() + " failed.");
-		m_State = ServerError;
-	}
-}
-
-bool CLeaderboardScoreUploadedCallback::Call()
-{
-	SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(m_hLeaderboard, m_eLeaderboardUploadScoreMethod, m_nScore, NULL, 0);
-	if (hSteamAPICall == k_uAPICallInvalid)
-	{
+		if (m_State == Running)
+		{
+			return false;
+		}
+		try
+		{
+			utils::Log("Calling \"" + GetName() + "\"");
+			if (Call())
+			{
+				m_State = Running;
+				return true;
+			}
+			utils::PluginError("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+		}
+		catch (...)
+		{
+			utils::PluginError("Callback \"" + GetName() + "\" threw an error.");
+		}
+		m_State = ClientError;
 		return false;
+
 	}
-	m_CallResult.Set(hSteamAPICall, this, &CLeaderboardScoreUploadedCallback::OnUploadScore);
-	return true;
-}
+protected:
+	virtual bool Call() = 0;
+	ECallbackState m_State;
+};
+
+#endif // _CCALLRESULTITEM_H_

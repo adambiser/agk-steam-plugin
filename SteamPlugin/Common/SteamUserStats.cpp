@@ -1,7 +1,7 @@
 #include "SteamPlugin.h"
-#include "CLeaderboardFindCallback.h"
-#include "CLeaderboardScoresDownloadedCallback.h"
-#include "CLeaderboardScoreUploadedCallback.h"
+#include "CLeaderboardFindCallResult.h"
+#include "CLeaderboardScoresDownloadedCallResult.h"
+#include "CLeaderboardScoreUploadedCallResult.h"
 
 #define min(a,b) (a < b) ? a : b;
 
@@ -247,17 +247,16 @@ bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSessio
 int SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
 	CheckInitialized(SteamUserStats, false);
-	CLeaderboardFindCallback *callback = new CLeaderboardFindCallback(pchLeaderboardName);
-	callback->Run();
-	return AddCallbackItem(callback);
+	CLeaderboardFindCallResult *callResult = new CLeaderboardFindCallResult(pchLeaderboardName);
+	callResult->Run();
+	return AddCallResultItem(callResult);
 }
 
-SteamLeaderboard_t SteamPlugin::GetLeaderboardHandle(int hCallback)
+SteamLeaderboard_t SteamPlugin::GetLeaderboardHandle(int hCallResult)
 {
-	CLeaderboardFindCallback *callback = GetCallbackItem<CLeaderboardFindCallback>(hCallback);
-	if (callback)
+	if (CLeaderboardFindCallResult *callResult = GetCallResultItem<CLeaderboardFindCallResult>(hCallResult))
 	{
-		return callback->GetLeaderboardHandle();
+		return callResult->GetLeaderboardHandle();
 	}
 	return 0;
 }
@@ -306,52 +305,52 @@ int SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeader
 		agk::PluginError("UploadLeaderboardScore: Invalid leaderboard handle.");
 		return 0;
 	}
-	CLeaderboardScoreUploadedCallback *callback = new CLeaderboardScoreUploadedCallback(hLeaderboard, eLeaderboardUploadScoreMethod, nScore);
-	callback->Run();
-	return AddCallbackItem(callback);
+	CLeaderboardScoreUploadedCallResult *callResult = new CLeaderboardScoreUploadedCallResult(hLeaderboard, eLeaderboardUploadScoreMethod, nScore);
+	callResult->Run();
+	return AddCallResultItem(callResult);
 }
 
-bool SteamPlugin::LeaderboardScoreStored(int hCallback)
+bool SteamPlugin::LeaderboardScoreStored(int hCallResult)
 {
-	if (CLeaderboardScoreUploadedCallback *callback = GetCallbackItem<CLeaderboardScoreUploadedCallback>(hCallback))
+	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
 	{
-		return callback->LeaderboardScoreStored();
+		return callResult->LeaderboardScoreStored();
 	}
 	return false;
 }
 
-bool SteamPlugin::LeaderboardScoreChanged(int hCallback)
+bool SteamPlugin::LeaderboardScoreChanged(int hCallResult)
 {
-	if (CLeaderboardScoreUploadedCallback *callback = GetCallbackItem<CLeaderboardScoreUploadedCallback>(hCallback))
+	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
 	{
-		return callback->LeaderboardScoreChanged();
+		return callResult->LeaderboardScoreChanged();
 	}
 	return false;
 }
 
-int SteamPlugin::GetLeaderboardUploadedScore(int hCallback)
+int SteamPlugin::GetLeaderboardUploadedScore(int hCallResult)
 {
-	if (CLeaderboardScoreUploadedCallback *callback = GetCallbackItem<CLeaderboardScoreUploadedCallback>(hCallback))
+	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
 	{
-		return callback->GetLeaderboardUploadedScore();
+		return callResult->GetLeaderboardUploadedScore();
 	}
 	return 0;
 }
 
-int SteamPlugin::GetLeaderboardGlobalRankNew(int hCallback)
+int SteamPlugin::GetLeaderboardGlobalRankNew(int hCallResult)
 {
-	if (CLeaderboardScoreUploadedCallback *callback = GetCallbackItem<CLeaderboardScoreUploadedCallback>(hCallback))
+	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
 	{
-		return callback->GetLeaderboardGlobalRankNew();
+		return callResult->GetLeaderboardGlobalRankNew();
 	}
 	return 0;
 }
 
-int SteamPlugin::GetLeaderboardGlobalRankPrevious(int hCallback)
+int SteamPlugin::GetLeaderboardGlobalRankPrevious(int hCallResult)
 {
-	if (CLeaderboardScoreUploadedCallback *callback = GetCallbackItem<CLeaderboardScoreUploadedCallback>(hCallback))
+	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
 	{
-		return callback->GetLeaderboardGlobalRankPrevious();
+		return callResult->GetLeaderboardGlobalRankPrevious();
 	}
 	return 0;
 }
@@ -364,43 +363,43 @@ int SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELe
 		agk::PluginError("DownloadLeaderboardEntries: Invalid leaderboard handle.");
 		return 0;
 	}
-	CLeaderboardScoresDownloadedCallback *callback = new CLeaderboardScoresDownloadedCallback(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-	callback->Run();
-	return AddCallbackItem(callback);
+	CLeaderboardScoresDownloadedCallResult *callResult = new CLeaderboardScoresDownloadedCallResult(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	callResult->Run();
+	return AddCallResultItem(callResult);
 }
 
-int SteamPlugin::GetDownloadedLeaderboardEntryCount(int hCallback)
+int SteamPlugin::GetDownloadedLeaderboardEntryCount(int hCallResult)
 {
-	if (CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback))
+	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
 	{
-		return callback->GetEntryCount();
+		return callResult->GetEntryCount();
 	}
 	return 0;
 }
 
-int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index)
+int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index)
 {
-	if (CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback))
+	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
 	{
-		return callback->GetEntryGlobalRank(index);
+		return callResult->GetEntryGlobalRank(index);
 	}
 	return 0;
 }
 
-int SteamPlugin::GetDownloadedLeaderboardEntryScore(int hCallback, int index)
+int SteamPlugin::GetDownloadedLeaderboardEntryScore(int hCallResult, int index)
 {
-	if (CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback))
+	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
 	{
-		return callback->GetEntryScore(index);
+		return callResult->GetEntryScore(index);
 	}
 	return 0;
 }
 
-CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int hCallback, int index)
+CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int hCallResult, int index)
 {
-	if (CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback))
+	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
 	{
-		return callback->GetEntryUser(index);
+		return callResult->GetEntryUser(index);
 	}
 	return k_steamIDNil;
 }

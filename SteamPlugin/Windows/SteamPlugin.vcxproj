@@ -190,9 +190,9 @@
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
     <ClCompile Include="..\Common\CFileReadAsyncItem.cpp" />
     <ClCompile Include="..\Common\CFileWriteAsyncItem.cpp" />
-    <ClCompile Include="..\Common\CLeaderboardFindCallback.cpp" />
-    <ClCompile Include="..\Common\CLeaderboardScoresDownloadedCallback.cpp" />
-    <ClCompile Include="..\Common\CLeaderboardScoreUploadedCallback.cpp" />
+    <ClCompile Include="..\Common\CLeaderboardFindCallResult.cpp" />
+    <ClCompile Include="..\Common\CLeaderboardScoresDownloadedCallResult.cpp" />
+    <ClCompile Include="..\Common\CLeaderboardScoreUploadedCallResult.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -222,12 +222,12 @@
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
     <ClInclude Include="..\Common\AGKUtils.h" />
-    <ClInclude Include="..\Common\CCallbackItem.h" />
+    <ClInclude Include="..\Common\CCallResultItem.h" />
     <ClInclude Include="..\Common\CFileReadAsyncItem.h" />
     <ClInclude Include="..\Common\CFileWriteAsyncItem.h" />
-    <ClInclude Include="..\Common\CLeaderboardFindCallback.h" />
-    <ClInclude Include="..\Common\CLeaderboardScoresDownloadedCallback.h" />
-    <ClInclude Include="..\Common\CLeaderboardScoreUploadedCallback.h" />
+    <ClInclude Include="..\Common\CLeaderboardFindCallResult.h" />
+    <ClInclude Include="..\Common\CLeaderboardScoresDownloadedCallResult.h" />
+    <ClInclude Include="..\Common\CLeaderboardScoreUploadedCallResult.h" />
     <ClInclude Include="..\Common\DllMain.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\Common\SteamPlugin.h" />

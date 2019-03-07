@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <mutex>
 #include "CFileWriteAsyncItem.h"
 #include "CFileReadAsyncItem.h"
-#include "CCallbackItem.h"
+#include "CCallResultItem.h"
 
 #if defined(_WINDOWS)
 #if defined(_WIN64)
@@ -63,30 +63,30 @@ private:
 	// General methods.
 	uint64 m_AppID;
 	bool m_SteamInitialized;
-	// Callbacks
-	std::vector<CCallbackItem*> m_CallbackItems;
-	int AddCallbackItem(CCallbackItem *callback);
+	// CallResults
+	std::vector<CCallResultItem*> m_CallResultItems;
+	int AddCallResultItem(CCallResultItem *callResult);
 	// Template methods MUST be defined in the header file!
-	template <class T> T *GetCallbackItem(int hCallback)
+	template <class T> T *GetCallResultItem(int hCallResult)
 	{
-		hCallback--; // "handles" are 1-based, make them 0-based here.
-		if (hCallback < 0 || hCallback >= (int)m_CallbackItems.size() || m_CallbackItems[hCallback] == NULL)
+		hCallResult--; // "handles" are 1-based, make them 0-based here.
+		if (hCallResult < 0 || hCallResult >= (int)m_CallResultItems.size() || m_CallResultItems[hCallResult] == NULL)
 		{
 			return NULL;
 		}
-		CCallbackItem *cb = m_CallbackItems[hCallback];
-		if (!cb)
+		CCallResultItem *cr = m_CallResultItems[hCallResult];
+		if (!cr)
 		{
-			utils::PluginError("Could not find callback handle " + (hCallback + 1));
+			utils::PluginError("Could not find call result handle " + (hCallResult + 1));
 			return NULL;
 		}
-		T *callback = dynamic_cast<T*>(cb);
-		if (!callback)
+		T *callResult = dynamic_cast<T*>(cr);
+		if (!callResult)
 		{
-			utils::PluginError("Callback handle " + (hCallback + 1) + std::string(" was not the expected callback type."));
+			utils::PluginError("Call result handle " + std::to_string(hCallResult + 1) + " was not the expected call result type.");
 			return NULL;
 		}
-		return callback;
+		return callResult;
 	}
 	// App/DLC methods
 	bool m_HasNewLaunchQueryParameters;
@@ -257,8 +257,8 @@ public:
 		}
 		SteamAPI_RunCallbacks();
 	}
-	void DeleteCallbackItem(int hCallback);
-	ECallbackState GetCallbackItemState(int hCallback);
+	void DeleteCallResultItem(int hCallResult);
+	ECallbackState GetCallResultItemState(int hCallResult);
 	// App/DLC methods
 	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
 	bool IsAppInstalled(AppId_t appID);

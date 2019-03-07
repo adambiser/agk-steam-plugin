@@ -135,10 +135,10 @@ void SteamPlugin::Shutdown()
 			m_JoinedLobbies.pop_back();
 		}
 		// Clear any existing callback items.
-		while (m_CallbackItems.size() > 0)
+		while (m_CallResultItems.size() > 0)
 		{
-			delete m_CallbackItems.back();
-			m_CallbackItems.pop_back();
+			delete m_CallResultItems.back();
+			m_CallResultItems.pop_back();
 		}
 		SteamAPI_Shutdown();
 		// Reset member variables.
@@ -206,29 +206,28 @@ void SteamPlugin::Shutdown()
 	}
 }
 
-int SteamPlugin::AddCallbackItem(CCallbackItem *callback)
+int SteamPlugin::AddCallResultItem(CCallResultItem *callResult)
 {
-	m_CallbackItems.push_back(callback);
-	// Return the index, this is the callback "handle".
-	return (int)m_CallbackItems.size();
+	m_CallResultItems.push_back(callResult);
+	// Return the index, this is the call result "handle".
+	return (int)m_CallResultItems.size();
 }
 
-void SteamPlugin::DeleteCallbackItem(int hCallback)
+void SteamPlugin::DeleteCallResultItem(int hCallResult)
 {
-	hCallback--; // "handles" are 1-based, make them 0-based here.
-	if (hCallback >= 0 && hCallback < (int)m_CallbackItems.size())
+	hCallResult--; // "handles" are 1-based, make them 0-based here.
+	if (hCallResult >= 0 && hCallResult < (int)m_CallResultItems.size())
 	{
-		delete m_CallbackItems[hCallback];
-		m_CallbackItems[hCallback] = NULL;
+		delete m_CallResultItems[hCallResult];
+		m_CallResultItems[hCallResult] = NULL;
 	}
 }
 
-ECallbackState SteamPlugin::GetCallbackItemState(int hCallback)
+ECallbackState SteamPlugin::GetCallResultItemState(int hCallResult)
 {
-	CCallbackItem *callback = GetCallbackItem<CCallbackItem>(hCallback);
-	if (callback)
+	if (CCallResultItem *callResult = GetCallResultItem<CCallResultItem>(hCallResult))
 	{
-		return callback->GetState();
+		return callResult->GetState();
 	}
 	return ClientError;
 }

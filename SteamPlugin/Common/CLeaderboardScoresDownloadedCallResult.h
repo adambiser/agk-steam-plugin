@@ -20,25 +20,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLEADERBOARDSCORESDOWNLOADEDCALLBACK_H_
-#define _CLEADERBOARDSCORESDOWNLOADEDCALLBACK_H_
+#ifndef _CLEADERBOARDSCORESDOWNLOADEDCALLRESULT_H_
+#define _CLEADERBOARDSCORESDOWNLOADEDCALLRESULT_H_
 #pragma once
 
-#include "CCallbackItem.h"
+#include "CCallResultItem.h"
 #include <steam_api.h>
 #include <string>
 #include <vector>
 
-class CLeaderboardScoresDownloadedCallback : public CCallbackItem
+class CLeaderboardScoresDownloadedCallResult : public CCallResultItem
 {
 public:
-	CLeaderboardScoresDownloadedCallback(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd) :
-		CCallbackItem(),
+	CLeaderboardScoresDownloadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd) :
+		CCallResultItem(),
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardDataRequest(eLeaderboardDataRequest),
 		m_nRangeStart(nRangeStart),
 		m_nRangeEnd(nRangeEnd) {}
-	virtual ~CLeaderboardScoresDownloadedCallback(void) {}
+	virtual ~CLeaderboardScoresDownloadedCallResult(void) {}
 	std::string GetName() { 
 		return "DownloadLeaderboardEntries("
 			+ std::to_string(m_hLeaderboard) + ", "
@@ -53,8 +53,8 @@ public:
 protected:
 	bool Call();
 private:
-	CCallResult<CLeaderboardScoresDownloadedCallback, LeaderboardScoresDownloaded_t> m_CallResult;
-	void OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool bIOFailure);
+	CCallResult<CLeaderboardScoresDownloadedCallResult, LeaderboardScoresDownloaded_t> m_CallResult;
+	void OnDownloadScore(LeaderboardScoresDownloaded_t *pCallResult, bool bIOFailure);
 	SteamLeaderboard_t m_hLeaderboard;
 	ELeaderboardDataRequest m_eLeaderboardDataRequest;
 	int m_nRangeStart;
@@ -62,4 +62,4 @@ private:
 	std::vector<LeaderboardEntry_t> m_Entries;
 };
 
-#endif // _CLEADERBOARDSCORESDOWNLOADEDCALLBACK_H_
+#endif // _CLEADERBOARDSCORESDOWNLOADEDCALLRESULT_H_

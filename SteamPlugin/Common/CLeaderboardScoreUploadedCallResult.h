@@ -20,24 +20,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLEADERBOARDSCOREUPLOADEDCALLBACK_H_
-#define _CLEADERBOARDSCOREUPLOADEDCALLBACK_H_
+#ifndef _CLEADERBOARDSCOREUPLOADEDCALLRESULT_H_
+#define _CLEADERBOARDSCOREUPLOADEDCALLRESULT_H_
 #pragma once
 
-#include "CCallbackItem.h"
+#include "CCallResultItem.h"
 #include <steam_api.h>
 #include <string>
 #include <vector>
 
-class CLeaderboardScoreUploadedCallback : public CCallbackItem
+class CLeaderboardScoreUploadedCallResult : public CCallResultItem
 {
 public:
-	CLeaderboardScoreUploadedCallback(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod m_eLeaderboardUploadScoreMethod, int nScore) :
-		CCallbackItem(),
+	CLeaderboardScoreUploadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod m_eLeaderboardUploadScoreMethod, int nScore) :
+		CCallResultItem(),
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardUploadScoreMethod(m_eLeaderboardUploadScoreMethod),
 		m_nScore(nScore) {}
-	virtual ~CLeaderboardScoreUploadedCallback(void) {}
+	virtual ~CLeaderboardScoreUploadedCallResult(void) {}
 	std::string GetName() {
 		return "UploadLeaderboardScore("
 			+ std::to_string(m_hLeaderboard) + ", "
@@ -52,12 +52,12 @@ public:
 protected:
 	bool Call();
 private:
-	CCallResult<CLeaderboardScoreUploadedCallback, LeaderboardScoreUploaded_t> m_CallResult;
-	void OnUploadScore(LeaderboardScoreUploaded_t *pCallback, bool bIOFailure);
+	CCallResult<CLeaderboardScoreUploadedCallResult, LeaderboardScoreUploaded_t> m_CallResult;
+	void OnUploadScore(LeaderboardScoreUploaded_t *pCallResult, bool bIOFailure);
 	SteamLeaderboard_t m_hLeaderboard;
 	ELeaderboardUploadScoreMethod m_eLeaderboardUploadScoreMethod;
 	int m_nScore;
 	LeaderboardScoreUploaded_t m_LeaderboardScoreUploaded;
 };
 
-#endif // _CLEADERBOARDSCOREUPLOADEDCALLBACK_H_
+#endif // _CLEADERBOARDSCOREUPLOADEDCALLRESULT_H_

@@ -410,16 +410,16 @@ int SetFileAttributes(const char *filename, int attributes)
 	return SetFileAttributesA(filename, attributes);
 }
 
-void DeleteCallback(int hCallback)
+void DeleteCallResult(int hCallback)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->DeleteCallbackItem(hCallback);
+	Steam->DeleteCallResultItem(hCallback);
 }
 
-int GetCallbackState(int hCallback)
+int GetCallResultState(int hCallback)
 {
 	CheckInitializedPlugin(ClientError);
-	return Steam->GetCallbackItemState(hCallback);
+	return Steam->GetCallResultItemState(hCallback);
 }
 
 // App/DLC methods
