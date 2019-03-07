@@ -896,7 +896,7 @@ char*(*AGKCommand0)( unsigned int ) = 0;
 //char*(*AGKCommand893)(  ) = 0;
 //int(*AGKCommand894)(  ) = 0;
 void(*AGKCommand895)( const char * ) = 0;
-//void(*AGKCommand896)( const char* ) = 0;
+void(*AGKCommand896)( const char* ) = 0;
 //int(*AGKCommand897)(  ) = 0;
 //float(*AGKCommand898)(  ) = 0;
 //float(*AGKCommand899)(  ) = 0;
@@ -2793,7 +2793,7 @@ extern "C" DLL_EXPORT void ReceiveAGKPtr( AGKVoidFunc ptr )
 	//AGKCommand893 = (char*(*)()) GetAGKFunction( "GETLASTERROR_S_0" );
 	//AGKCommand894 = (int(*)()) GetAGKFunction( "GETERROROCCURRED_L_0" );
 	AGKCommand895 = (void(*)(const char *)) GetAGKFunction( "PLUGINERROR_0_S" );
-	//AGKCommand896 = (void(*)(const char*)) GetAGKFunction( "MESSAGE_0_S" );
+	AGKCommand896 = (void(*)(const char*)) GetAGKFunction( "MESSAGE_0_S" );
 	//AGKCommand897 = (int(*)()) GetAGKFunction( "GETJOYSTICKEXISTS_L_0" );
 	//AGKCommand898 = (float(*)()) GetAGKFunction( "GETRAWMOUSEX_F_0" );
 	//AGKCommand899 = (float(*)()) GetAGKFunction( "GETRAWMOUSEY_F_0" );
