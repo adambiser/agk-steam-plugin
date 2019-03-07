@@ -1299,40 +1299,34 @@ int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
 }
 
-int GetUploadLeaderboardScoreCallbackState()
-{
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetUploadLeaderboardScoreCallbackState();
-}
-
-int LeaderboardScoreStored()
+int LeaderboardScoreStored(int hCallback)
 {
 	CheckInitializedPlugin(false);
-	return Steam->LeaderboardScoreStored();
+	return Steam->LeaderboardScoreStored(hCallback);
 }
 
-int LeaderboardScoreChanged()
+int LeaderboardScoreChanged(int hCallback)
 {
 	CheckInitializedPlugin(false);
-	return Steam->LeaderboardScoreChanged();
+	return Steam->LeaderboardScoreChanged(hCallback);
 }
 
-int GetLeaderboardUploadedScore()
+int GetLeaderboardUploadedScore(int hCallback)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardUploadedScore();
+	return Steam->GetLeaderboardUploadedScore(hCallback);
 }
 
-int GetLeaderboardGlobalRankNew()
+int GetLeaderboardGlobalRankNew(int hCallback)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardGlobalRankNew();
+	return Steam->GetLeaderboardGlobalRankNew(hCallback);
 }
 
-int GetLeaderboardGlobalRankPrevious()
+int GetLeaderboardGlobalRankPrevious(int hCallback)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardGlobalRankPrevious();
+	return Steam->GetLeaderboardGlobalRankPrevious(hCallback);
 }
 
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)

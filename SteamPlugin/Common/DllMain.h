@@ -944,17 +944,11 @@ Uploads a score to a leaderboard.  Forces the server to accept the uploaded scor
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
 /*
-@desc Returns the state of the UploadLeaderboardScore callback.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-@api ISteamUserStats#LeaderboardScoreUploaded_t
-*/
-extern "C" DLL_EXPORT int GetUploadLeaderboardScoreCallbackState();
-/*
 @desc Gets whether the uploaded score was successfully received by the server leaderboard.
 @return 1 when successfully received; otherwise 0.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int LeaderboardScoreStored();
+extern "C" DLL_EXPORT int LeaderboardScoreStored(int hCallback);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -962,7 +956,7 @@ Gets whether the uploaded score caused the user's leaderboard entry to change or
 @return 1 if the score in the leaderboard changed.  0 if the existing score was better.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int LeaderboardScoreChanged();
+extern "C" DLL_EXPORT int LeaderboardScoreChanged(int hCallback);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -970,7 +964,7 @@ Gets the uploaded score returned by the UploadLeaderboardScore callback.
 @return The uploaded score that was attempted to set.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int GetLeaderboardUploadedScore();
+extern "C" DLL_EXPORT int GetLeaderboardUploadedScore(int hCallback);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -978,7 +972,7 @@ Gets the new global rank of the user in this leaderboard returned by the UploadL
 @return The new global rank of the user in this leaderboard.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew();
+extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew(int hCallback);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -986,7 +980,7 @@ Gets the previous global rank of the user in this leaderboard returned by the Up
 @return The previous global rank of the user in this leaderboard; 0 if the user had no existing entry.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious();
+extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious(int hCallback);
 /* @page Downloading Entries
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */

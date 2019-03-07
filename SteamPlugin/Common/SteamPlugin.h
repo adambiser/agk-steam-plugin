@@ -124,10 +124,6 @@ private:
 	// Leaderboard methods: Find
 	// Leaderboard methods: Information
 	// Leaderboard methods: Upload
-	ECallbackState m_UploadLeaderboardScoreCallbackState;
-	void OnUploadScore(LeaderboardScoreUploaded_t *pResult, bool bIOFailure);
-	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_CallResultUploadScore;
-	LeaderboardScoreUploaded_t m_LeaderboardScoreUploaded;
 	// Leaderboard methods: Download
 	// Lobby methods: List
 	ECallbackState m_LobbyMatchListCallbackState;
@@ -368,13 +364,12 @@ public:
 	ELeaderboardDisplayType GetLeaderboardDisplayType(SteamLeaderboard_t hLeaderboard);
 	ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hLeaderboard);
 	// Uploading scores
-	bool UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
-	ECallbackState GetUploadLeaderboardScoreCallbackState() { return getCallbackState(&m_UploadLeaderboardScoreCallbackState); }
-	bool LeaderboardScoreStored() { return m_LeaderboardScoreUploaded.m_bSuccess != 0; }
-	bool LeaderboardScoreChanged() { return m_LeaderboardScoreUploaded.m_bScoreChanged != 0; }
-	int GetLeaderboardUploadedScore() { return m_LeaderboardScoreUploaded.m_nScore; }
-	int GetLeaderboardGlobalRankNew() { return m_LeaderboardScoreUploaded.m_nGlobalRankNew; }
-	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious; }
+	int UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
+	bool LeaderboardScoreStored(int hCallback);
+	bool LeaderboardScoreChanged(int hCallback);
+	int GetLeaderboardUploadedScore(int hCallback);
+	int GetLeaderboardGlobalRankNew(int hCallback);
+	int GetLeaderboardGlobalRankPrevious(int hCallback);
 	// Downloading entries.
 	int DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
 	int GetDownloadedLeaderboardEntryCount(int hCallback);

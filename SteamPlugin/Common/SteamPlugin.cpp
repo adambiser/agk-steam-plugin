@@ -48,7 +48,6 @@ SteamPlugin::SteamPlugin() :
 	m_StoreStatsCallbackState(Idle),
 	m_StatsStored(false),
 	m_AchievementStored(false),
-	m_UploadLeaderboardScoreCallbackState(Idle),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
 	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored),
@@ -162,8 +161,6 @@ void SteamPlugin::Shutdown()
 		m_StatsStored = false;
 		m_AchievementStored = false;
 		m_AchievementIconsMap.clear();
-		m_UploadLeaderboardScoreCallbackState = Idle;
-		//m_LeaderboardScoreUploaded
 		m_LobbyMatchListCallbackState = Idle;
 		//m_LobbyMatchList
 		m_LobbyDataUpdatedLobby = k_steamIDNil;

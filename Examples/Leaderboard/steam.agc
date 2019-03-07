@@ -10,7 +10,7 @@ Type SteamServerInfo
 	// instruction flags
 	downloadRankCallback as integer
 	downloadPageCallback as integer
-	needToUploadScore as integer
+	uploadScoreCallback as integer
 	// Current user info
 	rankTextID as integer
 	avatarSpriteID as integer
@@ -46,7 +46,7 @@ LeaderboardInfo[1].name = LEADERBOARD_QUICKEST_WIN
 //~ CreateTextEx(0, 80, "Click an icon to toggle the achievement.")
 //~ CreateTextEx(512, 80, "____User_Stats____")
 global leaderboardNameTextID as integer
-leaderboardNameTextID = CreateTextEx(512, 80, "")
+leaderboardNameTextID = CreateTextEx(512, 80, "LOADING")
 SetTextAlignment(leaderboardNameTextID, 1)
 CreateTextEx(180, 10, "Current rank:")
 CreateTextEx(0, 70, "Click an entry avatar or name to view the profile.")
@@ -165,16 +165,13 @@ Function CheckInput()
 		DownloadUserRank()
 	endif
 	if GetVirtualButtonPressed(RANDOM_SCORE_BUTTON)
-		server.currentScore = Random(0, 2147483647)
-		server.needToUploadScore = 1
+		UploadScore(Random(0, 2147483647))
 	endif
 	if GetVirtualButtonPressed(MAX_SCORE_BUTTON)
-		server.currentScore = 2147483647
-		server.needToUploadScore = 1
+		UploadScore(2147483647)
 	endif
 	if GetVirtualButtonPressed(MIN_SCORE_BUTTON)
-		server.currentScore = 0
-		server.needToUploadScore = 1
+		UploadScore(0)
 	endif
 EndFunction
 
@@ -262,38 +259,31 @@ Function ProcessCallbacks()
 	//
 	// Process UploadLeaderboardScore callback.
 	//
-	select Steam.GetUploadLeaderboardScoreCallbackState()
-		case STATE_IDLE
-			if server.needToUploadScore
-				// NOTE: Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
-				//~ Steam.UploadLeaderboardScore(leaderboardInfo[server.currentLeaderboard].handle, server.currentScore)
-				// UploadLeaderboardScoreForceUpdate forces the server to accept the score even if it's worse than before.
-				Steam.UploadLeaderboardScoreForceUpdate(leaderboardInfo[server.currentLeaderboard].handle, server.currentScore)
-				AddStatus("Uploading leaderboard score (force update): " + str(server.currentScore))
-			endif
-		endcase
-		case STATE_DONE
-			// Steam.LeaderboardScoreStored() will return 1 when STATE_DONE and 0 for STATE_SERVER_ERROR.
-			server.needToUploadScore = 0
-			server.currentRank = Steam.GetLeaderboardGlobalRankNew()
-			SetTextString(server.rankTextID, "#" + str(server.currentRank))
-			SetTextString(server.scoreTextID, str(Steam.GetLeaderboardUploadedScore()))
-			server.currentScore = Steam.GetLeaderboardUploadedScore()
-			AddStatus("LeaderboardScoreChanged: " + TF(Steam.LeaderboardScoreChanged()))
-			// These matter only when LeaderboardScoreChanged is true.
-			AddStatus("GetLeaderboardGlobalRank - New: " + str(Steam.GetLeaderboardGlobalRankNew()) + ", Previous: " + str(Steam.GetLeaderboardGlobalRankPrevious()))
-			// Open leaderboard to new rank page.
-			DownloadPage(server.currentRank - Mod(server.currentRank - 1, ENTRIES_PER_PAGE)) // entries are 1-based
-		endcase
-		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-			if not errorReported[ERROR_UPLOADSCORE]
-				errorReported[ERROR_UPLOADSCORE] = 1
+	if server.uploadScoreCallback
+		select Steam.GetCallbackState(server.uploadScoreCallback)
+			case STATE_DONE
+				server.currentRank = Steam.GetLeaderboardGlobalRankNew(server.uploadScoreCallback)
+				SetTextString(server.rankTextID, "#" + str(server.currentRank))
+				SetTextString(server.scoreTextID, str(Steam.GetLeaderboardUploadedScore(server.uploadScoreCallback)))
+				server.currentScore = Steam.GetLeaderboardUploadedScore(server.uploadScoreCallback)
+				AddStatus("LeaderboardScoreChanged: " + TF(Steam.LeaderboardScoreChanged(server.uploadScoreCallback)))
+				// These matter only when LeaderboardScoreChanged is true.
+				AddStatus("GetLeaderboardGlobalRank - New: " + str(Steam.GetLeaderboardGlobalRankNew(server.uploadScoreCallback)) + ", Previous: " + str(Steam.GetLeaderboardGlobalRankPrevious(server.uploadScoreCallback)))
+				// Open leaderboard to new rank page.
+				DownloadPage(server.currentRank - Mod(server.currentRank - 1, ENTRIES_PER_PAGE)) // entries are 1-based
+				// We're done with the callback.  Delete it.
+				Steam.DeleteCallback(server.uploadScoreCallback)
+				server.uploadScoreCallback = 0
+			endcase
+			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 				AddStatus("ERROR: UploadLeaderboardScore.  Did you upload scores too often?")
-			endif
-		endcase
-	endselect
+				Steam.DeleteCallback(server.uploadScoreCallback)
+				server.uploadScoreCallback = 0
+			endcase
+		endselect
+	endif
 	//
-	// Process DownloadLeaderboardEntries callback.
+	// Process DownloadLeaderboardEntries callback: user rank.
 	//
 	if server.downloadRankCallback
 		Select Steam.GetCallbackState(server.downloadRankCallback)
@@ -306,6 +296,8 @@ Function ProcessCallbacks()
 					// Open leaderboard to current rank page.
 					DownloadPage(server.currentRank - Mod(server.currentRank - 1, ENTRIES_PER_PAGE)) // entries are 1-based
 				else
+					SetTextString(server.rankTextID, "NONE")
+					SetTextString(server.scoreTextID, "NONE")
 					AddStatus("User has no global rank.")
 					// Show first page.
 					DownloadPage(1)
@@ -321,10 +313,13 @@ Function ProcessCallbacks()
 			endcase
 		endselect
 	endif
+	//
+	// Process DownloadLeaderboardEntries callback: Entry page
+	//
 	if server.downloadPageCallback
 		Select Steam.GetCallbackState(server.downloadPageCallback)
 			case STATE_DONE
-				RefreshLeaderboardUI()
+				RefreshLeaderboardEntryList()
 				// Clear the callback when done.
 				Steam.DeleteCallback(server.downloadPageCallback)
 				server.downloadPageCallback = 0
@@ -355,6 +350,16 @@ Function ProcessCallbacks()
 			next
 		endif
 	endwhile
+EndFunction
+
+Function UploadScore(score as integer)
+	server.currentScore = score
+	// NOTE: Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
+	//~ Steam.UploadLeaderboardScore(leaderboardInfo[server.currentLeaderboard].handle, score)
+	//~ AddStatus("Uploading leaderboard score: " + str(score))
+	// UploadLeaderboardScoreForceUpdate forces the server to accept the score even if it's worse than before.
+	server.uploadScoreCallback = Steam.UploadLeaderboardScoreForceUpdate(leaderboardInfo[server.currentLeaderboard].handle, score)
+	AddStatus("Uploading leaderboard score (force update): " + str(score) + ".  Callback handle = " + str(server.uploadScoreCallback))
 EndFunction
 
 Function DownloadUserRank()
@@ -411,15 +416,11 @@ EndFunction
 Function RefreshLeaderboardInfo()
 	handle as integer
 	handle = leaderboardInfo[server.currentLeaderboard].handle
-	if handle = 0
-		SetTextString(leaderboardNameTextID, "LOADING")
-		ExitFunction
-	endif
 	SetTextString(leaderboardNameTextID, Steam.GetLeaderboardName(handle))
 EndFunction
 
-Function RefreshLeaderboardUI()
-	AddStatus("Refreshing leaderboard UI.")
+Function RefreshLeaderboardEntryList()
+	AddStatus("Refreshing leaderboard entry list.")
 	index as integer
 	for index = 0 to server.entryRankTextIDs.length
 		SetLeaderboardEntryVisible(index, 0)

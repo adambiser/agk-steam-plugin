@@ -151,12 +151,11 @@ GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,GetLeaderboardSort
 #
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
-GetUploadLeaderboardScoreCallbackState,I,0,GetUploadLeaderboardScoreCallbackState,0,0,0,0,GetUploadLeaderboardScoreCallbackState
-LeaderboardScoreStored,I,0,LeaderboardScoreStored,0,0,0,0,LeaderboardScoreStored
-LeaderboardScoreChanged,I,0,LeaderboardScoreChanged,0,0,0,0,LeaderboardScoreChanged
-GetLeaderboardUploadedScore,I,0,GetLeaderboardUploadedScore,0,0,0,0,GetLeaderboardUploadedScore
-GetLeaderboardGlobalRankNew,I,0,GetLeaderboardGlobalRankNew,0,0,0,0,GetLeaderboardGlobalRankNew
-GetLeaderboardGlobalRankPrevious,I,0,GetLeaderboardGlobalRankPrevious,0,0,0,0,GetLeaderboardGlobalRankPrevious
+LeaderboardScoreStored,I,I,LeaderboardScoreStored,0,0,0,0,LeaderboardScoreStored
+LeaderboardScoreChanged,I,I,LeaderboardScoreChanged,0,0,0,0,LeaderboardScoreChanged
+GetLeaderboardUploadedScore,I,I,GetLeaderboardUploadedScore,0,0,0,0,GetLeaderboardUploadedScore
+GetLeaderboardGlobalRankNew,I,I,GetLeaderboardGlobalRankNew,0,0,0,0,GetLeaderboardGlobalRankNew
+GetLeaderboardGlobalRankPrevious,I,I,GetLeaderboardGlobalRankPrevious,0,0,0,0,GetLeaderboardGlobalRankPrevious
 #
 # Leaderboard methods: Download
 #
