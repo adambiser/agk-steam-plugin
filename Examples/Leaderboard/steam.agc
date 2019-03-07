@@ -5,7 +5,7 @@ global server as SteamServerInfo
 
 // A type to hold all of the Steam server information used.
 Type SteamServerInfo
-	leaderboardHandle as integer
+	currentLeaderboard as integer
 	steamID as integer
 	// instruction flags
 	downloadRank as integer
@@ -26,6 +26,19 @@ Type SteamServerInfo
 	entryScoreTextIDs as integer[]
 EndType
 
+#constant LEADERBOARD_QUICKEST_WIN	"Quickest Win"
+#constant LEADERBOARD_FEET_TRAVELED	"Feet Traveled"
+
+Type LeaderboardInfoType
+	name as string
+	callback as integer
+	handle as integer
+EndType
+
+global leaderboardInfo as LeaderboardInfoType[1]
+LeaderboardInfo[0].name = LEADERBOARD_FEET_TRAVELED
+LeaderboardInfo[1].name = LEADERBOARD_QUICKEST_WIN
+
 // Additional UI for this demo.
 #constant ENTRIES_PER_PAGE		10
 #constant AVATAR_SIZE			32
@@ -38,27 +51,34 @@ SetTextAlignment(leaderboardNameTextID, 1)
 CreateTextEx(180, 10, "Current rank:")
 CreateTextEx(0, 70, "Click an entry avatar or name to view the profile.")
 
-#constant FIRST_BUTTON			1
-#constant PREV_BUTTON			2
-#constant NEXT_BUTTON			3
-#constant LAST_BUTTON			4
-#constant RANDOM_PAGE_BUTTON	5
-#constant RANDOM_SCORE_BUTTON	6
-#constant MAX_SCORE_BUTTON		7
-#constant MIN_SCORE_BUTTON		8
+#constant FIRST_BUTTON				1
+#constant PREV_BUTTON				2
+#constant NEXT_BUTTON				3
+#constant LAST_BUTTON				4
+#constant RANDOM_PAGE_BUTTON		5
+#constant CHANGE_LEADERBOARD_BUTTON	6
+#constant RANDOM_SCORE_BUTTON		7
+#constant MAX_SCORE_BUTTON			8
+#constant MIN_SCORE_BUTTON			9
 
-global buttonText as string[7] = ["|<", "<<", ">>", ">|", "RANDOM_PAGE", "RANDOM_SCORE", "MAX_SCORE", "MIN_SCORE"]
+global buttonText as string[8] = ["|<", "<<", ">>", ">|", "RANDOM_PAGE", "CHANGE_LEADERBOARD", "RANDOM_SCORE", "MAX_SCORE", "MIN_SCORE"]
 x as integer
 for x = 0 to 4
 	CreateButton(x + 1, 352 + x * 100, 540, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
-for x = 5 to 7
-	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
+for x = 5 to 8
+	CreateButton(x + 1, 752 + (x - 6) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 
 CreateLeaderboardUI()
 
 server.steamID = Steam.GetSteamID() // Store the current user steam ID.
+
+// Start searching for the leaderboards.
+for x = 0 to leaderboardInfo.length
+	leaderboardInfo[x].callback = Steam.FindLeaderboard(leaderboardInfo[x].name)
+	AddStatus("Finding '" + leaderboardInfo[x].name + "' leaderboard handle")
+next
 
 //
 // The main loop
@@ -132,25 +152,33 @@ Function CheckInput()
 	if GetVirtualButtonPressed(NEXT_BUTTON)
 		inc server.currentStartEntryNumber, ENTRIES_PER_PAGE
 		// Don't go after the last page.
-		if server.currentStartEntryNumber > Steam.GetLeaderboardEntryCount(server.leaderboardHandle)
+		if server.currentStartEntryNumber > Steam.GetLeaderboardEntryCount(leaderboardInfo[server.currentLeaderboard].handle)
 			dec server.currentStartEntryNumber, ENTRIES_PER_PAGE
 		else
 			server.downloadPage = 1
 		endif
 	endif
 	if GetVirtualButtonPressed(LAST_BUTTON)
-		entryCount = Steam.GetLeaderboardEntryCount(server.leaderboardHandle)
+		entryCount = Steam.GetLeaderboardEntryCount(leaderboardInfo[server.currentLeaderboard].handle)
 		server.currentStartEntryNumber = entryCount - Mod(entryCount - 1, ENTRIES_PER_PAGE) // entries are 1-based
 		server.downloadPage = 1
 	endif
 	if GetVirtualButtonPressed(RANDOM_PAGE_BUTTON) // Go to a random page... helps see how avatar loading works.
-		entryCount = Steam.GetLeaderboardEntryCount(server.leaderboardHandle)
+		entryCount = Steam.GetLeaderboardEntryCount(leaderboardInfo[server.currentLeaderboard].handle)
 		page as integer
 		page = Random(0, entryCount / ENTRIES_PER_PAGE)
 		server.currentStartEntryNumber = page * ENTRIES_PER_PAGE + 1 // entries are 1-based
 		server.downloadPage = 1
 	endif
 	// Score-setting buttons
+	if GetVirtualButtonPressed(CHANGE_LEADERBOARD_BUTTON)
+		inc server.currentLeaderboard
+		if server.currentLeaderboard > leaderboardInfo.length
+			server.currentLeaderboard = 0
+		endif
+		server.downloadRank = 1
+		RefreshLeaderboardInfo()
+	endif
 	if GetVirtualButtonPressed(RANDOM_SCORE_BUTTON)
 		server.currentScore = Random(0, 2147483647)
 		server.needToUploadScore = 1
@@ -207,43 +235,43 @@ Function ProcessCallbacks()
 	//
 	// Process FindLeaderboard callback.
 	//
-	select Steam.GetFindLeaderboardCallbackState()
-		case STATE_IDLE
-			if server.leaderboardHandle = 0
-				// Leaderboard names are NOT case sensitive.
-				Steam.FindLeaderboard("Feet Traveled")
-				AddStatus("Finding 'Feet Traveled' leaderboard handle")
-			endif
-		endcase
-		case STATE_DONE
-			server.leaderboardHandle = Steam.GetLeaderboardHandle()
-			// If the leaderboard is not found, the handle is 0.
-			if server.leaderboardHandle <> 0
-				SetTextString(leaderboardNameTextID, Steam.GetLeaderboardName(server.leaderboardHandle))
-				AddStatus("Leaderboard handle: " + str(server.leaderboardHandle))
-				AddStatus("Leaderboard entry count: " + str(Steam.GetLeaderboardEntryCount(server.leaderboardHandle)))
-				AddStatus("Leaderboard display type: " + str(Steam.GetLeaderboardDisplayType(server.leaderboardHandle)))
-				AddStatus("Leaderboard sort: " + str(Steam.GetLeaderboardSortMethod(server.leaderboardHandle)))
-				// Set these flags to demonstrate downloading rank and uploading a score.
-				server.downloadRank = 1
-				//~ server.downloadPage = 1 // Set later.
-				//~ server.needToUploadScore = 1 // Set later.
-			else
-				// Technically the callback will go to STATE_SERVER_ERROR when the handle is 0.
-				AddStatus("GetLeaderboardHandle error!")
-			endif
-		endcase
-		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-			if not errorReported[ERROR_FINDLEADERBOARD]
-				errorReported[ERROR_FINDLEADERBOARD] = 1
-				AddStatus("ERROR: FindLeaderboard.")
-			endif
-		endcase
-	endselect
+	for x = 0 to leaderboardInfo.length
+		if leaderboardInfo[x].callback
+			select Steam.GetCallbackState(leaderboardInfo[x].callback)
+				case STATE_DONE
+					leaderboardInfo[x].handle = Steam.GetLeaderboardHandle(leaderboardInfo[x].callback)
+					// If the leaderboard is not found, the handle is 0.
+					if leaderboardInfo[x].handle <> 0
+						if x = server.currentLeaderboard
+							RefreshLeaderboardInfo()
+							// Set these flags to demonstrate downloading rank and uploading a score.
+							server.downloadRank = 1
+						endif
+						AddStatus("Leaderboard '" + leaderboardInfo[x].name + "' handle: " + str(leaderboardInfo[x].handle))
+						AddStatus("Leaderboard entry count: " + str(Steam.GetLeaderboardEntryCount(leaderboardInfo[x].handle)))
+						AddStatus("Leaderboard display type: " + str(Steam.GetLeaderboardDisplayType(leaderboardInfo[x].handle)))
+						AddStatus("Leaderboard sort: " + str(Steam.GetLeaderboardSortMethod(leaderboardInfo[x].handle)))
+					else
+						// Technically the callback will go to STATE_SERVER_ERROR when the handle is 0.
+						AddStatus("GetLeaderboardHandle error!")
+					endif
+					// We're done with the callback.  Delete it.
+					Steam.DeleteCallback(leaderboardInfo[x].callback)
+					leaderboardInfo[x].callback = 0
+				endcase
+				case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+					AddStatus("ERROR: FindLeaderboard.")
+					// We're done with the callback.  Delete it.
+					Steam.DeleteCallback(leaderboardInfo[x].callback)
+					leaderboardInfo[x].callback = 0
+				endcase
+			endselect
+		endif
+	next
 	//
 	// The rest of this function requires a valid leaderboard handle.
 	//
-	if server.leaderboardHandle = 0
+	if leaderboardInfo[server.currentLeaderboard].handle = 0
 		ExitFunction
 	endif
 	//
@@ -253,9 +281,9 @@ Function ProcessCallbacks()
 		case STATE_IDLE
 			if server.needToUploadScore
 				// NOTE: Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
-				//~ Steam.UploadLeaderboardScore(server.leaderboardHandle, server.currentScore)
+				//~ Steam.UploadLeaderboardScore(leaderboardInfo[server.currentLeaderboard].handle, server.currentScore)
 				// UploadLeaderboardScoreForceUpdate forces the server to accept the score even if it's worse than before.
-				Steam.UploadLeaderboardScoreForceUpdate(server.leaderboardHandle, server.currentScore)
+				Steam.UploadLeaderboardScoreForceUpdate(leaderboardInfo[server.currentLeaderboard].handle, server.currentScore)
 				AddStatus("Uploading leaderboard score (force update): " + str(server.currentScore))
 			endif
 		endcase
@@ -287,10 +315,10 @@ Function ProcessCallbacks()
 		case STATE_IDLE
 			if server.downloadRank
 				// 0 to 0 around user will give only the user's entry.
-				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
+				Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
 				//~ AddStatus("Downloading user rank.")
 			elseif server.downloadPage
-				Steam.DownloadLeaderboardEntries(server.leaderboardHandle, k_ELeaderboardDataRequestGlobal, server.currentStartEntryNumber, server.currentStartEntryNumber + ENTRIES_PER_PAGE - 1)
+				Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobal, server.currentStartEntryNumber, server.currentStartEntryNumber + ENTRIES_PER_PAGE - 1)
 				//~ AddStatus("Downloading page of entries.")
 			endif
 		endcase
@@ -375,6 +403,16 @@ Function CreateLeaderboardUI()
 		SetTextAlignment(textID, 2) // right align score
 		server.entryScoreTextIDs.insert(textID)
 	next
+EndFunction
+
+Function RefreshLeaderboardInfo()
+	handle as integer
+	handle = leaderboardInfo[server.currentLeaderboard].handle
+	if handle = 0
+		SetTextString(leaderboardNameTextID, "LOADING")
+		ExitFunction
+	endif
+	SetTextString(leaderboardNameTextID, Steam.GetLeaderboardName(handle))
 EndFunction
 
 Function RefreshLeaderboardUI()

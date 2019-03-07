@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "DllMain.h"
 #include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
+#include "AGKUtils.h"
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -49,7 +50,7 @@ If it has not been, return a default value.
 
 // Token for passing an empty returnValue into CheckInitializedPlugin();
 #define NORETURN
-#define NULL_STRING CreateString((const char *)NULL)
+#define NULL_STRING utils::CreateString((const char *)NULL)
 
 #define Clamp(value, min, max)			\
 	if (value < min)					\
@@ -60,46 +61,6 @@ If it has not been, return a default value.
 	{									\
 		value = max;					\
 	}
-
-/*
-Converts a const char* to agk:string.
-*/
-char *CreateString(const char* text)
-{
-	if (text)
-	{
-		int length = (int)strlen(text) + 1;
-		char *result = agk::CreateString(length);
-		strcpy_s(result, length, text);
-		return result;
-	}
-	char *result = agk::CreateString(1);
-	strcpy_s(result, 1, "");
-	return result;
-}
-
-// This version also deletes the given text pointer.
-//char *CreateStringEx(const char* text)
-//{
-//	char *result = CreateString(text);
-//	delete[] text;
-//	text = NULL;
-//	return result;
-//}
-
-char *CreateString(std::string text)
-{
-	return CreateString(text.c_str());
-}
-
-char *CreateString(const WCHAR* text)
-{
-	size_t length = wcslen(text) + 1;
-	char *result = agk::CreateString((int)length);
-	size_t size;
-	wcstombs_s(&size, result, length, text, length);
-	return result;
-}
 
 /*
 	CSteamID Handle Methods
@@ -134,6 +95,16 @@ void ClearSteamIDHandleList()
 	m_CSteamIDs.clear();
 	// Handle 0 is always k_steamIDNil.
 	m_CSteamIDs.push_back(k_steamIDNil);
+}
+
+ECallbackState ProcessCallbackState(ECallbackState *callbackState)
+{
+	if (*callbackState == Done)
+	{
+		*callbackState = Idle;
+		return Done;
+	}
+	return *callbackState;
 }
 
 /*
@@ -314,10 +285,10 @@ char *GetAppName(int appID)
 		char name[256];
 		if (Steam->GetAppName(appID, name, sizeof(name)))
 		{
-			return CreateString(name);
+			return utils::CreateString(name);
 		}
 	}
-	return CreateString("NULL");
+	return utils::CreateString("NULL");
 }
 
 /*
@@ -377,7 +348,7 @@ char *GetCommandLineArgsJSON()
 		LocalFree(szArglist);
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 #define STEAM_REGISTRY_SUBKEY TEXT("Software\\Valve\\Steam")
@@ -396,7 +367,7 @@ char *GetSteamPath()
 		RegCloseKey(hKey);
 		if (result == ERROR_SUCCESS)
 		{
-			return CreateString(szValue);
+			return utils::CreateString(szValue);
 		}
 	}
 	return NULL_STRING;
@@ -439,6 +410,18 @@ int SetFileAttributes(const char *filename, int attributes)
 	return SetFileAttributesA(filename, attributes);
 }
 
+void DeleteCallback(int hCallback)
+{
+	CheckInitializedPlugin(NORETURN);
+	Steam->DeleteCallbackItem(hCallback);
+}
+
+int GetCallbackState(int hCallback)
+{
+	CheckInitializedPlugin(ClientError);
+	return Steam->GetCallbackItemState(hCallback);
+}
+
 // App/DLC methods
 char *GetDLCDataJSON()
 {
@@ -476,7 +459,7 @@ char *GetDLCDataJSON()
 		}
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetDLCDataByIndexJSON(int index)
@@ -497,7 +480,7 @@ char *GetDLCDataByIndexJSON(int index)
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int IsAppInstalled(int appID)
@@ -568,11 +551,11 @@ char *GetAppInstallDir(int appID)
 	if (length)
 	{
 		//length++; // NULL terminator
-		//char *result = agk::CreateString(length);
+		//char *result = agk::utils::CreateString(length);
 		//strcpy_s(result, length, folder);
 		//return result;
 		// TODO Verify this works as expected without using the returned length.
-		return CreateString(folder);
+		return utils::CreateString(folder);
 	}
 	else
 	{
@@ -589,7 +572,7 @@ int GetAppOwner()
 char *GetAvailableGameLanguages()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetAvailableGameLanguages());
+	return utils::CreateString(Steam->GetAvailableGameLanguages());
 }
 
 char *GetCurrentBetaName()
@@ -598,7 +581,7 @@ char *GetCurrentBetaName()
 	char name[256];
 	if (Steam->GetCurrentBetaName(name, sizeof(name)))
 	{
-		return CreateString(name);
+		return utils::CreateString(name);
 	}
 	return NULL_STRING;
 }
@@ -606,7 +589,7 @@ char *GetCurrentBetaName()
 char *GetCurrentGameLanguage()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetCurrentGameLanguage());
+	return utils::CreateString(Steam->GetCurrentGameLanguage());
 }
 
 int GetDLCCount()
@@ -632,7 +615,7 @@ char *GetDLCDownloadProgressJSON(int appID)
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int GetEarliestPurchaseUnixTime(int appID)
@@ -662,13 +645,13 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 		delete[] depots;
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char * GetLaunchQueryParam(const char *key)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetLaunchQueryParam(key));
+	return utils::CreateString(Steam->GetLaunchQueryParam(key));
 }
 
 int HasNewLaunchQueryParameters()
@@ -683,7 +666,7 @@ char *GetLaunchCommandLine()
 	char cmd[2084];
 	int length = Steam->GetLaunchCommandLine(cmd, 2084);
 	cmd[length] = 0;
-	return CreateString(cmd);
+	return utils::CreateString(cmd);
 }
 
 int HasNewDLCInstalled()
@@ -762,7 +745,7 @@ void ActivateGameOverlayToWebPageModal(const char *url)
 char *GetPersonaName()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetPersonaName());
+	return utils::CreateString(Steam->GetPersonaName());
 }
 
 int GetSteamID()
@@ -819,7 +802,7 @@ char *GetSteamID3(int hUserSteamID)
 			break;
 		}
 		steam3 << "]";
-		return CreateString(steam3.str());
+		return utils::CreateString(steam3);
 	}
 	return NULL_STRING;
 }
@@ -829,7 +812,7 @@ char *GetSteamID64(int hUserSteamID)
 	CheckInitializedPlugin(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
 	_i64toa(GetSteamID(hUserSteamID).ConvertToUint64(), id64, 10);
-	return CreateString(id64);
+	return utils::CreateString(id64);
 }
 
 int HasPersonaStateChanged()
@@ -903,7 +886,7 @@ char *GetFriendListJSON(int friendFlags)
 		}
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetFriendGamePlayedJSON(int hUserSteamID)
@@ -925,13 +908,13 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetFriendPersonaName(int hUserSteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
+	return utils::CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
 }
 
 int GetFriendPersonaState(int hUserSteamID)
@@ -955,7 +938,7 @@ int GetFriendSteamLevel(int hUserSteamID)
 char *GetPlayerNickname(int hUserSteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
+	return utils::CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
 }
 
 int HasFriend(int hUserSteamID, int friendFlags)
@@ -1004,13 +987,13 @@ char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array
 		}
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetFriendsGroupName(int hFriendsGroupID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetFriendsGroupName(hFriendsGroupID));
+	return utils::CreateString(Steam->GetFriendsGroupName(hFriendsGroupID));
 }
 
 int LoadImageFromHandle(int hImage)
@@ -1114,19 +1097,19 @@ Use StatsInitialized() to determine when user stats are initialized before calli
 char *GetAchievementAPIName(int index)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetAchievementAPIName(index));
+	return utils::CreateString(Steam->GetAchievementAPIName(index));
 }
 
 char *GetAchievementDisplayName(const char *name)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetAchievementDisplayAttribute(name, "name"));
+	return utils::CreateString(Steam->GetAchievementDisplayAttribute(name, "name"));
 }
 
 char *GetAchievementDisplayDesc(const char *name)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetAchievementDisplayAttribute(name, "desc"));
+	return utils::CreateString(Steam->GetAchievementDisplayAttribute(name, "desc"));
 }
 
 int GetAchievementDisplayHidden(const char *name)
@@ -1273,22 +1256,16 @@ int FindLeaderboard(const char *leaderboardName)
 	return Steam->FindLeaderboard(leaderboardName);
 }
 
-int GetFindLeaderboardCallbackState()
-{
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetFindLeaderboardCallbackState();
-}
-
-int GetLeaderboardHandle()
+int GetLeaderboardHandle(int hCallback)
 {
 	CheckInitializedPlugin(0);
-	return (int) Steam->GetLeaderboardHandle();
+	return (int) Steam->GetLeaderboardHandle(hCallback);
 }
 
 char *GetLeaderboardName(int hLeaderboard)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetLeaderboardName(hLeaderboard));
+	return utils::CreateString(Steam->GetLeaderboardName(hLeaderboard));
 }
 
 int GetLeaderboardEntryCount(int hLeaderboard)
@@ -1568,7 +1545,7 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
@@ -1610,14 +1587,14 @@ char *GetLobbyGameCreatedJSON()
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 // Lobby methods: Data
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+	return utils::CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
 }
 
 int GetLobbyDataCount(int hLobbySteamID)
@@ -1641,7 +1618,7 @@ char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetLobbyDataJSON(int hLobbySteamID)
@@ -1665,7 +1642,7 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 		}
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
@@ -1707,7 +1684,7 @@ int GetLobbyDataUpdatedID()
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
+	return utils::CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
 }
 
 void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
@@ -1793,7 +1770,7 @@ char *GetLobbyChatMessageText()
 	CheckInitializedPlugin(NULL_STRING);
 	char msg[4096];
 	Steam->GetLobbyChatMessageText(msg);
-	return CreateString(msg);
+	return utils::CreateString(msg);
 }
 
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
@@ -1855,7 +1832,7 @@ char *GetFavoriteGameJSON(int index)
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags)
@@ -1885,7 +1862,7 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 //	uint32 ip = Steam->GetPublicIP();
 //	std::ostringstream ipc;
 //	ipc << ConvertIPToString(ip);
-//	return CreateString(ipc.str());
+//	return utils::CreateString(ipc);
 //}
 
 int IsMusicEnabled()
@@ -1970,7 +1947,7 @@ int GetIPCCallCount()
 char *GetIPCountry()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetIPCountry());
+	return utils::CreateString(Steam->GetIPCountry());
 }
 
 int GetSecondsSinceAppActive()
@@ -1994,7 +1971,7 @@ int GetServerRealTime()
 char *GetSteamUILanguage()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetSteamUILanguage());
+	return utils::CreateString(Steam->GetSteamUILanguage());
 }
 
 int IsOverlayEnabled()
@@ -2074,7 +2051,7 @@ char *GetGamepadTextInputDismissedInfoJSON()
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
@@ -2243,7 +2220,7 @@ char * GetCloudFileName(int index)
 {
 	CheckInitializedPlugin(NULL_STRING);
 	int32 pnFileSizeInBytes;
-	return CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
+	return utils::CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
 }
 
 char *GetCloudFileListJSON()
@@ -2275,7 +2252,7 @@ char *GetCloudFileListJSON()
 		}
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int GetCloudFileSize(const char *filename)
@@ -2332,7 +2309,7 @@ char *GetCloudQuotaJSON()
 		}
 	}
 	json << "}";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 int GetCloudFileSyncPlatforms(const char *filename)
@@ -2454,8 +2431,8 @@ void DeactivateAllActionSetLayers(int hInput)
 
 char *GetActiveActionSetLayersJSON(int hInput)
 {
-	CheckInitializedPlugin(CreateString("[]"));
-	ValidateInputHandle(hInput, CreateString("[]"));
+	CheckInitializedPlugin(utils::CreateString("[]"));
+	ValidateInputHandle(hInput, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
@@ -2474,7 +2451,7 @@ char *GetActiveActionSetLayersJSON(int hInput)
 		delete[] handlesOut;
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 /*
@@ -2626,9 +2603,9 @@ Input Action Origins
 
 char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 {
-	ValidateInputHandle(hInput, CreateString("[]"));
-	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
-	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, CreateString("[]"));
+	ValidateInputHandle(hInput, utils::CreateString("[]"));
+	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, utils::CreateString("[]"));
+	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
@@ -2646,14 +2623,14 @@ char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 		delete[] origins;
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction)
 {
-	ValidateInputHandle(hInput, CreateString("[]"));
-	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, CreateString("[]"));
-	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, CreateString("[]"));
+	ValidateInputHandle(hInput, utils::CreateString("[]"));
+	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, utils::CreateString("[]"));
+	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (Steam)
@@ -2671,19 +2648,19 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 		delete[] origins;
 	}
 	json << "]";
-	return CreateString(json.str());
+	return utils::CreateString(json);
 }
 
 char *GetGlyphForActionOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
+	return utils::CreateString(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 char *GetStringForActionOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
+	return utils::CreateString(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
@@ -2696,13 +2673,13 @@ int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 char *GetStringForXboxOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetStringForXboxOrigin((EXboxOrigin)eOrigin));
+	return utils::CreateString(Steam->GetStringForXboxOrigin((EXboxOrigin)eOrigin));
 }
 
 char *GetGlyphForXboxOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return CreateString(Steam->GetGlyphForXboxOrigin((EXboxOrigin)eOrigin));
+	return utils::CreateString(Steam->GetGlyphForXboxOrigin((EXboxOrigin)eOrigin));
 }
 
 int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin)

@@ -20,8 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef DLLMAIN_H_
-#define DLLMAIN_H_
+#ifndef _DLLMAIN_H_
+#define _DLLMAIN_H_
+#pragma once
 
 #include "..\AGKLibraryCommands.h"
 
@@ -38,6 +39,9 @@ enum ECallbackState
 	Running = 1,
 	Done = 2
 };
+
+// Return to Idle after reporting Done.
+ECallbackState ProcessCallbackState(ECallbackState *callbackState);
 
 /* @page General Commands */
 /*
@@ -142,6 +146,9 @@ in the project folder when the interpreter exits.
 @return 1 if successful; otherwise, 0.
 */
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes);
+/* @page Callbacks */
+extern "C" DLL_EXPORT void DeleteCallback(int hCallback);
+extern "C" DLL_EXPORT int GetCallbackState(int hCallback);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.
@@ -871,23 +878,17 @@ FindLeaderboard
 @desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
 
 Sends a request to find the handle for a leaderboard.
-
-**NOTE:** Currently only one leaderboard can be found at a time.  This will change in a later version.
 @param leaderboardName The name of the leaderboard to find.
-@return 1 when sending the request to find the leaderboard succeeds; otherwise 0.
+@xreturn 1 when sending the request to find the leaderboard succeeds; otherwise 0.
 @api ISteamUserStats#FindLeaderboard
 */
 extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 /*
-@desc Returns the state of the FindLeaderboard callback.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-*/
-extern "C" DLL_EXPORT int GetFindLeaderboardCallbackState();
-/*
 @desc Gets the handle to the leaderboard requested with FindLeaderboard.
+@param leaderboardName The name of the leaderboard to find.
 @return The leaderboard handle or 0 if finding the handle has failed.
 */
-extern "C" DLL_EXPORT int GetLeaderboardHandle();
+extern "C" DLL_EXPORT int GetLeaderboardHandle(int hCallback);
 /* @page Leaderboard Information
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
@@ -2486,4 +2487,4 @@ This API call will be ignored for incompatible input models.
 */
 extern "C" DLL_EXPORT void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed);
 
-#endif // DLLMAIN_H_
+#endif // _DLLMAIN_H_

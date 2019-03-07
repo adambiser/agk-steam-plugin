@@ -48,7 +48,6 @@ SteamPlugin::SteamPlugin() :
 	m_StoreStatsCallbackState(Idle),
 	m_StatsStored(false),
 	m_AchievementStored(false),
-	m_FindLeaderboardCallbackState(Idle),
 	m_UploadLeaderboardScoreCallbackState(Idle),
 	m_DownloadLeaderboardEntriesCallbackState(Idle),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
@@ -137,6 +136,11 @@ void SteamPlugin::Shutdown()
 			LeaveLobby(m_JoinedLobbies.back());
 			m_JoinedLobbies.pop_back();
 		}
+		while (m_CallbackItems.size() > 0)
+		{
+			delete m_CallbackItems.back();
+			m_CallbackItems.pop_back();
+		}
 		SteamAPI_Shutdown();
 		// Reset member variables.
 		m_AppID = 0;
@@ -158,7 +162,7 @@ void SteamPlugin::Shutdown()
 		m_StatsStored = false;
 		m_AchievementStored = false;
 		m_AchievementIconsMap.clear();
-		m_FindLeaderboardCallbackState = Idle;
+		//FreeClearMap(m_LeaderboardInfoMap);
 		//m_LeaderboardFindResult
 		m_UploadLeaderboardScoreCallbackState = Idle;
 		//m_LeaderboardScoreUploaded
@@ -207,4 +211,31 @@ void SteamPlugin::Shutdown()
 		m_MotionData.rotVelY = 0;
 		m_MotionData.rotVelZ = 0;
 	}
+}
+
+int SteamPlugin::AddCallbackItem(CCallbackItem *callback)
+{
+	m_CallbackItems.push_back(callback);
+	// Return the index, this is the callback "handle".
+	return (int)m_CallbackItems.size();
+}
+
+void SteamPlugin::DeleteCallbackItem(int hCallback)
+{
+	hCallback--; // "handles" are 1-based, make them 0-based here.
+	if (hCallback >= 0 && hCallback < (int)m_CallbackItems.size())
+	{
+		delete m_CallbackItems[hCallback];
+		m_CallbackItems[hCallback] = NULL;
+	}
+}
+
+ECallbackState SteamPlugin::GetCallbackItemState(int hCallback)
+{
+	CCallbackItem *callback = GetCallbackItem<CCallbackItem>(hCallback);
+	if (callback)
+	{
+		return callback->GetState();
+	}
+	return ClientError;
 }

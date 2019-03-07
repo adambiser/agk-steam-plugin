@@ -20,8 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef STEAMPLUGIN_H_
-#define STEAMPLUGIN_H_
+#ifndef _STEAMPLUGIN_H_
+#define _STEAMPLUGIN_H_
+#pragma once
 
 #include <steam_api.h>
 #include <map>
@@ -30,6 +31,8 @@ THE SOFTWARE.
 #include <mutex>
 #include "CFileWriteAsyncItem.h"
 #include "CFileReadAsyncItem.h"
+#include "CCallbackItem.h"
+#include "CLeaderboardFindCallback.h"
 
 #if defined(_WINDOWS)
 #if defined(_WIN64)
@@ -61,6 +64,31 @@ private:
 	// General methods.
 	uint64 m_AppID;
 	bool m_SteamInitialized;
+	// Callbacks
+	std::vector<CCallbackItem*> m_CallbackItems;
+	int AddCallbackItem(CCallbackItem *callback);
+	// Template methods MUST be defined in the header file!
+	template <class T> T *GetCallbackItem(int hCallback)
+	{
+		hCallback--; // "handles" are 1-based, make them 0-based here.
+		if (hCallback < 0 || hCallback >= (int)m_CallbackItems.size() || m_CallbackItems[hCallback] == NULL)
+		{
+			return NULL;
+		}
+		CCallbackItem *cb = m_CallbackItems[hCallback];
+		if (!cb)
+		{
+			utils::PluginError("Could not find callback handle " + (hCallback + 1));
+			return NULL;
+		}
+		T *callback = dynamic_cast<T*>(cb);
+		if (!callback)
+		{
+			utils::PluginError("Callback handle " + (hCallback + 1) + std::string(" was not the expected callback type."));
+			return NULL;
+		}
+		return callback;
+	}
 	// App/DLC methods
 	bool m_HasNewLaunchQueryParameters;
 	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewUrlLaunchParameters_t, m_CallbackNewLaunchQueryParameters);
@@ -95,10 +123,12 @@ private:
 	std::map<std::string, int> m_AchievementIconsMap;
 	// User stats methods.
 	// Leaderboard methods: Find
-	ECallbackState m_FindLeaderboardCallbackState;
-	void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
-	CCallResult<SteamPlugin, LeaderboardFindResult_t> m_CallResultFindLeaderboard;
-	LeaderboardFindResult_t m_LeaderboardFindResult;
+	//CLeaderboardFindCallback *GetLeaderboardInfo(std::string filename);
+	//std::map<std::string, CLeaderboardFindCallback*> m_LeaderboardInfoMap;
+	//ECallbackState m_FindLeaderboardCallbackState;
+	//void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
+	//CCallResult<SteamPlugin, LeaderboardFindResult_t> m_CallResultFindLeaderboard;
+	//LeaderboardFindResult_t m_LeaderboardFindResult;
 	// Leaderboard methods: Information
 	// Leaderboard methods: Upload
 	ECallbackState m_UploadLeaderboardScoreCallbackState;
@@ -242,6 +272,8 @@ public:
 		}
 		SteamAPI_RunCallbacks();
 	}
+	void DeleteCallbackItem(int hCallback);
+	ECallbackState GetCallbackItemState(int hCallback);
 	// App/DLC methods
 	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
 	bool IsAppInstalled(AppId_t appID);
@@ -339,9 +371,8 @@ public:
 	bool SetStat(const char *pchName, float fData);
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 	// Leaderboards
-	bool FindLeaderboard(const char *pchLeaderboardName);
-	ECallbackState GetFindLeaderboardCallbackState() { return getCallbackState(&m_FindLeaderboardCallbackState); }
-	SteamLeaderboard_t GetLeaderboardHandle() { return m_LeaderboardFindResult.m_hSteamLeaderboard; }
+	int FindLeaderboard(const char *pchLeaderboardName);
+	SteamLeaderboard_t GetLeaderboardHandle(int hCallback);
 	// General information
 	const char *GetLeaderboardName(SteamLeaderboard_t hLeaderboard);
 	int GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard);
@@ -557,4 +588,4 @@ public:
 	void TriggerVibration(InputHandle_t inputHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
-#endif // STEAMPLUGIN_H_
+#endif // _STEAMPLUGIN_H_

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,29 +20,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CFILEREADASYNCITEM_H_
-#define _CFILEREADASYNCITEM_H_
+#ifndef _CCALLBACKITEM_H_
+#define _CCALLBACKITEM_H_
 #pragma once
 
 #include "DllMain.h"
-#include <steam_api.h>
-#include <string>
+#include "AGKUtils.h"
+#include <typeinfo>
 
-class CFileReadAsyncItem
+class CCallbackItem
 {
-private:
-	std::string m_Filename;
-	CCallResult<CFileReadAsyncItem, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
 public:
-	CFileReadAsyncItem();
-	virtual ~CFileReadAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	int m_MemblockID;
-	// Method call.
-	bool Call(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	CCallbackItem() : m_State(Idle) {};
+	virtual ~CCallbackItem(void) {};
+	// Return a 'name' for the CCallbackItem object, usually indicates type and some useful parameter values.
+	virtual std::string GetName() = 0;
+	ECallbackState GetState()
+	{
+		// Immediately return to Idle after reporting Done.
+		if (m_State == Done)
+		{
+			m_State = Idle;
+			return Done;
+		}
+		return m_State;
+	}
+	bool Run()
+	{
+		if (m_State == Running)
+		{
+			return false;
+		}
+		try
+		{
+			utils::Log("Calling \"" + GetName() + "\"");
+			if (Call())
+			{
+				m_State = Running;
+				return true;
+			}
+			utils::PluginError("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+		}
+		catch (...)
+		{
+			utils::PluginError("Callback \"" + GetName() + "\" threw an error.");
+		}
+		m_State = ClientError;
+		return false;
+
+	}
+protected:
+	virtual bool Call() = 0;
+	ECallbackState m_State;
 };
 
-#endif // _CFILEREADASYNCITEM_H_
+#endif // _CCALLBACKITEM_H_

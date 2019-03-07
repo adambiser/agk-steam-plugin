@@ -16,6 +16,11 @@ GetSteamPath,S,0,GetSteamPath,0,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,IsSteamEmulated
 SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
+# Callback methods
+#
+DeleteCallback,0,I,DeleteCallback,0,0,0,0,DeleteCallback
+GetCallbackState,I,I,GetCallbackState,0,0,0,0,GetCallbackState
+#
 # App/DLC methods
 #
 GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
@@ -133,8 +138,7 @@ UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
 # Leaderboard methods: Find
 #
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
-GetFindLeaderboardCallbackState,I,0,GetFindLeaderboardCallbackState,0,0,0,0,GetFindLeaderboardCallbackState
-GetLeaderboardHandle,I,0,GetLeaderboardHandle,0,0,0,0,GetLeaderboardHandle
+GetLeaderboardHandle,I,I,GetLeaderboardHandle,0,0,0,0,GetLeaderboardHandle
 #
 # Leaderboard methods: Information
 #

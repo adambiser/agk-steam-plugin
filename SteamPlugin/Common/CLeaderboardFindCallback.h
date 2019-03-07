@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,29 +20,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CFILEREADASYNCITEM_H_
-#define _CFILEREADASYNCITEM_H_
+#ifndef _CLEADERBOARDFINDCALLBACK_H_
+#define _CLEADERBOARDFINDCALLBACK_H_
 #pragma once
 
-#include "DllMain.h"
+#include "CCallbackItem.h"
 #include <steam_api.h>
 #include <string>
 
-class CFileReadAsyncItem
+class CLeaderboardFindCallback : public CCallbackItem
 {
-private:
-	std::string m_Filename;
-	CCallResult<CFileReadAsyncItem, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
 public:
-	CFileReadAsyncItem();
-	virtual ~CFileReadAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	int m_MemblockID;
-	// Method call.
-	bool Call(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	CLeaderboardFindCallback(std::string leaderboardName) :
+		CCallbackItem(),
+		m_Name(leaderboardName),
+		m_hSteamLeaderboard(0)
+	{}
+	virtual ~CLeaderboardFindCallback(void) {}
+	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
+	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
+protected:
+	bool Call();
+private:
+	std::string m_Name;
+	CCallResult<CLeaderboardFindCallback, LeaderboardFindResult_t> m_CallResult;
+	void OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure);
+	SteamLeaderboard_t m_hSteamLeaderboard;
 };
 
-#endif // _CFILEREADASYNCITEM_H_
+#endif // _CLEADERBOARDFINDCALLBACK_H_
