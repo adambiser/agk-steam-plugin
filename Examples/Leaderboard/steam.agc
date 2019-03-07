@@ -8,9 +8,9 @@ Type SteamServerInfo
 	currentLeaderboard as integer
 	steamID as integer
 	// instruction flags
-	downloadRankCallback as integer
-	downloadPageCallback as integer
-	uploadScoreCallback as integer
+	downloadRankCallResult as integer
+	downloadPageCallResult as integer
+	uploadScoreCallResult as integer
 	// Current user info
 	rankTextID as integer
 	avatarSpriteID as integer
@@ -31,7 +31,7 @@ EndType
 
 Type LeaderboardInfoType
 	name as string
-	callback as integer
+	callResult as integer
 	handle as integer
 EndType
 
@@ -76,8 +76,8 @@ server.steamID = Steam.GetSteamID() // Store the current user steam ID.
 
 // Start searching for the leaderboards.
 for x = 0 to leaderboardInfo.length
-	leaderboardInfo[x].callback = Steam.FindLeaderboard(leaderboardInfo[x].name)
-	AddStatus("Finding '" + leaderboardInfo[x].name + "' leaderboard handle.  Callback handle = " + str(leaderboardInfo[x].callback))
+	leaderboardInfo[x].callResult = Steam.FindLeaderboard(leaderboardInfo[x].name)
+	AddStatus("Finding '" + leaderboardInfo[x].name + "' leaderboard handle.  CallResult handle = " + str(leaderboardInfo[x].callResult))
 next
 
 //
@@ -215,13 +215,13 @@ Function ProcessCallbacks()
 		ExitFunction
 	endif
 	//
-	// Process FindLeaderboard callback.
+	// Process FindLeaderboard CallResult.
 	//
 	for x = 0 to leaderboardInfo.length
-		if leaderboardInfo[x].callback
-			select Steam.GetCallbackState(leaderboardInfo[x].callback)
+		if leaderboardInfo[x].callResult
+			select Steam.GetCallResultState(leaderboardInfo[x].callResult)
 				case STATE_DONE
-					leaderboardInfo[x].handle = Steam.GetLeaderboardHandle(leaderboardInfo[x].callback)
+					leaderboardInfo[x].handle = Steam.GetLeaderboardHandle(leaderboardInfo[x].callResult)
 					// If the leaderboard is not found, the handle is 0.
 					if leaderboardInfo[x].handle <> 0
 						// Refresh some information if the currently-viewed leaderboard has loaded.
@@ -234,18 +234,18 @@ Function ProcessCallbacks()
 						AddStatus("Leaderboard display type: " + str(Steam.GetLeaderboardDisplayType(leaderboardInfo[x].handle)))
 						AddStatus("Leaderboard sort: " + str(Steam.GetLeaderboardSortMethod(leaderboardInfo[x].handle)))
 					else
-						// Technically the callback will go to STATE_SERVER_ERROR when the handle is 0.
+						// Technically the CallResult will go to STATE_SERVER_ERROR when the handle is 0.
 						AddStatus("GetLeaderboardHandle error!")
 					endif
-					// We're done with the callback.  Delete it.
-					Steam.DeleteCallback(leaderboardInfo[x].callback)
-					leaderboardInfo[x].callback = 0
+					// We're done with the CallResult.  Delete it.
+					Steam.DeleteCallResult(leaderboardInfo[x].callResult)
+					leaderboardInfo[x].callResult = 0
 				endcase
 				case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 					AddStatus("ERROR: FindLeaderboard.")
-					// We're done with the callback.  Delete it.
-					Steam.DeleteCallback(leaderboardInfo[x].callback)
-					leaderboardInfo[x].callback = 0
+					// We're done with the CallResult.  Delete it.
+					Steam.DeleteCallResult(leaderboardInfo[x].callResult)
+					leaderboardInfo[x].callResult = 0
 				endcase
 			endselect
 		endif
@@ -257,42 +257,42 @@ Function ProcessCallbacks()
 		ExitFunction
 	endif
 	//
-	// Process UploadLeaderboardScore callback.
+	// Process UploadLeaderboardScore CallResult.
 	//
-	if server.uploadScoreCallback
-		select Steam.GetCallbackState(server.uploadScoreCallback)
+	if server.uploadScoreCallResult
+		select Steam.GetCallResultState(server.uploadScoreCallResult)
 			case STATE_DONE
-				server.currentRank = Steam.GetLeaderboardGlobalRankNew(server.uploadScoreCallback)
+				server.currentRank = Steam.GetLeaderboardGlobalRankNew(server.uploadScoreCallResult)
 				SetTextString(server.rankTextID, "#" + str(server.currentRank))
-				SetTextString(server.scoreTextID, str(Steam.GetLeaderboardUploadedScore(server.uploadScoreCallback)))
-				server.currentScore = Steam.GetLeaderboardUploadedScore(server.uploadScoreCallback)
-				AddStatus("LeaderboardScoreChanged: " + TF(Steam.LeaderboardScoreChanged(server.uploadScoreCallback)))
+				SetTextString(server.scoreTextID, str(Steam.GetLeaderboardUploadedScore(server.uploadScoreCallResult)))
+				server.currentScore = Steam.GetLeaderboardUploadedScore(server.uploadScoreCallResult)
+				AddStatus("LeaderboardScoreChanged: " + TF(Steam.LeaderboardScoreChanged(server.uploadScoreCallResult)))
 				// These matter only when LeaderboardScoreChanged is true.
-				AddStatus("GetLeaderboardGlobalRank - New: " + str(Steam.GetLeaderboardGlobalRankNew(server.uploadScoreCallback)) + ", Previous: " + str(Steam.GetLeaderboardGlobalRankPrevious(server.uploadScoreCallback)))
+				AddStatus("GetLeaderboardGlobalRank - New: " + str(Steam.GetLeaderboardGlobalRankNew(server.uploadScoreCallResult)) + ", Previous: " + str(Steam.GetLeaderboardGlobalRankPrevious(server.uploadScoreCallResult)))
 				// Open leaderboard to new rank page.
 				DownloadPage(server.currentRank - Mod(server.currentRank - 1, ENTRIES_PER_PAGE)) // entries are 1-based
-				// We're done with the callback.  Delete it.
-				Steam.DeleteCallback(server.uploadScoreCallback)
-				server.uploadScoreCallback = 0
+				// We're done with the CallResult.  Delete it.
+				Steam.DeleteCallResult(server.uploadScoreCallResult)
+				server.uploadScoreCallResult = 0
 			endcase
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 				AddStatus("ERROR: UploadLeaderboardScore.  Did you upload scores too often?")
-				Steam.DeleteCallback(server.uploadScoreCallback)
-				server.uploadScoreCallback = 0
+				Steam.DeleteCallResult(server.uploadScoreCallResult)
+				server.uploadScoreCallResult = 0
 			endcase
 		endselect
 	endif
 	//
-	// Process DownloadLeaderboardEntries callback: user rank.
+	// Process DownloadLeaderboardEntries CallResult: user rank.
 	//
-	if server.downloadRankCallback
-		Select Steam.GetCallbackState(server.downloadRankCallback)
+	if server.downloadRankCallResult
+		Select Steam.GetCallResultState(server.downloadRankCallResult)
 			case STATE_DONE
-				if Steam.GetDownloadedLeaderboardEntryCount(server.downloadRankCallback)
-					server.currentRank = Steam.GetDownloadedLeaderboardEntryGlobalRank(server.downloadRankCallback, 0)
-					SetTextString(server.rankTextID, "#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(server.downloadRankCallback, 0)))
-					SetTextString(server.scoreTextID, str(Steam.GetDownloadedLeaderboardEntryScore(server.downloadRankCallback, 0)))
-					server.currentScore = Steam.GetDownloadedLeaderboardEntryScore(server.downloadRankCallback, 0)
+				if Steam.GetDownloadedLeaderboardEntryCount(server.downloadRankCallResult)
+					server.currentRank = Steam.GetDownloadedLeaderboardEntryGlobalRank(server.downloadRankCallResult, 0)
+					SetTextString(server.rankTextID, "#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(server.downloadRankCallResult, 0)))
+					SetTextString(server.scoreTextID, str(Steam.GetDownloadedLeaderboardEntryScore(server.downloadRankCallResult, 0)))
+					server.currentScore = Steam.GetDownloadedLeaderboardEntryScore(server.downloadRankCallResult, 0)
 					// Open leaderboard to current rank page.
 					DownloadPage(server.currentRank - Mod(server.currentRank - 1, ENTRIES_PER_PAGE)) // entries are 1-based
 				else
@@ -303,32 +303,32 @@ Function ProcessCallbacks()
 					DownloadPage(1)
 				endif
 				LoadEntryAvatar(server.steamID, server.avatarSpriteID)
-				Steam.DeleteCallback(server.downloadRankCallback)
-				server.downloadRankCallback = 0
+				Steam.DeleteCallResult(server.downloadRankCallResult)
+				server.downloadRankCallResult = 0
 			endcase
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 				AddStatus("ERROR: DownloadLeaderboardEntries: User rank.")
-				Steam.DeleteCallback(server.downloadRankCallback)
-				server.downloadRankCallback = 0
+				Steam.DeleteCallResult(server.downloadRankCallResult)
+				server.downloadRankCallResult = 0
 			endcase
 		endselect
 	endif
 	//
-	// Process DownloadLeaderboardEntries callback: Entry page
+	// Process DownloadLeaderboardEntries CallResult: Entry page
 	//
-	if server.downloadPageCallback
-		Select Steam.GetCallbackState(server.downloadPageCallback)
+	if server.downloadPageCallResult
+		Select Steam.GetCallResultState(server.downloadPageCallResult)
 			case STATE_DONE
 				RefreshLeaderboardEntryList()
-				// Clear the callback when done.
-				Steam.DeleteCallback(server.downloadPageCallback)
-				server.downloadPageCallback = 0
+				// Clear the CallResult when done.
+				Steam.DeleteCallResult(server.downloadPageCallResult)
+				server.downloadPageCallResult = 0
 			endcase
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
 				AddStatus("ERROR: DownloadLeaderboardEntries: Page.")
-				// Clear the callback when done.
-				Steam.DeleteCallback(server.downloadPageCallback)
-				server.downloadPageCallback = 0
+				// Clear the CallResult when done.
+				Steam.DeleteCallResult(server.downloadPageCallResult)
+				server.downloadPageCallResult = 0
 			endcase
 		endselect
 	endif
@@ -358,13 +358,13 @@ Function UploadScore(score as integer)
 	//~ Steam.UploadLeaderboardScore(leaderboardInfo[server.currentLeaderboard].handle, score)
 	//~ AddStatus("Uploading leaderboard score: " + str(score))
 	// UploadLeaderboardScoreForceUpdate forces the server to accept the score even if it's worse than before.
-	server.uploadScoreCallback = Steam.UploadLeaderboardScoreForceUpdate(leaderboardInfo[server.currentLeaderboard].handle, score)
-	AddStatus("Uploading leaderboard score (force update): " + str(score) + ".  Callback handle = " + str(server.uploadScoreCallback))
+	server.uploadScoreCallResult = Steam.UploadLeaderboardScoreForceUpdate(leaderboardInfo[server.currentLeaderboard].handle, score)
+	AddStatus("Uploading leaderboard score (force update): " + str(score) + ".  CallResult handle = " + str(server.uploadScoreCallResult))
 EndFunction
 
 Function DownloadUserRank()
-	server.downloadRankCallback = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
-	AddStatus("Downloading user rank.  Callback handle = " + str(server.downloadRankCallback))
+	server.downloadRankCallResult = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
+	AddStatus("Downloading user rank.  CallResult handle = " + str(server.downloadRankCallResult))
 EndFunction
 
 Function DownloadPage(startEntryNumber as integer)
@@ -376,8 +376,8 @@ Function DownloadPage(startEntryNumber as integer)
 		ExitFunction
 	endif
 	server.currentStartEntryNumber = startEntryNumber
-	server.downloadPageCallback = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobal, startEntryNumber, startEntryNumber + ENTRIES_PER_PAGE - 1)
-	AddStatus("Downloading page of entries.  Callback handle = " + str(server.downloadPageCallback))
+	server.downloadPageCallResult = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobal, startEntryNumber, startEntryNumber + ENTRIES_PER_PAGE - 1)
+	AddStatus("Downloading page of entries.  CallResult handle = " + str(server.downloadPageCallResult))
 EndFunction
 
 Function CreateLeaderboardUI()
@@ -425,13 +425,13 @@ Function RefreshLeaderboardEntryList()
 	for index = 0 to server.entryRankTextIDs.length
 		SetLeaderboardEntryVisible(index, 0)
 	next
-	for index = 0 to Steam.GetDownloadedLeaderboardEntryCount(server.downloadPageCallback) - 1
+	for index = 0 to Steam.GetDownloadedLeaderboardEntryCount(server.downloadPageCallResult) - 1
 		hSteamID as integer
-		hSteamID = Steam.GetDownloadedLeaderboardEntryUser(server.downloadPageCallback, index)
+		hSteamID = Steam.GetDownloadedLeaderboardEntryUser(server.downloadPageCallResult, index)
 		server.entrySteamID[index] = hSteamID
-		SetTextString(server.entryRankTextIDs[index], "#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(server.downloadPageCallback, index)))
+		SetTextString(server.entryRankTextIDs[index], "#" + str(Steam.GetDownloadedLeaderboardEntryGlobalRank(server.downloadPageCallResult, index)))
 		SetTextString(server.entryNameTextIDs[index], Steam.GetFriendPersonaName(hSteamID))
-		SetTextString(server.entryScoreTextIDs[index], str(Steam.GetDownloadedLeaderboardEntryScore(server.downloadPageCallback, index)))
+		SetTextString(server.entryScoreTextIDs[index], str(Steam.GetDownloadedLeaderboardEntryScore(server.downloadPageCallResult, index)))
 		LoadEntryAvatar(hSteamID, server.entryAvatarSpriteIDs[index])
 		SetLeaderboardEntryVisible(index, 1)
 	next

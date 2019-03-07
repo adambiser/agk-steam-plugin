@@ -410,16 +410,16 @@ int SetFileAttributes(const char *filename, int attributes)
 	return SetFileAttributesA(filename, attributes);
 }
 
-void DeleteCallResult(int hCallback)
+void DeleteCallResult(int hCallResult)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->DeleteCallResultItem(hCallback);
+	Steam->DeleteCallResultItem(hCallResult);
 }
 
-int GetCallResultState(int hCallback)
+int GetCallResultState(int hCallResult)
 {
 	CheckInitializedPlugin(ClientError);
-	return Steam->GetCallResultItemState(hCallback);
+	return Steam->GetCallResultItemState(hCallResult);
 }
 
 // App/DLC methods
@@ -1256,10 +1256,10 @@ int FindLeaderboard(const char *leaderboardName)
 	return Steam->FindLeaderboard(leaderboardName);
 }
 
-int GetLeaderboardHandle(int hCallback)
+int GetLeaderboardHandle(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return (int) Steam->GetLeaderboardHandle(hCallback);
+	return (int) Steam->GetLeaderboardHandle(hCallResult);
 }
 
 char *GetLeaderboardName(int hLeaderboard)
@@ -1299,34 +1299,34 @@ int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
 }
 
-int LeaderboardScoreStored(int hCallback)
+int LeaderboardScoreStored(int hCallResult)
 {
 	CheckInitializedPlugin(false);
-	return Steam->LeaderboardScoreStored(hCallback);
+	return Steam->LeaderboardScoreStored(hCallResult);
 }
 
-int LeaderboardScoreChanged(int hCallback)
+int LeaderboardScoreChanged(int hCallResult)
 {
 	CheckInitializedPlugin(false);
-	return Steam->LeaderboardScoreChanged(hCallback);
+	return Steam->LeaderboardScoreChanged(hCallResult);
 }
 
-int GetLeaderboardUploadedScore(int hCallback)
+int GetLeaderboardUploadedScore(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardUploadedScore(hCallback);
+	return Steam->GetLeaderboardUploadedScore(hCallResult);
 }
 
-int GetLeaderboardGlobalRankNew(int hCallback)
+int GetLeaderboardGlobalRankNew(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardGlobalRankNew(hCallback);
+	return Steam->GetLeaderboardGlobalRankNew(hCallResult);
 }
 
-int GetLeaderboardGlobalRankPrevious(int hCallback)
+int GetLeaderboardGlobalRankPrevious(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardGlobalRankPrevious(hCallback);
+	return Steam->GetLeaderboardGlobalRankPrevious(hCallResult);
 }
 
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
@@ -1335,28 +1335,28 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 	return Steam->DownloadLeaderboardEntries(hLeaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 }
 
-int GetDownloadedLeaderboardEntryCount(int hCallback)
+int GetDownloadedLeaderboardEntryCount(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryCount(hCallback);
+	return Steam->GetDownloadedLeaderboardEntryCount(hCallResult);
 }
 
-int GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index)
+int GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryGlobalRank(hCallback, index);
+	return Steam->GetDownloadedLeaderboardEntryGlobalRank(hCallResult, index);
 }
 
-int GetDownloadedLeaderboardEntryScore(int hCallback, int index)
+int GetDownloadedLeaderboardEntryScore(int hCallResult, int index)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryScore(hCallback, index);
+	return Steam->GetDownloadedLeaderboardEntryScore(hCallResult, index);
 }
 
-int GetDownloadedLeaderboardEntryUser(int hCallback, int index)
+int GetDownloadedLeaderboardEntryUser(int hCallResult, int index)
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(hCallback, index));
+	return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(hCallResult, index));
 }
 
 void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)

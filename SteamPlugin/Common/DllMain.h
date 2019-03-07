@@ -147,8 +147,8 @@ in the project folder when the interpreter exits.
 */
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes);
 /* @page Callbacks */
-extern "C" DLL_EXPORT void DeleteCallResult(int hCallback);
-extern "C" DLL_EXPORT int GetCallResultState(int hCallback);
+extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
+extern "C" DLL_EXPORT int GetCallResultState(int hCallResult);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.
@@ -888,7 +888,7 @@ extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 @param leaderboardName The name of the leaderboard to find.
 @return The leaderboard handle or 0 if finding the handle has failed.
 */
-extern "C" DLL_EXPORT int GetLeaderboardHandle(int hCallback);
+extern "C" DLL_EXPORT int GetLeaderboardHandle(int hCallResult);
 /* @page Leaderboard Information
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
@@ -948,7 +948,7 @@ extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, in
 @return 1 when successfully received; otherwise 0.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int LeaderboardScoreStored(int hCallback);
+extern "C" DLL_EXPORT int LeaderboardScoreStored(int hCallResult);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -956,7 +956,7 @@ Gets whether the uploaded score caused the user's leaderboard entry to change or
 @return 1 if the score in the leaderboard changed.  0 if the existing score was better.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int LeaderboardScoreChanged(int hCallback);
+extern "C" DLL_EXPORT int LeaderboardScoreChanged(int hCallResult);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -964,7 +964,7 @@ Gets the uploaded score returned by the UploadLeaderboardScore callback.
 @return The uploaded score that was attempted to set.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int GetLeaderboardUploadedScore(int hCallback);
+extern "C" DLL_EXPORT int GetLeaderboardUploadedScore(int hCallResult);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -972,7 +972,7 @@ Gets the new global rank of the user in this leaderboard returned by the UploadL
 @return The new global rank of the user in this leaderboard.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew(int hCallback);
+extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew(int hCallResult);
 /*
 @desc _This command should only be called when LeaderboardScoreStored returns 1._
 
@@ -980,7 +980,7 @@ Gets the previous global rank of the user in this leaderboard returned by the Up
 @return The previous global rank of the user in this leaderboard; 0 if the user had no existing entry.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
-extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious(int hCallback);
+extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious(int hCallResult);
 /* @page Downloading Entries
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
@@ -1003,7 +1003,7 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 @return The number of leaderboard entries returned.  0 when there are no entries.
 @api ISteamUserStats#LeaderboardScoresDownloaded_t
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount(int hCallback);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount(int hCallResult);
 /*
 @desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
 
@@ -1012,7 +1012,7 @@ Gets a leaderboard entry's global rank.
 @return The entry's rank.
 @api ISteamUserStats#LeaderboardScoresDownloaded_t, ISteamUserStats#GetDownloadedLeaderboardEntry
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index);
 /*
 @desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
 
@@ -1020,7 +1020,7 @@ Gets a leaderboard entry's score.
 @param index The index of the leaderboard entry.
 @return The entry's score.
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int hCallback, int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int hCallResult, int index);
 /*
 @desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
 
@@ -1028,7 +1028,7 @@ Gets a handle to the leaderboard entry's user SteamID.
 @param index The index of the leaderboard entry.
 @return The entry's user SteamID handle.
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int hCallback, int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int hCallResult, int index);
 /* @page Lobby List */
 /*
 @desc Sets the physical distance for which we should search for lobbies, this is based on the users IP address and a IP location map on the Steam backend.

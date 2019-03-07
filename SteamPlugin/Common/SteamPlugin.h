@@ -357,7 +357,7 @@ public:
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 	// Leaderboards
 	int FindLeaderboard(const char *pchLeaderboardName);
-	SteamLeaderboard_t GetLeaderboardHandle(int hCallback);
+	SteamLeaderboard_t GetLeaderboardHandle(int hCallResult);
 	// General information
 	const char *GetLeaderboardName(SteamLeaderboard_t hLeaderboard);
 	int GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard);
@@ -365,17 +365,17 @@ public:
 	ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hLeaderboard);
 	// Uploading scores
 	int UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
-	bool LeaderboardScoreStored(int hCallback);
-	bool LeaderboardScoreChanged(int hCallback);
-	int GetLeaderboardUploadedScore(int hCallback);
-	int GetLeaderboardGlobalRankNew(int hCallback);
-	int GetLeaderboardGlobalRankPrevious(int hCallback);
+	bool LeaderboardScoreStored(int hCallResult);
+	bool LeaderboardScoreChanged(int hCallResult);
+	int GetLeaderboardUploadedScore(int hCallResult);
+	int GetLeaderboardGlobalRankNew(int hCallResult);
+	int GetLeaderboardGlobalRankPrevious(int hCallResult);
 	// Downloading entries.
 	int DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
-	int GetDownloadedLeaderboardEntryCount(int hCallback);
-	int GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index);
-	int GetDownloadedLeaderboardEntryScore(int hCallback, int index);
-	CSteamID GetDownloadedLeaderboardEntryUser(int hCallback, int index);
+	int GetDownloadedLeaderboardEntryCount(int hCallResult);
+	int GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index);
+	int GetDownloadedLeaderboardEntryScore(int hCallResult, int index);
+	CSteamID GetDownloadedLeaderboardEntryUser(int hCallResult, int index);
 	// Lobby methods: List
 	void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
 	void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
