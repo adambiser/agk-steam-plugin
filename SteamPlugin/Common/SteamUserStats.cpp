@@ -175,7 +175,8 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 			return 0;
 		}
 		hImage = -1; // Use -1 to indicate that we're waiting on a callback to provide the handle.
-		m_AchievementIconsMap.insert_or_assign(name, hImage);
+		//m_AchievementIconsMap.insert_or_assign(name, hImage);
+		m_AchievementIconsMap[name] = hImage;
 	}
 	return hImage;
 }
@@ -240,47 +241,22 @@ bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSessio
 	return SteamUserStats()->UpdateAvgRateStat(pchName, flCountThisSession, dSessionLength);
 }
 
-// Callback for FindLeaderboard.
-void SteamPlugin::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
-{
-	if (pCallback->m_bLeaderboardFound && !bIOFailure)
-	{
-		agk::Log("Callback: Find Leaderboard Succeeded");
-		m_FindLeaderboardCallbackState = Done;
-	}
-	else
-	{
-		// Did not find the leaderboard.
-		agk::Log("Callback: Find Leaderboard Failed");
-		m_FindLeaderboardCallbackState = ServerError;
-	}
-	m_LeaderboardFindResult = *pCallback;
-}
-
-// TODO Change this to behave like CFileReadAsyncItem does so multiple leaderboards can be searched at once.
-bool SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
+int SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
 	CheckInitialized(SteamUserStats, false);
-	// Fail when the callback is currently running.
-	if (m_FindLeaderboardCallbackState == Running)
+	CLeaderboardFindCallback *callback = new CLeaderboardFindCallback(pchLeaderboardName);
+	callback->Run();
+	return AddCallbackItem(callback);
+}
+
+SteamLeaderboard_t SteamPlugin::GetLeaderboardHandle(int hCallback)
+{
+	CLeaderboardFindCallback *callback = GetCallbackItem<CLeaderboardFindCallback>(hCallback);
+	if (callback)
 	{
-		return false;
+		return callback->GetLeaderboardHandle();
 	}
-	try
-	{
-		// Clear result structure.
-		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
-		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
-		SteamAPICall_t hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
-		m_CallResultFindLeaderboard.Set(hSteamAPICall, this, &SteamPlugin::OnFindLeaderboard);
-		m_FindLeaderboardCallbackState = Running;
-		return true;
-	}
-	catch (...)
-	{
-		m_FindLeaderboardCallbackState = ClientError;
-		return false;
-	}
+	return 0;
 }
 
 const char *SteamPlugin::GetLeaderboardName(SteamLeaderboard_t hLeaderboard)
