@@ -34,18 +34,17 @@ public:
 	CLeaderboardFindCallback(std::string leaderboardName) :
 		CCallbackItem(),
 		m_Name(leaderboardName),
-		m_hSteamLeaderboard(0)
-	{}
+		m_hLeaderboard(0) {}
 	virtual ~CLeaderboardFindCallback(void) {}
 	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
-	SteamLeaderboard_t GetLeaderboardHandle() { return m_hSteamLeaderboard; }
+	SteamLeaderboard_t GetLeaderboardHandle() { return m_hLeaderboard; }
 protected:
 	bool Call();
 private:
-	std::string m_Name;
 	CCallResult<CLeaderboardFindCallback, LeaderboardFindResult_t> m_CallResult;
 	void OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure);
-	SteamLeaderboard_t m_hSteamLeaderboard;
+	std::string m_Name;
+	SteamLeaderboard_t m_hLeaderboard;
 };
 
 #endif // _CLEADERBOARDFINDCALLBACK_H_

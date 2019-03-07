@@ -21,15 +21,13 @@ THE SOFTWARE.
 */
 
 #include "CLeaderboardFindCallback.h"
-#include "..\AGKLibraryCommands.h"
 #include "AGKUtils.h"
-#include <sstream>
 
 void CLeaderboardFindCallback::OnFindLeaderboard(LeaderboardFindResult_t *pCallback, bool bIOFailure)
 {
-	m_hSteamLeaderboard = pCallback->m_hSteamLeaderboard;
+	m_hLeaderboard = pCallback->m_hSteamLeaderboard;
 	bool found = pCallback->m_bLeaderboardFound && !bIOFailure;
-	utils::Log("OnFindLeaderboard: '" + m_Name + "'.  Found = " + std::to_string(found) + ", Handle = " + std::to_string(m_hSteamLeaderboard));
+	utils::Log("OnFindLeaderboard: '" + m_Name + "'.  Found = " + std::to_string(found) + ", Handle = " + std::to_string(m_hLeaderboard));
 	if (found)
 	{
 		m_State = Done;
