@@ -1,4 +1,28 @@
+/*
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 #include "SteamPlugin.h"
+#include "CFileReadAsyncCallResult.h"
+#include "CFileWriteAsyncCallResult.h"
 
 // Cloud methods: Information
 bool SteamPlugin::IsCloudEnabledForAccount()
@@ -50,58 +74,28 @@ int32 SteamPlugin::FileRead(const char *pchFile, void *pvData, int32 cubDataToRe
 	return SteamRemoteStorage()->FileRead(pchFile, pvData, cubDataToRead);
 }
 
-CFileReadAsyncItem *SteamPlugin::GetFileReadAsyncItem(std::string filename)
-{
-	auto search = m_FileReadAsyncItemMap.find(filename);
-	if (search != m_FileReadAsyncItemMap.end())
-	{
-		return search->second;
-	}
-	return NULL;
-}
-
-bool SteamPlugin::FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead)
+int SteamPlugin::FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead)
 {
 	CheckInitialized(SteamRemoteStorage, false);
-	std::string filename = pchFile;
-	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
-	if (!item)
-	{
-		item = new CFileReadAsyncItem();
-		m_FileReadAsyncItemMap.insert_or_assign(filename, item);
-	}
-	return item->Call(pchFile, nOffset, cubToRead);
+	CFileReadAsyncCallResult *callResult = new CFileReadAsyncCallResult(pchFile, nOffset, cubToRead);
+	callResult->Run();
+	return AddCallResultItem(callResult);
 }
 
-ECallbackState SteamPlugin::GetFileReadAsyncCallbackState(const char *pchFile)
+std::string SteamPlugin::GetFileReadAsyncFileName(int hCallResult)
 {
-	std::string filename = pchFile;
-	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
-	if (item)
+	if (CFileReadAsyncCallResult *callResult = GetCallResultItem<CFileReadAsyncCallResult>(hCallResult))
 	{
-		return getCallbackState(&item->m_CallbackState);
+		return callResult->GetFileName();
 	}
-	return Idle;
+	return std::string("");
 }
 
-EResult SteamPlugin::GetFileReadAsyncResult(const char *pchFile)
+int SteamPlugin::GetFileReadAsyncMemblock(int hCallResult)
 {
-	std::string filename = pchFile;
-	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
-	if (item)
+	if (CFileReadAsyncCallResult *callResult = GetCallResultItem<CFileReadAsyncCallResult>(hCallResult))
 	{
-		return item->m_Result;
-	}
-	return (EResult)0;
-}
-
-int SteamPlugin::GetFileReadAsyncMemblock(const char *pchFile)
-{
-	std::string filename = pchFile;
-	CFileReadAsyncItem *item = GetFileReadAsyncItem(filename);
-	if (item)
-	{
-		return item->m_MemblockID;
+		return callResult->GetMemblockID();
 	}
 	return 0;
 }
@@ -114,49 +108,21 @@ bool SteamPlugin::FileWrite(const char *pchFile, const void *pvData, int32 cubDa
 	return SteamRemoteStorage()->FileWrite(pchFile, pvData, cubData);
 }
 
-CFileWriteAsyncItem *SteamPlugin::GetFileWriteAsyncItem(std::string filename)
-{
-	auto search = m_FileWriteAsyncItemMap.find(filename);
-	if (search != m_FileWriteAsyncItemMap.end())
-	{
-		return search->second;
-	}
-	return NULL;
-}
-
-bool SteamPlugin::FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData)
+int SteamPlugin::FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData)
 {
 	CheckInitialized(SteamRemoteStorage, false);
-	std::string filename = pchFile;
-	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
-	if (!item)
-	{
-		item = new CFileWriteAsyncItem();
-		m_FileWriteAsyncItemMap.insert_or_assign(filename, item);
-	}
-	return item->Call(pchFile, pvData, cubData);
+	CFileWriteAsyncCallResult *callResult = new CFileWriteAsyncCallResult(pchFile, pvData, cubData);
+	callResult->Run();
+	return AddCallResultItem(callResult);
 }
 
-ECallbackState SteamPlugin::GetFileWriteAsyncCallbackState(const char *pchFile)
+std::string SteamPlugin::GetFileWriteAsyncFileName(int hCallResult)
 {
-	std::string filename = pchFile;
-	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
-	if (item)
+	if (CFileWriteAsyncCallResult *callResult = GetCallResultItem<CFileWriteAsyncCallResult>(hCallResult))
 	{
-		return getCallbackState(&item->m_CallbackState);
+		return callResult->GetFileName();
 	}
-	return Idle;
-}
-
-EResult SteamPlugin::GetFileWriteAsyncResult(const char *pchFile)
-{
-	std::string filename = pchFile;
-	CFileWriteAsyncItem *item = GetFileWriteAsyncItem(filename);
-	if (item)
-	{
-		return item->m_Result;
-	}
-	return (EResult)0;
+	return std::string("");
 }
 
 //bool SteamPlugin::FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);

@@ -20,32 +20,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLEADERBOARDFINDCALLRESULT_H_
-#define _CLEADERBOARDFINDCALLRESULT_H_
+#ifndef _CFILEREADASYNCCALLRESULT_H_
+#define _CFILEREADASYNCCALLRESULT_H_
 #pragma once
 
 #include "CCallResultItem.h"
 
-class CLeaderboardFindCallResult : public CCallResultItem
+class CFileReadAsyncCallResult : public CCallResultItem
 {
 public:
-	CLeaderboardFindCallResult(std::string leaderboardName) :
+	CFileReadAsyncCallResult(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
 		CCallResultItem(),
-		m_Name(leaderboardName),
-		m_hLeaderboard(0) {}
-	virtual ~CLeaderboardFindCallResult(void)
+		m_FileName(pchFile),
+		m_nOffset(nOffset),
+		m_cubToRead(cubToRead),
+		m_MemblockID(0) {}
+	virtual ~CFileReadAsyncCallResult(void)
 	{
+		if (m_MemblockID && agk::GetMemblockExists(m_MemblockID))
+		{
+			agk::DeleteMemblock(m_MemblockID);
+		}
+		m_MemblockID = 0;
 		m_CallResult.Cancel();
 	}
-	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
-	SteamLeaderboard_t GetLeaderboardHandle() { return m_hLeaderboard; }
+	std::string GetName()
+	{
+		return "FileReadAsync(" 
+			+ m_FileName + ", "
+			+ std::to_string(m_nOffset) + ", "
+			+ std::to_string(m_cubToRead) + ")";
+	}
+	std::string GetFileName() { return m_FileName; }
+	int GetMemblockID() { return m_MemblockID; }
 protected:
 	void Call();
 private:
-	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
-	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
-	std::string m_Name;
-	SteamLeaderboard_t m_hLeaderboard;
+	CCallResult<CFileReadAsyncCallResult, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
+	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
+	std::string m_FileName;
+	uint32 m_nOffset;
+	uint32 m_cubToRead;
+	int m_MemblockID;
 };
 
-#endif // _CLEADERBOARDFINDCALLRESULT_H_
+#endif // _CFILEREADASYNCCALLRESULT_H_

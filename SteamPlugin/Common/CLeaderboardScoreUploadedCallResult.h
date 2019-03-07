@@ -25,9 +25,6 @@ THE SOFTWARE.
 #pragma once
 
 #include "CCallResultItem.h"
-#include <steam_api.h>
-#include <string>
-#include <vector>
 
 class CLeaderboardScoreUploadedCallResult : public CCallResultItem
 {
@@ -37,8 +34,12 @@ public:
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardUploadScoreMethod(m_eLeaderboardUploadScoreMethod),
 		m_nScore(nScore) {}
-	virtual ~CLeaderboardScoreUploadedCallResult(void) {}
-	std::string GetName() {
+	virtual ~CLeaderboardScoreUploadedCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	std::string GetName()
+	{
 		return "UploadLeaderboardScore("
 			+ std::to_string(m_hLeaderboard) + ", "
 			+ std::to_string(m_eLeaderboardUploadScoreMethod) + ", "
@@ -50,7 +51,7 @@ public:
 	int GetLeaderboardGlobalRankNew() { return m_LeaderboardScoreUploaded.m_nGlobalRankNew; }
 	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious; }
 protected:
-	bool Call();
+	void Call();
 private:
 	CCallResult<CLeaderboardScoreUploadedCallResult, LeaderboardScoreUploaded_t> m_CallResult;
 	void OnUploadScore(LeaderboardScoreUploaded_t *pCallResult, bool bIOFailure);

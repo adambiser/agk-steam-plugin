@@ -82,6 +82,7 @@ Function CheckInput()
 	if GetVirtualButtonPressed(SYNC_READ_BUTTON)
 		AddStatus("Sync read: " + TEST_FILE_NAME)
 		SyncRead(TEST_FILE_NAME)
+		SyncRead("test2.txt")
 	endif
 	if GetVirtualButtonPressed(ASYNC_WRITE_BUTTON)
 		AsyncWrite(TEST_FILE_NAME)
@@ -114,7 +115,7 @@ Function SyncWrite(filename as string)
 	DeleteMemblock(memblock)
 EndFunction
 
-global asyncWriteFiles as string[]
+global asyncWriteCallResults as integer[]
 
 Function CreateTempFileMemblock(Text as string)
 	filename as string = "temp.tmp"
@@ -132,8 +133,10 @@ Function AsyncWrite(filename as string)
 	AddStatus("Async write: " + filename)
 	memblock as integer
 	memblock = CreateTempFileMemblock("Hello from " + filename  + "!")
-	AddStatus("Success = " + TF(Steam.CloudFileWriteAsync(filename, memblock)))
-	asyncWriteFiles.insert(filename)
+	hCallResult as integer
+	hCallResult = Steam.CloudFileWriteAsync(filename, memblock)
+	AddStatus("Call Result: " + str(hCallResult))
+	asyncWriteCallResults.insert(hCallResult)
 	DeleteMemblock(memblock)
 EndFunction
 
@@ -141,21 +144,23 @@ Function SyncRead(filename as string)
 	memblock as integer
 	memblock = Steam.CloudFileRead(filename)
 	if memblock
-		AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(filename)))
+		AddStatus("File Text: " + GetMemblockString(memblock, 0, GetMemblockSize(memblock)))
 		DeleteMemblock(memblock)
 	else
 		AddStatus("File does not exist") 
 	endif
 EndFunction
 
-global asyncReadFiles as string[]
+global asyncReadCallResults as integer[]
 
 Function AsyncRead(filename as string)
 	AddStatus("Async read: " + filename)
 	AddStatus("File size: " + str(Steam.GetCloudFileSize(filename)))
-	if Steam.CloudFileReadAsync(filename, 0, -1)
-		AddStatus("Success")
-		asyncReadFiles.insert(filename)
+	hCallResult as integer
+	hCallResult = Steam.CloudFileReadAsync(filename, 0, -1)
+	if hCallResult
+		AddStatus("Call Result: " + str(hCallResult))
+		asyncReadCallResults.insert(hCallResult)
 	else
 		AddStatus("Failed")
 	endif
@@ -171,40 +176,48 @@ global errorReported as integer[1]
 //
 Function ProcessCallbacks()
 	index as integer
-	for index = asyncWriteFiles.length to 0 step -1
-		select Steam.GetCloudFileWriteAsyncCallbackState(asyncWriteFiles[index])
+	filename as string
+	for index = asyncWriteCallResults.length to 0 step -1
+		select Steam.GetCallResultState(asyncWriteCallResults[index])
 			case STATE_DONE
-				AddStatus(asyncWriteFiles[index] + " - Async file write finished with result: " + str(Steam.GetCloudFileWriteAsyncResult(asyncWriteFiles[index])))
-				asyncWriteFiles.remove(index)
+				filename = Steam.GetCloudFileWriteAsyncFileName(asyncWriteCallResults[index])
+				AddStatus("Finished async write for " + filename)
+				// We're done with the CallResult.  Delete it.
+				Steam.DeleteCallResult(asyncWriteCallResults[index])
+				asyncWriteCallResults.remove(index)
 			endcase
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-				if not errorReported[ERROR_ASYNCWRITE]
-					errorReported[ERROR_ASYNCWRITE] = 1
-					AddStatus("ERROR: FileWriteAsync: " + asyncWriteFiles[index])
-				endif
+				filename = Steam.GetCloudFileWriteAsyncFileName(asyncWriteCallResults[index])
+				AddStatus("ERROR: FileWriteAsync: " + filename)
+				// We're done with the CallResult.  Delete it.
+				Steam.DeleteCallResult(asyncWriteCallResults[index])
+				asyncWriteCallResults.remove(index)
 			endcase
 		endselect
 	next
-	for index = asyncReadFiles.length to 0 step -1
-		//~ AddStatus("Checking " + asyncReadFiles[index])
-		select Steam.GetCloudFileReadAsyncCallbackState(asyncReadFiles[index])
+	for index = asyncReadCallResults.length to 0 step -1
+		select Steam.GetCallResultState(asyncReadCallResults[index])
 			case STATE_DONE
-				AddStatus(asyncReadFiles[index] + " - Async file read finished with result: " + str(Steam.GetCloudFileReadAsyncResult(asyncReadFiles[index])))
+				filename = Steam.GetCloudFileReadAsyncFileName(asyncReadCallResults[index])
+				AddStatus("Finished async read for " + filename)
 				memblock as integer
-				memblock = Steam.GetCloudFileReadAsyncMemblock(asyncReadFiles[index])
+				memblock = Steam.GetCloudFileReadAsyncMemblock(asyncReadCallResults[index])
 				if memblock
-					AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(asyncReadFiles[index])))
-					DeleteMemblock(memblock)
+					AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(filename)))
+					// NOTE: Deleting the FileReadAsync call result will delete its memblock.
 				else
-					AddStatus("File does not exist") 
+					AddStatus("File does not exist!") 
 				endif
-				asyncReadFiles.remove(index)
+				// We're done with the CallResult.  Delete it.
+				Steam.DeleteCallResult(asyncReadCallResults[index])
+				asyncReadCallResults.remove(index)
 			endcase
 			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-				if not errorReported[ERROR_ASYNCREAD]
-					errorReported[ERROR_ASYNCREAD] = 1
-					AddStatus("ERROR: FileReadAsync: " + asyncReadFiles[index])
-				endif
+				filename = Steam.GetCloudFileReadAsyncFileName(asyncReadCallResults[index])
+				AddStatus("ERROR: FileReadAsync: " + filename)
+				// We're done with the CallResult.  Delete it.
+				Steam.DeleteCallResult(asyncReadCallResults[index])
+				asyncReadCallResults.remove(index)
 			endcase
 		endselect
 	next

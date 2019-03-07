@@ -29,8 +29,6 @@ THE SOFTWARE.
 #include <list>
 #include <vector>
 #include <mutex>
-#include "CFileWriteAsyncItem.h"
-#include "CFileReadAsyncItem.h"
 #include "CCallResultItem.h"
 
 #if defined(_WINDOWS)
@@ -209,11 +207,7 @@ private:
 	};
 	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
 	// Cloud method: FileWriteAsync
-	CFileWriteAsyncItem *GetFileWriteAsyncItem(std::string filename);
-	std::map<std::string, CFileWriteAsyncItem*> m_FileWriteAsyncItemMap;
 	// Cloud method: FileReadAsync
-	CFileReadAsyncItem *GetFileReadAsyncItem(std::string filename);
-	std::map<std::string, CFileReadAsyncItem*> m_FileReadAsyncItemMap;
 	// Input
 	//int m_InputCount;
 	//InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
@@ -492,15 +486,14 @@ public:
 	bool FileForget(const char *pchFile);
 	bool FilePersisted(const char *pchFile);
 	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
-	bool FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-	ECallbackState GetFileReadAsyncCallbackState(const char *pchFile);
-	EResult GetFileReadAsyncResult(const char *pchFile);
-	int GetFileReadAsyncMemblock(const char *pchFile);
+	int FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	//EResult GetFileReadAsyncResult(int hCallResult);
+	std::string GetFileReadAsyncFileName(int hCallResult);
+	int GetFileReadAsyncMemblock(int hCallResult);
 	//SteamAPICall_t FileShare(const char *pchFile);
 	bool FileWrite(const char *pchFile, const void *pvData, int32 cubData);
-	bool FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);
-	ECallbackState GetFileWriteAsyncCallbackState(const char *pchFile);
-	EResult GetFileWriteAsyncResult(const char *pchFile);
+	int FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);
+	std::string GetFileWriteAsyncFileName(int hCallResult);
 	//bool FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 	//bool FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 	//UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *pchFile);

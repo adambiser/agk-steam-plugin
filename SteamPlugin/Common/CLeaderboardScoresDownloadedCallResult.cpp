@@ -21,7 +21,6 @@ THE SOFTWARE.
 */
 
 #include "CLeaderboardScoresDownloadedCallResult.h"
-#include "AGKUtils.h"
 
 #define CheckEntryIndex(index, returnValue) \
 	if (index < 0 || index >= (int)m_Entries.size()) \
@@ -34,7 +33,7 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 {
 	if (!bIOFailure)
 	{
-		utils::Log(GetName() + " succeeded.");
+		utils::Log(GetName() + ": Succeeded.");
 		m_State = Done;
 		for (int index = 0; index < pCallResult->m_cEntryCount; index++)
 		{
@@ -45,20 +44,19 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 	}
 	else
 	{
-		utils::Log(GetName() + " failed.");
+		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
 	}
 }
 
-bool CLeaderboardScoresDownloadedCallResult::Call()
+void CLeaderboardScoresDownloadedCallResult::Call()
 {
-	SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(m_hLeaderboard, m_eLeaderboardDataRequest, m_nRangeStart, m_nRangeEnd);
-	if (hSteamAPICall == k_uAPICallInvalid)
+	m_hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(m_hLeaderboard, m_eLeaderboardDataRequest, m_nRangeStart, m_nRangeEnd);
+	if (m_hSteamAPICall == k_uAPICallInvalid)
 	{
-		return false;
+		throw std::string("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
 	}
-	m_CallResult.Set(hSteamAPICall, this, &CLeaderboardScoresDownloadedCallResult::OnDownloadScore);
-	return true;
+	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardScoresDownloadedCallResult::OnDownloadScore);
 }
 
 int CLeaderboardScoresDownloadedCallResult::GetEntryGlobalRank(int index)

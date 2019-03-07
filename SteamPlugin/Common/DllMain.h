@@ -147,7 +147,16 @@ in the project folder when the interpreter exits.
 */
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes);
 /* @page Callbacks */
+/*
+@desc Deletes a [call result](Callbacks-and-Call-Results#call-results) and frees any associated memory for the call result.
+@param hCallResult The call result handle to delete.
+*/
 extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
+/*
+@desc Returns the state of the given [call result](Callbacks-and-Call-Results#call-results).
+@param hCallResult The call result handle to check.
+@return [A callback state](Callbacks-and-Call-Results#states)
+*/
 extern "C" DLL_EXPORT int GetCallResultState(int hCallResult);
 /* @page App Information */
 /*
@@ -678,7 +687,7 @@ extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
 extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
 /* @page Request and Store */
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+@desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
 
 Sends a request for user stats to Steam.
 
@@ -698,7 +707,7 @@ extern "C" DLL_EXPORT int GetRequestStatsCallbackState();
 */
 extern "C" DLL_EXPORT int StatsInitialized();
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+@desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
 
 Stores user stats online.
 @return 1 when sending the request to store user stats succeeds; otherwise 0.
@@ -706,7 +715,7 @@ Stores user stats online.
 */
 extern "C" DLL_EXPORT int StoreStats();
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
+@desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
 
 Resets user stats and optionally all achievements (when bAchievementsToo is 1).  This command also triggers the StoreStats callback.
 @param achievementsToo When 1 then achievements are also cleared.
@@ -875,17 +884,15 @@ extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSes
 */
 /*
 FindLeaderboard
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Sends a request to find the handle for a leaderboard.
+@desc Sends a request to find the handle for a leaderboard.
 @param leaderboardName The name of the leaderboard to find.
-@xreturn 1 when sending the request to find the leaderboard succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#FindLeaderboard
 */
 extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 /*
 @desc Gets the handle to the leaderboard requested with FindLeaderboard.
-@param leaderboardName The name of the leaderboard to find.
+@param hCallResult A FindLeaderboard [call result handle](Callbacks-and-Call-Results#call-results).
 @return The leaderboard handle or 0 if finding the handle has failed.
 */
 extern "C" DLL_EXPORT int GetLeaderboardHandle(int hCallResult);
@@ -924,107 +931,95 @@ extern "C" DLL_EXPORT int GetLeaderboardSortMethod(int hLeaderboard);
 **In order to use a leaderboard, its handle must first be retrieved from the server.**
 */
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Uploads a score to a leaderboard.  The leaderboard will keep the user's best score.
+@desc Uploads a score to a leaderboard.  The leaderboard will keep the user's best score.
 @param hLeaderboard A leaderboard handle.
 @param score The score to upload.
-@return 1 if the request to upload the score succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Uploads a score to a leaderboard.  Forces the server to accept the uploaded score and replace any existing score.
+@desc Uploads a score to a leaderboard.  Forces the server to accept the uploaded score and replace any existing score.
 @param hLeaderboard A leaderboard handle.
 @param score The score to upload.
-@return 1 if the request to upload the score succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
 /*
 @desc Gets whether the uploaded score was successfully received by the server leaderboard.
+@param hCallResult A UploadLeaderboardScore [call result handle](Callbacks-and-Call-Results#call-results).
 @return 1 when successfully received; otherwise 0.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int LeaderboardScoreStored(int hCallResult);
 /*
-@desc _This command should only be called when LeaderboardScoreStored returns 1._
-
-Gets whether the uploaded score caused the user's leaderboard entry to change or not.
+@desc Gets whether the uploaded score caused the user's leaderboard entry to change or not.
+@param hCallResult A UploadLeaderboardScore [call result handle](Callbacks-and-Call-Results#call-results).
 @return 1 if the score in the leaderboard changed.  0 if the existing score was better.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int LeaderboardScoreChanged(int hCallResult);
 /*
-@desc _This command should only be called when LeaderboardScoreStored returns 1._
-
-Gets the uploaded score returned by the UploadLeaderboardScore callback.
+@desc Gets the uploaded score returned by the UploadLeaderboardScore callback.
+@param hCallResult A UploadLeaderboardScore [call result handle](Callbacks-and-Call-Results#call-results).
 @return The uploaded score that was attempted to set.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetLeaderboardUploadedScore(int hCallResult);
 /*
-@desc _This command should only be called when LeaderboardScoreStored returns 1._
-
-Gets the new global rank of the user in this leaderboard returned by the UploadLeaderboardScore callback
+@desc Gets the new global rank of the user in the leaderboard returned by the UploadLeaderboardScore call result.
+@param hCallResult A UploadLeaderboardScore [call result handle](Callbacks-and-Call-Results#call-results).
 @return The new global rank of the user in this leaderboard.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetLeaderboardGlobalRankNew(int hCallResult);
 /*
-@desc _This command should only be called when LeaderboardScoreStored returns 1._
-
-Gets the previous global rank of the user in this leaderboard returned by the UploadLeaderboardScore callback
+@desc Gets the previous global rank of the user in this leaderboard returned by the UploadLeaderboardScore callback
+@param hCallResult A UploadLeaderboardScore [call result handle](Callbacks-and-Call-Results#call-results).
 @return The previous global rank of the user in this leaderboard; 0 if the user had no existing entry.
 @api ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetLeaderboardGlobalRankPrevious(int hCallResult);
 /* @page Downloading Entries
-**In order to use a leaderboard, its handle must first be retrieved from the server.**
+**In order to use a leaderboard, its handle must first be retrieved from the server using FindLeaderboard.**
 */
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Downloads entries from a leaderboard.
-While the Steam API allows any number of entries to be downloaded, this plugin has a limit of 10 entries.
+@desc Downloads entries from a leaderboard.
 @param hLeaderboard A leaderboard handle.
 @param eLeaderboardDataRequest The type of data request to make.
 @param-api eLeaderboardDataRequest ISteamUserStats#ELeaderboardDataRequest
 @param rangeStart The index to start downloading entries relative to eLeaderboardDataRequest.
 @param rangeEnd The last index to retrieve entries for relative to eLeaderboardDataRequest.
-@return 1 when the call succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#DownloadLeaderboardEntries
 */
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd);
 /*
-@desc Gets the number of leaderboard entries returned by the DownloadLeaderboardEntries callback.  Limited to 10.
+@desc Gets the number of leaderboard entries returned by the DownloadLeaderboardEntries callback.
+@param hCallResult A DownloadLeaderboardEntries [call result handle](Callbacks-and-Call-Results#call-results).
 @return The number of leaderboard entries returned.  0 when there are no entries.
 @api ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount(int hCallResult);
 /*
-@desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
-
-Gets a leaderboard entry's global rank.
+@desc Gets a leaderboard entry's global rank.
+@param hCallResult A DownloadLeaderboardEntries [call result handle](Callbacks-and-Call-Results#call-results).
 @param index The index of the leaderboard entry.
 @return The entry's rank.
 @api ISteamUserStats#LeaderboardScoresDownloaded_t, ISteamUserStats#GetDownloadedLeaderboardEntry
 */
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index);
 /*
-@desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
-
-Gets a leaderboard entry's score.
+@desc Gets a leaderboard entry's score.
+@param hCallResult A DownloadLeaderboardEntries [call result handle](Callbacks-and-Call-Results#call-results).
 @param index The index of the leaderboard entry.
 @return The entry's score.
 */
 extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int hCallResult, int index);
 /*
-@desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
-
-Gets a handle to the leaderboard entry's user SteamID.
+@desc Gets a handle to the leaderboard entry's user SteamID.
+@param hCallResult A DownloadLeaderboardEntries [call result handle](Callbacks-and-Call-Results#call-results).
 @param index The index of the leaderboard entry.
 @return The entry's user SteamID handle.
 */
@@ -1900,32 +1895,25 @@ The offset and amount to read should be valid for the size of the file, as indic
 Check GetCloudFileReadAsyncCallbackState to see when the callback completes.
 @param filename The name of the file to read from.
 @param offset The offset in bytes into the file where the read will start from. 0 if you're reading the whole file in one chunk.
-@param length The amount of bytes to read starting from nOffset.
-@return 1 if the request succeeds; otherwise 0.
+@param length The amount of bytes to read starting from the offset. -1 to read the entire file.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, int length);
 /*
-@desc Returns the state of the RemoteStorageFileReadAsyncComplete_t callback.
-@param filename The name of the file read from.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-@api ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
+@desc Returns the file name of the CloudFileReadAsync call result operation.
+@param hCallResult A CloudFileReadAsync [call result handle](Callbacks-and-Call-Results#call-results).
+@return The file name.
 */
-extern "C" DLL_EXPORT int GetCloudFileReadAsyncCallbackState(const char *filename);
+extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult);
 /*
-@desc Returns the result of the CloudFileReadAsync callback operation.
-@param filename The name of the file read from.
-@return The result of the operation.
-@api steam_api#EResult
-*/
-extern "C" DLL_EXPORT int GetCloudFileReadAsyncResult(const char *filename);
-/*
-@desc Returns a memblock of the data returned by the CloudFileReadAsync callback operation.
-@param filename The name of the file read from.
+@desc Returns the memblock of the data returned by the CloudFileReadAsync callback operation.
+
+A call result will delete its memblock in DeleteCallResult() so calling code does not need to do so.
+@param hCallResult A CloudFileReadAsync [call result handle](Callbacks-and-Call-Results#call-results).
 @return A memblock ID.
-@api steam_api#EResult
 */
-extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(const char *filename);
+extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(int hCallResult);
 //extern "C" DLL_EXPORT SteamAPICall_t CloudFileShare(const char *filename);
 /*
 @desc
@@ -1950,27 +1938,22 @@ extern "C" DLL_EXPORT int CloudFileWrite(const char *filename, int memblockID);
 /*
 @desc Creates a new file and asynchronously writes the raw byte data to the Steam Cloud, and then closes the file. If the target file already exists, it is overwritten.
 
+The data in memblock is copied and the memblock can be deleted immediately after calling this method.
+
 Check GetCloudFileWriteAsyncCallbackState to see when the callback completes.
 @param filename The name of the file to write to.
 @param memblockID The memblock containing the data to write to the file.
-@return 1 if the request succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamRemoteStorage#FileWriteAsync, ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
 */
 extern "C" DLL_EXPORT int CloudFileWriteAsync(const char *filename, int memblockID);
 /*
-@desc Returns the state of the RemoteStorageFileWriteAsyncComplete_t callback.
-@param filename The name of the file to write to.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-@api ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
+@desc Returns the file name of the CloudFileWriteAsync call result operation.
+@param hCallResult A CloudFileReadAsync [call result handle](Callbacks-and-Call-Results#call-results).
+@return The file name.
 */
-extern "C" DLL_EXPORT int GetCloudFileWriteAsyncCallbackState(const char *filename);
-/*
-@desc Returns the result of the CloudFileWriteAsync callback operation.
-@param filename The name of the file to write to.
-@return The result of the operation.
-@api steam_api#EResult
-*/
-extern "C" DLL_EXPORT int GetCloudFileWriteAsyncResult(const char *filename);
+extern "C" DLL_EXPORT char *GetCloudFileWriteAsyncFileName(int hCallResult);
+
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 //extern "C" DLL_EXPORT UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *filename);

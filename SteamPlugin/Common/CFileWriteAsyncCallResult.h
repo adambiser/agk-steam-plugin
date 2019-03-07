@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,29 +20,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CFILEREADASYNCITEM_H_
-#define _CFILEREADASYNCITEM_H_
+#ifndef _CFILEWRITEASYNCCALLRESULT_H_
+#define _CFILEWRITEASYNCCALLRESULT_H_
 #pragma once
 
-#include "DllMain.h"
-#include <steam_api.h>
-#include <string>
+#include "CCallResultItem.h"
 
-class CFileReadAsyncItem
+class CFileWriteAsyncCallResult : public CCallResultItem
 {
-private:
-	std::string m_Filename;
-	CCallResult<CFileReadAsyncItem, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
 public:
-	CFileReadAsyncItem();
-	virtual ~CFileReadAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	int m_MemblockID;
-	// Method call.
-	bool Call(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	CFileWriteAsyncCallResult(const char *pchFile, const void *pvData, uint32 cubData) :
+		CCallResultItem(),
+		m_FileName(pchFile),
+		m_pvData(pvData),
+		m_cubData(cubData) {}
+	virtual ~CFileWriteAsyncCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	std::string GetName()
+	{
+		return "FileWriteAsync("
+			+ m_FileName + ", "
+			+ "*data, "
+			//+ std::to_string(m_nOffset) + ", "
+			+ std::to_string(m_cubData) + ")";
+	}
+	std::string GetFileName() { return m_FileName; }
+protected:
+	void Call();
+private:
+	CCallResult<CFileWriteAsyncCallResult, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
+	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
+	std::string m_FileName;
+	const void *m_pvData;
+	uint32 m_cubData;
 };
 
-#endif // _CFILEREADASYNCITEM_H_
+#endif // CFILEWRITEASYNCCALLRESULT_H_

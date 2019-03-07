@@ -309,13 +309,11 @@ CloudFileForget,I,S,CloudFileForget,0,0,0,0,CloudFileForget
 CloudFilePersisted,I,S,CloudFilePersisted,0,0,0,0,CloudFilePersisted
 CloudFileRead,I,S,CloudFileRead,0,0,0,0,CloudFileRead
 CloudFileReadAsync,I,SII,CloudFileReadAsync,0,0,0,0,CloudFileReadAsync
-GetCloudFileReadAsyncCallbackState,I,S,GetCloudFileReadAsyncCallbackState,0,0,0,0,GetCloudFileReadAsyncCallbackState
-GetCloudFileReadAsyncResult,I,S,GetCloudFileReadAsyncResult,0,0,0,0,GetCloudFileReadAsyncResult
-GetCloudFileReadAsyncMemblock,I,S,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloudFileReadAsyncMemblock
+GetCloudFileReadAsyncFileName,S,I,GetCloudFileReadAsyncFileName,0,0,0,0,GetCloudFileReadAsyncFileName
+GetCloudFileReadAsyncMemblock,I,I,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloudFileReadAsyncMemblock
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,CloudFileWrite
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,CloudFileWriteAsync
-GetCloudFileWriteAsyncCallbackState,I,S,GetCloudFileWriteAsyncCallbackState,0,0,0,0,GetCloudFileWriteAsyncCallbackState
-GetCloudFileWriteAsyncResult,I,S,GetCloudFileWriteAsyncResult,0,0,0,0,GetCloudFileWriteAsyncResult
+GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetCloudFileWriteAsyncFileName
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
 GetCloudFileListJSON,S,0,GetCloudFileListJSON,0,0,0,0,GetCloudFileListJSON

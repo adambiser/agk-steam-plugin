@@ -1289,13 +1289,13 @@ int GetLeaderboardSortMethod(int hLeaderboard)
 // TODO Adde force parameter and allow for a data memblock of integers.
 int UploadLeaderboardScore(int hLeaderboard, int score)
 {
-	CheckInitializedPlugin(false);
+	CheckInitializedPlugin(0);
 	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score);
 }
 
 int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 {
-	CheckInitializedPlugin(false);
+	CheckInitializedPlugin(0);
 	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
 }
 
@@ -2132,7 +2132,7 @@ int CloudFileRead(const char *filename)
 
 int CloudFileReadAsync(const char *filename, int offset, int length)
 {
-	CheckInitializedPlugin(false);
+	CheckInitializedPlugin(0);
 	if (length == -1)
 	{
 		length = Steam->GetFileSize(filename);
@@ -2140,24 +2140,17 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 	return Steam->FileReadAsync(filename, offset, length);
 }
 
-int GetCloudFileReadAsyncCallbackState(const char *filename)
+char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetFileReadAsyncCallbackState(filename);
+	CheckInitializedPlugin(NULL_STRING);
+	return utils::CreateString(Steam->GetFileReadAsyncFileName(hCallResult));
 }
 
-int GetCloudFileReadAsyncResult(const char *filename)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetFileReadAsyncResult(filename);
-}
-
-int GetCloudFileReadAsyncMemblock(const char *filename)
+int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFileReadAsyncMemblock(filename);
+	return Steam->GetFileReadAsyncMemblock(hCallResult);
 }
-
 
 //SteamAPICall_t CloudFileShare(const char *filename);
 
@@ -2173,24 +2166,19 @@ int CloudFileWrite(const char *filename, int memblockID)
 
 int CloudFileWriteAsync(const char *filename, int memblockID)
 {
-	CheckInitializedPlugin(false);
+	CheckInitializedPlugin(0);
 	if (agk::GetMemblockExists(memblockID))
 	{
+		// The data buffer passed in to FileWriteAsync is immediately copied.  Safe to delete memblock immediately after call.
 		return Steam->FileWriteAsync(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
 	}
 	return false;
 }
 
-int GetCloudFileWriteAsyncCallbackState(const char *filename)
+char *GetCloudFileWriteAsyncFileName(int hCallResult)
 {
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetFileWriteAsyncCallbackState(filename);
-}
-
-int GetCloudFileWriteAsyncResult(const char *filename)
-{
-	CheckInitializedPlugin(0);
-	return (int)Steam->GetFileWriteAsyncResult(filename);
+	CheckInitializedPlugin(NULL_STRING);
+	return utils::CreateString(Steam->GetFileWriteAsyncFileName(hCallResult));
 }
 
 //bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);

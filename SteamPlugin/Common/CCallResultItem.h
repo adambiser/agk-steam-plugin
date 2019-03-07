@@ -24,6 +24,7 @@ THE SOFTWARE.
 #define _CCALLRESULTITEM_H_
 #pragma once
 
+#include <steam_api.h>
 #include "DllMain.h"
 #include "AGKUtils.h"
 #include <typeinfo>
@@ -31,8 +32,8 @@ THE SOFTWARE.
 class CCallResultItem
 {
 public:
-	CCallResultItem() : m_State(Idle) {};
-	virtual ~CCallResultItem(void) {};
+	CCallResultItem() : m_State(Idle) {}
+	virtual ~CCallResultItem(void) {}
 	// Return a 'name' for the CCallResultItem object, usually indicates type and some useful parameter values.
 	virtual std::string GetName() = 0;
 	ECallbackState GetState()
@@ -45,33 +46,34 @@ public:
 		}
 		return m_State;
 	}
-	bool Run()
+	void Run()
 	{
 		if (m_State == Running)
 		{
-			return false;
+			return;
 		}
 		try
 		{
 			utils::Log("Calling \"" + GetName() + "\"");
-			if (Call())
-			{
-				m_State = Running;
-				return true;
-			}
-			utils::PluginError("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+			Call();
+			m_State = Running;
+		}
+		catch (std::string e)
+		{
+			utils::PluginError(e);
+			m_State = ClientError;
 		}
 		catch (...)
 		{
-			utils::PluginError("Callback \"" + GetName() + "\" threw an error.");
+			utils::PluginError(GetName() + ": Call threw an unexpected error.");
+			m_State = ClientError;
 		}
-		m_State = ClientError;
-		return false;
-
 	}
 protected:
-	virtual bool Call() = 0;
+	// Throw std::string for errors
+	virtual void Call() = 0;
 	ECallbackState m_State;
+	SteamAPICall_t m_hSteamAPICall;
 };
 
 #endif // _CCALLRESULTITEM_H_

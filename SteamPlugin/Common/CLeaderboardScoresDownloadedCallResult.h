@@ -25,8 +25,6 @@ THE SOFTWARE.
 #pragma once
 
 #include "CCallResultItem.h"
-#include <steam_api.h>
-#include <string>
 #include <vector>
 
 class CLeaderboardScoresDownloadedCallResult : public CCallResultItem
@@ -38,7 +36,10 @@ public:
 		m_eLeaderboardDataRequest(eLeaderboardDataRequest),
 		m_nRangeStart(nRangeStart),
 		m_nRangeEnd(nRangeEnd) {}
-	virtual ~CLeaderboardScoresDownloadedCallResult(void) {}
+	virtual ~CLeaderboardScoresDownloadedCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
 	std::string GetName() { 
 		return "DownloadLeaderboardEntries("
 			+ std::to_string(m_hLeaderboard) + ", "
@@ -51,7 +52,7 @@ public:
 	int GetEntryScore(int index);
 	CSteamID GetEntryUser(int index);
 protected:
-	bool Call();
+	void Call();
 private:
 	CCallResult<CLeaderboardScoresDownloadedCallResult, LeaderboardScoresDownloaded_t> m_CallResult;
 	void OnDownloadScore(LeaderboardScoresDownloaded_t *pCallResult, bool bIOFailure);

@@ -188,8 +188,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
-    <ClCompile Include="..\Common\CFileReadAsyncItem.cpp" />
-    <ClCompile Include="..\Common\CFileWriteAsyncItem.cpp" />
+    <ClCompile Include="..\Common\CFileReadAsyncCallResult.cpp" />
+    <ClCompile Include="..\Common\CFileWriteAsyncCallResult.cpp" />
     <ClCompile Include="..\Common\CLeaderboardFindCallResult.cpp" />
     <ClCompile Include="..\Common\CLeaderboardScoresDownloadedCallResult.cpp" />
     <ClCompile Include="..\Common\CLeaderboardScoreUploadedCallResult.cpp" />
@@ -223,8 +223,8 @@
     <ClInclude Include="..\AGKLibraryCommands.h" />
     <ClInclude Include="..\Common\AGKUtils.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
-    <ClInclude Include="..\Common\CFileReadAsyncItem.h" />
-    <ClInclude Include="..\Common\CFileWriteAsyncItem.h" />
+    <ClInclude Include="..\Common\CFileReadAsyncCallResult.h" />
+    <ClInclude Include="..\Common\CFileWriteAsyncCallResult.h" />
     <ClInclude Include="..\Common\CLeaderboardFindCallResult.h" />
     <ClInclude Include="..\Common\CLeaderboardScoresDownloadedCallResult.h" />
     <ClInclude Include="..\Common\CLeaderboardScoreUploadedCallResult.h" />

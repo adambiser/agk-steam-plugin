@@ -22,14 +22,6 @@ THE SOFTWARE.
 
 #include "SteamPlugin.h"
 
-template <typename M> void FreeClearMap(M & map)
-{
-	for (typename M::iterator iter = map.begin(); iter != map.end(); iter++) {
-		delete iter->second;
-	}
-	map.clear();
-}
-
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
 	m_SteamInitialized(false),
@@ -185,8 +177,6 @@ void SteamPlugin::Shutdown()
 		m_HasLowBatteryWarning = false;
 		m_nMinutesBatteryLeft = 255;
 		m_IsSteamShuttingDown = false;
-		FreeClearMap(m_FileWriteAsyncItemMap);
-		FreeClearMap(m_FileReadAsyncItemMap);
 		m_DigitalActionData.bActive = false;
 		m_DigitalActionData.bState = false;
 		m_AnalogActionData.bActive = false;
@@ -208,6 +198,10 @@ void SteamPlugin::Shutdown()
 
 int SteamPlugin::AddCallResultItem(CCallResultItem *callResult)
 {
+	if (callResult == NULL)
+	{
+		return 0;
+	}
 	m_CallResultItems.push_back(callResult);
 	// Return the index, this is the call result "handle".
 	return (int)m_CallResultItems.size();

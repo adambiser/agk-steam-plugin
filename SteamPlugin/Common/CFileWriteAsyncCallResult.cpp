@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef CFILEWRITEASYNCITEM_H_
-#define CFILEWRITEASYNCITEM_H_
+#include "CFileWriteAsyncCallResult.h"
 
-#include "DllMain.h"
-#include <steam_api.h>
-#include <string>
-
-class CFileWriteAsyncItem
+void CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure)
 {
-private:
-	std::string m_Filename;
-	CCallResult<CFileWriteAsyncItem, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
-public:
-	CFileWriteAsyncItem();
-	virtual ~CFileWriteAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	// Method call.
-	bool Call(const char *pchFile, const void *pvData, uint32 cubData);
-};
+	if (pResult->m_eResult == k_EResultOK && !bFailure)
+	{
+		utils::Log(GetName() + ": Succeeded.");
+		m_State = Done;
+	}
+	else
+	{
+		utils::Log(GetName() + ": Failed with result " + std::to_string(pResult->m_eResult) + ".");
+		m_State = ServerError;
+	}
+}
 
-#endif // CFILEWRITEASYNCITEM_H_
+void CFileWriteAsyncCallResult::Call()
+{
+	m_hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(m_FileName.c_str(), m_pvData, m_cubData);
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string(GetName() + ": File does not exist.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete);
+}
