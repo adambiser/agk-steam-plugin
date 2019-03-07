@@ -32,7 +32,6 @@ THE SOFTWARE.
 #include "CFileWriteAsyncItem.h"
 #include "CFileReadAsyncItem.h"
 #include "CCallbackItem.h"
-#include "CLeaderboardFindCallback.h"
 
 #if defined(_WINDOWS)
 #if defined(_WIN64)
@@ -123,12 +122,6 @@ private:
 	std::map<std::string, int> m_AchievementIconsMap;
 	// User stats methods.
 	// Leaderboard methods: Find
-	//CLeaderboardFindCallback *GetLeaderboardInfo(std::string filename);
-	//std::map<std::string, CLeaderboardFindCallback*> m_LeaderboardInfoMap;
-	//ECallbackState m_FindLeaderboardCallbackState;
-	//void OnFindLeaderboard(LeaderboardFindResult_t *pResult, bool bIOFailure);
-	//CCallResult<SteamPlugin, LeaderboardFindResult_t> m_CallResultFindLeaderboard;
-	//LeaderboardFindResult_t m_LeaderboardFindResult;
 	// Leaderboard methods: Information
 	// Leaderboard methods: Upload
 	ECallbackState m_UploadLeaderboardScoreCallbackState;
@@ -136,10 +129,6 @@ private:
 	CCallResult<SteamPlugin, LeaderboardScoreUploaded_t> m_CallResultUploadScore;
 	LeaderboardScoreUploaded_t m_LeaderboardScoreUploaded;
 	// Leaderboard methods: Download
-	ECallbackState m_DownloadLeaderboardEntriesCallbackState;
-	void OnDownloadScore(LeaderboardScoresDownloaded_t *pResult, bool bIOFailure);
-	CCallResult<SteamPlugin, LeaderboardScoresDownloaded_t> m_CallResultDownloadScore;
-	std::vector<LeaderboardEntry_t> m_DownloadedLeaderboardEntries;
 	// Lobby methods: List
 	ECallbackState m_LobbyMatchListCallbackState;
 	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
@@ -387,12 +376,11 @@ public:
 	int GetLeaderboardGlobalRankNew() { return m_LeaderboardScoreUploaded.m_nGlobalRankNew; }
 	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious; }
 	// Downloading entries.
-	bool DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
-	ECallbackState GetDownloadLeaderboardEntriesCallbackState() { return getCallbackState(&m_DownloadLeaderboardEntriesCallbackState); }
-	int GetDownloadedLeaderboardEntryCount() { return (int)m_DownloadedLeaderboardEntries.size(); }
-	int GetDownloadedLeaderboardEntryGlobalRank(int index);
-	int GetDownloadedLeaderboardEntryScore(int index);
-	CSteamID GetDownloadedLeaderboardEntryUser(int index);
+	int DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
+	int GetDownloadedLeaderboardEntryCount(int hCallback);
+	int GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index);
+	int GetDownloadedLeaderboardEntryScore(int hCallback, int index);
+	CSteamID GetDownloadedLeaderboardEntryUser(int hCallback, int index);
 	// Lobby methods: List
 	void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
 	void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);

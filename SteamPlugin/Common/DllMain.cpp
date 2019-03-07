@@ -1337,38 +1337,32 @@ int GetLeaderboardGlobalRankPrevious()
 
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
-	CheckInitializedPlugin(false);
-	return Steam->DownloadLeaderboardEntries(hLeaderboard, (ELeaderboardDataRequest) eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	CheckInitializedPlugin(0);
+	return Steam->DownloadLeaderboardEntries(hLeaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 }
 
-int GetDownloadLeaderboardEntriesCallbackState()
-{
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetDownloadLeaderboardEntriesCallbackState();
-}
-
-int GetDownloadedLeaderboardEntryCount()
+int GetDownloadedLeaderboardEntryCount(int hCallback)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryCount();
+	return Steam->GetDownloadedLeaderboardEntryCount(hCallback);
 }
 
-int GetDownloadedLeaderboardEntryGlobalRank(int index)
+int GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryGlobalRank(index);
+	return Steam->GetDownloadedLeaderboardEntryGlobalRank(hCallback, index);
 }
 
-int GetDownloadedLeaderboardEntryScore(int index)
+int GetDownloadedLeaderboardEntryScore(int hCallback, int index)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryScore(index);
+	return Steam->GetDownloadedLeaderboardEntryScore(hCallback, index);
 }
 
-int GetDownloadedLeaderboardEntryUser(int index)
+int GetDownloadedLeaderboardEntryUser(int hCallback, int index)
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(index));
+	return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(hCallback, index));
 }
 
 void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)

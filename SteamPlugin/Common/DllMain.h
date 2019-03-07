@@ -1005,16 +1005,11 @@ While the Steam API allows any number of entries to be downloaded, this plugin h
 */
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd);
 /*
-@desc Returns the state of the DownloadLeaderboardEntries callback.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-*/
-extern "C" DLL_EXPORT int GetDownloadLeaderboardEntriesCallbackState();
-/*
 @desc Gets the number of leaderboard entries returned by the DownloadLeaderboardEntries callback.  Limited to 10.
 @return The number of leaderboard entries returned.  0 when there are no entries.
 @api ISteamUserStats#LeaderboardScoresDownloaded_t
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount();
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryCount(int hCallback);
 /*
 @desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
 
@@ -1023,7 +1018,7 @@ Gets a leaderboard entry's global rank.
 @return The entry's rank.
 @api ISteamUserStats#LeaderboardScoresDownloaded_t, ISteamUserStats#GetDownloadedLeaderboardEntry
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index);
 /*
 @desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
 
@@ -1031,7 +1026,7 @@ Gets a leaderboard entry's score.
 @param index The index of the leaderboard entry.
 @return The entry's score.
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryScore(int hCallback, int index);
 /*
 @desc _This command should only be used when GetDownloadedLeaderboardEntryCount is greater than 0._
 
@@ -1039,7 +1034,7 @@ Gets a handle to the leaderboard entry's user SteamID.
 @param index The index of the leaderboard entry.
 @return The entry's user SteamID handle.
 */
-extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int index);
+extern "C" DLL_EXPORT int GetDownloadedLeaderboardEntryUser(int hCallback, int index);
 /* @page Lobby List */
 /*
 @desc Sets the physical distance for which we should search for lobbies, this is based on the users IP address and a IP location map on the Steam backend.

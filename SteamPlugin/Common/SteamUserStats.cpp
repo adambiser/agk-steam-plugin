@@ -1,4 +1,6 @@
 #include "SteamPlugin.h"
+#include "CLeaderboardFindCallback.h"
+#include "CLeaderboardScoresDownloadedCallback.h"
 
 #define min(a,b) (a < b) ? a : b;
 
@@ -348,81 +350,55 @@ bool SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeade
 	}
 }
 
-// Callback for DownloadLeaderboardEntries.
-void SteamPlugin::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallback, bool bIOFailure)
+int SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
-	if (!bIOFailure)
-	{
-		agk::Log("Callback: Download Leaderboard Entries Succeeded");
-		m_DownloadLeaderboardEntriesCallbackState = Done;
-		for (int index = 0; index < pCallback->m_cEntryCount; index++)
-		{
-			LeaderboardEntry_t entry;
-			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallback->m_hSteamLeaderboardEntries, index, &entry, NULL, 0);
-			m_DownloadedLeaderboardEntries.push_back(entry);
-		}
-	}
-	else
-	{
-		agk::Log("Callback: Download Leaderboard Entries Failed");
-		m_DownloadLeaderboardEntriesCallbackState = ServerError;
-	}
-}
-
-bool SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
-{
-	CheckInitialized(SteamUserStats, false);
+	CheckInitialized(SteamUserStats, 0);
 	if (!hLeaderboard)
 	{
-		m_DownloadLeaderboardEntriesCallbackState = ClientError;
-		return false;
-	}
-	// Fail when the callback is currently running.
-	if (m_DownloadLeaderboardEntriesCallbackState == Running)
-	{
-		return false;
-	}
-	try
-	{
-		m_DownloadedLeaderboardEntries.clear();
-		SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-		m_CallResultDownloadScore.Set(hSteamAPICall, this, &SteamPlugin::OnDownloadScore);
-		m_DownloadLeaderboardEntriesCallbackState = Running;
-		return true;
-	}
-	catch (...)
-	{
-		m_DownloadLeaderboardEntriesCallbackState = ClientError;
-		return false;
-	}
-}
-
-int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int index)
-{
-	if (index < 0 || index >= (int)m_DownloadedLeaderboardEntries.size())
-	{
-		agk::PluginError("GetDownloadedLeaderboardEntryGlobalRank index out of bounds.");
+		agk::PluginError("Invalid leaderboard handle: 0");
 		return 0;
 	}
-	return m_DownloadedLeaderboardEntries[index].m_nGlobalRank;
+	CLeaderboardScoresDownloadedCallback *callback = new CLeaderboardScoresDownloadedCallback(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	callback->Run();
+	return AddCallbackItem(callback);
 }
 
-int SteamPlugin::GetDownloadedLeaderboardEntryScore(int index)
+int SteamPlugin::GetDownloadedLeaderboardEntryCount(int hCallback)
 {
-	if (index < 0 || index >= (int)m_DownloadedLeaderboardEntries.size())
+	CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback);
+	if (callback)
 	{
-		agk::PluginError("GetDownloadedLeaderboardEntryScore index out of bounds.");
-		return 0;
+		return callback->GetEntryCount();
 	}
-	return m_DownloadedLeaderboardEntries[index].m_nScore;
+	return 0;
 }
 
-CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int index)
+int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int hCallback, int index)
 {
-	if (index < 0 || index >= (int)m_DownloadedLeaderboardEntries.size())
+	CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback);
+	if (callback)
 	{
-		agk::PluginError("GetDownloadedLeaderboardEntryAvatar index out of bounds.");
-		return k_steamIDNil;
+		return callback->GetEntryGlobalRank(index);
 	}
-	return m_DownloadedLeaderboardEntries[index].m_steamIDUser;
+	return 0;
+}
+
+int SteamPlugin::GetDownloadedLeaderboardEntryScore(int hCallback, int index)
+{
+	CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback);
+	if (callback)
+	{
+		return callback->GetEntryScore(index);
+	}
+	return 0;
+}
+
+CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int hCallback, int index)
+{
+	CLeaderboardScoresDownloadedCallback *callback = GetCallbackItem<CLeaderboardScoresDownloadedCallback>(hCallback);
+	if (callback)
+	{
+		return callback->GetEntryUser(index);
+	}
+	return k_steamIDNil;
 }

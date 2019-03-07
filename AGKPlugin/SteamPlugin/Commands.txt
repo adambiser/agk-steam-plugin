@@ -161,11 +161,10 @@ GetLeaderboardGlobalRankPrevious,I,0,GetLeaderboardGlobalRankPrevious,0,0,0,0,Ge
 # Leaderboard methods: Download
 #
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
-GetDownloadLeaderboardEntriesCallbackState,I,0,GetDownloadLeaderboardEntriesCallbackState,0,0,0,0,GetDownloadLeaderboardEntriesCallbackState
-GetDownloadedLeaderboardEntryCount,I,0,GetDownloadedLeaderboardEntryCount,0,0,0,0,GetDownloadedLeaderboardEntryCount
-GetDownloadedLeaderboardEntryGlobalRank,I,I,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadedLeaderboardEntryGlobalRank
-GetDownloadedLeaderboardEntryScore,I,I,GetDownloadedLeaderboardEntryScore,0,0,0,0,GetDownloadedLeaderboardEntryScore
-GetDownloadedLeaderboardEntryUser,I,I,GetDownloadedLeaderboardEntryUser,0,0,0,0,GetDownloadedLeaderboardEntryUser
+GetDownloadedLeaderboardEntryCount,I,I,GetDownloadedLeaderboardEntryCount,0,0,0,0,GetDownloadedLeaderboardEntryCount
+GetDownloadedLeaderboardEntryGlobalRank,I,II,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadedLeaderboardEntryGlobalRank
+GetDownloadedLeaderboardEntryScore,I,II,GetDownloadedLeaderboardEntryScore,0,0,0,0,GetDownloadedLeaderboardEntryScore
+GetDownloadedLeaderboardEntryUser,I,II,GetDownloadedLeaderboardEntryUser,0,0,0,0,GetDownloadedLeaderboardEntryUser
 #
 # Lobby methods: List
 #
