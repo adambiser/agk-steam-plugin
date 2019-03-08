@@ -180,9 +180,7 @@ GetLobbyByIndex,I,II,GetLobbyByIndex,0,0,0,0,GetLobbyByIndex
 # Lobby methods: Create, join, and leave
 #
 CreateLobby,I,II,CreateLobby,0,0,0,0,CreateLobby
-GetLobbyCreateCallbackState,I,0,GetLobbyCreateCallbackState,0,0,0,0,GetLobbyCreateCallbackState
-GetLobbyCreatedID,I,0,GetLobbyCreatedID,0,0,0,0,GetLobbyCreatedID
-GetLobbyCreatedResult,I,0,GetLobbyCreatedResult,0,0,0,0,GetLobbyCreatedResult
+GetLobbyCreatedID,I,I,GetLobbyCreatedID,0,0,0,0,GetLobbyCreatedID
 SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,SetLobbyJoinable
 SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
 JoinLobby,I,I,JoinLobby,0,0,0,0,JoinLobby

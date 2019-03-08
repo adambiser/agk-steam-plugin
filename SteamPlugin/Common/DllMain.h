@@ -1091,34 +1091,20 @@ extern "C" DLL_EXPORT int GetLobbyMatchListCount(int hCallResult);
 extern "C" DLL_EXPORT int GetLobbyByIndex(int hCallResult, int index);
 /* @page Creating, Joining, and Leaving Lobbies */
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Create a new matchmaking lobby.
+@desc Creates a new matchmaking lobby.  The lobby is joined once it is created.
 @param eLobbyType The type and visibility of this lobby. This can be changed later via SetLobbyType.
 @param-api eLobbyType ISteamMatchmaking#ELobbyType
 @param maxMembers The maximum number of players that can join this lobby. This can not be above 250.
-@return 1 when the request succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamMatchmaking#CreateLobby
 */
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
 /*
-@desc _Since the user will enter the lobby they create, GetLobbyEnterCallbackState can be checked and this callback isn't really necessary._
-
-Returns The state of the CreateLobby callback.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-*/
-extern "C" DLL_EXPORT int GetLobbyCreateCallbackState();
-/*
 @desc Gets the handle of the lobby created by CreateLobby.
+@param hCallResult A CreateLobby [call result handle](Callbacks-and-Call-Results#call-results).
 @return A lobby handle or 0 if lobby creation failed.
 */
-extern "C" DLL_EXPORT int GetLobbyCreatedID();
-/*
-@desc Gets the result of the CreateLobby operation.
-@return A result code as outlined at [LobbyCreated_t](https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyCreated_t).
-@api ISteamMatchmaking#LobbyCreated_t
-*/
-extern "C" DLL_EXPORT int GetLobbyCreatedResult();
+extern "C" DLL_EXPORT int GetLobbyCreatedID(int hCallResult);
 //extern "C" DLL_EXPORT int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID);
 /*
 @desc Sets whether or not a lobby is joinable by other players. This always defaults to enabled for a new lobby.

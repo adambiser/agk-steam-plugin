@@ -193,6 +193,7 @@
     <ClCompile Include="..\Common\CLeaderboardFindCallResult.cpp" />
     <ClCompile Include="..\Common\CLeaderboardScoresDownloadedCallResult.cpp" />
     <ClCompile Include="..\Common\CLeaderboardScoreUploadedCallResult.cpp" />
+    <ClCompile Include="..\Common\CLobbyCreatedCallResult.cpp" />
     <ClCompile Include="..\Common\CLobbyMatchListCallResult.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -229,6 +230,7 @@
     <ClInclude Include="..\Common\CLeaderboardFindCallResult.h" />
     <ClInclude Include="..\Common\CLeaderboardScoresDownloadedCallResult.h" />
     <ClInclude Include="..\Common\CLeaderboardScoreUploadedCallResult.h" />
+    <ClInclude Include="..\Common\CLobbyCreatedCallResult.h" />
     <ClInclude Include="..\Common\CLobbyMatchListCallResult.h" />
     <ClInclude Include="..\Common\DllMain.h" />
     <ClInclude Include="resource.h" />

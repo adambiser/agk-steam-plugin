@@ -137,11 +137,6 @@ private:
 	std::list<LobbyDataUpdateInfo_t> m_LobbyDataUpdated;
 	// Lobby methods: Owner methods
 	// Lobby methods: Create
-	ECallbackState m_LobbyCreateCallbackState;
-	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
-	CCallResult<SteamPlugin, LobbyCreated_t> m_CallResultLobbyCreate;
-	CSteamID m_LobbyCreatedID;
-	EResult m_LobbyCreatedResult;
 	// Lobby methods: Join, Create, Leave
 	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 	ECallbackState m_LobbyEnterCallbackState;
@@ -377,10 +372,9 @@ public:
 	int GetLobbyMatchListCount(int hCallResult);
 	CSteamID GetLobbyByIndex(int hCallResult, int iLobby);
 	// Lobby methods: Create, Join, Leave
-	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
-	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }
-	CSteamID GetLobbyCreatedID() { return m_LobbyCreatedID; }
-	EResult GetLobbyCreatedResult() { return m_LobbyCreatedResult; }
+	int CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
+	CSteamID GetLobbyCreatedID(int hCallResult);
+	//EResult GetLobbyCreatedResult(int hCallResult);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
 	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);

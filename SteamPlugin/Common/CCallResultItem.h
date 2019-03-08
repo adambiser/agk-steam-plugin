@@ -54,7 +54,7 @@ public:
 		}
 		try
 		{
-			utils::Log("Calling \"" + GetName() + "\"");
+			utils::Log(GetName() + ": Calling.");
 			Call();
 			m_State = Running;
 		}

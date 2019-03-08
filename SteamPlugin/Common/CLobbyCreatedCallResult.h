@@ -20,33 +20,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLOBBYMATCHLISTCALLRESULT_H_
-#define _CLOBBYMATCHLISTCALLRESULT_H_
+#ifndef _CLOBBYCREATEDCALLRESULT_H_
+#define _CLOBBYCREATEDCALLRESULT_H_
 #pragma once
 
 #include "CCallResultItem.h"
 #include <vector>
 
-class CLobbyMatchListCallResult : public CCallResultItem
+class CLobbyCreatedCallResult : public CCallResultItem
 {
 public:
-	CLobbyMatchListCallResult() : CCallResultItem() {}
-	virtual ~CLobbyMatchListCallResult(void)
+	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers) :
+		CCallResultItem(),
+		m_eLobbyType(eLobbyType),
+		m_cMaxMembers(cMaxMembers) {}
+	virtual ~CLobbyCreatedCallResult(void)
 	{
 		m_CallResult.Cancel();
 	}
 	std::string GetName()
 	{
-		return "RequestLobbyList()";
+		return "CreateLobby("
+			+ std::to_string(m_eLobbyType) + ", "
+			+ std::to_string(m_cMaxMembers) + ")";
 	}
-	int GetLobbyMatchListCount() { return (int)m_Lobbies.size(); }
-	CSteamID GetLobbyByIndex(int iLobby);
+	CSteamID GetLobbyID() { return m_Lobby.m_ulSteamIDLobby; }
+	EResult GetResult() { return m_Lobby.m_eResult; }
 protected:
 	void Call();
 private:
-	CCallResult<CLobbyMatchListCallResult, LobbyMatchList_t> m_CallResult;
-	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
-	std::vector<CSteamID> m_Lobbies;
+	CCallResult<CLobbyCreatedCallResult, LobbyCreated_t> m_CallResult;
+	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
+	ELobbyType m_eLobbyType;
+	int m_cMaxMembers;
+	LobbyCreated_t m_Lobby;
 };
 
-#endif // _CLOBBYMATCHLISTCALLRESULT_H_
+#endif // _CLOBBYCREATEDCALLRESULT_H_

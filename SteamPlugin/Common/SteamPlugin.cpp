@@ -49,9 +49,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
 	m_LobbyDataUpdatedLobby(k_steamIDNil),
 	m_LobbyDataUpdatedID(k_steamIDNil),
-	m_LobbyCreateCallbackState(Idle),
-	m_LobbyCreatedID(k_steamIDNil),
-	m_LobbyCreatedResult((EResult)0),
 	m_LobbyEnterCallbackState(Idle),
 	m_MainCallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter),
 	m_LobbyEnterID(k_steamIDNil),
@@ -156,9 +153,6 @@ void SteamPlugin::Shutdown()
 		m_LobbyDataUpdatedLobby = k_steamIDNil;
 		m_LobbyDataUpdatedID = k_steamIDNil;
 		m_LobbyDataUpdated.clear();
-		m_LobbyCreateCallbackState = Idle;
-		m_LobbyCreatedID = k_steamIDNil;
-		m_LobbyCreatedResult = (EResult)0;
 		m_JoinedLobbies.clear();
 		m_LobbyEnterCallbackState = Idle;
 		m_LobbyEnterID = k_steamIDNil;

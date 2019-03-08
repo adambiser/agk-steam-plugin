@@ -20,33 +20,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLOBBYMATCHLISTCALLRESULT_H_
-#define _CLOBBYMATCHLISTCALLRESULT_H_
-#pragma once
+#include "CLobbyCreatedCallResult.h"
 
-#include "CCallResultItem.h"
-#include <vector>
-
-class CLobbyMatchListCallResult : public CCallResultItem
+void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
 {
-public:
-	CLobbyMatchListCallResult() : CCallResultItem() {}
-	virtual ~CLobbyMatchListCallResult(void)
+	if (!bIOFailure)
 	{
-		m_CallResult.Cancel();
+		utils::Log(GetName() + ": Succeeded.");
+		m_Lobby = *pParam;
+		m_State = Done;
 	}
-	std::string GetName()
+	else
 	{
-		return "RequestLobbyList()";
+		utils::Log(GetName() + ": Failed.");
+		m_State = ServerError;
 	}
-	int GetLobbyMatchListCount() { return (int)m_Lobbies.size(); }
-	CSteamID GetLobbyByIndex(int iLobby);
-protected:
-	void Call();
-private:
-	CCallResult<CLobbyMatchListCallResult, LobbyMatchList_t> m_CallResult;
-	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
-	std::vector<CSteamID> m_Lobbies;
-};
+}
 
-#endif // _CLOBBYMATCHLISTCALLRESULT_H_
+void CLobbyCreatedCallResult::Call()
+{
+	m_hSteamAPICall = SteamMatchmaking()->CreateLobby(m_eLobbyType, m_cMaxMembers);
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyCreatedCallResult::OnLobbyCreated);
+}

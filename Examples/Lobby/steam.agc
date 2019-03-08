@@ -5,6 +5,7 @@ global server as SteamServerInfo
 // Your game should probably keep track of things using a similar method.
 Type SteamServerInfo
 	lobbyListCallResult as integer
+	createLobbyCallResult as integer
 	hLobby as integer
 	lobbyIndex as integer
 	isLobbyOwner as integer
@@ -173,10 +174,8 @@ Function CheckInput()
 		Steam.JoinLobby(Steam.GetLobbyByIndex(server.lobbyListCallResult, server.lobbyIndex))
 	endif
 	if GetVirtualButtonPressed(CREATE_BUTTON)
-		AddStatus("Creating lobby")
-		if Steam.CreateLobby(k_ELobbyTypePublic, 8) = 0
-			AddStatus("Failed")
-		endif
+		server.createLobbyCallResult = Steam.CreateLobby(k_ELobbyTypePublic, 8)
+		AddStatus("Creating lobby.  Call Result: " + str(server.createLobbyCallResult))
 	endif
 	if GetVirtualButtonPressed(LEAVE_BUTTON)
 		LeaveLobby()
@@ -251,6 +250,21 @@ Function ProcessCallbacks()
 				// Had an error, delete the call result.
 				Steam.DeleteCallResult(server.lobbyListCallResult)
 				server.lobbyListCallResult = 0
+			endcase
+		endselect
+	endif
+	if server.createLobbyCallResult
+		select Steam.GetCallResultState(server.createLobbyCallResult)
+			case STATE_DONE
+				AddStatus("Lobby created.")
+				Steam.DeleteCallResult(server.createLobbyCallResult)
+				server.createLobbyCallResult = 0
+			endcase
+			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+				AddStatus("Error creating lobby.")
+				// Had an error, delete the call result.
+				Steam.DeleteCallResult(server.createLobbyCallResult)
+				server.createLobbyCallResult = 0
 			endcase
 		endselect
 	endif

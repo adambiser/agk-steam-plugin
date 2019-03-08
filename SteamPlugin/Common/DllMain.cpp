@@ -1414,26 +1414,14 @@ int GetLobbyByIndex(int hCallResult, int index)
 
 int CreateLobby(int eLobbyType, int maxMembers)
 {
-	CheckInitializedPlugin(false);
+	CheckInitializedPlugin(0);
 	return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
 }
 
-int GetLobbyCreateCallbackState()
+int GetLobbyCreatedID(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLobbyCreateCallbackState();
-}
-
-int GetLobbyCreatedID()
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyCreatedID());
-}
-
-int GetLobbyCreatedResult()
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLobbyCreatedResult();
+	return GetSteamIDHandle(Steam->GetLobbyCreatedID(hCallResult));
 }
 
 //int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)

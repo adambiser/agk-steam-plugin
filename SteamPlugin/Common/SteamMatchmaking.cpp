@@ -21,6 +21,7 @@ THE SOFTWARE.
 */
 
 #include "SteamPlugin.h"
+#include "CLobbyCreatedCallResult.h"
 #include "CLobbyMatchListCallResult.h"
 
 void SteamPlugin::AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter)
@@ -84,46 +85,22 @@ CSteamID SteamPlugin::GetLobbyByIndex(int hCallResult, int iLobby)
 	return k_steamIDNil;
 }
 
-// Callback for CreateLobby.
-void SteamPlugin::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
-{
-	if (m_LobbyCreateCallbackState == Done)
-	{
-		agk::PluginError("OnLobbyCreated called while in done state.");
-	}
-	if (bIOFailure)
-	{
-		agk::Log("Callback: Lobby Created Failed");
-		m_LobbyCreateCallbackState = ServerError;
-	}
-	else
-	{
-		agk::Log("Callback: Lobby Created Succeeded");
-		m_LobbyCreateCallbackState = Done;
-		m_LobbyCreatedID = pParam->m_ulSteamIDLobby;
-		m_LobbyCreatedResult = pParam->m_eResult;
-	}
-}
-
-bool SteamPlugin::CreateLobby(ELobbyType eLobbyType, int cMaxMembers)
+int SteamPlugin::CreateLobby(ELobbyType eLobbyType, int cMaxMembers)
 {
 	m_LobbyEnterBlocked = false;
 	m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
-	m_LobbyCreatedID = k_steamIDNil;
-	m_LobbyCreatedResult = (EResult)0;
-	CheckInitialized(SteamMatchmaking, false);
-	try
+	CLobbyCreatedCallResult *callResult = new CLobbyCreatedCallResult(eLobbyType, cMaxMembers);
+	callResult->Run();
+	return AddCallResultItem(callResult);
+}
+
+CSteamID SteamPlugin::GetLobbyCreatedID(int hCallResult)
+{
+	if (CLobbyCreatedCallResult *callResult = GetCallResultItem<CLobbyCreatedCallResult>(hCallResult))
 	{
-		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->CreateLobby(eLobbyType, cMaxMembers);
-		m_CallResultLobbyCreate.Set(hSteamAPICall, this, &SteamPlugin::OnLobbyCreated);
-		m_LobbyCreateCallbackState = Running;
-		return true;
+		return callResult->GetLobbyID();
 	}
-	catch (...)
-	{
-		m_LobbyCreateCallbackState = ClientError;
-		return false;
-	}
+	return k_steamIDNil;
 }
 
 //bool SteamPlugin::SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent)
@@ -144,12 +121,13 @@ bool SteamPlugin::SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType)
 	return SteamMatchmaking()->SetLobbyType(steamIDLobby, eLobbyType);
 }
 
+// Fires from CreateLobby and JoinLobby.
 void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam)
 {
 	OnLobbyEnter(pParam, false);
 }
 
-// Callback for JoinLobby.
+// Fires only for JoinLobby.
 void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
 	if (bIOFailure)
