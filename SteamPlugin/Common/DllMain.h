@@ -1070,31 +1070,25 @@ extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults);
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueToMatch, int eComparisonType);
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Get a filtered list of relevant lobbies.
-@return 1 when the request succeeds; otherwise 0.
+@desc Get a filtered list of relevant lobbies.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamMatchmaking#RequestLobbyList, ISteamMatchmaking#LobbyMatchList_t
 */
 extern "C" DLL_EXPORT int RequestLobbyList();
 /*
-@desc Returns the state of the RequestLobbyList callback.
-@return [A callback state.](Callbacks-and-Call-Results#states)
-*/
-extern "C" DLL_EXPORT int GetLobbyMatchListCallbackState();
-/*
 @desc Gets the number of matching lobbies found by the RequestLobbyList call.
+@param hCallResult A RequestLobbyList [call result handle](Callbacks-and-Call-Results#call-results).
 @return The number of matching lobbies or 0 if requesting the lobby list fails.
 */
-extern "C" DLL_EXPORT int GetLobbyMatchListCount();
+extern "C" DLL_EXPORT int GetLobbyMatchListCount(int hCallResult);
 /*
-GetLobbyByIndex
 @desc Gets the Steam ID handle of the lobby at the specified index after receiving the RequestLobbyList results.
+@param hCallResult A RequestLobbyList [call result handle](Callbacks-and-Call-Results#call-results).
 @param index The index of the lobby to get the Steam ID of, from 0 to GetLobbyMatchListCount.
 @return A lobby Steam ID handle.
 @api ISteamMatchmaking#GetLobbyByIndex
 */
-extern "C" DLL_EXPORT int GetLobbyByIndex(int index);
+extern "C" DLL_EXPORT int GetLobbyByIndex(int hCallResult, int index);
 /* @page Creating, Joining, and Leaving Lobbies */
 /*
 @desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_

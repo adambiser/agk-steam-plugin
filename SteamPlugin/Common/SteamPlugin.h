@@ -124,10 +124,6 @@ private:
 	// Leaderboard methods: Upload
 	// Leaderboard methods: Download
 	// Lobby methods: List
-	ECallbackState m_LobbyMatchListCallbackState;
-	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
-	CCallResult<SteamPlugin, LobbyMatchList_t> m_CallResultLobbyMatchList;
-	LobbyMatchList_t m_LobbyMatchList;
 	// Lobby methods: Data
 	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdated, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
 	// TODO Replace with LobbyDataUpdateInfo_t variable.
@@ -377,10 +373,9 @@ public:
 	void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
 	void AddRequestLobbyListResultCountFilter(int cMaxResults);
 	void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
-	bool RequestLobbyList();
-	CSteamID GetLobbyByIndex(int iLobby);
-	ECallbackState GetLobbyMatchListCallbackState() { return getCallbackState(&m_LobbyMatchListCallbackState); }
-	int GetLobbyMatchListCount() { return m_LobbyMatchList.m_nLobbiesMatching; }
+	int RequestLobbyList();
+	int GetLobbyMatchListCount(int hCallResult);
+	CSteamID GetLobbyByIndex(int hCallResult, int iLobby);
 	// Lobby methods: Create, Join, Leave
 	bool CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 	ECallbackState GetLobbyCreateCallbackState() { return getCallbackState(&m_LobbyCreateCallbackState); }

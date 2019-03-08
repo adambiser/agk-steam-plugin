@@ -1401,21 +1401,15 @@ int RequestLobbyList()
 	return Steam->RequestLobbyList();
 }
 
-int GetLobbyMatchListCallbackState()
-{
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetLobbyMatchListCallbackState();
+int GetLobbyMatchListCount(int hCallResult) {
+	CheckInitializedPlugin(0);
+	return Steam->GetLobbyMatchListCount(hCallResult);
 }
 
-int GetLobbyMatchListCount() {
-	CheckInitializedPlugin(0);
-	return Steam->GetLobbyMatchListCount();
-}
-
-int GetLobbyByIndex(int index)
+int GetLobbyByIndex(int hCallResult, int index)
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyByIndex(index));
+	return GetSteamIDHandle(Steam->GetLobbyByIndex(hCallResult, index));
 }
 
 int CreateLobby(int eLobbyType, int maxMembers)

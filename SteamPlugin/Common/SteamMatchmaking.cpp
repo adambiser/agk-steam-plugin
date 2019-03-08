@@ -21,6 +21,7 @@ THE SOFTWARE.
 */
 
 #include "SteamPlugin.h"
+#include "CLobbyMatchListCallResult.h"
 
 void SteamPlugin::AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter)
 {
@@ -58,49 +59,29 @@ void SteamPlugin::AddRequestLobbyListStringFilter(const char *pchKeyToMatch, con
 	SteamMatchmaking()->AddRequestLobbyListStringFilter(pchKeyToMatch, pchValueToMatch, eComparisonType);
 }
 
-// Callback for RequestLobbyList.
-void SteamPlugin::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure)
+int SteamPlugin::RequestLobbyList()
 {
-	if (bIOFailure)
-	{
-		agk::Log("Callback: Lobby List Failed");
-		m_LobbyMatchListCallbackState = ServerError;
-	}
-	else
-	{
-		agk::Log("Callback: Lobby List Succeeded");
-		m_LobbyMatchListCallbackState = Done;
-		m_LobbyMatchList = *pLobbyMatchList;
-	}
+	CLobbyMatchListCallResult *callResult = new CLobbyMatchListCallResult();
+	callResult->Run();
+	return AddCallResultItem(callResult);
 }
 
-bool SteamPlugin::RequestLobbyList()
+int SteamPlugin::GetLobbyMatchListCount(int hCallResult)
 {
-	// Clear result structure.
-	m_LobbyMatchList.m_nLobbiesMatching = 0;
-	CheckInitialized(SteamMatchmaking, false);
-	try
+	if (CLobbyMatchListCallResult *callResult = GetCallResultItem<CLobbyMatchListCallResult>(hCallResult))
 	{
-		SteamAPICall_t hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
-		m_CallResultLobbyMatchList.Set(hSteamAPICall, this, &SteamPlugin::OnLobbyMatchList);
-		m_LobbyMatchListCallbackState = Running;
-		return true;
+		return callResult->GetLobbyMatchListCount();
 	}
-	catch (...)
-	{
-		m_LobbyMatchListCallbackState = ClientError;
-		return false;
-	}
+	return 0;
 }
 
-CSteamID SteamPlugin::GetLobbyByIndex(int iLobby)
+CSteamID SteamPlugin::GetLobbyByIndex(int hCallResult, int iLobby)
 {
-	CheckInitialized(SteamMatchmaking, k_steamIDNil);
-	if (m_LobbyMatchList.m_nLobbiesMatching == 0 || iLobby >= (int)m_LobbyMatchList.m_nLobbiesMatching)
+	if (CLobbyMatchListCallResult *callResult = GetCallResultItem<CLobbyMatchListCallResult>(hCallResult))
 	{
-		return k_steamIDNil;
+		return callResult->GetLobbyByIndex(iLobby);
 	}
-	return SteamMatchmaking()->GetLobbyByIndex(iLobby);
+	return k_steamIDNil;
 }
 
 // Callback for CreateLobby.

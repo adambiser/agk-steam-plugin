@@ -174,9 +174,8 @@ AddRequestLobbyListNumericalFilter,0,SII,AddRequestLobbyListNumericalFilter,0,0,
 AddRequestLobbyListResultCountFilter,0,I,AddRequestLobbyListResultCountFilter,0,0,0,0,AddRequestLobbyListResultCountFilter
 AddRequestLobbyListStringFilter,0,SSI,AddRequestLobbyListStringFilter,0,0,0,0,AddRequestLobbyListStringFilter
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
-GetLobbyMatchListCallbackState,I,0,GetLobbyMatchListCallbackState,0,0,0,0,GetLobbyMatchListCallbackState
-GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,GetLobbyMatchListCount
-GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,GetLobbyByIndex
+GetLobbyMatchListCount,I,I,GetLobbyMatchListCount,0,0,0,0,GetLobbyMatchListCount
+GetLobbyByIndex,I,II,GetLobbyByIndex,0,0,0,0,GetLobbyByIndex
 #
 # Lobby methods: Create, join, and leave
 #

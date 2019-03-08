@@ -46,7 +46,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackAvatarImageLoaded(this, &SteamPlugin::OnAvatarImageLoaded),
 	m_CallbackPersonaStateChanged(this, &SteamPlugin::OnPersonaStateChanged),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
-	m_LobbyMatchListCallbackState(Idle),
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
 	m_LobbyDataUpdatedLobby(k_steamIDNil),
 	m_LobbyDataUpdatedID(k_steamIDNil),
@@ -153,7 +152,6 @@ void SteamPlugin::Shutdown()
 		m_StatsStored = false;
 		m_AchievementStored = false;
 		m_AchievementIconsMap.clear();
-		m_LobbyMatchListCallbackState = Idle;
 		//m_LobbyMatchList
 		m_LobbyDataUpdatedLobby = k_steamIDNil;
 		m_LobbyDataUpdatedID = k_steamIDNil;
