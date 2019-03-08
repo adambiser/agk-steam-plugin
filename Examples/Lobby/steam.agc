@@ -6,6 +6,7 @@ global server as SteamServerInfo
 Type SteamServerInfo
 	lobbyListCallResult as integer
 	createLobbyCallResult as integer
+	joinLobbyCallResult as integer
 	hLobby as integer
 	lobbyIndex as integer
 	isLobbyOwner as integer
@@ -99,7 +100,7 @@ for x = 0 to commandline.length
 		hLobby = Steam.GetHandleFromSteamID64(commandline[x + 1])
 		if hLobby
 			AddStatus("Joining lobby: " + commandline[x + 1])
-			Steam.JoinLobby(hLobby)
+			server.joinLobbyCallResult = Steam.JoinLobby(hLobby)
 		endif
 	endif
 next
@@ -137,7 +138,7 @@ Function CheckInput()
 		mouseY as float
 		mouseX = GetRawMouseX()
 		mouseY = GetRawMouseY()
-		if GetTextHitTest(lobbyList.textID, mouseX, mouseY)
+		if GetTextHitTest(lobbyList.textID, mouseX, mouseY) and GetTextVisible(lobbyList.textID)
 			ClearScrollableTextArea(lobbyInfo)
 			server.lobbyIndex = Trunc((mouseY - GetTextY(lobbyList.textID)) / GetTextSize(lobbyList.textID))
 			HighlightLobbyIndex()
@@ -171,7 +172,8 @@ Function CheckInput()
 	endif
 	if GetVirtualButtonPressed(JOIN_BUTTON)
 		AddStatus("Joining lobby " + str(server.lobbyIndex))
-		Steam.JoinLobby(Steam.GetLobbyByIndex(server.lobbyListCallResult, server.lobbyIndex))
+		server.joinLobbyCallResult = Steam.JoinLobby(Steam.GetLobbyByIndex(server.lobbyListCallResult, server.lobbyIndex))
+		SetButtonEnabled(JOIN_BUTTON, 1)
 	endif
 	if GetVirtualButtonPressed(CREATE_BUTTON)
 		server.createLobbyCallResult = Steam.CreateLobby(k_ELobbyTypePublic, 8)
@@ -269,24 +271,41 @@ Function ProcessCallbacks()
 			endcase
 		endselect
 	endif
-	select Steam.GetLobbyEnterCallbackState()
-		case STATE_DONE // Only care about the DONE state.
-			if Steam.GetLobbyEnterResponse() = k_EChatRoomEnterResponseSuccess
-				// Store the joined lobby handle.
-				server.hLobby = Steam.GetLobbyEnterID()
-				AddStatus("Joined lobby. Handle: " + str(server.hLobby))
-				SetChatRoomVisible(1)
-				RefreshMemberList()
-				// If the lobby owner is the current user, set some lobby data.
-				if server.isLobbyOwner
-					Steam.SetLobbyData(server.hLobby, "name", "agk")
-				endif
-				AddStatus("GameServer: " + Steam.GetLobbyGameServerJSON(server.hLobby))
-			else
-				AddStatus("Failed to join lobby.  Response = " + str(Steam.GetLobbyEnterResponse()))
+	// Check the JoinLobby CallResult and report results.
+	// This demo uses HasLobbyEnterResponse since it will report for both CreateLobby and JoinLobby calls.
+	if server.joinLobbyCallResult
+		select Steam.GetCallResultState(server.joinLobbyCallResult)
+			case STATE_DONE // Only care about the DONE state.
+				AddStatus("JoinLobby CallResult: Handle = " + str(Steam.GetLobbyEnterID(server.joinLobbyCallResult)) + ", Response = " + str(Steam.GetLobbyEnterResponse(server.joinLobbyCallResult)))
+				// Done with the call result.  Delete it.
+				Steam.DeleteCallResult(server.joinLobbyCallResult)
+				server.joinLobbyCallResult = 0
+			endcase
+			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+				AddStatus("JoinLobby CallResult reports an error.")
+				// Done with the call result.  Delete it.
+				Steam.DeleteCallResult(server.joinLobbyCallResult)
+				server.joinLobbyCallResult = 0
+			endcase
+		endselect
+	endif
+	// Check the general JoinLobby callback.
+	while Steam.HasLobbyEnterResponse()
+		if Steam.GetLobbyEnterResponseResponse() = k_EChatRoomEnterResponseSuccess
+			// Store the joined lobby handle.
+			server.hLobby = Steam.GetLobbyEnterResponseID()
+			AddStatus("Joined lobby. Handle: " + str(server.hLobby))
+			SetChatRoomVisible(1)
+			RefreshMemberList()
+			// If the lobby owner is the current user, set some lobby data.
+			if server.isLobbyOwner
+				Steam.SetLobbyData(server.hLobby, "name", "agk")
 			endif
-		endcase
-	endselect
+			AddStatus("GameServer: " + Steam.GetLobbyGameServerJSON(server.hLobby))
+		else
+			AddStatus("Failed to join lobby.  Response = " + str(Steam.GetLobbyEnterResponseResponse()))
+		endif
+	endwhile
 	frame as integer
 	while Steam.HasLobbyDataUpdated()
 		frame = 1
@@ -345,7 +364,7 @@ Function ProcessCallbacks()
 		hLobby = Steam.GetGameLobbyJoinRequestedLobby()
 		AddStatus("Received invitation to join lobby " + str(hLobby))
 		AddStatus("Joining lobby")
-		Steam.JoinLobby(hLobby)
+		server.joinLobbyCallResult = Steam.JoinLobby(hLobby)
 	endif
 EndFunction
 
@@ -357,6 +376,7 @@ Function FindLobbies()
 	ClearScrollableTextArea(lobbyList)
 	ClearScrollableTextArea(lobbyInfo)
 	server.lobbyIndex = -1 // An invalid lobby index.
+	SetButtonEnabled(JOIN_BUTTON, 0)
 	server.lobbyListCallResult = Steam.RequestLobbyList()
 	AddStatus("Finding lobbies.  Call Result: " + str(server.lobbyListCallResult))
 EndFunction

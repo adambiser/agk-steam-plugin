@@ -48,11 +48,7 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackPersonaStateChanged(this, &SteamPlugin::OnPersonaStateChanged),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
-	m_LobbyEnterCallbackState(Idle),
 	m_MainCallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter),
-	m_LobbyEnterID(k_steamIDNil),
-	m_LobbyEnterBlocked(false),
-	m_LobbyEnterResponse((EChatRoomEnterResponse)0),
 	m_CallbackGameLobbyJoinRequested(this, &SteamPlugin::OnGameLobbyJoinRequested),
 	m_CallbackLobbyGameCreated(this, &SteamPlugin::OnLobbyGameCreated),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
@@ -73,6 +69,7 @@ SteamPlugin::SteamPlugin() :
 	ClearCurrentLobbyDataUpdate();
 	ClearCurrentLobbyChatUpdate();
 	ClearCurrentLobbyChatMessage();
+	ClearCurrentLobbyEnter();
 	ClearInputData();
 }
 
@@ -98,13 +95,13 @@ void SteamPlugin::Shutdown()
 {
 	if (m_SteamInitialized)
 	{
-		ShutdownSteamInput();
 		// Disconnect from any lobbies.
 		while (m_JoinedLobbies.size() > 0)
 		{
-			LeaveLobby(m_JoinedLobbies.back());
+			SteamMatchmaking()->LeaveLobby(m_JoinedLobbies.back());
 			m_JoinedLobbies.pop_back();
 		}
+		ShutdownSteamInput();
 		// Clear any existing callback items.
 		for (auto iter = m_CallResultItems.begin(); iter != m_CallResultItems.end(); iter++) {
 			delete iter->second;
@@ -136,10 +133,8 @@ void SteamPlugin::Shutdown()
 		ClearCurrentLobbyDataUpdate();
 		m_LobbyDataUpdatedList.clear();
 		m_JoinedLobbies.clear();
-		m_LobbyEnterCallbackState = Idle;
-		m_LobbyEnterID = k_steamIDNil;
-		m_LobbyEnterBlocked = false;
-		m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
+		ClearCurrentLobbyEnter();
+		m_LobbyEnterList.clear();
 		ClearCurrentLobbyChatUpdate();
 		m_LobbyChatUpdatedList.clear();
 		ClearCurrentLobbyChatMessage();

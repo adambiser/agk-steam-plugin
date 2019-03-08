@@ -1132,38 +1132,64 @@ _This can only be set by the owner of the lobby._
 */
 extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType);
 /*
-@desc _[This command is initiates a call result.](Callbacks-and-Call-Results#call-results)_
-
-Joins an existing lobby.
+@desc Joins an existing lobby.
 @param hLobbySteamID The Steam ID handle of the lobby
-@return 1 when the request succeeds; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamMatchmaking#JoinLobby
 */
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
 /*
-@desc Returns the state of the LobbyEnter_t call result initialized by CreateLobby or JoinLobby.
-@return [A callback state.](Callbacks-and-Call-Results#states)
+@desc Indicates whether the OnLobbyEnter callback has accumulated data to process.
+@return 1 when the callback has data; otherwise 0.
 @api ISteamMatchmaking#LobbyEnter_t
 */
-extern "C" DLL_EXPORT int GetLobbyEnterCallbackState();
+extern "C" DLL_EXPORT int HasLobbyEnterResponse();
 /*
-@desc Gets the handle of the lobby Steam ID entered returned by the LobbyEnter_t call result.
+@desc Gets the handle of the lobby Steam ID entered returned by the OnLobbyEnter callback.
+
+_HasLobbyEnterResponse must be called prior to this method._
 @return A lobby Steam ID handle or 0 if the LobbyEnter_t call result failed.
 @api ISteamMatchmaking#LobbyEnter_t
 */
-extern "C" DLL_EXPORT int GetLobbyEnterID();
+extern "C" DLL_EXPORT int GetLobbyEnterResponseID();
 /*
-@desc Gets whether only invited users may enter a lobby as returned by the LobbyEnter_t call result.
+@desc Gets whether only invited users may enter a lobby as returned by the OnLobbyEnter callback.
+
+_HasLobbyEnterResponse must be called prior to this method._
 @return 1 if only invited users may enter; otherwise 0.
 @api ISteamMatchmaking#LobbyEnter_t
 */
-extern "C" DLL_EXPORT int GetLobbyEnterBlocked();
+extern "C" DLL_EXPORT int GetLobbyEnterResponseLocked();
 /*
-@desc Gets the response returned by the LobbyEnter_t call result.
+@desc Gets the response returned by the OnLobbyEnter callback.
+
+_HasLobbyEnterResponse must be called prior to this method._
 @return A result code as outlined at [LobbyEnter_t](https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t).
 @api ISteamMatchmaking#LobbyEnter_t
 */
-extern "C" DLL_EXPORT int GetLobbyEnterResponse();
+extern "C" DLL_EXPORT int GetLobbyEnterResponseResponse();
+/*
+@desc Gets the handle of the lobby Steam ID entered returned by the LobbyEnter_t call result.
+@param hCallResult A JoinLobby [call result handle](Callbacks-and-Call-Results#call-results).
+@return A lobby Steam ID handle or 0 if the LobbyEnter_t call result failed.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
+extern "C" DLL_EXPORT int GetLobbyEnterID(int hCallResult);
+/*
+@desc Gets whether only invited users may enter a lobby as returned by the LobbyEnter_t call result.
+@param hCallResult A JoinLobby [call result handle](Callbacks-and-Call-Results#call-results).
+@return 1 if only invited users may enter; otherwise 0.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
+extern "C" DLL_EXPORT int GetLobbyEnterLocked(int hCallResult);
+/*
+@desc Gets the response returned by the LobbyEnter_t call result.
+@param hCallResult A JoinLobby [call result handle](Callbacks-and-Call-Results#call-results).
+@return A result code as outlined at [LobbyEnter_t](https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t).
+@api ISteamMatchmaking#LobbyEnter_t
+*/
+extern "C" DLL_EXPORT int GetLobbyEnterResponse(int hCallResult);
+
 /*
 @desc Invite another user to the lobby.
 @param hLobbySteamID The Steam ID handle of the lobby to invite the user to.

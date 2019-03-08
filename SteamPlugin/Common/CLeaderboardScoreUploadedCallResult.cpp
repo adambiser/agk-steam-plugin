@@ -51,7 +51,7 @@ void CLeaderboardScoreUploadedCallResult::Call()
 	m_hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(m_hLeaderboard, m_eLeaderboardUploadScoreMethod, m_nScore, NULL, 0);
 	if (m_hSteamAPICall == k_uAPICallInvalid)
 	{
-		throw std::string("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardScoreUploadedCallResult::OnUploadScore);
 }

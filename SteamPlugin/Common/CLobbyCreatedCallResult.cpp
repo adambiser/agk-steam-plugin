@@ -42,7 +42,7 @@ void CLobbyCreatedCallResult::Call()
 	m_hSteamAPICall = SteamMatchmaking()->CreateLobby(m_eLobbyType, m_cMaxMembers);
 	if (m_hSteamAPICall == k_uAPICallInvalid)
 	{
-		throw std::string("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyCreatedCallResult::OnLobbyCreated);
 }

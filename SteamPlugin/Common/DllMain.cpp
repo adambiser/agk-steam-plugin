@@ -1448,28 +1448,46 @@ int JoinLobby(int hLobbySteamID)
 	return Steam->JoinLobby(GetSteamID(hLobbySteamID));
 }
 
-int GetLobbyEnterCallbackState()
-{
-	CheckInitializedPlugin(ClientError);
-	return Steam->GetLobbyEnterCallbackState();
-}
-
-int GetLobbyEnterID()
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyEnterID());
-}
-
-int GetLobbyEnterBlocked()
+int HasLobbyEnterResponse()
 {
 	CheckInitializedPlugin(false);
-	return Steam->GetLobbyEnterBlocked();
+	return Steam->HasLobbyEnterResponse();
 }
 
-int GetLobbyEnterResponse()
+int GetLobbyEnterResponseID()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLobbyEnterResponse();
+	return GetSteamIDHandle(Steam->GetLobbyEnterResponseID());
+}
+
+int GetLobbyEnterResponseLocked()
+{
+	CheckInitializedPlugin(false);
+	return Steam->GetLobbyEnterResponseLocked();
+}
+
+int GetLobbyEnterResponseResponse()
+{
+	CheckInitializedPlugin(0);
+	return Steam->GetLobbyEnterResponseResponse();
+}
+
+int GetLobbyEnterID(int hCallResult)
+{
+	CheckInitializedPlugin(0);
+	return GetSteamIDHandle(Steam->GetLobbyEnterID(hCallResult));
+}
+
+int GetLobbyEnterLocked(int hCallResult)
+{
+	CheckInitializedPlugin(false);
+	return Steam->GetLobbyEnterLocked(hCallResult);
+}
+
+int GetLobbyEnterResponse(int hCallResult)
+{
+	CheckInitializedPlugin(0);
+	return Steam->GetLobbyEnterResponse(hCallResult);
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)

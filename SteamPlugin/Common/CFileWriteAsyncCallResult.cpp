@@ -41,7 +41,8 @@ void CFileWriteAsyncCallResult::Call()
 	m_hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(m_FileName.c_str(), m_pvData, m_cubData);
 	if (m_hSteamAPICall == k_uAPICallInvalid)
 	{
-		throw std::string(GetName() + ": File does not exist.");
+		//throw std::string(GetName() + ": File does not exist.");
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete);
 }

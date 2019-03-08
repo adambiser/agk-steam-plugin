@@ -42,7 +42,7 @@ void CLeaderboardFindCallResult::Call()
 	m_hSteamAPICall = SteamUserStats()->FindLeaderboard(m_Name.c_str());
 	if (m_hSteamAPICall == k_uAPICallInvalid)
 	{
-		throw std::string("Callback \"" + GetName() + "\" returned k_uAPICallInvalid.");
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardFindCallResult::OnFindLeaderboard);
 }

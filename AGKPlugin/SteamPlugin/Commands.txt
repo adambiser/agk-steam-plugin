@@ -184,10 +184,15 @@ GetLobbyCreatedID,I,I,GetLobbyCreatedID,0,0,0,0,GetLobbyCreatedID
 SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,SetLobbyJoinable
 SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
 JoinLobby,I,I,JoinLobby,0,0,0,0,JoinLobby
-GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,GetLobbyEnterCallbackState
-GetLobbyEnterID,I,0,GetLobbyEnterID,0,0,0,0,GetLobbyEnterID
-GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,GetLobbyEnterBlocked
-GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,GetLobbyEnterResponse
+HasLobbyEnterResponse,I,0,HasLobbyEnterResponse,0,0,0,0,HasLobbyEnterResponse
+# These three are for the JoinLobby callback (HasLobbyEnterResponse).
+GetLobbyEnterResponseID,I,0,GetLobbyEnterResponseID,0,0,0,0,GetLobbyEnterResponseID
+GetLobbyEnterResponseLocked,I,0,GetLobbyEnterResponseLocked,0,0,0,0,GetLobbyEnterResponseLocked
+GetLobbyEnterResponseResponse,I,0,GetLobbyEnterResponseResponse,0,0,0,0,GetLobbyEnterResponseResponse
+# These three are for the JoinLobby call result.
+GetLobbyEnterID,I,I,GetLobbyEnterID,0,0,0,0,GetLobbyEnterID
+GetLobbyEnterLocked,I,I,GetLobbyEnterLocked,0,0,0,0,GetLobbyEnterLocked
+GetLobbyEnterResponse,I,I,GetLobbyEnterResponse,0,0,0,0,GetLobbyEnterResponse
 InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,InviteUserToLobby
 HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,HasGameLobbyJoinRequest
 GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,GetGameLobbyJoinRequestedLobby

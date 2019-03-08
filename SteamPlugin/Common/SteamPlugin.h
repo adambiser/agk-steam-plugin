@@ -138,12 +138,16 @@ private:
 	// Lobby methods: Join, Create, Leave
 	STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_MainCallResultLobbyEnter);
 	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
-	ECallbackState m_LobbyEnterCallbackState;
-	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
-	CCallResult<SteamPlugin, LobbyEnter_t> m_CallResultLobbyEnter;
-	CSteamID m_LobbyEnterID;
-	bool m_LobbyEnterBlocked;
-	EChatRoomEnterResponse m_LobbyEnterResponse;
+	std::list<LobbyEnter_t> m_LobbyEnterList; // For callback reporting.
+	std::mutex m_LobbyEnterMutex;
+	LobbyEnter_t m_CurrentLobbyEnter;
+	void ClearCurrentLobbyEnter()
+	{
+		m_CurrentLobbyEnter.m_bLocked = 0;
+		m_CurrentLobbyEnter.m_EChatRoomEnterResponse = 0;
+		m_CurrentLobbyEnter.m_rgfChatPermissions = 0;
+		m_CurrentLobbyEnter.m_ulSteamIDLobby = 0;
+	}
 	STEAM_CALLBACK(SteamPlugin, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, m_CallbackGameLobbyJoinRequested);
 	GameLobbyJoinRequested_t m_GameLobbyJoinRequestedInfo;
 	// Lobby methods: Game server
@@ -377,11 +381,14 @@ public:
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
 	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
-	bool JoinLobby(CSteamID steamIDLobby);
-	ECallbackState GetLobbyEnterCallbackState() { return getCallbackState(&m_LobbyEnterCallbackState); }
-	CSteamID GetLobbyEnterID() { return m_LobbyEnterID; }
-	bool GetLobbyEnterBlocked() { return m_LobbyEnterBlocked; }
-	uint32 GetLobbyEnterResponse() { return m_LobbyEnterResponse; }
+	int JoinLobby(CSteamID steamIDLobby);
+	bool HasLobbyEnterResponse();
+	CSteamID GetLobbyEnterResponseID() { return m_CurrentLobbyEnter.m_ulSteamIDLobby; }
+	bool GetLobbyEnterResponseLocked() { return m_CurrentLobbyEnter.m_bLocked; }
+	EChatRoomEnterResponse GetLobbyEnterResponseResponse() { return (EChatRoomEnterResponse)m_CurrentLobbyEnter.m_EChatRoomEnterResponse; }
+	CSteamID GetLobbyEnterID(int hCallResult);
+	bool GetLobbyEnterLocked(int hCallResult);
+	EChatRoomEnterResponse GetLobbyEnterResponse(int hCallResult);
 	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	bool HasGameLobbyJoinRequest() { return m_GameLobbyJoinRequestedInfo.m_steamIDLobby != k_steamIDNil; }
 	CSteamID GetGameLobbyJoinRequestedLobby();
