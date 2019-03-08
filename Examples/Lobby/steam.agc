@@ -257,6 +257,7 @@ Function ProcessCallbacks()
 		select Steam.GetCallResultState(server.createLobbyCallResult)
 			case STATE_DONE
 				AddStatus("Lobby created.")
+				// Done with the call result.  Delete it.
 				Steam.DeleteCallResult(server.createLobbyCallResult)
 				server.createLobbyCallResult = 0
 			endcase
