@@ -1705,6 +1705,12 @@ int HasLobbyChatUpdate()
 	return Steam->HasLobbyChatUpdate();
 }
 
+int GetLobbyChatUpdateLobby()
+{
+	CheckInitializedPlugin(0);
+	return GetSteamIDHandle(Steam->GetLobbyChatUpdateLobby());
+}
+
 int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitializedPlugin(0);

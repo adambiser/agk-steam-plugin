@@ -33,7 +33,15 @@ public:
 		CCallResultItem(),
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardUploadScoreMethod(m_eLeaderboardUploadScoreMethod),
-		m_nScore(nScore) {}
+		m_nScore(nScore)
+	{
+		m_LeaderboardScoreUploaded.m_bScoreChanged = 0;
+		m_LeaderboardScoreUploaded.m_bSuccess = 0;
+		m_LeaderboardScoreUploaded.m_hSteamLeaderboard = 0;
+		m_LeaderboardScoreUploaded.m_nGlobalRankNew = 0;
+		m_LeaderboardScoreUploaded.m_nGlobalRankPrevious = 0;
+		m_LeaderboardScoreUploaded.m_nScore = 0;
+	}
 	virtual ~CLeaderboardScoreUploadedCallResult(void)
 	{
 		m_CallResult.Cancel();

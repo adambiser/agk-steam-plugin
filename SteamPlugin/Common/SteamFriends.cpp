@@ -25,7 +25,7 @@ THE SOFTWARE.
 // Overlay methods
 void SteamPlugin::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
-	agk::Log("Callback: Game Overlay Activated");
+	agk::Log("Callback: OnGameOverlayActivated");
 	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
@@ -68,7 +68,7 @@ const char *SteamPlugin::GetPersonaName()
 // Callback for RequestUserInformation and more.
 void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 {
-	agk::Log("Callback: Persona State Changed");
+	agk::Log("Callback: OnPersonaStateChanged");
 	if (m_PersonaStateChangedEnabled)
 	{
 		m_PersonaStateChangeList.push_back(*pParam);
@@ -105,7 +105,7 @@ bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireName
 
 void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 {
-	agk::Log("Callback: Avatar Image Loaded");
+	agk::Log("Callback: OnAvatarImageLoaded");
 	if (!m_AvatarImageLoadedEnabled)
 	{
 		return;

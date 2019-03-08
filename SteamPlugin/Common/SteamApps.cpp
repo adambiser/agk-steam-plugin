@@ -153,7 +153,7 @@ const char * SteamPlugin::GetLaunchQueryParam(const char *pchKey)
 
 void SteamPlugin::OnNewLaunchQueryParameters(NewUrlLaunchParameters_t *pParam)
 {
-	agk::Log("Callback: New Launch Query Parameters");
+	agk::Log("Callback: OnNewLaunchQueryParameters");
 	m_HasNewLaunchQueryParameters = true;
 }
 
@@ -176,23 +176,28 @@ int SteamPlugin::GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine)
 
 void SteamPlugin::OnDlcInstalled(DlcInstalled_t *pParam)
 {
-	agk::Log("Callback: DLC Installed");
+	utils::Log("Callback: OnDlcInstalled: AppID = " + std::to_string(pParam->m_nAppID));
 	// Don't store unless the main program is using this functionality.
 	if (m_OnDlcInstalledEnabled)
 	{
+		m_DlcInstalledMutex.lock();
 		m_DlcInstalledList.push_back(pParam->m_nAppID);
+		m_DlcInstalledMutex.unlock();
 	}
 }
 
 bool SteamPlugin::HasNewDlcInstalled()
 {
 	m_OnDlcInstalledEnabled = true;
+	m_DlcInstalledMutex.lock();
 	if (m_DlcInstalledList.size() > 0)
 	{
 		m_NewDlcInstalled = m_DlcInstalledList.front();
 		m_DlcInstalledList.pop_front();
+		m_DlcInstalledMutex.unlock();
 		return true;
 	}
+	m_DlcInstalledMutex.unlock();
 	m_NewDlcInstalled = 0;
 	return false;
 }

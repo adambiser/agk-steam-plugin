@@ -90,7 +90,7 @@ _This method is part of a restricted interface that can only be used by approved
 
 Returns the app name for the given appid.
 @param appID The AppID to get the name for.
-@return The app name or an empty string if the app has not been approved for this function.
+@return The app name or an empty string if the app has not been approved for this method.
 @api ISteamAppList#GetAppName
 */
 extern "C" DLL_EXPORT char *GetAppName(int appID);
@@ -361,9 +361,9 @@ extern "C" DLL_EXPORT char *GetDLCDownloadProgressJSON(int appID);
 */
 extern "C" DLL_EXPORT int HasNewDLCInstalled();
 /*
-@desc HasNewDLCInstalled must be called prior to calling this function.
+@desc Gets the App ID of the newly installed DLC.
 
-Gets the App ID of the newly installed DLC.
+_HasNewDLCInstalled must be called prior to this method._
 @return An App ID.
 @api ISteamApps#DlcInstalled_t
 */
@@ -372,7 +372,7 @@ extern "C" DLL_EXPORT int GetNewDLCInstalled();
 /*
 @desc Checks if the Steam Overlay is running and the user can access it.
 
-The overlay process could take a few seconds to start and hook the game process, so this function will initially return 0 while the overlay is loading.
+The overlay process could take a few seconds to start and hook the game process, so this method will initially return 0 while the overlay is loading.
 @return 1 when the overlay is enabled; otherwise 0.
 @api ISteamUtils#IsOverlayEnabled
 */
@@ -491,14 +491,16 @@ extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
 extern "C" DLL_EXPORT int HasPersonaStateChanged();
 /*
 @desc Returns a handle for m_ulSteamID stored from the PersonaStateChange_t callback.
-HasPersonaStateChanged must be called prior to calling this function.
+
+_HasPersonaStateChanged must be called prior to this method._
 @return The SteamID handle of the user whose persona state changed
 @api ISteamFriends#PersonaStateChange_t
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangedUser();
 /*
 @desc Returns m_nChangeFlags stored from the PersonaStateChange_t callback.
-HasPersonaStateChanged must be called prior to calling this function.
+
+_HasPersonaStateChanged must be called prior to this method._
 @return [EPersonaChange](https://partner.steamgames.com/doc/api/ISteamFriends#EPersonaChange) flag values.
 @api ISteamFriends#EPersonaChange, ISteamFriends#PersonaStateChange_t
 */
@@ -603,8 +605,9 @@ extern "C" DLL_EXPORT int GetFriendAvatar(int hUserSteamID, int size);
 extern "C" DLL_EXPORT int HasAvatarImageLoaded();
 /*
 @desc Returns a handle for m_steamID stored from the AvatarImageLoaded_t callback.
-HasAvatarImageLoaded must be called prior to calling this function.
 Call GetFriendAvatar with the returned user handle to get the image handle
+
+_HasAvatarImageLoaded must be called prior to this method._
 @return The SteamID handle of the user whose avatar loaded.
 @api ISteamFriends#AvatarImageLoaded_t
 */
@@ -620,7 +623,8 @@ extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 extern "C" DLL_EXPORT int GetFriendCount(int friendFlags);
 /*
 @desc Gets the Steam ID handle of the user at the given index.
-GetFriendCount must be called prior to this command and the friendFlags value must match.
+
+_GetFriendCount must be called prior to this method and the friendFlags value must match._
 @param index An index between 0 and GetFriendCount.
 @param friendFlags A combined union (binary "or") of EFriendFlags. This must be the same value as used in the previous call to GetFriendCount.
 @param-api friendFlags ISteamFriends#EFriendFlags
@@ -630,7 +634,7 @@ GetFriendCount must be called prior to this command and the friendFlags value mu
 extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags);
 /*
 @desc Returns an integer array as JSON that combines the GetFriendCount and GetFriendByIndex calls.
-@param friendFlags A combined union (binary "or") of EFriendFlags. This must be the same value as used in the previous call to GetFriendCount.
+@param friendFlags A combined union (binary "or") of EFriendFlags.
 @param-api friendFlags ISteamFriends#EFriendFlags
 @return An integer array of Steam ID handles as a JSON string.
 @api ISteamFriends#GetFriendByIndex
@@ -873,8 +877,8 @@ extern "C" DLL_EXPORT int SetStatFloat(const char *name, float value);
 /*
 @desc Updates an AVGRATE stat with new values.  The value of these fields can be read with GetStatFloat.
 @param name The 'API Name' of the stat.
-@param countThisSession The value accumulation since the last call to this function.
-@param sessionLength The amount of time in seconds since the last call to this function.
+@param countThisSession The value accumulation since the last call to this method.
+@param sessionLength The amount of time in seconds since the last call to this method.
 @return 1 if setting the stat succeeds; otherwise 0.
 @api ISteamUserStats#UpdateAvgRateStat
 */
@@ -1202,7 +1206,7 @@ EndType
 */
 extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
 /*
-@desc Sets the game server associated with the lobby.  This function only accepts IPv4 addresses.
+@desc Sets the game server associated with the lobby.  This method only accepts IPv4 addresses.
 Either an IP/port or a Game Server SteamID handle must be given.
 
 _This can only be set by the owner of the lobby._
@@ -1305,14 +1309,18 @@ extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID);
 */
 extern "C" DLL_EXPORT int HasLobbyDataUpdated();
 /*
-@desc HasLobbyDataUpdated must be called prior to calling this function.
+@desc Returns the lobby Steam ID handle that has the updated data.
+
+_HasLobbyDataUpdated must be called prior to this method._
 @return The lobby Steam ID handle that has the updated data.
 @api ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedLobby();
 /*
-@desc HasLobbyDataUpdated must be called prior to calling this function.
-@return Steam ID handle of the member whose data changed or the lobby itself.
+@desc Returns the Steam ID handle of the member whose data changed or of the lobby itself.
+
+_HasLobbyDataUpdated must be called prior to this method._
+@return Steam ID handle of the member whose data changed or of the lobby itself.
 @api ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdatedID();
@@ -1394,19 +1402,33 @@ A lobby chat room state has changed, this is usually sent when a user has joined
 */
 extern "C" DLL_EXPORT int HasLobbyChatUpdate();
 /*
+@desc The lobby in which the chat update occured.
+
+_HasLobbyChatUpdate must be called prior to this method._
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyChatUpdate_t
+*/
+extern "C" DLL_EXPORT int GetLobbyChatUpdateLobby();
+/*
 @desc The user whose status in the lobby has changed.
+
+_HasLobbyChatUpdate must be called prior to this method._
 @return A Steam ID handle.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
 /*
 @desc The new user state for the user whose status changed.
+
+_HasLobbyChatUpdate must be called prior to this method._
 @return [EChatMemberStateChange bit data](https://partner.steamgames.com/doc/api/ISteamMatchmaking#EChatMemberStateChange)
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
 /*
 @desc Chat member who made the change.
+
+_HasLobbyChatUpdate must be called prior to this method._
 @return A Steam ID handle.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
@@ -1422,7 +1444,7 @@ extern "C" DLL_EXPORT int HasLobbyChatMessage();
 /*
 @desc Gets the Steam ID handle of the user who sent this message.
 
-_HasLobbyChatMessage must be called prior to calling this function._
+_HasLobbyChatMessage must be called prior to this method._
 @return A Steam ID handle.
 @api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
 */
@@ -1430,7 +1452,7 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
 /*
 @desc Gets the chat message that was sent.
 
-_HasLobbyChatMessage must be called prior to calling this function._
+_HasLobbyChatMessage must be called prior to this method._
 @return The contents of the chat message.
 @api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
 */
@@ -1581,7 +1603,7 @@ Reports the estimate battery life in minutes when a low battery warning occurs.
 */
 extern "C" DLL_EXPORT int GetMinutesBatteryLeft();
 /*
-@desc Returns the number of Inter-Process Communication calls made since the last time this function was called.
+@desc Returns the number of Inter-Process Communication calls made since the last time this method was called.
 
 Used for perf debugging so you can determine how many IPC (Inter-Process Communication) calls your game makes per frame
 Every IPC call is at minimum a thread context switch if not a process one so you want to rate control how often you do them.
@@ -1669,9 +1691,9 @@ extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMod
 */
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedInfo();
 /*
-@desc HasGamepadTextInputDismissedInfo should be checked prior to calling this function.
+@desc Gets the result of big picture gamepad text input.
 
-Gets the result of big picture gamepad text input.
+_HasGamepadTextInputDismissedInfo should be checked prior to calling this method._
 @return A JSON string with this structure.  (See steam_constants.agc)
 ```
 Type GamepadTextInputDismissedInfo_t
@@ -2154,8 +2176,8 @@ extern "C" DLL_EXPORT float GetAnalogActionDataY();
 /*
 @desc Get the handle of the specified Analog action.
 
-**NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
-In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
+**NOTE:** This method does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
+In other words, if you use an action called "up" in two different action sets, this method will only ever return one of them and the other will be ignored.
 @param actionName The string identifier of the analog action defined in the game's VDF file.
 @return The analog action handle.
 @api ISteamController#GetAnalogActionHandle
@@ -2196,8 +2218,8 @@ extern "C" DLL_EXPORT int GetDigitalActionDataState();
 /*
 @desc Get the handle of the specified digital action.
 
-**NOTE:** This function does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
-In other words, if you use an action called "up" in two different action sets, this function will only ever return one of them and the other will be ignored.
+**NOTE:** This method does not take an action set handle parameter. That means that each action in your VDF file must have a unique string identifier.
+In other words, if you use an action called "up" in two different action sets, this method will only ever return one of them and the other will be ignored.
 @param actionName The string identifier of the digital action defined in the game's VDF file.
 @return The handle of the specified digital action.
 @api ISteamController#GetDigitalActionHandle
@@ -2373,7 +2395,7 @@ For inputs not present on the other controller type this will return k_EInputAct
 
 When a new input type is added you will be able to pass in k_ESteamInputType_Unknown amd the closest 
 origin that your version of the SDK regonized will be returned
-ex: if a Playstation 5 controller was released this function would return Playstation 4 origins.
+ex: if a Playstation 5 controller was released, this method would return Playstation 4 origins.
 @param eDestinationInputType The input type to convert from.
 @param-api eDestinationInputType ISteamInput#ESteamInputType
 @param eSourceOrigin The action origin to convert from.

@@ -32,15 +32,14 @@ void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
+		utils::Log("Callback: OnUserStatsReceived " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
 		if (pCallback->m_eResult == k_EResultOK)
 		{
-			agk::Log("Callback: User Stats Received Succeeded");
 			m_RequestStatsCallbackState = Done;
 			m_StatsInitialized = true;
 		}
 		else
 		{
-			agk::Log("Callback: User Stats Received Failed");
 			m_RequestStatsCallbackState = ServerError;
 		}
 	}
@@ -74,15 +73,14 @@ void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
+		utils::Log("Callback: OnUserStatsStored " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
 		if (pCallback->m_eResult == k_EResultOK)
 		{
-			agk::Log("Callback: User Stats Stored Succeeded");
 			m_StoreStatsCallbackState = Done;
 			m_StatsStored = true;
 		}
 		else
 		{
-			agk::Log("Callback: User Stats Stored Failed");
 			m_StoreStatsCallbackState = ServerError;
 		}
 	}
@@ -93,7 +91,7 @@ void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == m_AppID)
 	{
-		agk::Log("Callback: Achievement Stored");
+		agk::Log("Callback: OnAchievementStored");
 		m_AchievementStored = true;
 	}
 }
@@ -159,7 +157,7 @@ void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 {
 	if (pParam->m_nGameID.AppID() == m_AppID)
 	{
-		agk::Log("Callback: Achievement Icon Fetched");
+		agk::Log("Callback: OnAchievementIconFetched");
 		// Only store the results for values that are expected.
 		std::string name = pParam->m_rgchAchievementName;
 		auto search = m_AchievementIconsMap.find(name);

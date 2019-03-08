@@ -33,7 +33,11 @@ public:
 	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers) :
 		CCallResultItem(),
 		m_eLobbyType(eLobbyType),
-		m_cMaxMembers(cMaxMembers) {}
+		m_cMaxMembers(cMaxMembers)
+	{
+		m_Lobby.m_eResult = (EResult)0;
+		m_Lobby.m_ulSteamIDLobby = 0;
+	}
 	virtual ~CLobbyCreatedCallResult(void)
 	{
 		m_CallResult.Cancel();

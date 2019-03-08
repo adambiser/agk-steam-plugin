@@ -48,8 +48,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackPersonaStateChanged(this, &SteamPlugin::OnPersonaStateChanged),
 	m_CallbackAchievementIconFetched(this, &SteamPlugin::OnAchievementIconFetched),
 	m_CallResultLobbyDataUpdate(this, &SteamPlugin::OnLobbyDataUpdated),
-	m_LobbyDataUpdatedLobby(k_steamIDNil),
-	m_LobbyDataUpdatedID(k_steamIDNil),
 	m_LobbyEnterCallbackState(Idle),
 	m_MainCallResultLobbyEnter(this, &SteamPlugin::OnLobbyEnter),
 	m_LobbyEnterID(k_steamIDNil),
@@ -58,9 +56,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackGameLobbyJoinRequested(this, &SteamPlugin::OnGameLobbyJoinRequested),
 	m_CallbackLobbyGameCreated(this, &SteamPlugin::OnLobbyGameCreated),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
-	m_LobbyChatUpdateUserChanged(k_steamIDNil),
-	m_LobbyChatUpdateUserState((EChatMemberStateChange)0),
-	m_LobbyChatUpdateUserMakingChange(k_steamIDNil),
 	m_CallbackLobbyChatMessage(this, &SteamPlugin::OnLobbyChatMessage),
 	m_LobbyChatMessageUser(k_steamIDNil),
 	m_CallbackPlaybackStatusHasChanged(this, &SteamPlugin::OnPlaybackStatusHasChanged),
@@ -76,6 +71,8 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
 	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
+	ClearCurrentLobbyDataUpdate();
+	ClearCurrentLobbyChatUpdate();
 	m_DigitalActionData.bActive = false;
 	m_DigitalActionData.bState = false;
 	m_AnalogActionData.bActive = false;
@@ -151,18 +148,15 @@ void SteamPlugin::Shutdown()
 		m_AchievementStored = false;
 		m_AchievementIconsMap.clear();
 		//m_LobbyMatchList
-		m_LobbyDataUpdatedLobby = k_steamIDNil;
-		m_LobbyDataUpdatedID = k_steamIDNil;
-		m_LobbyDataUpdated.clear();
+		ClearCurrentLobbyDataUpdate();
+		m_LobbyDataUpdatedList.clear();
 		m_JoinedLobbies.clear();
 		m_LobbyEnterCallbackState = Idle;
 		m_LobbyEnterID = k_steamIDNil;
 		m_LobbyEnterBlocked = false;
 		m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
-		m_LobbyChatUpdateUserChanged = k_steamIDNil;
-		m_LobbyChatUpdateUserState = (EChatMemberStateChange)0;
-		m_LobbyChatUpdateUserMakingChange = k_steamIDNil;
-		m_ChatUpdates.clear();
+		ClearCurrentLobbyChatUpdate();
+		m_LobbyChatUpdatedList.clear();
 		m_LobbyChatMessageUser = k_steamIDNil;
 		m_PlaybackStatusHasChanged = false;
 		m_VolumeHasChanged = false;

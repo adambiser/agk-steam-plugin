@@ -224,6 +224,7 @@ SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0,SetLobbyMemberLimit
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,GetNumLobbyMembers
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,GetLobbyMemberByIndex
 HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,HasLobbyChatUpdate
+GetLobbyChatUpdateLobby,I,0,GetLobbyChatUpdateLobby,0,0,0,0,GetLobbyChatUpdateLobby
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,GetLobbyChatUpdateUserChanged
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,GetLobbyChatUpdateUserState
 GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,GetLobbyChatUpdateUserMakingChange

@@ -83,12 +83,13 @@ private:
 		return callResult;
 	}
 	// App/DLC methods
-	bool m_HasNewLaunchQueryParameters;
 	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewUrlLaunchParameters_t, m_CallbackNewLaunchQueryParameters);
+	bool m_HasNewLaunchQueryParameters;
+	STEAM_CALLBACK(SteamPlugin, OnDlcInstalled, DlcInstalled_t, m_CallbackDlcInstalled);
 	bool m_OnDlcInstalledEnabled;
 	std::list<AppId_t> m_DlcInstalledList;
+	std::mutex m_DlcInstalledMutex;
 	AppId_t m_NewDlcInstalled;
-	STEAM_CALLBACK(SteamPlugin, OnDlcInstalled, DlcInstalled_t, m_CallbackDlcInstalled);
 	// Overlay methods
 	bool m_IsGameOverlayActive;
 	STEAM_CALLBACK(SteamPlugin, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
@@ -122,15 +123,15 @@ private:
 	// Lobby methods: List
 	// Lobby methods: Data
 	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdated, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
-	// TODO Replace with LobbyDataUpdateInfo_t variable.
-	CSteamID m_LobbyDataUpdatedLobby;
-	CSteamID m_LobbyDataUpdatedID;
-	struct LobbyDataUpdateInfo_t
+	std::list<LobbyDataUpdate_t> m_LobbyDataUpdatedList;
+	std::mutex m_LobbyDataUpdatedMutex;
+	LobbyDataUpdate_t m_CurrentLobbyDataUpdate;
+	void ClearCurrentLobbyDataUpdate()
 	{
-		CSteamID lobby;
-		CSteamID changedID;
-	};
-	std::list<LobbyDataUpdateInfo_t> m_LobbyDataUpdated;
+		m_CurrentLobbyDataUpdate.m_bSuccess = 0;
+		m_CurrentLobbyDataUpdate.m_ulSteamIDLobby = 0;
+		m_CurrentLobbyDataUpdate.m_ulSteamIDMember = 0;
+	}
 	// Lobby methods: Owner methods
 	// Lobby methods: Create
 	// Lobby methods: Join, Create, Leave
@@ -149,17 +150,16 @@ private:
 	LobbyGameCreated_t m_LobbyGameCreatedInfo;
 	// Lobby methods: Members and Status
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
-	// TODO Replace with ChatUpdateInfo_t variable.
-	CSteamID m_LobbyChatUpdateUserChanged;
-	EChatMemberStateChange m_LobbyChatUpdateUserState;
-	CSteamID m_LobbyChatUpdateUserMakingChange;
-	struct ChatUpdateInfo_t
+	std::list<LobbyChatUpdate_t> m_LobbyChatUpdatedList;
+	std::mutex m_LobbyChatUpdatedMutex;
+	LobbyChatUpdate_t m_CurrentLobbyChatUpdate;
+	void ClearCurrentLobbyChatUpdate()
 	{
-		CSteamID userChanged;
-		EChatMemberStateChange userState;
-		CSteamID userMakingChange;
-	};
-	std::list<ChatUpdateInfo_t> m_ChatUpdates;
+		m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange = (EChatMemberStateChange)0;
+		m_CurrentLobbyChatUpdate.m_ulSteamIDLobby = 0;
+		m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange = 0;
+		m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged = 0;
+	}
 	// Lobby methods: Chat messages
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
 	// TODO Replace with ChatMessageInfo_t variable.
@@ -209,8 +209,6 @@ private:
 		}
 		return *callbackState;
 	}
-	// mutex
-	std::mutex lobbyDataUpdateMutex;
 
 public:
 	SteamPlugin();
@@ -396,8 +394,8 @@ public:
 	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	bool RequestLobbyData(CSteamID steamIDLobby);
 	bool HasLobbyDataUpdated();
-	CSteamID GetLobbyDataUpdatedLobby() { return m_LobbyDataUpdatedLobby; }
-	CSteamID GetLobbyDataUpdatedID() { return m_LobbyDataUpdatedID; }
+	CSteamID GetLobbyDataUpdatedLobby() { return m_CurrentLobbyDataUpdate.m_ulSteamIDLobby; }
+	CSteamID GetLobbyDataUpdatedID() { return m_CurrentLobbyDataUpdate.m_ulSteamIDMember; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	// Lobby methods: members and status
@@ -408,9 +406,10 @@ public:
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
 	bool HasLobbyChatUpdate();
-	CSteamID GetLobbyChatUpdateUserChanged() { return m_LobbyChatUpdateUserChanged; }
-	EChatMemberStateChange GetLobbyChatUpdateUserState() { return m_LobbyChatUpdateUserState; }
-	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_LobbyChatUpdateUserMakingChange; }
+	CSteamID GetLobbyChatUpdateLobby() { return m_CurrentLobbyChatUpdate.m_ulSteamIDLobby; }
+	CSteamID GetLobbyChatUpdateUserChanged() { return m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged; }
+	EChatMemberStateChange GetLobbyChatUpdateUserState() { return (EChatMemberStateChange)m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange; }
+	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange; }
 	// Lobby methods: Chat messages
 	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_LobbyChatMessageUser; }

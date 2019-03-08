@@ -327,6 +327,7 @@ Function ProcessCallbacks()
 				text = text + " has unknown state: " + str(Steam.GetLobbyChatUpdateUserState())
 			endcase
 		endselect
+		text = text + "  Lobby handle = " + str(Steam.GetLobbyChatUpdateLobby())
 		AddChatLine(STATUS_COLOR, text)
 		RefreshMemberList()
 	endwhile
