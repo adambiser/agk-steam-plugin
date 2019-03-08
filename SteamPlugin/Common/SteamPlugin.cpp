@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 SteamPlugin::SteamPlugin() :
 	m_AppID(0),
+	m_CurrentCallResultHandle(0),
 	m_SteamInitialized(false),
 	m_HasNewLaunchQueryParameters(false),
 	m_CallbackNewLaunchQueryParameters(this, &SteamPlugin::OnNewLaunchQueryParameters),
@@ -123,11 +124,11 @@ void SteamPlugin::Shutdown()
 			m_JoinedLobbies.pop_back();
 		}
 		// Clear any existing callback items.
-		while (m_CallResultItems.size() > 0)
-		{
-			delete m_CallResultItems.back();
-			m_CallResultItems.pop_back();
+		for (auto iter = m_CallResultItems.begin(); iter != m_CallResultItems.end(); iter++) {
+			delete iter->second;
 		}
+		m_CallResultItems.clear();
+		m_CurrentCallResultHandle = 0;
 		SteamAPI_Shutdown();
 		// Reset member variables.
 		m_AppID = 0;
@@ -194,18 +195,18 @@ int SteamPlugin::AddCallResultItem(CCallResultItem *callResult)
 	{
 		return 0;
 	}
-	m_CallResultItems.push_back(callResult);
-	// Return the index, this is the call result "handle".
-	return (int)m_CallResultItems.size();
+	while (m_CallResultItems.find(++m_CurrentCallResultHandle) != m_CallResultItems.end());
+	m_CallResultItems[m_CurrentCallResultHandle] = callResult;
+	return m_CurrentCallResultHandle;
 }
 
 void SteamPlugin::DeleteCallResultItem(int hCallResult)
 {
-	hCallResult--; // "handles" are 1-based, make them 0-based here.
-	if (hCallResult >= 0 && hCallResult < (int)m_CallResultItems.size())
+	auto search = m_CallResultItems.find(m_CurrentCallResultHandle);
+	if (search != m_CallResultItems.end())
 	{
-		delete m_CallResultItems[hCallResult];
-		m_CallResultItems[hCallResult] = NULL;
+		delete search->second;
+		m_CallResultItems.erase(search);
 	}
 }
 

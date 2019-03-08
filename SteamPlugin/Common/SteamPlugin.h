@@ -62,26 +62,22 @@ private:
 	uint64 m_AppID;
 	bool m_SteamInitialized;
 	// CallResults
-	std::vector<CCallResultItem*> m_CallResultItems;
+	std::map<int, CCallResultItem*> m_CallResultItems;
+	int m_CurrentCallResultHandle;
 	int AddCallResultItem(CCallResultItem *callResult);
 	// Template methods MUST be defined in the header file!
 	template <class T> T *GetCallResultItem(int hCallResult)
 	{
-		hCallResult--; // "handles" are 1-based, make them 0-based here.
-		if (hCallResult < 0 || hCallResult >= (int)m_CallResultItems.size() || m_CallResultItems[hCallResult] == NULL)
+		auto search = m_CallResultItems.find(hCallResult);
+		if (search == m_CallResultItems.end())
 		{
+			utils::PluginError("Invalid call result handle: " + std::to_string(hCallResult));
 			return NULL;
 		}
-		CCallResultItem *cr = m_CallResultItems[hCallResult];
-		if (!cr)
-		{
-			utils::PluginError("Could not find call result handle " + (hCallResult + 1));
-			return NULL;
-		}
-		T *callResult = dynamic_cast<T*>(cr);
+		T *callResult = dynamic_cast<T*>(m_CallResultItems[hCallResult]);
 		if (!callResult)
 		{
-			utils::PluginError("Call result handle " + std::to_string(hCallResult + 1) + " was not the expected call result type.");
+			utils::PluginError("Call result handle " + std::to_string(hCallResult) + " was not the expected call result type.");
 			return NULL;
 		}
 		return callResult;
