@@ -1,3 +1,25 @@
+/*
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 #include "SteamPlugin.h"
 
 // App/DLC methods
@@ -131,7 +153,7 @@ const char * SteamPlugin::GetLaunchQueryParam(const char *pchKey)
 
 void SteamPlugin::OnNewLaunchQueryParameters(NewUrlLaunchParameters_t *pParam)
 {
-	agk::Log("Callback: New Launch Query Parameters");
+	agk::Log("Callback: OnNewLaunchQueryParameters");
 	m_HasNewLaunchQueryParameters = true;
 }
 
@@ -154,23 +176,28 @@ int SteamPlugin::GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine)
 
 void SteamPlugin::OnDlcInstalled(DlcInstalled_t *pParam)
 {
-	agk::Log("Callback: DLC Installed");
+	utils::Log("Callback: OnDlcInstalled: AppID = " + std::to_string(pParam->m_nAppID));
 	// Don't store unless the main program is using this functionality.
 	if (m_OnDlcInstalledEnabled)
 	{
+		m_DlcInstalledMutex.lock();
 		m_DlcInstalledList.push_back(pParam->m_nAppID);
+		m_DlcInstalledMutex.unlock();
 	}
 }
 
 bool SteamPlugin::HasNewDlcInstalled()
 {
 	m_OnDlcInstalledEnabled = true;
+	m_DlcInstalledMutex.lock();
 	if (m_DlcInstalledList.size() > 0)
 	{
 		m_NewDlcInstalled = m_DlcInstalledList.front();
 		m_DlcInstalledList.pop_front();
+		m_DlcInstalledMutex.unlock();
 		return true;
 	}
+	m_DlcInstalledMutex.unlock();
 	m_NewDlcInstalled = 0;
 	return false;
 }

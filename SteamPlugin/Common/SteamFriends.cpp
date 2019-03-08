@@ -1,9 +1,31 @@
+/*
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 #include "SteamPlugin.h"
 
 // Overlay methods
 void SteamPlugin::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
-	agk::Log("Callback: Game Overlay Activated");
+	agk::Log("Callback: OnGameOverlayActivated");
 	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
@@ -46,7 +68,7 @@ const char *SteamPlugin::GetPersonaName()
 // Callback for RequestUserInformation and more.
 void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 {
-	agk::Log("Callback: Persona State Changed");
+	agk::Log("Callback: OnPersonaStateChanged");
 	if (m_PersonaStateChangedEnabled)
 	{
 		m_PersonaStateChangeList.push_back(*pParam);
@@ -83,7 +105,7 @@ bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireName
 
 void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 {
-	agk::Log("Callback: Avatar Image Loaded");
+	agk::Log("Callback: OnAvatarImageLoaded");
 	if (!m_AvatarImageLoadedEnabled)
 	{
 		return;

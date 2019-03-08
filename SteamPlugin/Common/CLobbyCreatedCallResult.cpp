@@ -20,16 +20,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#include "CLobbyCreatedCallResult.h"
 
-CSteamID SteamPlugin::GetSteamID()
+void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
 {
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
+	if (!bIOFailure)
+	{
+		utils::Log(GetName() + ": Succeeded.");
+		m_Lobby = *pParam;
+		m_State = Done;
+	}
+	else
+	{
+		utils::Log(GetName() + ": Failed.");
+		m_State = ServerError;
+	}
 }
 
-bool SteamPlugin::LoggedOn()
+void CLobbyCreatedCallResult::Call()
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
+	m_hSteamAPICall = SteamMatchmaking()->CreateLobby(m_eLobbyType, m_cMaxMembers);
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyCreatedCallResult::OnLobbyCreated);
 }

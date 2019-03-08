@@ -20,16 +20,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#include "CLobbyMatchListCallResult.h"
 
-CSteamID SteamPlugin::GetSteamID()
+void CLobbyMatchListCallResult::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure)
 {
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
+	if (!bIOFailure)
+	{
+		utils::Log(GetName() + ": Succeeded.");
+		for (int index = 0; index < (int)pLobbyMatchList->m_nLobbiesMatching; index++)
+		{
+			m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
+		}
+		m_State = Done;
+	}
+	else
+	{
+		utils::Log(GetName() + ": Failed.");
+		m_State = ServerError;
+	}
 }
 
-bool SteamPlugin::LoggedOn()
+void CLobbyMatchListCallResult::Call()
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
+	m_hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyMatchListCallResult::OnLobbyMatchList);
+}
+
+CSteamID CLobbyMatchListCallResult::GetLobbyByIndex(int index)
+{
+	if (index < 0 || index >= (int)m_Lobbies.size())
+	{
+		utils::PluginError(GetName() + ": GetLobbyByIndex: Index out of range: " + std::to_string(index));
+		return k_steamIDNil;
+	}
+	return m_Lobbies[index];
 }

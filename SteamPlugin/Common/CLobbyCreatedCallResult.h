@@ -20,16 +20,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#ifndef _CLOBBYCREATEDCALLRESULT_H_
+#define _CLOBBYCREATEDCALLRESULT_H_
+#pragma once
 
-CSteamID SteamPlugin::GetSteamID()
-{
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
-}
+#include "CCallResultItem.h"
+#include <vector>
 
-bool SteamPlugin::LoggedOn()
+class CLobbyCreatedCallResult : public CCallResultItem
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
-}
+public:
+	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers) :
+		CCallResultItem(),
+		m_eLobbyType(eLobbyType),
+		m_cMaxMembers(cMaxMembers)
+	{
+		m_Lobby.m_eResult = (EResult)0;
+		m_Lobby.m_ulSteamIDLobby = 0;
+	}
+	virtual ~CLobbyCreatedCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	std::string GetName()
+	{
+		return "CreateLobby("
+			+ std::to_string(m_eLobbyType) + ", "
+			+ std::to_string(m_cMaxMembers) + ")";
+	}
+	CSteamID GetLobbyID() { return m_Lobby.m_ulSteamIDLobby; }
+	EResult GetResult() { return m_Lobby.m_eResult; }
+protected:
+	void Call();
+private:
+	CCallResult<CLobbyCreatedCallResult, LobbyCreated_t> m_CallResult;
+	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
+	ELobbyType m_eLobbyType;
+	int m_cMaxMembers;
+	LobbyCreated_t m_Lobby;
+};
+
+#endif // _CLOBBYCREATEDCALLRESULT_H_

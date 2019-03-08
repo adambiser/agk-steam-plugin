@@ -20,16 +20,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#ifndef _CLOBBYMATCHLISTCALLRESULT_H_
+#define _CLOBBYMATCHLISTCALLRESULT_H_
+#pragma once
 
-CSteamID SteamPlugin::GetSteamID()
-{
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
-}
+#include "CCallResultItem.h"
+#include <vector>
 
-bool SteamPlugin::LoggedOn()
+class CLobbyMatchListCallResult : public CCallResultItem
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
-}
+public:
+	CLobbyMatchListCallResult() : CCallResultItem() {}
+	virtual ~CLobbyMatchListCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	std::string GetName()
+	{
+		return "RequestLobbyList()";
+	}
+	int GetLobbyMatchListCount() { return (int)m_Lobbies.size(); }
+	CSteamID GetLobbyByIndex(int iLobby);
+protected:
+	void Call();
+private:
+	CCallResult<CLobbyMatchListCallResult, LobbyMatchList_t> m_CallResult;
+	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
+	std::vector<CSteamID> m_Lobbies;
+};
+
+#endif // _CLOBBYMATCHLISTCALLRESULT_H_

@@ -20,16 +20,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#ifndef _CLEADERBOARDFINDCALLRESULT_H_
+#define _CLEADERBOARDFINDCALLRESULT_H_
+#pragma once
 
-CSteamID SteamPlugin::GetSteamID()
-{
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
-}
+#include "CCallResultItem.h"
 
-bool SteamPlugin::LoggedOn()
+class CLeaderboardFindCallResult : public CCallResultItem
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
-}
+public:
+	CLeaderboardFindCallResult(std::string leaderboardName) :
+		CCallResultItem(),
+		m_Name(leaderboardName),
+		m_hLeaderboard(0) {}
+	virtual ~CLeaderboardFindCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
+	SteamLeaderboard_t GetLeaderboardHandle() { return m_hLeaderboard; }
+protected:
+	void Call();
+private:
+	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
+	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
+	std::string m_Name;
+	SteamLeaderboard_t m_hLeaderboard;
+};
+
+#endif // _CLEADERBOARDFINDCALLRESULT_H_

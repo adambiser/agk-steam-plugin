@@ -16,6 +16,11 @@ GetSteamPath,S,0,GetSteamPath,0,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,IsSteamEmulated
 SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
+# Callback methods
+#
+DeleteCallResult,0,I,DeleteCallResult,0,0,0,0,DeleteCallResult
+GetCallResultState,I,I,GetCallResultState,0,0,0,0,GetCallResultState
+#
 # App/DLC methods
 #
 GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
@@ -133,8 +138,7 @@ UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
 # Leaderboard methods: Find
 #
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
-GetFindLeaderboardCallbackState,I,0,GetFindLeaderboardCallbackState,0,0,0,0,GetFindLeaderboardCallbackState
-GetLeaderboardHandle,I,0,GetLeaderboardHandle,0,0,0,0,GetLeaderboardHandle
+GetLeaderboardHandle,I,I,GetLeaderboardHandle,0,0,0,0,GetLeaderboardHandle
 #
 # Leaderboard methods: Information
 #
@@ -147,21 +151,19 @@ GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,GetLeaderboardSort
 #
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
-GetUploadLeaderboardScoreCallbackState,I,0,GetUploadLeaderboardScoreCallbackState,0,0,0,0,GetUploadLeaderboardScoreCallbackState
-LeaderboardScoreStored,I,0,LeaderboardScoreStored,0,0,0,0,LeaderboardScoreStored
-LeaderboardScoreChanged,I,0,LeaderboardScoreChanged,0,0,0,0,LeaderboardScoreChanged
-GetLeaderboardUploadedScore,I,0,GetLeaderboardUploadedScore,0,0,0,0,GetLeaderboardUploadedScore
-GetLeaderboardGlobalRankNew,I,0,GetLeaderboardGlobalRankNew,0,0,0,0,GetLeaderboardGlobalRankNew
-GetLeaderboardGlobalRankPrevious,I,0,GetLeaderboardGlobalRankPrevious,0,0,0,0,GetLeaderboardGlobalRankPrevious
+LeaderboardScoreStored,I,I,LeaderboardScoreStored,0,0,0,0,LeaderboardScoreStored
+LeaderboardScoreChanged,I,I,LeaderboardScoreChanged,0,0,0,0,LeaderboardScoreChanged
+GetLeaderboardUploadedScore,I,I,GetLeaderboardUploadedScore,0,0,0,0,GetLeaderboardUploadedScore
+GetLeaderboardGlobalRankNew,I,I,GetLeaderboardGlobalRankNew,0,0,0,0,GetLeaderboardGlobalRankNew
+GetLeaderboardGlobalRankPrevious,I,I,GetLeaderboardGlobalRankPrevious,0,0,0,0,GetLeaderboardGlobalRankPrevious
 #
 # Leaderboard methods: Download
 #
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
-GetDownloadLeaderboardEntriesCallbackState,I,0,GetDownloadLeaderboardEntriesCallbackState,0,0,0,0,GetDownloadLeaderboardEntriesCallbackState
-GetDownloadedLeaderboardEntryCount,I,0,GetDownloadedLeaderboardEntryCount,0,0,0,0,GetDownloadedLeaderboardEntryCount
-GetDownloadedLeaderboardEntryGlobalRank,I,I,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadedLeaderboardEntryGlobalRank
-GetDownloadedLeaderboardEntryScore,I,I,GetDownloadedLeaderboardEntryScore,0,0,0,0,GetDownloadedLeaderboardEntryScore
-GetDownloadedLeaderboardEntryUser,I,I,GetDownloadedLeaderboardEntryUser,0,0,0,0,GetDownloadedLeaderboardEntryUser
+GetDownloadedLeaderboardEntryCount,I,I,GetDownloadedLeaderboardEntryCount,0,0,0,0,GetDownloadedLeaderboardEntryCount
+GetDownloadedLeaderboardEntryGlobalRank,I,II,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadedLeaderboardEntryGlobalRank
+GetDownloadedLeaderboardEntryScore,I,II,GetDownloadedLeaderboardEntryScore,0,0,0,0,GetDownloadedLeaderboardEntryScore
+GetDownloadedLeaderboardEntryUser,I,II,GetDownloadedLeaderboardEntryUser,0,0,0,0,GetDownloadedLeaderboardEntryUser
 #
 # Lobby methods: List
 #
@@ -172,23 +174,25 @@ AddRequestLobbyListNumericalFilter,0,SII,AddRequestLobbyListNumericalFilter,0,0,
 AddRequestLobbyListResultCountFilter,0,I,AddRequestLobbyListResultCountFilter,0,0,0,0,AddRequestLobbyListResultCountFilter
 AddRequestLobbyListStringFilter,0,SSI,AddRequestLobbyListStringFilter,0,0,0,0,AddRequestLobbyListStringFilter
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
-GetLobbyMatchListCallbackState,I,0,GetLobbyMatchListCallbackState,0,0,0,0,GetLobbyMatchListCallbackState
-GetLobbyMatchListCount,I,0,GetLobbyMatchListCount,0,0,0,0,GetLobbyMatchListCount
-GetLobbyByIndex,I,I,GetLobbyByIndex,0,0,0,0,GetLobbyByIndex
+GetLobbyMatchListCount,I,I,GetLobbyMatchListCount,0,0,0,0,GetLobbyMatchListCount
+GetLobbyByIndex,I,II,GetLobbyByIndex,0,0,0,0,GetLobbyByIndex
 #
 # Lobby methods: Create, join, and leave
 #
 CreateLobby,I,II,CreateLobby,0,0,0,0,CreateLobby
-GetLobbyCreateCallbackState,I,0,GetLobbyCreateCallbackState,0,0,0,0,GetLobbyCreateCallbackState
-GetLobbyCreatedID,I,0,GetLobbyCreatedID,0,0,0,0,GetLobbyCreatedID
-GetLobbyCreatedResult,I,0,GetLobbyCreatedResult,0,0,0,0,GetLobbyCreatedResult
+GetLobbyCreatedID,I,I,GetLobbyCreatedID,0,0,0,0,GetLobbyCreatedID
 SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,SetLobbyJoinable
 SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
 JoinLobby,I,I,JoinLobby,0,0,0,0,JoinLobby
-GetLobbyEnterCallbackState,I,0,GetLobbyEnterCallbackState,0,0,0,0,GetLobbyEnterCallbackState
-GetLobbyEnterID,I,0,GetLobbyEnterID,0,0,0,0,GetLobbyEnterID
-GetLobbyEnterBlocked,I,0,GetLobbyEnterBlocked,0,0,0,0,GetLobbyEnterBlocked
-GetLobbyEnterResponse,I,0,GetLobbyEnterResponse,0,0,0,0,GetLobbyEnterResponse
+HasLobbyEnterResponse,I,0,HasLobbyEnterResponse,0,0,0,0,HasLobbyEnterResponse
+# These three are for the JoinLobby callback (HasLobbyEnterResponse).
+GetLobbyEnterResponseID,I,0,GetLobbyEnterResponseID,0,0,0,0,GetLobbyEnterResponseID
+GetLobbyEnterResponseLocked,I,0,GetLobbyEnterResponseLocked,0,0,0,0,GetLobbyEnterResponseLocked
+GetLobbyEnterResponseResponse,I,0,GetLobbyEnterResponseResponse,0,0,0,0,GetLobbyEnterResponseResponse
+# These three are for the JoinLobby call result.
+GetLobbyEnterID,I,I,GetLobbyEnterID,0,0,0,0,GetLobbyEnterID
+GetLobbyEnterLocked,I,I,GetLobbyEnterLocked,0,0,0,0,GetLobbyEnterLocked
+GetLobbyEnterResponse,I,I,GetLobbyEnterResponse,0,0,0,0,GetLobbyEnterResponse
 InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,InviteUserToLobby
 HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,HasGameLobbyJoinRequest
 GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,GetGameLobbyJoinRequestedLobby
@@ -225,6 +229,7 @@ SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0,SetLobbyMemberLimit
 GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,GetNumLobbyMembers
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,GetLobbyMemberByIndex
 HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,HasLobbyChatUpdate
+GetLobbyChatUpdateLobby,I,0,GetLobbyChatUpdateLobby,0,0,0,0,GetLobbyChatUpdateLobby
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,GetLobbyChatUpdateUserChanged
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,GetLobbyChatUpdateUserState
 GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,GetLobbyChatUpdateUserMakingChange
@@ -307,13 +312,11 @@ CloudFileForget,I,S,CloudFileForget,0,0,0,0,CloudFileForget
 CloudFilePersisted,I,S,CloudFilePersisted,0,0,0,0,CloudFilePersisted
 CloudFileRead,I,S,CloudFileRead,0,0,0,0,CloudFileRead
 CloudFileReadAsync,I,SII,CloudFileReadAsync,0,0,0,0,CloudFileReadAsync
-GetCloudFileReadAsyncCallbackState,I,S,GetCloudFileReadAsyncCallbackState,0,0,0,0,GetCloudFileReadAsyncCallbackState
-GetCloudFileReadAsyncResult,I,S,GetCloudFileReadAsyncResult,0,0,0,0,GetCloudFileReadAsyncResult
-GetCloudFileReadAsyncMemblock,I,S,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloudFileReadAsyncMemblock
+GetCloudFileReadAsyncFileName,S,I,GetCloudFileReadAsyncFileName,0,0,0,0,GetCloudFileReadAsyncFileName
+GetCloudFileReadAsyncMemblock,I,I,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloudFileReadAsyncMemblock
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,CloudFileWrite
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,CloudFileWriteAsync
-GetCloudFileWriteAsyncCallbackState,I,S,GetCloudFileWriteAsyncCallbackState,0,0,0,0,GetCloudFileWriteAsyncCallbackState
-GetCloudFileWriteAsyncResult,I,S,GetCloudFileWriteAsyncResult,0,0,0,0,GetCloudFileWriteAsyncResult
+GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetCloudFileWriteAsyncFileName
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
 GetCloudFileListJSON,S,0,GetCloudFileListJSON,0,0,0,0,GetCloudFileListJSON

@@ -907,7 +907,7 @@ extern char*(*AGKCommand0)( unsigned int );
 //extern char*(*AGKCommand893)(  );
 //extern int(*AGKCommand894)(  );
 extern void(*AGKCommand895)( const char * );
-//extern void(*AGKCommand896)( const char* );
+extern void(*AGKCommand896)( const char* );
 //extern int(*AGKCommand897)(  );
 //extern float(*AGKCommand898)(  );
 //extern float(*AGKCommand899)(  );
@@ -2800,7 +2800,7 @@ class agk
 		//static inline char* GetLastError(  ) { return AGKCommand893(  ); }
 		//static inline int GetErrorOccurred(  ) { return AGKCommand894(  ); }
 		static inline void PluginError( const char * szErr ) { AGKCommand895( szErr ); }
-		//static inline void Message( const char* msg ) { AGKCommand896( msg ); }
+		static inline void Message( const char* msg ) { AGKCommand896( msg ); }
 		//static inline int GetJoystickExists(  ) { return AGKCommand897(  ); }
 		//static inline float GetRawMouseX(  ) { return AGKCommand898(  ); }
 		//static inline float GetRawMouseY(  ) { return AGKCommand899(  ); }

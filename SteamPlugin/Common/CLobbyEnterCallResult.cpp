@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef CFILEREADASYNCITEM_H_
-#define CFILEREADASYNCITEM_H_
+#include "CLobbyEnterCallResult.h"
 
-#include "DllMain.h"
-#include <steam_api.h>
-#include <string>
-
-class CFileReadAsyncItem
+void CLobbyEnterCallResult::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
-private:
-	std::string m_Filename;
-	CCallResult<CFileReadAsyncItem, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
-public:
-	CFileReadAsyncItem();
-	virtual ~CFileReadAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	int m_MemblockID;
-	// Method call.
-	bool Call(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-};
+	if (!bIOFailure)
+	{
+		utils::Log(GetName() + ": Succeeded.");
+		m_LobbyEnter = *pParam;
+		m_State = Done;
+	}
+	else
+	{
+		utils::Log(GetName() + ": Failed.");
+		m_State = ServerError;
+	}
+}
 
-#endif // CFILEREADASYNCITEM_H_
+void CLobbyEnterCallResult::Call()
+{
+	m_hSteamAPICall = SteamMatchmaking()->JoinLobby(m_steamIDLobby);
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyEnterCallResult::OnLobbyEnter);
+}

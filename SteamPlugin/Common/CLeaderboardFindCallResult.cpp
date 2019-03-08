@@ -20,16 +20,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#include "CLeaderboardFindCallResult.h"
 
-CSteamID SteamPlugin::GetSteamID()
+void CLeaderboardFindCallResult::OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure)
 {
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
+	m_hLeaderboard = pCallResult->m_hSteamLeaderboard;
+	bool found = pCallResult->m_bLeaderboardFound && !bIOFailure;
+	utils::Log(GetName() + ": Found = " + std::to_string(found) + ", Handle = " + std::to_string(m_hLeaderboard));
+	if (found)
+	{
+		m_State = Done;
+	}
+	else
+	{
+		m_State = ServerError;
+	}
 }
 
-bool SteamPlugin::LoggedOn()
+void CLeaderboardFindCallResult::Call()
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
+	m_hSteamAPICall = SteamUserStats()->FindLeaderboard(m_Name.c_str());
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardFindCallResult::OnFindLeaderboard);
 }

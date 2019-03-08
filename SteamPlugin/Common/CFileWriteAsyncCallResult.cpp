@@ -20,16 +20,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#include "CFileWriteAsyncCallResult.h"
 
-CSteamID SteamPlugin::GetSteamID()
+void CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure)
 {
-	CheckInitialized(SteamUser, k_steamIDNil);
-	return SteamUser()->GetSteamID();
+	if (pResult->m_eResult == k_EResultOK && !bFailure)
+	{
+		utils::Log(GetName() + ": Succeeded.");
+		m_State = Done;
+	}
+	else
+	{
+		utils::Log(GetName() + ": Failed with result " + std::to_string(pResult->m_eResult) + ".");
+		m_State = ServerError;
+	}
 }
 
-bool SteamPlugin::LoggedOn()
+void CFileWriteAsyncCallResult::Call()
 {
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
+	m_hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(m_FileName.c_str(), m_pvData, m_cubData);
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		//throw std::string(GetName() + ": File does not exist.");
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete);
 }
