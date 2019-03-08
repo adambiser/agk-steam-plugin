@@ -377,22 +377,24 @@ void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 	agk::Log("Callback: OnLobbyChatMessage");
 	ChatMessageInfo_t info;
 	info.user = pParam->m_ulSteamIDUser;
-	SteamMatchmaking()->GetLobbyChatEntry(pParam->m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.text, 4096, NULL);
-	m_ChatMessages.push_back(info);
+	SteamMatchmaking()->GetLobbyChatEntry(pParam->m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.text, MAX_CHAT_MESSAGE_LENGTH, NULL);
+	m_LobbyChatMessageMutex.lock();
+	m_LobbyChatMessageList.push_back(info);
+	m_LobbyChatMessageMutex.unlock();
 }
 
 bool SteamPlugin::HasLobbyChatMessage()
 {
-	if (m_ChatMessages.size() > 0)
+	m_LobbyChatMessageMutex.lock();
+	if (m_LobbyChatMessageList.size() > 0)
 	{
-		ChatMessageInfo_t info = m_ChatMessages.front();
-		m_LobbyChatMessageUser = info.user;
-		strcpy_s(m_LobbyChatMessageText, strlen(info.text) + 1, info.text);
-		m_ChatMessages.pop_front();
+		m_CurrentLobbyChatMessage = m_LobbyChatMessageList.front();
+		m_LobbyChatMessageList.pop_front();
+		m_LobbyChatMessageMutex.unlock();
 		return true;
 	}
-	m_LobbyChatMessageUser = k_steamIDNil;
-	*m_LobbyChatMessageText = NULL;
+	m_LobbyChatMessageMutex.unlock();
+	ClearCurrentLobbyChatMessage();
 	return false;
 }
 

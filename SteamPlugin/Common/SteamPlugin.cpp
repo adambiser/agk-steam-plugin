@@ -57,7 +57,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackLobbyGameCreated(this, &SteamPlugin::OnLobbyGameCreated),
 	m_CallbackLobbyChatUpdated(this, &SteamPlugin::OnLobbyChatUpdated),
 	m_CallbackLobbyChatMessage(this, &SteamPlugin::OnLobbyChatMessage),
-	m_LobbyChatMessageUser(k_steamIDNil),
 	m_CallbackPlaybackStatusHasChanged(this, &SteamPlugin::OnPlaybackStatusHasChanged),
 	m_PlaybackStatusHasChanged(false),
 	m_CallbackVolumeHasChanged(this, &SteamPlugin::OnVolumeHasChanged),
@@ -73,22 +72,8 @@ SteamPlugin::SteamPlugin() :
 {
 	ClearCurrentLobbyDataUpdate();
 	ClearCurrentLobbyChatUpdate();
-	m_DigitalActionData.bActive = false;
-	m_DigitalActionData.bState = false;
-	m_AnalogActionData.bActive = false;
-	m_AnalogActionData.eMode = k_EInputSourceMode_None;
-	m_AnalogActionData.x = 0;
-	m_AnalogActionData.y = 0;
-	m_MotionData.posAccelX = 0;
-	m_MotionData.posAccelY = 0;
-	m_MotionData.posAccelZ = 0;
-	m_MotionData.rotQuatW = 0;
-	m_MotionData.rotQuatX = 0;
-	m_MotionData.rotQuatY = 0;
-	m_MotionData.rotQuatZ = 0;
-	m_MotionData.rotVelX = 0;
-	m_MotionData.rotVelY = 0;
-	m_MotionData.rotVelZ = 0;
+	ClearCurrentLobbyChatMessage();
+	ClearInputData();
 }
 
 SteamPlugin::~SteamPlugin(void)
@@ -157,29 +142,15 @@ void SteamPlugin::Shutdown()
 		m_LobbyEnterResponse = (EChatRoomEnterResponse)0;
 		ClearCurrentLobbyChatUpdate();
 		m_LobbyChatUpdatedList.clear();
-		m_LobbyChatMessageUser = k_steamIDNil;
+		ClearCurrentLobbyChatMessage();
+		m_LobbyChatMessageList.clear();
 		m_PlaybackStatusHasChanged = false;
 		m_VolumeHasChanged = false;
 		m_HasIPCountryChanged = false;
 		m_HasLowBatteryWarning = false;
 		m_nMinutesBatteryLeft = 255;
 		m_IsSteamShuttingDown = false;
-		m_DigitalActionData.bActive = false;
-		m_DigitalActionData.bState = false;
-		m_AnalogActionData.bActive = false;
-		m_AnalogActionData.eMode = k_EInputSourceMode_None;
-		m_AnalogActionData.x = 0;
-		m_AnalogActionData.y = 0;
-		m_MotionData.posAccelX = 0;
-		m_MotionData.posAccelY = 0;
-		m_MotionData.posAccelZ = 0;
-		m_MotionData.rotQuatW = 0;
-		m_MotionData.rotQuatX = 0;
-		m_MotionData.rotQuatY = 0;
-		m_MotionData.rotQuatZ = 0;
-		m_MotionData.rotVelX = 0;
-		m_MotionData.rotVelY = 0;
-		m_MotionData.rotVelZ = 0;
+		ClearInputData();
 	}
 }
 
