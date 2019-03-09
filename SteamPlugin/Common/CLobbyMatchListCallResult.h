@@ -41,6 +41,7 @@ public:
 	}
 	int GetLobbyMatchListCount() { return (int)m_Lobbies.size(); }
 	CSteamID GetLobbyByIndex(int iLobby);
+	std::string GetResponseJSON();
 protected:
 	void Call();
 private:

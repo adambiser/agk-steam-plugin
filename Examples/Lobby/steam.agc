@@ -222,9 +222,16 @@ global errorReported as integer[0]
 #constant ERROR_LOBBYMATCH		0
 
 global frame as integer
+
+Type LobbyCreated_t
+	hLobby as integer
+	result as integer
+EndType
+
 //
 // Processes all asynchronous callbacks.
 //
+global done as integer
 Function ProcessCallbacks()
 	x as integer
 	hSteamID as integer
@@ -233,7 +240,14 @@ Function ProcessCallbacks()
 	//
 	// Lobby Match-making
 	//
+	responseCode as integer
 	if server.lobbyListCallResult
+		responseCode = Steam.GetCallResultResponseCode(server.lobbyListCallResult)
+		if responseCode and not done
+			done = 1
+			AddStatus("RequestLobbyList call result response code: " + str(responseCode))
+			AddStatus("JSON: " + Steam.GetCallResultResponseJSON(server.lobbyListCallResult))
+		endif
 		select Steam.GetCallResultState(server.lobbyListCallResult)
 			case STATE_DONE
 				AddStatus("Matching lobbies: " + str(Steam.GetLobbyMatchListCount(server.lobbyListCallResult)))
@@ -256,20 +270,21 @@ Function ProcessCallbacks()
 		endselect
 	endif
 	if server.createLobbyCallResult
-		select Steam.GetCallResultState(server.createLobbyCallResult)
-			case STATE_DONE
-				AddStatus("Lobby created.")
-				// Done with the call result.  Delete it.
-				Steam.DeleteCallResult(server.createLobbyCallResult)
-				server.createLobbyCallResult = 0
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-				AddStatus("Error creating lobby.")
-				// Had an error, delete the call result.
-				Steam.DeleteCallResult(server.createLobbyCallResult)
-				server.createLobbyCallResult = 0
-			endcase
-		endselect
+		responseCode = Steam.GetCallResultResponseCode(server.createLobbyCallResult)
+		if responseCode
+			AddStatus("CreateLobby call result response code: " + str(responseCode))
+			AddStatus("JSON: " + Steam.GetCallResultResponseJSON(server.createLobbyCallResult))
+			if responseCode = k_EResultOk
+				newLobby as LobbyCreated_t
+				newLobby.fromjson(Steam.GetCallResultResponseJSON(server.createLobbyCallResult))
+				AddStatus("Lobby created.  Handle: " + str(newLobby.hLobby))
+			else
+				AddStatus("Error creating lobby: " + str(responseCode))
+			endif
+			// Done with the call result.  Delete it.
+			Steam.DeleteCallResult(server.createLobbyCallResult)
+			server.createLobbyCallResult = 0
+		endif
 	endif
 	// Check the JoinLobby CallResult and report results.
 	// This demo uses HasLobbyEnterResponse since it will report for both CreateLobby and JoinLobby calls.

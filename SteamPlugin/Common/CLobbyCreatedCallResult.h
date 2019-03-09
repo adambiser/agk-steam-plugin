@@ -49,7 +49,8 @@ public:
 			+ std::to_string(m_cMaxMembers) + ")";
 	}
 	CSteamID GetLobbyID() { return m_Lobby.m_ulSteamIDLobby; }
-	EResult GetResult() { return m_Lobby.m_eResult; }
+	EResult GetResponse() { return m_Lobby.m_eResult; }
+	std::string GetResponseJSON();
 protected:
 	void Call();
 private:

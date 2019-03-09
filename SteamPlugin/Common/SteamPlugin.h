@@ -67,6 +67,7 @@ private:
 	int m_CurrentCallResultHandle;
 	int AddCallResultItem(CCallResultItem *callResult);
 	// Template methods MUST be defined in the header file!
+public:
 	template <class T> T *GetCallResultItem(int hCallResult)
 	{
 		auto search = m_CallResultItems.find(hCallResult);
@@ -83,6 +84,7 @@ private:
 		}
 		return callResult;
 	}
+private:
 	// App/DLC methods
 	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewUrlLaunchParameters_t, m_CallbackNewLaunchQueryParameters);
 	bool m_HasNewLaunchQueryParameters;

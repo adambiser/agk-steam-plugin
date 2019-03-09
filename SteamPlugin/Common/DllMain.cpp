@@ -97,16 +97,6 @@ void ClearSteamIDHandleList()
 	m_CSteamIDs.push_back(k_steamIDNil);
 }
 
-ECallbackState ProcessCallbackState(ECallbackState *callbackState)
-{
-	if (*callbackState == Done)
-	{
-		*callbackState = Idle;
-		return Done;
-	}
-	return *callbackState;
-}
-
 /*
 	InputHandle_t Handle Methods
 */
@@ -197,7 +187,6 @@ bool ParseIP(const char *ipv4, uint32 *ip)
 
 void ResetVariables()
 {
-
 	ClearSteamIDHandleList();
 	ClearActionSetHandleList();
 	m_InputCount = 0;
@@ -421,6 +410,25 @@ int GetCallResultState(int hCallResult)
 	CheckInitializedPlugin(ClientError);
 	return Steam->GetCallResultItemState(hCallResult);
 }
+
+int GetCallResultResponseCode(int hCallResult)
+{
+	CheckInitializedPlugin(k_EResultFail);
+	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
+	{
+		return callResult->GetResponse();
+	}
+	return k_EResultFail;
+}
+
+char *GetCallResultResponseJSON(int hCallResult)
+{
+	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
+	{
+		return utils::CreateString(callResult->GetResponseJSON());
+	}
+	return utils::CreateString("{}");
+};
 
 // App/DLC methods
 char *GetDLCDataJSON()

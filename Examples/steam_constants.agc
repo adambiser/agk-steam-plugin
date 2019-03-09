@@ -277,6 +277,7 @@ EndType
 #constant k_EResultOK										1	// Success.
 #constant k_EResultFail										2	// Generic failure.
 #constant k_EResultNoConnection								3	// Your Steam client doesn't have a connection to the back-end.
+//#constant k_EResultNoConnectionRetry						4	// OBSOLETE - removed
 #constant k_EResultInvalidPassword							5	// Password/ticket is invalid.
 #constant k_EResultLoggedInElsewhere						6	// The user is logged in elsewhere.
 #constant k_EResultInvalidProtocolVer						7	// Protocol version is incorrect.
@@ -381,6 +382,11 @@ EndType
 #constant k_EResultGSLTExpired								106	// This Game Server Login Token (GSLT) has expired from disuse; it can be reset for use.
 #constant k_EResultInsufficientFunds						107	// user doesn't have enough wallet funds to complete the action
 #constant k_EResultTooManyPending							108	// There are too many of this thing pending already
+#constant k_EResultNoSiteLicensesFound						109	// No site licenses found
+#constant k_EResultWGNetworkSendExceeded					110	// the WG couldn't send a response because we exceeded max network send size
+#constant k_EResultAccountNotFriends						111	// the user is not mutually friends
+#constant k_EResultLimitedUserAccount						112	// the user is limited
+#constant k_EResultCantRemoveItem							113	// item can't be removed
 
 // ESteamUserStatType
 //--------------------------------------------------------------

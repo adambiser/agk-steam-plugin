@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "..\AGKLibraryCommands.h"
+#include "steam_api.h"
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -40,8 +41,7 @@ enum ECallbackState
 	Done = 2
 };
 
-// Return to Idle after reporting Done.
-ECallbackState ProcessCallbackState(ECallbackState *callbackState);
+int GetSteamIDHandle(CSteamID steamID);
 
 /* @page General Commands */
 /*
@@ -158,6 +158,9 @@ extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
 @return [A callback state](Callbacks-and-Call-Results#states)
 */
 extern "C" DLL_EXPORT int GetCallResultState(int hCallResult);
+
+extern "C" DLL_EXPORT int GetCallResultResponseCode(int hCallResult);
+extern "C" DLL_EXPORT char *GetCallResultResponseJSON(int hCallResult);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.

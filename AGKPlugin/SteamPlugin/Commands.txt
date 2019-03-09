@@ -16,10 +16,12 @@ GetSteamPath,S,0,GetSteamPath,0,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,IsSteamEmulated
 SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
-# Callback methods
+# Call Result methods
 #
 DeleteCallResult,0,I,DeleteCallResult,0,0,0,0,DeleteCallResult
 GetCallResultState,I,I,GetCallResultState,0,0,0,0,GetCallResultState
+GetCallResultResponseCode,I,I,GetCallResultResponseCode,0,0,0,0,GetCallResultResponseCode
+GetCallResultResponseJSON,S,I,GetCallResultResponseJSON,0,0,0,0,GetCallResultResponseJSON
 #
 # App/DLC methods
 #
