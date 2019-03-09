@@ -50,7 +50,7 @@ public:
 	}
 	CSteamID GetLobbyID() { return m_Lobby.m_ulSteamIDLobby; }
 	EResult GetResponse() { return m_Lobby.m_eResult; }
-	std::string GetResponseJSON();
+	std::string GetResultJSON();
 protected:
 	void Call();
 private:

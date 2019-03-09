@@ -24,16 +24,18 @@ THE SOFTWARE.
 
 void CLobbyEnterCallResult::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 {
+	m_LobbyEnter = *pParam;
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_LobbyEnter = *pParam;
 		m_State = Done;
+		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
+		m_eResult = k_EResultFail;
 	}
 }
 
@@ -46,3 +48,12 @@ void CLobbyEnterCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyEnterCallResult::OnLobbyEnter);
 }
+
+std::string CLobbyEnterCallResult::GetResultJSON()
+{
+	return std::string("{"
+		"\"hLobby\": " + std::to_string(GetSteamIDHandle(m_LobbyEnter.m_ulSteamIDLobby)) + ", "
+		"\"Locked\": " + std::to_string(m_LobbyEnter.m_bLocked) + ", "
+		"\"ChatRoomEnterResponse\": " + std::to_string(m_LobbyEnter.m_EChatRoomEnterResponse) + ", "
+		"\"ChatPermissions\": " + std::to_string(m_LobbyEnter.m_rgfChatPermissions) + "}");
+};

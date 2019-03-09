@@ -51,6 +51,7 @@ public:
 	EChatRoomEnterResponse GetEnterResponse() { return (EChatRoomEnterResponse)m_LobbyEnter.m_EChatRoomEnterResponse; }
 	//uint32 GetChatPermissions() { return m_LobbyEnter.m_rgfChatPermissions; } // unused - always 0.
 	CSteamID GetLobbyID() { return m_LobbyEnter.m_ulSteamIDLobby; }
+	std::string GetResultJSON();
 protected:
 	void Call();
 private:

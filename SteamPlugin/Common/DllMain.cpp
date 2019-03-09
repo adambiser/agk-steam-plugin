@@ -411,21 +411,21 @@ int GetCallResultState(int hCallResult)
 	return Steam->GetCallResultItemState(hCallResult);
 }
 
-int GetCallResultResponseCode(int hCallResult)
+int GetCallResultCode(int hCallResult)
 {
 	CheckInitializedPlugin(k_EResultFail);
 	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
 	{
-		return callResult->GetResponse();
+		return callResult->GetResultCode();
 	}
 	return k_EResultFail;
 }
 
-char *GetCallResultResponseJSON(int hCallResult)
+char *GetCallResultJSON(int hCallResult)
 {
 	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
 	{
-		return utils::CreateString(callResult->GetResponseJSON());
+		return utils::CreateString(callResult->GetResultJSON());
 	}
 	return utils::CreateString("{}");
 };

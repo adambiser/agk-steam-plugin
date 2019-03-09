@@ -24,18 +24,22 @@ THE SOFTWARE.
 
 void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
 {
+	m_Lobby = *pParam;
+	m_eResult = m_Lobby.m_eResult;
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_Lobby = *pParam;
 		m_State = Done;
-		m_eResponse = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
-		m_eResponse = k_EResultFail;
+		// Make sure a failure response is set.
+		if (m_eResult <= k_EResultOK)
+		{
+			m_eResult = k_EResultFail;
+		}
 	}
 }
 
@@ -49,10 +53,9 @@ void CLobbyCreatedCallResult::Call()
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyCreatedCallResult::OnLobbyCreated);
 }
 
-std::string CLobbyCreatedCallResult::GetResponseJSON()
+std::string CLobbyCreatedCallResult::GetResultJSON()
 {
-	std::string json("{"
+	return std::string("{"
 		"\"hLobby\": " + std::to_string(GetSteamIDHandle(m_Lobby.m_ulSteamIDLobby)) + ", "
-		"\"result\": " + std::to_string(m_Lobby.m_eResult) + "}");
-	return json;
+		"\"Result\": " + std::to_string(m_Lobby.m_eResult) + "}");
 };

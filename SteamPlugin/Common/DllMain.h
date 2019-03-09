@@ -159,8 +159,8 @@ extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
 */
 extern "C" DLL_EXPORT int GetCallResultState(int hCallResult);
 
-extern "C" DLL_EXPORT int GetCallResultResponseCode(int hCallResult);
-extern "C" DLL_EXPORT char *GetCallResultResponseJSON(int hCallResult);
+extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult);
+extern "C" DLL_EXPORT char *GetCallResultJSON(int hCallResult);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.

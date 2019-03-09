@@ -32,13 +32,13 @@ void CLobbyMatchListCallResult::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchLi
 			m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
 		}
 		m_State = Done;
-		m_eResponse = k_EResultOK;
+		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
-		m_eResponse = k_EResultFail;
+		m_eResult = k_EResultFail;
 	}
 }
 
@@ -62,7 +62,7 @@ CSteamID CLobbyMatchListCallResult::GetLobbyByIndex(int index)
 	return m_Lobbies[index];
 }
 
-std::string CLobbyMatchListCallResult::GetResponseJSON()
+std::string CLobbyMatchListCallResult::GetResultJSON()
 {
 	std::string json("[");
 	for (int index = 0; index < (int)m_Lobbies.size(); index++)

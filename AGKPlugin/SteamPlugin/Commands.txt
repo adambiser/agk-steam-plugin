@@ -20,8 +20,8 @@ SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
 DeleteCallResult,0,I,DeleteCallResult,0,0,0,0,DeleteCallResult
 GetCallResultState,I,I,GetCallResultState,0,0,0,0,GetCallResultState
-GetCallResultResponseCode,I,I,GetCallResultResponseCode,0,0,0,0,GetCallResultResponseCode
-GetCallResultResponseJSON,S,I,GetCallResultResponseJSON,0,0,0,0,GetCallResultResponseJSON
+GetCallResultCode,I,I,GetCallResultCode,0,0,0,0,GetCallResultCode
+GetCallResultJSON,S,I,GetCallResultJSON,0,0,0,0,GetCallResultJSON
 #
 # App/DLC methods
 #
