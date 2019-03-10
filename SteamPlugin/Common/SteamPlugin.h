@@ -374,23 +374,15 @@ public:
 	void AddRequestLobbyListResultCountFilter(int cMaxResults);
 	void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
 	int RequestLobbyList();
-	int GetLobbyMatchListCount(int hCallResult);
-	CSteamID GetLobbyByIndex(int hCallResult, int iLobby);
 	// Lobby methods: Create, Join, Leave
 	int CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
-	CSteamID GetLobbyCreatedID(int hCallResult);
 	//EResult GetLobbyCreatedResult(int hCallResult);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
 	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 	int JoinLobby(CSteamID steamIDLobby);
 	bool HasLobbyEnterResponse();
-	CSteamID GetLobbyEnterResponseID() { return m_CurrentLobbyEnter.m_ulSteamIDLobby; }
-	bool GetLobbyEnterResponseLocked() { return m_CurrentLobbyEnter.m_bLocked; }
-	EChatRoomEnterResponse GetLobbyEnterResponseResponse() { return (EChatRoomEnterResponse)m_CurrentLobbyEnter.m_EChatRoomEnterResponse; }
-	CSteamID GetLobbyEnterID(int hCallResult);
-	bool GetLobbyEnterLocked(int hCallResult);
-	EChatRoomEnterResponse GetLobbyEnterResponse(int hCallResult);
+	LobbyEnter_t GetLobbyEnterResponse() { return m_CurrentLobbyEnter; }
 	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	bool HasGameLobbyJoinRequest() { return m_GameLobbyJoinRequestedInfo.m_steamIDLobby != k_steamIDNil; }
 	CSteamID GetGameLobbyJoinRequestedLobby();
@@ -407,9 +399,8 @@ public:
 	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	bool RequestLobbyData(CSteamID steamIDLobby);
-	bool HasLobbyDataUpdated();
-	CSteamID GetLobbyDataUpdatedLobby() { return m_CurrentLobbyDataUpdate.m_ulSteamIDLobby; }
-	CSteamID GetLobbyDataUpdatedID() { return m_CurrentLobbyDataUpdate.m_ulSteamIDMember; }
+	bool HasLobbyDataUpdateResponse();
+	LobbyDataUpdate_t GetLobbyDataUpdateResponse() { return m_CurrentLobbyDataUpdate; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	// Lobby methods: members and status

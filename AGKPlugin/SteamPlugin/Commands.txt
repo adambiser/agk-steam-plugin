@@ -176,25 +176,15 @@ AddRequestLobbyListNumericalFilter,0,SII,AddRequestLobbyListNumericalFilter,0,0,
 AddRequestLobbyListResultCountFilter,0,I,AddRequestLobbyListResultCountFilter,0,0,0,0,AddRequestLobbyListResultCountFilter
 AddRequestLobbyListStringFilter,0,SSI,AddRequestLobbyListStringFilter,0,0,0,0,AddRequestLobbyListStringFilter
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
-GetLobbyMatchListCount,I,I,GetLobbyMatchListCount,0,0,0,0,GetLobbyMatchListCount
-GetLobbyByIndex,I,II,GetLobbyByIndex,0,0,0,0,GetLobbyByIndex
 #
 # Lobby methods: Create, join, and leave
 #
 CreateLobby,I,II,CreateLobby,0,0,0,0,CreateLobby
-GetLobbyCreatedID,I,I,GetLobbyCreatedID,0,0,0,0,GetLobbyCreatedID
 SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,SetLobbyJoinable
 SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
 JoinLobby,I,I,JoinLobby,0,0,0,0,JoinLobby
 HasLobbyEnterResponse,I,0,HasLobbyEnterResponse,0,0,0,0,HasLobbyEnterResponse
-# These three are for the JoinLobby callback (HasLobbyEnterResponse).
-GetLobbyEnterResponseID,I,0,GetLobbyEnterResponseID,0,0,0,0,GetLobbyEnterResponseID
-GetLobbyEnterResponseLocked,I,0,GetLobbyEnterResponseLocked,0,0,0,0,GetLobbyEnterResponseLocked
-GetLobbyEnterResponseResponse,I,0,GetLobbyEnterResponseResponse,0,0,0,0,GetLobbyEnterResponseResponse
-# These three are for the JoinLobby call result.
-GetLobbyEnterID,I,I,GetLobbyEnterID,0,0,0,0,GetLobbyEnterID
-GetLobbyEnterLocked,I,I,GetLobbyEnterLocked,0,0,0,0,GetLobbyEnterLocked
-GetLobbyEnterResponse,I,I,GetLobbyEnterResponse,0,0,0,0,GetLobbyEnterResponse
+GetLobbyEnterResponseJSON,S,0,GetLobbyEnterResponseJSON,0,0,0,0,GetLobbyEnterResponseJSON
 InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,InviteUserToLobby
 HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,HasGameLobbyJoinRequest
 GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,GetGameLobbyJoinRequestedLobby
@@ -216,9 +206,8 @@ GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,GetLobbyDataJSON
 SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,SetLobbyData
 DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,DeleteLobbyData
 RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,RequestLobbyData
-HasLobbyDataUpdated,I,0,HasLobbyDataUpdated,0,0,0,0,HasLobbyDataUpdated
-GetLobbyDataUpdatedLobby,I,0,GetLobbyDataUpdatedLobby,0,0,0,0,GetLobbyDataUpdatedLobby
-GetLobbyDataUpdatedID,I,0,GetLobbyDataUpdatedID,0,0,0,0,GetLobbyDataUpdatedID
+HasLobbyDataUpdateResponse,I,0,HasLobbyDataUpdateResponse,0,0,0,0,HasLobbyDataUpdateResponse
+GetLobbyDataUpdateResponseJSON,S,0,GetLobbyDataUpdateResponseJSON,0,0,0,0,GetLobbyDataUpdateResponseJSON
 GetLobbyMemberData,S,IIS,GetLobbyMemberData,0,0,0,0,GetLobbyMemberData
 SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,SetLobbyMemberData
 #

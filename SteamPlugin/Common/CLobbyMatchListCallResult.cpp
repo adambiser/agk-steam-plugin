@@ -52,16 +52,6 @@ void CLobbyMatchListCallResult::Call()
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyMatchListCallResult::OnLobbyMatchList);
 }
 
-CSteamID CLobbyMatchListCallResult::GetLobbyByIndex(int index)
-{
-	if (index < 0 || index >= (int)m_Lobbies.size())
-	{
-		utils::PluginError(GetName() + ": GetLobbyByIndex: Index out of range: " + std::to_string(index));
-		return k_steamIDNil;
-	}
-	return m_Lobbies[index];
-}
-
 std::string CLobbyMatchListCallResult::GetResultJSON()
 {
 	std::string json("[");

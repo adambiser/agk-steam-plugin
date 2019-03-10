@@ -68,38 +68,11 @@ int SteamPlugin::RequestLobbyList()
 	return AddCallResultItem(callResult);
 }
 
-int SteamPlugin::GetLobbyMatchListCount(int hCallResult)
-{
-	if (CLobbyMatchListCallResult *callResult = GetCallResultItem<CLobbyMatchListCallResult>(hCallResult))
-	{
-		return callResult->GetLobbyMatchListCount();
-	}
-	return 0;
-}
-
-CSteamID SteamPlugin::GetLobbyByIndex(int hCallResult, int iLobby)
-{
-	if (CLobbyMatchListCallResult *callResult = GetCallResultItem<CLobbyMatchListCallResult>(hCallResult))
-	{
-		return callResult->GetLobbyByIndex(iLobby);
-	}
-	return k_steamIDNil;
-}
-
 int SteamPlugin::CreateLobby(ELobbyType eLobbyType, int cMaxMembers)
 {
 	CLobbyCreatedCallResult *callResult = new CLobbyCreatedCallResult(eLobbyType, cMaxMembers);
 	callResult->Run();
 	return AddCallResultItem(callResult);
-}
-
-CSteamID SteamPlugin::GetLobbyCreatedID(int hCallResult)
-{
-	if (CLobbyCreatedCallResult *callResult = GetCallResultItem<CLobbyCreatedCallResult>(hCallResult))
-	{
-		return callResult->GetLobbyID();
-	}
-	return k_steamIDNil;
 }
 
 //bool SteamPlugin::SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent)
@@ -151,33 +124,6 @@ int SteamPlugin::JoinLobby(CSteamID steamIDLobby)
 	CLobbyEnterCallResult *callResult = new CLobbyEnterCallResult(steamIDLobby);
 	callResult->Run();
 	return AddCallResultItem(callResult);
-}
-
-CSteamID SteamPlugin::GetLobbyEnterID(int hCallResult)
-{
-	if (CLobbyEnterCallResult *callResult = GetCallResultItem<CLobbyEnterCallResult>(hCallResult))
-	{
-		return callResult->GetLobbyID();
-	}
-	return k_steamIDNil;
-}
-
-bool SteamPlugin::GetLobbyEnterLocked(int hCallResult)
-{
-	if (CLobbyEnterCallResult *callResult = GetCallResultItem<CLobbyEnterCallResult>(hCallResult))
-	{
-		return callResult->GetLobbyLocked();
-	}
-	return true;
-}
-
-EChatRoomEnterResponse SteamPlugin::GetLobbyEnterResponse(int hCallResult)
-{
-	if (CLobbyEnterCallResult *callResult = GetCallResultItem<CLobbyEnterCallResult>(hCallResult))
-	{
-		return callResult->GetEnterResponse();
-	}
-	return k_EChatRoomEnterResponseDoesntExist;
 }
 
 bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee)
@@ -285,7 +231,7 @@ void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
 	m_LobbyDataUpdatedMutex.unlock();
 }
 
-bool SteamPlugin::HasLobbyDataUpdated()
+bool SteamPlugin::HasLobbyDataUpdateResponse()
 {
 	m_LobbyDataUpdatedMutex.lock();
 	if (m_LobbyDataUpdatedList.size() > 0)

@@ -1409,27 +1409,10 @@ int RequestLobbyList()
 	return Steam->RequestLobbyList();
 }
 
-int GetLobbyMatchListCount(int hCallResult) {
-	CheckInitializedPlugin(0);
-	return Steam->GetLobbyMatchListCount(hCallResult);
-}
-
-int GetLobbyByIndex(int hCallResult, int index)
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyByIndex(hCallResult, index));
-}
-
 int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitializedPlugin(0);
 	return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
-}
-
-int GetLobbyCreatedID(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyCreatedID(hCallResult));
 }
 
 //int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
@@ -1462,40 +1445,16 @@ int HasLobbyEnterResponse()
 	return Steam->HasLobbyEnterResponse();
 }
 
-int GetLobbyEnterResponseID()
+char *GetLobbyEnterResponseJSON()
 {
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyEnterResponseID());
-}
-
-int GetLobbyEnterResponseLocked()
-{
-	CheckInitializedPlugin(false);
-	return Steam->GetLobbyEnterResponseLocked();
-}
-
-int GetLobbyEnterResponseResponse()
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLobbyEnterResponseResponse();
-}
-
-int GetLobbyEnterID(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyEnterID(hCallResult));
-}
-
-int GetLobbyEnterLocked(int hCallResult)
-{
-	CheckInitializedPlugin(false);
-	return Steam->GetLobbyEnterLocked(hCallResult);
-}
-
-int GetLobbyEnterResponse(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLobbyEnterResponse(hCallResult);
+	CheckInitializedPlugin(NULL_STRING);
+	LobbyEnter_t lobbyEnter = Steam->GetLobbyEnterResponse();
+	// Must be the same as in CLobbyEnterCallResult.
+	return utils::CreateString(std::string("{"
+		"\"hLobby\": " + std::to_string(GetSteamIDHandle(lobbyEnter.m_ulSteamIDLobby)) + ", "
+		"\"Locked\": " + std::to_string(lobbyEnter.m_bLocked) + ", "
+		"\"ChatRoomEnterResponse\": " + std::to_string(lobbyEnter.m_EChatRoomEnterResponse) + ", "
+		"\"ChatPermissions\": " + std::to_string(lobbyEnter.m_rgfChatPermissions) + "}"));
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
@@ -1659,22 +1618,21 @@ int RequestLobbyData(int hLobbySteamID)
 	return Steam->RequestLobbyData(GetSteamID(hLobbySteamID));
 }
 
-int HasLobbyDataUpdated()
+int HasLobbyDataUpdateResponse()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyDataUpdated();
+	return Steam->HasLobbyDataUpdateResponse();
 }
 
-int GetLobbyDataUpdatedLobby()
+char *GetLobbyDataUpdateResponseJSON()
 {
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyDataUpdatedLobby());
-}
-
-int GetLobbyDataUpdatedID()
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyDataUpdatedID());
+	CheckInitializedPlugin(NULL_STRING);
+	LobbyDataUpdate_t update = Steam->GetLobbyDataUpdateResponse();
+	// Must be the same as in CLobbyEnterCallResult.
+	return utils::CreateString(std::string("{"
+		"\"hLobby\": " + std::to_string(GetSteamIDHandle(update.m_ulSteamIDLobby)) + ", "
+		"\"hMember\": " + std::to_string(GetSteamIDHandle(update.m_ulSteamIDMember)) + ", "
+		"\"Success\": " + std::to_string(update.m_bSuccess) + "}"));
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
