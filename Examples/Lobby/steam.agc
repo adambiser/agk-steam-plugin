@@ -64,22 +64,22 @@ CreateLobbyUI()
 
 // Dump favorite game information.
 AddStatus("Favorite games:")
-AddStatus("AddFavoriteGame result: " + str(Steam.AddFavoriteGame(480, GetDeviceIP(), 12345, 12345, k_unFavoriteFlagFavorite)))
+AddStatus("AddFavoriteGame result: " + str(Steam.AddFavoriteGame(480, GetDeviceIP(), 12345, 12345, FavoriteFlagFavorite)))
 for x = 0 to Steam.GetFavoriteGameCount() - 1
 	AddStatus(Steam.GetFavoriteGameJSON(x))
 next
-AddStatus("RemoveFavoriteGame result: " + str(Steam.RemoveFavoriteGame(480, GetDeviceIP(), 12345, 12345, k_unFavoriteFlagFavorite)))
+AddStatus("RemoveFavoriteGame result: " + str(Steam.RemoveFavoriteGame(480, GetDeviceIP(), 12345, 12345, FavoriteFlagFavorite)))
 AddStatus("New GetFavoriteGameCount: " + str(Steam.GetFavoriteGameCount()))
 
 // Dump current friend lobbies
 AddStatus("Checking for friend lobbies.")
 friendCount as integer
-friendCount = Steam.GetFriendCount(k_EFriendFlagImmediate)
+friendCount = Steam.GetFriendCount(EFriendFlagImmediate)
 index as integer
 for index = 0 to friendCount - 1
 	friendGameInfo as FriendGameInfo_t
 	hSteamIDFriend as integer
-	hSteamIDFriend = Steam.GetFriendByIndex(index, k_EFriendFlagImmediate)
+	hSteamIDFriend = Steam.GetFriendByIndex(index, EFriendFlagImmediate)
 	friendGameInfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamIDFriend))
 	if friendGameInfo.InGame 
 		if Steam.IsSteamIDValid(friendGameInfo.SteamIDLobby)
@@ -147,16 +147,14 @@ Function CheckInput()
 			AddStatus("Loading information for lobby " + str(server.lobbyIndex) + ", handle: " + str(hLobby))
 			AddLineToScrollableTextArea(lobbyInfo, "Lobby " + str(server.lobbyIndex) + " has " + str(Steam.GetNumLobbyMembers(hLobby)) + " members out of a limit of " + str(Steam.GetLobbyMemberLimit(hLobby)) + ".")
 			// NOTE: This should typically only ever be used for debugging purposes. Devs should already know lobby data keys.
-			count as integer
-			count = Steam.GetLobbyDataCount(hLobby)
-			AddLineToScrollableTextArea(lobbyInfo, "Data Count: " + str(count))
+			AddStatus(Steam.GetLobbyDataJSON(hLobby))
+			// GetLobbyDataJSON returns an array of key/value pairs as JSON.
+			lobbyData as KeyValuePair[]
+			lobbyData.fromjson(Steam.GetLobbyDataJSON(hLobby))
+			AddLineToScrollableTextArea(lobbyInfo, "Data Count: " + str(lobbyData.length + 1)) // Array length is really ubounds in AGK!
 			x as integer
-			for x = 0 to count - 1
-				kv as KeyValuePair
-				// GetLobbyDataByIndexJSON returns a key/value pair as JSON.
-				AddStatus(Steam.GetLobbyDataByIndexJSON(hLobby, x))
-				kv.fromJson(Steam.GetLobbyDataByIndexJSON(hLobby, x))
-				AddLineToScrollableTextArea(lobbyInfo, kv.key + ": " + kv.value)
+			for x = 0 to lobbyData.length
+				AddLineToScrollableTextArea(lobbyInfo, lobbyData[x].key + ": " + lobbyData[x].value)
 			next
 			SetButtonEnabled(JOIN_BUTTON, 1)
 		endif
@@ -168,8 +166,8 @@ Function CheckInput()
 	if GetVirtualButtonPressed(FIND_AGK_BUTTON)
 		SetButtonEnabled(JOIN_BUTTON, 0)
 		// Search the world for AGK lobbies.
-		Steam.AddRequestLobbyListDistanceFilter(k_ELobbyDistanceFilterWorldwide)
-		Steam.AddRequestLobbyListStringFilter("name", "agk", k_ELobbyComparisonEqual)
+		Steam.AddRequestLobbyListDistanceFilter(ELobbyDistanceFilterWorldwide)
+		Steam.AddRequestLobbyListStringFilter("name", "agk", ELobbyComparisonEqual)
 		FindLobbies()
 	endif
 	if GetVirtualButtonPressed(JOIN_BUTTON)
@@ -178,7 +176,7 @@ Function CheckInput()
 		SetButtonEnabled(JOIN_BUTTON, 1)
 	endif
 	if GetVirtualButtonPressed(CREATE_BUTTON)
-		server.createLobbyCallResult = Steam.CreateLobby(k_ELobbyTypePublic, 8)
+		server.createLobbyCallResult = Steam.CreateLobby(ELobbyTypePublic, 8)
 		AddStatus("Creating lobby.  Call Result: " + str(server.createLobbyCallResult))
 	endif
 	if GetVirtualButtonPressed(LEAVE_BUTTON)
@@ -258,7 +256,7 @@ Function ProcessCallbacks()
 		if result
 			AddStatus("RequestLobbyList call result code: " + str(result))
 			AddStatus("JSON: " + Steam.GetCallResultJSON(server.lobbyListCallResult))
-			if result = k_EResultOk
+			if result = EResultOk
 				server.lobbies.fromjson(Steam.GetCallResultJSON(server.lobbyListCallResult))
 				for x = 0 to server.lobbies.length
 					hLobby = server.lobbies[x]
@@ -281,7 +279,7 @@ Function ProcessCallbacks()
 		if result
 			AddStatus("CreateLobby call result code: " + str(result))
 			AddStatus("JSON: " + Steam.GetCallResultJSON(server.createLobbyCallResult))
-			if result = k_EResultOk
+			if result = EResultOk
 				createdLobby.fromjson(Steam.GetCallResultJSON(server.createLobbyCallResult))
 				AddStatus("Lobby created.  Handle: " + str(createdLobby.hLobby))
 			else
@@ -300,7 +298,7 @@ Function ProcessCallbacks()
 		if result
 			AddStatus("JoinLobby call result code: " + str(result))
 			AddStatus("JSON: " + Steam.GetCallResultJSON(server.joinLobbyCallResult))
-			if result = k_EResultOk
+			if result = EResultOk
 				joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
 				AddStatus("Lobby joined.  Handle: " + str(joinedLobby.hLobby))
 			else
@@ -314,7 +312,7 @@ Function ProcessCallbacks()
 	// Check the general JoinLobby callback.
 	while Steam.HasLobbyEnterResponse()
 		joinedLobby.fromjson(Steam.GetLobbyEnterResponseJSON())
-		if joinedLobby.ChatRoomEnterResponse = k_EChatRoomEnterResponseSuccess
+		if joinedLobby.ChatRoomEnterResponse = EChatRoomEnterResponseSuccess
 			// Store the joined lobby handle.
 			server.hLobby = joinedLobby.hLobby
 			AddStatus("Joined lobby. Handle: " + str(server.hLobby))
@@ -351,19 +349,19 @@ Function ProcessCallbacks()
 		text as string
 		text = Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserChanged())
 		select Steam.GetLobbyChatUpdateUserState()
-			case k_EChatMemberStateChangeEntered
+			case EChatMemberStateChangeEntered
 				text = text + " entered the lobby."
 			endcase
-			case k_EChatMemberStateChangeLeft
+			case EChatMemberStateChangeLeft
 				text = text + " left the lobby."
 			endcase
-			case k_EChatMemberStateChangeDisconnected
+			case EChatMemberStateChangeDisconnected
 				text = text + " disconnected."
 			endcase
-			case k_EChatMemberStateChangeKicked
+			case EChatMemberStateChangeKicked
 				text = text + " was kicked by " + Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserMakingChange()) + "."
 			endcase
-			case k_EChatMemberStateChangeBanned
+			case EChatMemberStateChangeBanned
 				text = text + " was banned by " + Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserMakingChange()) + "."
 			endcase
 			case default
