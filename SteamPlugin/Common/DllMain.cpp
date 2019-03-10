@@ -62,6 +62,50 @@ If it has not been, return a default value.
 		value = max;					\
 	}
 
+std::string EscapeJSON(const std::string &input)
+{
+	std::ostringstream output;
+	for (auto c = input.cbegin(); c != input.cend(); c++)
+	{
+		switch (*c) {
+		case '"':
+			output << "\\\"";
+			break;
+		case '\\':
+			output << "\\\\";
+			break;
+		case '\b':
+			output << "\\b";
+			break;
+		case '\f':
+			output << "\\f";
+			break;
+		case '\n':
+			output << "\\n";
+			break;
+		case '\r':
+			output << "\\r";
+			break;
+		case '\t':
+			output << "\\t";
+			break;
+		default:
+			if ('\x00' <= *c && *c <= '\x1f')
+			{
+				char buffer[8];
+				sprintf_s(buffer, "\\u%04x", *c);
+				output << buffer;
+			}
+			else
+			{
+				output << *c;
+			}
+			break;
+		}
+	}
+	return output.str();
+}
+
 /*
 	CSteamID Handle Methods
 */
@@ -331,7 +375,7 @@ char *GetCommandLineArgsJSON()
 			}
 			size_t size;
 			wcstombs_s(&size, arg, szArglist[i], MAX_PATH);
-			json << "\"" << arg << "\"";
+			json << "\"" << EscapeJSON(arg) << "\"";
 		}
 		// Free memory.
 		LocalFree(szArglist);
@@ -452,7 +496,7 @@ char *GetDLCDataJSON()
 			{
 				json << "\"AppID\": " << appID;
 				json << ", \"Available\": " << available;
-				json << ", \"Name\": \"" << name << "\"";
+				json << ", \"Name\": \"" << EscapeJSON(name) << "\"";
 			}
 			json << "}";
 			//else
@@ -484,7 +528,7 @@ char *GetDLCDataByIndexJSON(int index)
 		{
 			json << "\"AppID\": " << appID;
 			json << ", \"Available\": " << available;
-			json << ", \"Name\": \"" << name << "\"";
+			json << ", \"Name\": \"" << EscapeJSON(name) << "\"";
 		}
 	}
 	json << "}";
@@ -1568,8 +1612,8 @@ char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
 		char value[k_cubChatMetadataMax];
 		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
 		{
-			json << "\"Key\": \"" << key << "\"";
-			json << ", \"Value\": \"" << value << "\"";
+			json << "\"Key\": \"" << EscapeJSON(key) << "\"";
+			json << ", \"Value\": \"" << EscapeJSON(value) << "\"";
 		}
 	}
 	json << "}";
@@ -1592,8 +1636,8 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 			{
 				json << ", ";
 			}
-			json << "{\"Key\": \"" << key << "\"";
-			json << ", \"Value\": \"" << value << "\"}";
+			json << "{\"Key\": \"" << EscapeJSON(key) << "\"";
+			json << ", \"Value\": \"" << EscapeJSON(value) << "\"}";
 		}
 	}
 	json << "]";
@@ -2007,7 +2051,7 @@ char *GetGamepadTextInputDismissedInfoJSON()
 			char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
 			Steam->GetGamepadTextInputDismissedInfo(&submitted, text);
 			json << "\"Submitted\": " << (int)submitted;
-			json << ", \"Text\": \"" << text << "\"";
+			json << ", \"Text\": \"" << EscapeJSON(text) << "\"";
 		}
 	}
 	json << "}";
@@ -2188,7 +2232,7 @@ char *GetCloudFileListJSON()
 			const char *name = Steam->GetFileNameAndSize(index, &pnFileSizeInBytes);
 			if (name)
 			{
-				json << "\"Name\": \"" << name << "\", ";
+				json << "\"Name\": \"" << EscapeJSON(name) << "\", ";
 				json << "\"Size\": " << pnFileSizeInBytes;
 			}
 			else

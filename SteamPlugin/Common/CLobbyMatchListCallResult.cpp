@@ -59,10 +59,10 @@ std::string CLobbyMatchListCallResult::GetResultJSON()
 	{
 		if (index > 0)
 		{
-			json.append(", ");
+			json += ", ";
 		}
-		json.append(std::to_string(GetSteamIDHandle(m_Lobbies[index])));
+		json += std::to_string(GetSteamIDHandle(m_Lobbies[index]));
 	}
-	json.append("]");
+	json += "]";
 	return json;
 };

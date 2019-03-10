@@ -27,12 +27,14 @@ THE SOFTWARE.
 #include <steam_api.h>
 #include "DllMain.h"
 #include "AGKUtils.h"
-#include <typeinfo>
 
 class CCallResultItem
 {
 public:
-	CCallResultItem() : m_State(Idle) {}
+	CCallResultItem() : 
+		m_State(Idle),
+		m_eResult((EResult)0),
+		m_Running(false) {}
 	virtual ~CCallResultItem(void) {}
 	// Return a 'name' for the CCallResultItem object, usually indicates type and some useful parameter values.
 	virtual std::string GetName() = 0;
@@ -48,31 +50,37 @@ public:
 	}
 	void Run()
 	{
-		if (m_State == Running)
+		if (m_Running)
 		{
 			return;
 		}
+		m_Running = true;
 		try
 		{
 			utils::Log(GetName() + ": Calling.");
 			Call();
-			m_State = Running;
 		}
 		catch (std::string e)
 		{
 			utils::PluginError(e);
 			m_State = ClientError;
+			m_eResult = k_EResultFail;
 		}
 		catch (...)
 		{
 			utils::PluginError(GetName() + ": Call threw an unexpected error.");
 			m_State = ClientError;
+			m_eResult = k_EResultFail;
 		}
 	}
+	virtual EResult GetResultCode() { return m_eResult; }
+	virtual std::string GetResultJSON() { return std::string("{}"); }
 protected:
 	// Throw std::string for errors
 	virtual void Call() = 0;
 	ECallbackState m_State;
+	EResult m_eResult;
+	bool m_Running;
 	SteamAPICall_t m_hSteamAPICall;
 };
 

@@ -154,6 +154,7 @@ Function CheckInput()
 			for x = 0 to count - 1
 				kv as KeyValuePair
 				// GetLobbyDataByIndexJSON returns a key/value pair as JSON.
+				AddStatus(Steam.GetLobbyDataByIndexJSON(hLobby, x))
 				kv.fromJson(Steam.GetLobbyDataByIndexJSON(hLobby, x))
 				AddLineToScrollableTextArea(lobbyInfo, kv.key + ": " + kv.value)
 			next
