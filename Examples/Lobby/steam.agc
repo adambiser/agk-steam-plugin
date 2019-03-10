@@ -248,7 +248,7 @@ Function ProcessCallbacks()
 	x as integer
 	hSteamID as integer
 	hLobby as integer
-	gameserver as GameServerInfo_t
+	gameserver as LobbyGameCreated_t
 	//
 	// Lobby Match-making
 	//

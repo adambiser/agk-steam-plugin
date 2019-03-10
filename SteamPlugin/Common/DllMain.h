@@ -1203,7 +1203,7 @@ extern "C" DLL_EXPORT int HasLobbyGameCreated();
 _This can only be read once per lobby game creation!_
 @return A JSON string that parses to the following type.
 ```
-Type GameServerInfo_t // aka LobbyGameCreated_t
+Type LobbyGameCreated_t
 	hLobby as integer
 	IP as string
 	Port as integer
@@ -1223,30 +1223,16 @@ extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
 */
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, const char *key);
 /*
-@desc Gets the number of metadata keys set on the specified lobby.
-@param hLobbySteamID The Steam ID of the lobby to get the data count from.
-@return The number of keys for the lobby.
-@api ISteamMatchmaking#GetLobbyDataCount
-*/
-extern "C" DLL_EXPORT int GetLobbyDataCount(int hLobbySteamID);
-/*
-@desc Gets a lobby metadata key/value pair by index.
-@param hLobbySteamID This MUST be the same lobby handle used in the previous call to GetLobbyDataCount!
-@param index An index between 0 and GetLobbyDataCount.
-@return A JSON string of the key/value pair at the given index.
-```
-Type KeyValuePair
-	Key as string
-	Value as string
-EndType
-```
-@api ISteamMatchmaking#GetLobbyDataByIndex
-*/
-extern "C" DLL_EXPORT char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index); // Returns json of key/value data.
-/*
-@desc Gets a lobby data for a given lobby.
+@desc Gets all metadata for a given lobby.
 @param hLobbySteamID The Steam ID of the lobby to get the metadata from.
 @return A JSON string of key/value pairs for all data for a lobby.
+An array to type KeyValuePair.
+```
+Type KeyValuePair
+Key as string
+Value as string
+EndType
+```
 */
 extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
 /*

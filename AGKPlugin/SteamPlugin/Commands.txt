@@ -200,8 +200,6 @@ GetLobbyGameCreatedJSON,S,0,GetLobbyGameCreatedJSON,0,0,0,0,GetLobbyGameCreatedJ
 # Lobby methods: Data
 #
 GetLobbyData,S,IS,GetLobbyData,0,0,0,0,GetLobbyData
-GetLobbyDataCount,I,I,GetLobbyDataCount,0,0,0,0,GetLobbyDataCount
-GetLobbyDataByIndexJSON,S,II,GetLobbyDataByIndexJSON,0,0,0,0,GetLobbyDataByIndexJSON
 GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,GetLobbyDataJSON
 SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,SetLobbyData
 DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,DeleteLobbyData

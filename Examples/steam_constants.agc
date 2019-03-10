@@ -1013,7 +1013,7 @@ EndType
 
 // Game server information
 // Obtainable from: GetLobbyGameServerJSON
-Type GameServerInfo_t // aka LobbyGameCreated_t
+Type LobbyGameCreated_t
 	hLobby as integer
 	IP as string
 	Port as integer

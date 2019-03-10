@@ -1596,51 +1596,32 @@ char *GetLobbyData(int hLobbySteamID, const char *key)
 	return utils::CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
 }
 
-int GetLobbyDataCount(int hLobbySteamID)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLobbyDataCount(GetSteamID(hLobbySteamID));
-}
-
-char *GetLobbyDataByIndexJSON(int hLobbySteamID, int index)
-{
-	std::ostringstream json;
-	json << "{";
-	if (Steam)
-	{
-		char key[k_nMaxLobbyKeyLength];
-		char value[k_cubChatMetadataMax];
-		if (Steam->GetLobbyDataByIndex(GetSteamID(hLobbySteamID), index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
-		{
-			json << "\"Key\": \"" << EscapeJSON(key) << "\"";
-			json << ", \"Value\": \"" << EscapeJSON(value) << "\"";
-		}
-	}
-	json << "}";
-	return utils::CreateString(json);
-}
-
 char *GetLobbyDataJSON(int hLobbySteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
 	CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
-	std::ostringstream json;
-	json << "[";
-	char key[k_nMaxLobbyKeyLength];
-	char value[k_cubChatMetadataMax];
+	std::string json("[");
 	for (int index = 0; index < Steam->GetLobbyDataCount(steamIDLobby); index++)
 	{
+		char key[k_nMaxLobbyKeyLength];
+		char value[k_cubChatMetadataMax];
 		if (Steam->GetLobbyDataByIndex(steamIDLobby, index, key, k_nMaxLobbyKeyLength, value, k_cubChatMetadataMax))
 		{
 			if (index > 0)
 			{
-				json << ", ";
+				json += ", ";
 			}
-			json << "{\"Key\": \"" << EscapeJSON(key) << "\"";
-			json << ", \"Value\": \"" << EscapeJSON(value) << "\"}";
+			json += "{"
+				"\"Key\": \"" + EscapeJSON(key) + "\", ";
+				"\"Value\": \"" + EscapeJSON(value) + "\"}";
+		}
+		else
+		{
+			utils::PluginError("GetLobbyDataByIndex: Error reading index " + std::to_string(index) + " of lobby " + std::to_string(hLobbySteamID));
+			return NULL_STRING;
 		}
 	}
-	json << "]";
+	json += "]";
 	return utils::CreateString(json);
 }
 

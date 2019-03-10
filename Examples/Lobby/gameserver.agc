@@ -11,7 +11,7 @@ Function HostGameServer()
 	Steam.SetLobbyGameServer(server.hLobby, GetDeviceIP(), GAME_SERVER_PORT, 0)
 EndFunction
 
-Function ConnectGameServer(gameserver as GameServerInfo_t)
+Function ConnectGameServer(gameserver as LobbyGameCreated_t)
 	AddChatLine(GAME_SERVER_COLOR, "Connecting to " + gameserver.IP + ":" + str(gameserver.Port) + "...")
 	if not server.isLobbyOwner
 		server.networkID = JoinNetwork(gameserver.IP, gameserver.Port, Steam.GetPersonaName())
