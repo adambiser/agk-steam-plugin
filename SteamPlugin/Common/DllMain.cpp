@@ -1612,7 +1612,7 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 				json += ", ";
 			}
 			json += "{"
-				"\"Key\": \"" + EscapeJSON(key) + "\", ";
+				"\"Key\": \"" + EscapeJSON(key) + "\", "
 				"\"Value\": \"" + EscapeJSON(value) + "\"}";
 		}
 		else
