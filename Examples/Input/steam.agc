@@ -163,7 +163,7 @@ Function CheckInput()
 	endif
 	if GetVirtualButtonPressed(HAPTIC_BUTTON)
 		AddStatus("Sending haptic pulse to input 1 left pad...")
-		Steam.TriggerInputHapticPulse(1, k_ESteamControllerPad_Left, 1000)
+		Steam.TriggerInputHapticPulse(1, ESteamControllerPad_Left, 1000)
 	endif
 EndFunction
 
@@ -182,22 +182,22 @@ EndFunction
 
 Function GetInputTypeName(value as integer)
 	select value
-		case k_ESteamInputType_Unknown
+		case ESteamInputType_Unknown
 			ExitFunction "Unknown"
 		endcase
-		case k_ESteamInputType_SteamController
+		case ESteamInputType_SteamController
 			ExitFunction "Steam Controller"
 		endcase
-		case k_ESteamInputType_XBox360Controller
+		case ESteamInputType_XBox360Controller
 			ExitFunction "XBox 360 Controller"
 		endcase
-		case k_ESteamInputType_XBoxOneController
+		case ESteamInputType_XBoxOneController
 			ExitFunction "XBox One Controller"
 		endcase
-		case k_ESteamInputType_GenericGamepad
+		case ESteamInputType_GenericGamepad
 			ExitFunction "DirectX Controller"
 		endcase
-		case k_ESteamInputType_PS4Controller
+		case ESteamInputType_PS4Controller
 			ExitFunction "PS4 Controller"
 		endcase
 	endselect

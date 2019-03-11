@@ -73,13 +73,13 @@ AddStatus("New GetFavoriteGameCount: " + str(Steam.GetFavoriteGameCount()))
 
 // Dump current friend lobbies
 AddStatus("Checking for friend lobbies.")
-friendCount as integer
-friendCount = Steam.GetFriendCount(EFriendFlagImmediate)
+friends as integer[]
+friends.fromjson(Steam.GetFriendListJSON(EFriendFlagImmediate))
 index as integer
-for index = 0 to friendCount - 1
+for index = 0 to friends.length
 	friendGameInfo as FriendGameInfo_t
 	hSteamIDFriend as integer
-	hSteamIDFriend = Steam.GetFriendByIndex(index, EFriendFlagImmediate)
+	hSteamIDFriend = friends[index]
 	friendGameInfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamIDFriend))
 	if friendGameInfo.InGame 
 		if Steam.IsSteamIDValid(friendGameInfo.SteamIDLobby)

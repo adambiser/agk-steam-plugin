@@ -176,7 +176,9 @@ EndFunction
 Function RefreshFriendGroupList()
 	server.friendGroups.length = -1
 	// Make index 0 represent the "All friends" list.
-	server.friendGroups.insert("All Friends (" + str(Steam.GetFriendCount(k_EFriendFlagImmediate)) + ")")
+	friends as integer[]
+	friends.fromjson(Steam.GetFriendListJSON(EFriendFlagImmediate))
+	server.friendGroups.insert("All Friends (" + str(friends.length + 1) + ")")
 	groupCount as integer
 	groupCount = Steam.GetFriendsGroupCount()
 	x as integer
@@ -220,7 +222,7 @@ Function SelectFriendGroup(index as integer)
 	friendListJSON as string
 	// Index 0 in this app is a hard-coded "All friends" list.
 	if index = 0
-		friendListJSON = Steam.GetFriendListJSON(k_EFriendFlagImmediate)
+		friendListJSON = Steam.GetFriendListJSON(EFriendFlagImmediate)
 	else
 		// Subtract 1 because in this app index 0 = all friends
 		friendListJSON = Steam.GetFriendsGroupMembersListJSON(Steam.GetFriendsGroupIDByIndex(index - 1))
@@ -290,7 +292,7 @@ EndFunction
 // 0 = In-game, 1 = Online, 2 = Offline.
 //
 Function GetFriendInfoSortGroup(info as FriendInfo)
-	if info.state <> k_EPersonaStateOffline
+	if info.state <> EPersonaStateOffline
 		if info.gameinfo.InGame
 			ExitFunction 0 // ingame group
 		else
@@ -338,7 +340,7 @@ Function UpdateFriendStatus(hSteamID as integer)
 		info = server.groupFriends[index]
 		text as string
 		text = info.name
-		if info.state = k_EPersonaStateOffline
+		if info.state = EPersonaStateOffline
 			SetTextColor(ui.friendNameIDs[uiindex], OFFLINE_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], OFFLINE_COLOR)
 		elseif info.gameinfo.InGame
@@ -388,46 +390,46 @@ EndFunction result
 
 Function GetPersonaStateChangeFlagText(flags as integer)
 	names as string[]
-	if HasFlag(flags, k_EPersonaChangeName)
+	if HasFlag(flags, EPersonaChangeName)
 		names.insert("Name") // GetFriendPersonaName
 	endif
-	if HasFlag(flags, k_EPersonaChangeStatus)
+	if HasFlag(flags, EPersonaChangeStatus)
 		names.insert("Status") // GetFriendPersonaState ?
 	endif
-	if HasFlag(flags, k_EPersonaChangeComeOnline)
+	if HasFlag(flags, EPersonaChangeComeOnline)
 		names.insert("ComeOnline") // GetFriendPersonaState
 	endif
-	if HasFlag(flags, k_EPersonaChangeGoneOffline)
+	if HasFlag(flags, EPersonaChangeGoneOffline)
 		names.insert("GoneOffline") // GetFriendPersonaState
 	endif
-	if HasFlag(flags, k_EPersonaChangeGamePlayed)
+	if HasFlag(flags, EPersonaChangeGamePlayed)
 		names.insert("GamePlayed") // GetFriendGamePlayedJSON
 	endif
-	if HasFlag(flags, k_EPersonaChangeGameServer)
+	if HasFlag(flags, EPersonaChangeGameServer)
 		names.insert("GameServer")
 	endif
-	if HasFlag(flags, k_EPersonaChangeAvatar)
+	if HasFlag(flags, EPersonaChangeAvatar)
 		names.insert("Avatar") // Use HasAvatarImageLoaded, GetAvatarImageLoadedUser, and GetFriendAvatar.
 	endif
-	if HasFlag(flags, k_EPersonaChangeJoinedSource)
+	if HasFlag(flags, EPersonaChangeJoinedSource)
 		names.insert("JoinedSource")
 	endif
-	if HasFlag(flags, k_EPersonaChangeLeftSource)
+	if HasFlag(flags, EPersonaChangeLeftSource)
 		names.insert("LeftSource")
 	endif
-	if HasFlag(flags, k_EPersonaChangeRelationshipChanged)
+	if HasFlag(flags, EPersonaChangeRelationshipChanged)
 		names.insert("RelationshipChanged")
 	endif
-	if HasFlag(flags, k_EPersonaChangeNameFirstSet)
+	if HasFlag(flags, EPersonaChangeNameFirstSet)
 		names.insert("NameFirstSet") // ??
 	endif
-	if HasFlag(flags, k_EPersonaChangeFacebookInfo)
+	if HasFlag(flags, EPersonaChangeFacebookInfo)
 		names.insert("FacebookInfo") // No way to get this information?
 	endif
-	if HasFlag(flags, k_EPersonaChangeNickname)
+	if HasFlag(flags, EPersonaChangeNickname)
 		names.insert("Nickname") // GetPlayerNickname
 	endif
-	if HasFlag(flags, k_EPersonaChangeSteamLevel)
+	if HasFlag(flags, EPersonaChangeSteamLevel)
 		names.insert("SteamLevel") // GetFriendSteamLevel
 	endif
 	result as string
@@ -442,25 +444,25 @@ EndFunction result
 
 Function GetFriendPersonaStateText(personaState as integer)
 	select personaState
-		case k_EPersonaStateOffline
+		case EPersonaStateOffline
 			ExitFunction "Offline"
 		endcase
-		case k_EPersonaStateOnline
+		case EPersonaStateOnline
 			ExitFunction "Online"
 		endcase
-		case k_EPersonaStateBusy
+		case EPersonaStateBusy
 			ExitFunction "Busy"
 		endcase
-		case k_EPersonaStateAway
+		case EPersonaStateAway
 			ExitFunction "Away"
 		endcase
-		case k_EPersonaStateSnooze
+		case EPersonaStateSnooze
 			ExitFunction "Snooze"
 		endcase
-		case k_EPersonaStateLookingToTrade
+		case EPersonaStateLookingToTrade
 			ExitFunction "Looking to Trade"
 		endcase
-		case k_EPersonaStateLookingToPlay
+		case EPersonaStateLookingToPlay
 			ExitFunction "Looking to Play"
 		endcase
 	endselect	

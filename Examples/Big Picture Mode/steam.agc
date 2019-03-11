@@ -10,8 +10,8 @@ for x = 0 to buttonText.length
 	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 
-global buttonModes as integer[2] = [k_EGamepadTextInputModeNormal, k_EGamepadTextInputModeNormal, k_EGamepadTextInputModePassword]
-global buttonLineModes as integer[2] = [k_EGamepadTextInputLineModeSingleLine, k_EGamepadTextInputLineModeMultipleLines, k_EGamepadTextInputLineModeSingleLine]
+global buttonModes as integer[2] = [EGamepadTextInputModeNormal, EGamepadTextInputModeNormal, EGamepadTextInputModePassword]
+global buttonLineModes as integer[2] = [EGamepadTextInputLineModeSingleLine, EGamepadTextInputLineModeMultipleLines, EGamepadTextInputLineModeSingleLine]
 global buttonInputDesc as string[2] = ["Normal/Single Line/10 Char Max", "Normal/Multiple Line/100 Char Max", "Password/Single Line/10 Char Max"]
 global buttonInputLengths as integer[2] = [10, 100, 10]
 global textinput as string[2] = ["", "", ""]

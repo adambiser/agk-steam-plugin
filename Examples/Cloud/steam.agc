@@ -225,22 +225,22 @@ EndFunction
 
 Function GetSyncPlatformList(flags as integer)
 	platforms as string[]
-	if flags = k_ERemoteStoragePlatformAll
+	if flags = ERemoteStoragePlatformAll
 		platforms.insert("All")
 	endif
-	if flags and k_ERemoteStoragePlatformWindows
+	if flags and ERemoteStoragePlatformWindows
 		platforms.insert("Windows")
 	endif
-	if flags and k_ERemoteStoragePlatformOSX
+	if flags and ERemoteStoragePlatformOSX
 		platforms.insert("Mac OSX")
 	endif
-	if flags and k_ERemoteStoragePlatformPS3
+	if flags and ERemoteStoragePlatformPS3
 		platforms.insert("PlayStation 3")
 	endif
-	if flags and k_ERemoteStoragePlatformLinux
+	if flags and ERemoteStoragePlatformLinux
 		platforms.insert("SteamOS/Linux")
 	endif
-	if flags and k_ERemoteStoragePlatformReserved2
+	if flags and ERemoteStoragePlatformReserved2
 		platforms.insert("Reserved2")
 	endif
 EndFunction platforms.toJSON()

@@ -15,7 +15,7 @@ next
 infoTextID as integer
 infoTextID = CreateTextEx(0, 100, "")
 
-Steam.SetOverlayNotificationPosition(k_EPositionTopRight)
+Steam.SetOverlayNotificationPosition(EPositionTopRight)
 Steam.SetOverlayNotificationInset(50, 50)
 
 // This should cause the Steam API to send API warnings to AGK's Debug Log,

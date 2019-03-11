@@ -363,7 +363,7 @@ Function UploadScore(score as integer)
 EndFunction
 
 Function DownloadUserRank()
-	server.downloadRankCallResult = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobalAroundUser, 0, 0)
+	server.downloadRankCallResult = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, ELeaderboardDataRequestGlobalAroundUser, 0, 0)
 	AddStatus("Downloading user rank.  CallResult handle = " + str(server.downloadRankCallResult))
 EndFunction
 
@@ -376,7 +376,7 @@ Function DownloadPage(startEntryNumber as integer)
 		ExitFunction
 	endif
 	server.currentStartEntryNumber = startEntryNumber
-	server.downloadPageCallResult = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, k_ELeaderboardDataRequestGlobal, startEntryNumber, startEntryNumber + ENTRIES_PER_PAGE - 1)
+	server.downloadPageCallResult = Steam.DownloadLeaderboardEntries(leaderboardInfo[server.currentLeaderboard].handle, ELeaderboardDataRequestGlobal, startEntryNumber, startEntryNumber + ENTRIES_PER_PAGE - 1)
 	AddStatus("Downloading page of entries.  CallResult handle = " + str(server.downloadPageCallResult))
 EndFunction
 
