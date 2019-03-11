@@ -617,25 +617,6 @@ _HasAvatarImageLoaded must be called prior to this method._
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 /* @page Friend List */
 /*
-@desc Gets the number of users the client knows about who meet a specified criteria.
-@param friendFlags A combined union (binary "or") of one or more EFriendFlags.
-@param-api friendFlags ISteamFriends#EFriendFlags
-@return The number of users that meet the specified criteria.
-@api ISteamFriends#GetFriendCount
-*/
-extern "C" DLL_EXPORT int GetFriendCount(int friendFlags);
-/*
-@desc Gets the Steam ID handle of the user at the given index.
-
-_GetFriendCount must be called prior to this method and the friendFlags value must match._
-@param index An index between 0 and GetFriendCount.
-@param friendFlags A combined union (binary "or") of EFriendFlags. This must be the same value as used in the previous call to GetFriendCount.
-@param-api friendFlags ISteamFriends#EFriendFlags
-@return A Steam ID handle.
-@api ISteamFriends#GetFriendByIndex
-*/
-extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags);
-/*
 @desc Returns an integer array as JSON that combines the GetFriendCount and GetFriendByIndex calls.
 @param friendFlags A combined union (binary "or") of EFriendFlags.
 @param-api friendFlags ISteamFriends#EFriendFlags

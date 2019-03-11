@@ -909,35 +909,21 @@ int GetFriendAvatar(int hUserSteamID, int size)
 	return Steam->GetFriendAvatar(GetSteamID(hUserSteamID), (EAvatarSize)size);
 }
 
-int GetFriendCount(int friendFlags)
-{
-	CheckInitializedPlugin(-1);
-	return Steam->GetFriendCount((EFriendFlags)friendFlags);
-}
-
-int GetFriendByIndex(int index, int friendFlags)
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetFriendByIndex(index, (EFriendFlags)friendFlags));
-}
-
 char *GetFriendListJSON(int friendFlags)
 {
-	std::ostringstream json;
-	json << "[";
+	std::string json("[");
 	if (Steam)
 	{
-		int friendCount = Steam->GetFriendCount((EFriendFlags)friendFlags);
-		for (int x = 0; x < friendCount; x++)
+		for (int x = 0; x < Steam->GetFriendCount((EFriendFlags)friendFlags); x++)
 		{
 			if (x > 0)
 			{
-				json << ",";
+				json +=  ", ";
 			}
-			json << GetSteamIDHandle(Steam->GetFriendByIndex(x, (EFriendFlags)friendFlags));
+			json += std::to_string(GetSteamIDHandle(Steam->GetFriendByIndex(x, (EFriendFlags)friendFlags)));
 		}
 	}
-	json << "]";
+	json += "]";
 	return utils::CreateString(json);
 }
 
