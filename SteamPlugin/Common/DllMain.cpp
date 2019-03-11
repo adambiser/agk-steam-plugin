@@ -109,36 +109,41 @@ std::string EscapeJSON(const std::string &input)
 /*
 	CSteamID Handle Methods
 */
-std::vector <CSteamID> m_CSteamIDs;
+std::vector <uint64> m_SteamHandles;
 
-CSteamID GetSteamID(int handle)
+uint64 GetSteamHandle(int handle) // from plugin handle.
 {
 	// Handles are 1-based!
-	if (handle >= 0 && handle < (int)m_CSteamIDs.size())
+	if (handle >= 0 && handle < (int)m_SteamHandles.size())
 	{
-		return m_CSteamIDs[handle];
+		return m_SteamHandles[handle];
 	}
 	agk::PluginError("Invalid CSteamID handle.");
-	return k_steamIDNil;
+	return 0;
 }
 
-int GetSteamIDHandle(CSteamID steamID)
+int GetPluginHandle(uint64 handle)
 {
-	int index = (int)(std::find(m_CSteamIDs.begin(), m_CSteamIDs.end(), steamID) - m_CSteamIDs.begin());
-	if (index < (int) m_CSteamIDs.size())
+	int index = (int)(std::find(m_SteamHandles.begin(), m_SteamHandles.end(), handle) - m_SteamHandles.begin());
+	if (index < (int)m_SteamHandles.size())
 	{
 		// Handles are 1-based!
 		return index;
 	}
-	m_CSteamIDs.push_back(steamID);
-	return (int)m_CSteamIDs.size() - 1;
+	m_SteamHandles.push_back(handle);
+	return (int)m_SteamHandles.size() - 1;
 }
 
-void ClearSteamIDHandleList()
+int GetPluginHandle(CSteamID steamID)
 {
-	m_CSteamIDs.clear();
+	return GetPluginHandle(steamID.ConvertToUint64());
+}
+
+void ClearSteamHandlesList()
+{
+	m_SteamHandles.clear();
 	// Handle 0 is always k_steamIDNil.
-	m_CSteamIDs.push_back(k_steamIDNil);
+	m_SteamHandles.push_back(k_steamIDNil.ConvertToUint64());
 }
 
 /*
@@ -231,7 +236,7 @@ bool ParseIP(const char *ipv4, uint32 *ip)
 
 void ResetVariables()
 {
-	ClearSteamIDHandleList();
+	ClearSteamHandlesList();
 	ClearActionSetHandleList();
 	m_InputCount = 0;
 }
@@ -336,7 +341,7 @@ int LoggedOn()
 int IsSteamIDValid(int hSteamID)
 {
 	CheckInitializedPlugin(false);
-	CSteamID steamID = GetSteamID(hSteamID);
+	CSteamID steamID = GetSteamHandle(hSteamID);
 	return steamID.IsValid();
 }
 
@@ -344,7 +349,7 @@ int GetHandleFromSteamID64(const char *steamID64)
 {
 	CheckInitializedPlugin(0);
 	uint64 id = _atoi64(steamID64);
-	return GetSteamIDHandle(CSteamID(id));
+	return GetPluginHandle(CSteamID(id));
 }
 
 /*
@@ -457,12 +462,12 @@ int GetCallResultState(int hCallResult)
 
 int GetCallResultCode(int hCallResult)
 {
-	CheckInitializedPlugin(k_EResultFail);
+	CheckInitializedPlugin(0);
 	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
 	{
 		return callResult->GetResultCode();
 	}
-	return k_EResultFail;
+	return 0;
 }
 
 char *GetCallResultJSON(int hCallResult)
@@ -618,7 +623,7 @@ char *GetAppInstallDir(int appID)
 int GetAppOwner()
 {
 	CheckInitializedPlugin(false);
-	return GetSteamIDHandle(Steam->GetAppOwner());
+	return GetPluginHandle(Steam->GetAppOwner());
 }
 
 char *GetAvailableGameLanguages()
@@ -767,7 +772,7 @@ void ActivateGameOverlay(const char *dialogName)
 void ActivateGameOverlayInviteDialog(int hLobbySteamID)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->ActivateGameOverlayInviteDialog(GetSteamID(hLobbySteamID));
+	Steam->ActivateGameOverlayInviteDialog(GetSteamHandle(hLobbySteamID));
 }
 
 void ActivateGameOverlayToStore(int appID, int flag)
@@ -779,7 +784,7 @@ void ActivateGameOverlayToStore(int appID, int flag)
 void ActivateGameOverlayToUser(const char *dialogName, int hSteamID)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->ActivateGameOverlayToUser(dialogName, GetSteamID(hSteamID));
+	Steam->ActivateGameOverlayToUser(dialogName, GetSteamHandle(hSteamID));
 }
 
 void ActivateGameOverlayToWebPage(const char *url)
@@ -803,13 +808,13 @@ char *GetPersonaName()
 int GetSteamID()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetSteamID());
+	return GetPluginHandle(Steam->GetSteamID());
 }
 
 int GetAccountID(int hUserSteamID)
 {
 	CheckInitializedPlugin(0);
-	CSteamID steamID = GetSteamID(hUserSteamID);
+	CSteamID steamID = GetSteamHandle(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
 		return steamID.GetAccountID();
@@ -820,7 +825,7 @@ int GetAccountID(int hUserSteamID)
 char *GetSteamID3(int hUserSteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	CSteamID steamID = GetSteamID(hUserSteamID);
+	CSteamID steamID = GetSteamHandle(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
 		std::ostringstream steam3;
@@ -863,7 +868,7 @@ char *GetSteamID64(int hUserSteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
-	_i64toa(GetSteamID(hUserSteamID).ConvertToUint64(), id64, 10);
+	_i64toa(((CSteamID)GetSteamHandle(hUserSteamID)).ConvertToUint64(), id64, 10);
 	return utils::CreateString(id64);
 }
 
@@ -876,7 +881,7 @@ int HasPersonaStateChanged()
 int GetPersonaStateChangedUser()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetPersonaStateChangedUser());
+	return GetPluginHandle(Steam->GetPersonaStateChangedUser());
 }
 
 int GetPersonaStateChangedFlags()
@@ -888,7 +893,7 @@ int GetPersonaStateChangedFlags()
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 {
 	CheckInitializedPlugin(false);
-	return Steam->RequestUserInformation(GetSteamID(hUserSteamID), requireNameOnly != 0);
+	return Steam->RequestUserInformation(GetSteamHandle(hUserSteamID), requireNameOnly != 0);
 }
 
 int HasAvatarImageLoaded()
@@ -900,13 +905,13 @@ int HasAvatarImageLoaded()
 int GetAvatarImageLoadedUser()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetAvatarImageLoadedUser());
+	return GetPluginHandle(Steam->GetAvatarImageLoadedUser());
 }
 
 int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFriendAvatar(GetSteamID(hUserSteamID), (EAvatarSize)size);
+	return Steam->GetFriendAvatar(GetSteamHandle(hUserSteamID), (EAvatarSize)size);
 }
 
 char *GetFriendListJSON(int friendFlags)
@@ -920,7 +925,7 @@ char *GetFriendListJSON(int friendFlags)
 			{
 				json +=  ", ";
 			}
-			json += std::to_string(GetSteamIDHandle(Steam->GetFriendByIndex(x, (EFriendFlags)friendFlags)));
+			json += std::to_string(GetPluginHandle(Steam->GetFriendByIndex(x, (EFriendFlags)friendFlags)));
 		}
 	}
 	json += "]";
@@ -934,7 +939,7 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 	if (Steam)
 	{
 		FriendGameInfo_t pFriendGameInfo;
-		bool ingame = Steam->GetFriendGamePlayed(GetSteamID(hUserSteamID), &pFriendGameInfo);
+		bool ingame = Steam->GetFriendGamePlayed(GetSteamHandle(hUserSteamID), &pFriendGameInfo);
 		json << "\"InGame\": " << (int)ingame;
 		if (ingame)
 		{
@@ -942,7 +947,7 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 			json << ", \"GameIP\": \"" << ConvertIPToString(pFriendGameInfo.m_unGameIP) << "\"";
 			json << ", \"GamePort\": " << pFriendGameInfo.m_usGamePort;
 			json << ", \"QueryPort\": " << pFriendGameInfo.m_usQueryPort;
-			json << ", \"SteamIDLobby\": " << GetSteamIDHandle(pFriendGameInfo.m_steamIDLobby);
+			json << ", \"SteamIDLobby\": " << GetPluginHandle(pFriendGameInfo.m_steamIDLobby);
 		}
 	}
 	json << "}";
@@ -952,37 +957,37 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 char *GetFriendPersonaName(int hUserSteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetFriendPersonaName(GetSteamID(hUserSteamID)));
+	return utils::CreateString(Steam->GetFriendPersonaName(GetSteamHandle(hUserSteamID)));
 }
 
 int GetFriendPersonaState(int hUserSteamID)
 {
 	CheckInitializedPlugin(-1);
-	return Steam->GetFriendPersonaState(GetSteamID(hUserSteamID));
+	return Steam->GetFriendPersonaState(GetSteamHandle(hUserSteamID));
 }
 
 int GetFriendRelationship(int hUserSteamID)
 {
 	CheckInitializedPlugin(-1);
-	return Steam->GetFriendRelationship(GetSteamID(hUserSteamID));
+	return Steam->GetFriendRelationship(GetSteamHandle(hUserSteamID));
 }
 
 int GetFriendSteamLevel(int hUserSteamID)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFriendSteamLevel(GetSteamID(hUserSteamID));
+	return Steam->GetFriendSteamLevel(GetSteamHandle(hUserSteamID));
 }
 
 char *GetPlayerNickname(int hUserSteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetPlayerNickname(GetSteamID(hUserSteamID)));
+	return utils::CreateString(Steam->GetPlayerNickname(GetSteamHandle(hUserSteamID)));
 }
 
 int HasFriend(int hUserSteamID, int friendFlags)
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasFriend(GetSteamID(hUserSteamID), (EFriendFlags)friendFlags);
+	return Steam->HasFriend(GetSteamHandle(hUserSteamID), (EFriendFlags)friendFlags);
 }
 
 int GetFriendsGroupCount()
@@ -1020,7 +1025,7 @@ char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array
 				{
 					json << ",";
 				}
-				json << GetSteamIDHandle(friends[x]);
+				json << GetPluginHandle(friends[x]);
 			}
 		}
 	}
@@ -1294,107 +1299,47 @@ int FindLeaderboard(const char *leaderboardName)
 	return Steam->FindLeaderboard(leaderboardName);
 }
 
-int GetLeaderboardHandle(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return (int) Steam->GetLeaderboardHandle(hCallResult);
-}
-
 char *GetLeaderboardName(int hLeaderboard)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetLeaderboardName(hLeaderboard));
+	return utils::CreateString(Steam->GetLeaderboardName(GetSteamHandle(hLeaderboard)));
 }
 
 int GetLeaderboardEntryCount(int hLeaderboard)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardEntryCount(hLeaderboard);
+	return Steam->GetLeaderboardEntryCount(GetSteamHandle(hLeaderboard));
 }
 
 int GetLeaderboardDisplayType(int hLeaderboard)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardDisplayType(hLeaderboard);
+	return Steam->GetLeaderboardDisplayType(GetSteamHandle(hLeaderboard));
 }
 
 int GetLeaderboardSortMethod(int hLeaderboard)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardSortMethod(hLeaderboard);
+	return Steam->GetLeaderboardSortMethod(GetSteamHandle(hLeaderboard));
 }
 
 // TODO Adde force parameter and allow for a data memblock of integers.
 int UploadLeaderboardScore(int hLeaderboard, int score)
 {
 	CheckInitializedPlugin(0);
-	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score);
+	return Steam->UploadLeaderboardScore(GetSteamHandle(hLeaderboard), k_ELeaderboardUploadScoreMethodKeepBest, score);
 }
 
 int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 {
 	CheckInitializedPlugin(0);
-	return Steam->UploadLeaderboardScore((SteamLeaderboard_t)hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
-}
-
-int LeaderboardScoreStored(int hCallResult)
-{
-	CheckInitializedPlugin(false);
-	return Steam->LeaderboardScoreStored(hCallResult);
-}
-
-int LeaderboardScoreChanged(int hCallResult)
-{
-	CheckInitializedPlugin(false);
-	return Steam->LeaderboardScoreChanged(hCallResult);
-}
-
-int GetLeaderboardUploadedScore(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardUploadedScore(hCallResult);
-}
-
-int GetLeaderboardGlobalRankNew(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardGlobalRankNew(hCallResult);
-}
-
-int GetLeaderboardGlobalRankPrevious(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetLeaderboardGlobalRankPrevious(hCallResult);
+	return Steam->UploadLeaderboardScore(GetSteamHandle(hLeaderboard), k_ELeaderboardUploadScoreMethodForceUpdate, score);
 }
 
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
 	CheckInitializedPlugin(0);
-	return Steam->DownloadLeaderboardEntries(hLeaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-}
-
-int GetDownloadedLeaderboardEntryCount(int hCallResult)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryCount(hCallResult);
-}
-
-int GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryGlobalRank(hCallResult, index);
-}
-
-int GetDownloadedLeaderboardEntryScore(int hCallResult, int index)
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetDownloadedLeaderboardEntryScore(hCallResult, index);
-}
-
-int GetDownloadedLeaderboardEntryUser(int hCallResult, int index)
-{
-	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetDownloadedLeaderboardEntryUser(hCallResult, index));
+	return Steam->DownloadLeaderboardEntries(GetSteamHandle(hLeaderboard), (ELeaderboardDataRequest)eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 }
 
 void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)
@@ -1448,25 +1393,25 @@ int CreateLobby(int eLobbyType, int maxMembers)
 //int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
 //{
 //	CheckInitializedPlugin(false);
-//	return Steam->SetLinkedLobby(GetSteamID(hLobbySteamID), GetSteamID(hLobbyDependentSteamID));
+//	return Steam->SetLinkedLobby(GetSteamHandle(hLobbySteamID), GetSteamHandle(hLobbyDependentSteamID));
 //}
 
 int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable)
 {
 	CheckInitializedPlugin(false);
-	return Steam->SetLobbyJoinable(GetSteamID(hLobbySteamID), lobbyJoinable != 0);
+	return Steam->SetLobbyJoinable(GetSteamHandle(hLobbySteamID), lobbyJoinable != 0);
 }
 
 int SetLobbyType(int hLobbySteamID, int eLobbyType)
 {
 	CheckInitializedPlugin(false);
-	return Steam->SetLobbyType(GetSteamID(hLobbySteamID), (ELobbyType)eLobbyType);
+	return Steam->SetLobbyType(GetSteamHandle(hLobbySteamID), (ELobbyType)eLobbyType);
 }
 
 int JoinLobby(int hLobbySteamID)
 {
 	CheckInitializedPlugin(false);
-	return Steam->JoinLobby(GetSteamID(hLobbySteamID));
+	return Steam->JoinLobby(GetSteamHandle(hLobbySteamID));
 }
 
 int HasLobbyEnterResponse()
@@ -1481,7 +1426,7 @@ char *GetLobbyEnterResponseJSON()
 	LobbyEnter_t lobbyEnter = Steam->GetLobbyEnterResponse();
 	// Must be the same as in CLobbyEnterCallResult.
 	return utils::CreateString(std::string("{"
-		"\"hLobby\": " + std::to_string(GetSteamIDHandle(lobbyEnter.m_ulSteamIDLobby)) + ", "
+		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(lobbyEnter.m_ulSteamIDLobby)) + ", "
 		"\"Locked\": " + std::to_string(lobbyEnter.m_bLocked) + ", "
 		"\"ChatRoomEnterResponse\": " + std::to_string(lobbyEnter.m_EChatRoomEnterResponse) + ", "
 		"\"ChatPermissions\": " + std::to_string(lobbyEnter.m_rgfChatPermissions) + "}"));
@@ -1490,7 +1435,7 @@ char *GetLobbyEnterResponseJSON()
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 {
 	CheckInitializedPlugin(false);
-	return Steam->InviteUserToLobby(GetSteamID(hLobbySteamID), GetSteamID(hInviteeSteamID));
+	return Steam->InviteUserToLobby(GetSteamHandle(hLobbySteamID), GetSteamHandle(hInviteeSteamID));
 }
 
 int HasGameLobbyJoinRequest()
@@ -1502,13 +1447,13 @@ int HasGameLobbyJoinRequest()
 int GetGameLobbyJoinRequestedLobby()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetGameLobbyJoinRequestedLobby());
+	return GetPluginHandle(Steam->GetGameLobbyJoinRequestedLobby());
 }
 
 void LeaveLobby(int hLobbySteamID)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->LeaveLobby(GetSteamID(hLobbySteamID));
+	Steam->LeaveLobby(GetSteamHandle(hLobbySteamID));
 }
 
 // Lobby methods: Game server
@@ -1521,12 +1466,12 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 		uint32 unGameServerIP;
 		uint16 unGameServerPort;
 		CSteamID steamIDGameServer;
-		if (Steam->GetLobbyGameServer(GetSteamID(hLobbySteamID), &unGameServerIP, &unGameServerPort, &steamIDGameServer))
+		if (Steam->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &unGameServerIP, &unGameServerPort, &steamIDGameServer))
 		{
-			json << "\"hLobby\": " << hLobbySteamID; // Add this to match LobbyGameCreated_t.
+			json << "\"SteamIDLobby\": " << hLobbySteamID; // Add this to match LobbyGameCreated_t.
 			json << ", \"IP\": \"" << ConvertIPToString(unGameServerIP) << "\"";
 			json << ", \"Port\": " << unGameServerPort;
-			json << ", \"hGameServer\": " << GetSteamIDHandle(steamIDGameServer);
+			json << ", \"SteamIDGameServer\": " << GetPluginHandle(steamIDGameServer);
 		}
 	}
 	json << "}";
@@ -1546,7 +1491,7 @@ int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServ
 	{
 		return false;
 	}
-	Steam->SetLobbyGameServer(GetSteamID(hLobbySteamID), ip, gameServerPort, GetSteamID(hGameServerSteamID));
+	Steam->SetLobbyGameServer(GetSteamHandle(hLobbySteamID), ip, gameServerPort, GetSteamHandle(hGameServerSteamID));
 	return true;
 }
 
@@ -1565,10 +1510,10 @@ char *GetLobbyGameCreatedJSON()
 		LobbyGameCreated_t gameServer = Steam->GetLobbyGameCreated();
 		if (gameServer.m_ulSteamIDLobby != 0)
 		{
-			json << "\"hLobby\": " << GetSteamIDHandle(gameServer.m_ulSteamIDLobby);
+			json << "\"hLobby\": " << GetPluginHandle(gameServer.m_ulSteamIDLobby);
 			json << ", \"IP\": \"" << ConvertIPToString(gameServer.m_unIP) << "\"";
 			json << ", \"Port\": " << gameServer.m_usPort;
-			json << ", \"hGameServer\": " << GetSteamIDHandle(gameServer.m_ulSteamIDGameServer);
+			json << ", \"hGameServer\": " << GetPluginHandle(gameServer.m_ulSteamIDGameServer);
 		}
 	}
 	json << "}";
@@ -1579,13 +1524,13 @@ char *GetLobbyGameCreatedJSON()
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetLobbyData(GetSteamID(hLobbySteamID), key));
+	return utils::CreateString(Steam->GetLobbyData(GetSteamHandle(hLobbySteamID), key));
 }
 
 char *GetLobbyDataJSON(int hLobbySteamID)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	CSteamID steamIDLobby = GetSteamID(hLobbySteamID);
+	CSteamID steamIDLobby = GetSteamHandle(hLobbySteamID);
 	std::string json("[");
 	for (int index = 0; index < Steam->GetLobbyDataCount(steamIDLobby); index++)
 	{
@@ -1614,19 +1559,19 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->SetLobbyData(GetSteamID(hLobbySteamID), key, value);
+	Steam->SetLobbyData(GetSteamHandle(hLobbySteamID), key, value);
 }
 
 int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitializedPlugin(false);
-	return Steam->DeleteLobbyData(GetSteamID(hLobbySteamID), key);
+	return Steam->DeleteLobbyData(GetSteamHandle(hLobbySteamID), key);
 }
 
 int RequestLobbyData(int hLobbySteamID)
 {
 	CheckInitializedPlugin(false);
-	return Steam->RequestLobbyData(GetSteamID(hLobbySteamID));
+	return Steam->RequestLobbyData(GetSteamHandle(hLobbySteamID));
 }
 
 int HasLobbyDataUpdateResponse()
@@ -1641,57 +1586,57 @@ char *GetLobbyDataUpdateResponseJSON()
 	LobbyDataUpdate_t update = Steam->GetLobbyDataUpdateResponse();
 	// Must be the same as in CLobbyEnterCallResult.
 	return utils::CreateString(std::string("{"
-		"\"hLobby\": " + std::to_string(GetSteamIDHandle(update.m_ulSteamIDLobby)) + ", "
-		"\"hMember\": " + std::to_string(GetSteamIDHandle(update.m_ulSteamIDMember)) + ", "
+		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(update.m_ulSteamIDLobby)) + ", "
+		"\"SteamIDMember\": " + std::to_string(GetPluginHandle(update.m_ulSteamIDMember)) + ", "
 		"\"Success\": " + std::to_string(update.m_bSuccess) + "}"));
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetLobbyMemberData(GetSteamID(hLobbySteamID), GetSteamID(hUserSteamID), key));
+	return utils::CreateString(Steam->GetLobbyMemberData(GetSteamHandle(hLobbySteamID), GetSteamHandle(hUserSteamID), key));
 }
 
 void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
 {
 	CheckInitializedPlugin(NORETURN);
-	return Steam->SetLobbyMemberData(GetSteamID(hLobbySteamID), key, value);
+	return Steam->SetLobbyMemberData(GetSteamHandle(hLobbySteamID), key, value);
 }
 
 int GetLobbyOwner(int hLobbySteamID)
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyOwner(GetSteamID(hLobbySteamID)));
+	return GetPluginHandle(Steam->GetLobbyOwner(GetSteamHandle(hLobbySteamID)));
 }
 
 int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID)
 {
 	CheckInitializedPlugin(0);
-	return Steam->SetLobbyOwner(GetSteamID(hLobbySteamID), GetSteamID(hNewOwnerSteamID));
+	return Steam->SetLobbyOwner(GetSteamHandle(hLobbySteamID), GetSteamHandle(hNewOwnerSteamID));
 }
 
 int GetLobbyMemberLimit(int hLobbySteamID)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLobbyMemberLimit(GetSteamID(hLobbySteamID));
+	return Steam->GetLobbyMemberLimit(GetSteamHandle(hLobbySteamID));
 }
 
 int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers)
 {
 	CheckInitializedPlugin(0);
-	return Steam->SetLobbyMemberLimit(GetSteamID(hLobbySteamID), maxMembers);
+	return Steam->SetLobbyMemberLimit(GetSteamHandle(hLobbySteamID), maxMembers);
 }
 
 int GetNumLobbyMembers(int hLobbySteamID)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetNumLobbyMembers(GetSteamID(hLobbySteamID));
+	return Steam->GetNumLobbyMembers(GetSteamHandle(hLobbySteamID));
 }
 
 int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyMemberByIndex(GetSteamID(hLobbySteamID), index));
+	return GetPluginHandle(Steam->GetLobbyMemberByIndex(GetSteamHandle(hLobbySteamID), index));
 }
 
 int HasLobbyChatUpdate()
@@ -1703,13 +1648,13 @@ int HasLobbyChatUpdate()
 int GetLobbyChatUpdateLobby()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyChatUpdateLobby());
+	return GetPluginHandle(Steam->GetLobbyChatUpdateLobby());
 }
 
 int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserChanged());
+	return GetPluginHandle(Steam->GetLobbyChatUpdateUserChanged());
 }
 
 int GetLobbyChatUpdateUserState()
@@ -1721,7 +1666,7 @@ int GetLobbyChatUpdateUserState()
 int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyChatUpdateUserMakingChange());
+	return GetPluginHandle(Steam->GetLobbyChatUpdateUserMakingChange());
 }
 
 int HasLobbyChatMessage()
@@ -1733,7 +1678,7 @@ int HasLobbyChatMessage()
 int GetLobbyChatMessageUser()
 {
 	CheckInitializedPlugin(0);
-	return GetSteamIDHandle(Steam->GetLobbyChatMessageUser());
+	return GetPluginHandle(Steam->GetLobbyChatMessageUser());
 }
 
 char *GetLobbyChatMessageText()
@@ -1747,7 +1692,7 @@ char *GetLobbyChatMessageText()
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
 	CheckInitializedPlugin(0);
-	return Steam->SendLobbyChatMessage(GetSteamID(hLobbySteamID), msg);
+	return Steam->SendLobbyChatMessage(GetSteamHandle(hLobbySteamID), msg);
 }
 
 // Lobby methods: Favorite games

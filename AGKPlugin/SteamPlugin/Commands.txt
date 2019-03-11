@@ -80,8 +80,6 @@ RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,RequestUserInformatio
 HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,HasAvatarImageLoaded
 GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,GetAvatarImageLoadedUser
 GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,GetFriendAvatar
-GetFriendCount,I,I,GetFriendCount,0,0,0,0,GetFriendCount
-GetFriendByIndex,I,II,GetFriendByIndex,0,0,0,0,GetFriendByIndex
 GetFriendListJSON,S,I,GetFriendListJSON,0,0,0,0,GetFriendListJSON
 GetFriendGamePlayedJSON,S,I,GetFriendGamePlayedJSON,0,0,0,0,GetFriendGamePlayedJSON
 GetFriendPersonaName,S,I,GetFriendPersonaName,0,0,0,0,GetFriendPersonaName
@@ -153,19 +151,10 @@ GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,GetLeaderboardSort
 #
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
-LeaderboardScoreStored,I,I,LeaderboardScoreStored,0,0,0,0,LeaderboardScoreStored
-LeaderboardScoreChanged,I,I,LeaderboardScoreChanged,0,0,0,0,LeaderboardScoreChanged
-GetLeaderboardUploadedScore,I,I,GetLeaderboardUploadedScore,0,0,0,0,GetLeaderboardUploadedScore
-GetLeaderboardGlobalRankNew,I,I,GetLeaderboardGlobalRankNew,0,0,0,0,GetLeaderboardGlobalRankNew
-GetLeaderboardGlobalRankPrevious,I,I,GetLeaderboardGlobalRankPrevious,0,0,0,0,GetLeaderboardGlobalRankPrevious
 #
 # Leaderboard methods: Download
 #
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
-GetDownloadedLeaderboardEntryCount,I,I,GetDownloadedLeaderboardEntryCount,0,0,0,0,GetDownloadedLeaderboardEntryCount
-GetDownloadedLeaderboardEntryGlobalRank,I,II,GetDownloadedLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadedLeaderboardEntryGlobalRank
-GetDownloadedLeaderboardEntryScore,I,II,GetDownloadedLeaderboardEntryScore,0,0,0,0,GetDownloadedLeaderboardEntryScore
-GetDownloadedLeaderboardEntryUser,I,II,GetDownloadedLeaderboardEntryUser,0,0,0,0,GetDownloadedLeaderboardEntryUser
 #
 # Lobby methods: List
 #

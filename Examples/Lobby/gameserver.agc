@@ -17,7 +17,7 @@ Function ConnectGameServer(gameserver as LobbyGameCreated_t)
 		server.networkID = JoinNetwork(gameserver.IP, gameserver.Port, Steam.GetPersonaName())
 	endif
 	memberCount as integer
-	memberCount = Steam.GetNumLobbyMembers(gameserver.hLobby)
+	memberCount = Steam.GetNumLobbyMembers(gameserver.SteamIDLobby)
 	timeout as float
 	timeout = Timer() + 3 // 3 second timeout.
 	clientCount as integer

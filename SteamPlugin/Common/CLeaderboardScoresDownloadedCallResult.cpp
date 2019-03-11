@@ -22,13 +22,6 @@ THE SOFTWARE.
 
 #include "CLeaderboardScoresDownloadedCallResult.h"
 
-#define CheckEntryIndex(index, returnValue) \
-	if (index < 0 || index >= (int)m_Entries.size()) \
-	{ \
-		utils::PluginError(GetName() + ": Index out of range: " + std::to_string(index)); \
-		return returnValue; \
-	}
-
 void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDownloaded_t *pCallResult, bool bIOFailure)
 {
 	if (!bIOFailure)
@@ -37,15 +30,27 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 		m_State = Done;
 		for (int index = 0; index < pCallResult->m_cEntryCount; index++)
 		{
+			// TODO Add Details support.
 			LeaderboardEntry_t entry;
-			SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &entry, NULL, 0);
-			m_Entries.push_back(entry);
+			if (SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &entry, NULL, 0))
+			{
+				m_Entries.push_back(entry);
+			}
+			else
+			{
+				// Report error.
+				utils::Log(GetName() + ": Failed during GetDownloadedLeaderboardEntry for index " + std::to_string(index) + ".");
+				m_eResult = k_EResultFail;
+				return;
+			}
 		}
+		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
+		m_eResult = k_EResultFail;
 	}
 }
 
@@ -59,20 +64,23 @@ void CLeaderboardScoresDownloadedCallResult::Call()
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardScoresDownloadedCallResult::OnDownloadScore);
 }
 
-int CLeaderboardScoresDownloadedCallResult::GetEntryGlobalRank(int index)
+std::string CLeaderboardScoresDownloadedCallResult::GetResultJSON()
 {
-	CheckEntryIndex(index, 0);
-	return m_Entries[index].m_nGlobalRank;
-}
-
-int CLeaderboardScoresDownloadedCallResult::GetEntryScore(int index)
-{
-	CheckEntryIndex(index, 0);
-	return m_Entries[index].m_nScore;
-}
-
-CSteamID CLeaderboardScoresDownloadedCallResult::GetEntryUser(int index)
-{
-	CheckEntryIndex(index, k_steamIDNil);
-	return m_Entries[index].m_steamIDUser;
+	std::string json("[");
+	for (size_t index = 0; index < m_Entries.size(); index++)
+	{
+		if (index > 0)
+		{
+			json += ", ";
+		}
+		LeaderboardEntry_t entry = m_Entries[index];
+		json += "{"
+			"\"SteamIDUser\": " + std::to_string(GetPluginHandle(entry.m_steamIDUser)) + ", "
+			"\"Score\": " + std::to_string(entry.m_nScore) + ", "
+			"\"GlobalRank\": " + std::to_string(entry.m_nGlobalRank) + ", "
+			"\"UGC\": " + std::to_string(GetPluginHandle(entry.m_hUGC)) + ", "
+			"\"Details\": " + std::to_string(entry.m_cDetails) + "}";
+	}
+	json += "]";
+	return json;
 }

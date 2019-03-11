@@ -221,24 +221,6 @@ EndFunction
 global errorReported as integer[0]
 #constant ERROR_LOBBYMATCH		0
 
-global frame as integer
-
-Type LobbyCreated_t
-	hLobby as integer
-	Result as integer
-EndType
-Type LobbyDataUpdate_t
-	hLobby as integer
-	hMember as integer
-	Success as integer
-EndType
-Type LobbyEnter_t
-	hLobby as integer
-	Locked as integer
-	ChatRoomEnterResponse as integer
-	ChatPermissions as integer // unused, always 0.
-EndType
-
 //
 // Processes all asynchronous callbacks.
 //
@@ -281,7 +263,7 @@ Function ProcessCallbacks()
 			AddStatus("JSON: " + Steam.GetCallResultJSON(server.createLobbyCallResult))
 			if result = EResultOk
 				createdLobby.fromjson(Steam.GetCallResultJSON(server.createLobbyCallResult))
-				AddStatus("Lobby created.  Handle: " + str(createdLobby.hLobby))
+				AddStatus("Lobby created.  Handle: " + str(createdLobby.SteamIDLobby))
 			else
 				AddStatus("Error creating lobby: " + str(result))
 			endif
@@ -300,7 +282,7 @@ Function ProcessCallbacks()
 			AddStatus("JSON: " + Steam.GetCallResultJSON(server.joinLobbyCallResult))
 			if result = EResultOk
 				joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
-				AddStatus("Lobby joined.  Handle: " + str(joinedLobby.hLobby))
+				AddStatus("Lobby joined.  Handle: " + str(joinedLobby.SteamIDLobby))
 			else
 				AddStatus("Error joining lobby: " + str(result))
 			endif
@@ -314,7 +296,7 @@ Function ProcessCallbacks()
 		joinedLobby.fromjson(Steam.GetLobbyEnterResponseJSON())
 		if joinedLobby.ChatRoomEnterResponse = EChatRoomEnterResponseSuccess
 			// Store the joined lobby handle.
-			server.hLobby = joinedLobby.hLobby
+			server.hLobby = joinedLobby.SteamIDLobby
 			AddStatus("Joined lobby. Handle: " + str(server.hLobby))
 			SetChatRoomVisible(1)
 			RefreshMemberList()
@@ -329,15 +311,14 @@ Function ProcessCallbacks()
 	endwhile
 	lobbyDataUpdate as LobbyDataUpdate_t
 	while Steam.HasLobbyDataUpdateResponse()
-		frame = 1
 		lobbyDataUpdate.fromjson(Steam.GetLobbyDataUpdateResponseJSON())
 		AddStatus("Lobby data updated.  JSON: " + Steam.GetLobbyDataUpdateResponseJSON())
 		// When hMember matches hLobby, the lobby data updated,
 		//   otherwise hMember is a member and that member's data updated.
-		if lobbyDataUpdate.hLobby = lobbyDataUpdate.hMember
+		if lobbyDataUpdate.SteamIDLobby = lobbyDataUpdate.SteamIDMember
 			AddStatus("Lobby data: " + Steam.GetLobbyDataJson(server.hLobby))
 		else
-			AddStatus("Member " + Steam.GetFriendPersonaName(lobbyDataUpdate.hMember) + " member_data: '" + Steam.GetLobbyMemberData(server.hLobby, lobbyDataUpdate.hMember, "member_data") + "'")
+			AddStatus("Member " + Steam.GetFriendPersonaName(lobbyDataUpdate.SteamIDMember) + " member_data: '" + Steam.GetLobbyMemberData(lobbyDataUpdate.SteamIDLobby, lobbyDataUpdate.SteamIDMember, "member_data") + "'")
 		endif
 	endwhile
 	// Show any new chat messages.

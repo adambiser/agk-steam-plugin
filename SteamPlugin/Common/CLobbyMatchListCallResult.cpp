@@ -61,7 +61,7 @@ std::string CLobbyMatchListCallResult::GetResultJSON()
 		{
 			json += ", ";
 		}
-		json += std::to_string(GetSteamIDHandle(m_Lobbies[index]));
+		json += std::to_string(GetPluginHandle(m_Lobbies[index]));
 	}
 	json += "]";
 	return json;

@@ -24,8 +24,8 @@ THE SOFTWARE.
 
 void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure)
 {
-	m_Lobby = *pParam;
-	m_eResult = m_Lobby.m_eResult;
+	m_LobbyCreated = *pParam;
+	m_eResult = m_LobbyCreated.m_eResult;
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
@@ -61,6 +61,6 @@ void CLobbyCreatedCallResult::Call()
 std::string CLobbyCreatedCallResult::GetResultJSON()
 {
 	return std::string("{"
-		"\"hLobby\": " + std::to_string(GetSteamIDHandle(m_Lobby.m_ulSteamIDLobby)) + ", "
-		"\"Result\": " + std::to_string(m_Lobby.m_eResult) + "}");
+		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(m_LobbyCreated.m_ulSteamIDLobby)) + ", "
+		"\"Result\": " + std::to_string(m_LobbyCreated.m_eResult) + "}");
 };

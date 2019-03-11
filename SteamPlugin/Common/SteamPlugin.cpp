@@ -159,7 +159,7 @@ int SteamPlugin::AddCallResultItem(CCallResultItem *callResult)
 
 void SteamPlugin::DeleteCallResultItem(int hCallResult)
 {
-	auto search = m_CallResultItems.find(m_CurrentCallResultHandle);
+	auto search = m_CallResultItems.find(hCallResult);
 	if (search != m_CallResultItems.end())
 	{
 		delete search->second;

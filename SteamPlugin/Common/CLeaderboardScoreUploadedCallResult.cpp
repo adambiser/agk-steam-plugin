@@ -22,27 +22,21 @@ THE SOFTWARE.
 
 #include "CLeaderboardScoreUploadedCallResult.h"
 
-#define CheckEntryIndex(index, returnValue) \
-	if (index < 0 || index >= (int)m_Entries.size()) \
-	{ \
-		utils::PluginError(GetName() + ": Index out of range: " + std::to_string(index)); \
-		return returnValue; \
-	}
-
 void CLeaderboardScoreUploadedCallResult::OnUploadScore(LeaderboardScoreUploaded_t *pCallResult, bool bIOFailure)
 {
 	m_LeaderboardScoreUploaded = *pCallResult;
 	// Factor in bIOFailure.
-	m_LeaderboardScoreUploaded.m_bSuccess = m_LeaderboardScoreUploaded.m_bSuccess && !bIOFailure;
-	if (m_LeaderboardScoreUploaded.m_bSuccess)
+	if (m_LeaderboardScoreUploaded.m_bSuccess && !bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
 		m_State = Done;
+		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
+		m_eResult = k_EResultFail;
 	}
 }
 
@@ -54,4 +48,15 @@ void CLeaderboardScoreUploadedCallResult::Call()
 		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardScoreUploadedCallResult::OnUploadScore);
+}
+
+std::string CLeaderboardScoreUploadedCallResult::GetResultJSON()
+{
+	return std::string("{"
+		"\"SteamLeaderboard\": " + std::to_string(GetPluginHandle(m_LeaderboardScoreUploaded.m_hSteamLeaderboard)) + ", "
+		"\"Success\": " + std::to_string(m_LeaderboardScoreUploaded.m_bSuccess) + ", "
+		"\"ScoreChanged\": " + std::to_string(m_LeaderboardScoreUploaded.m_bScoreChanged) + ", "
+		"\"GlobalRankNew\": " + std::to_string(m_LeaderboardScoreUploaded.m_nGlobalRankNew) + ", "
+		"\"GlobalRankPrevious\": " + std::to_string(m_LeaderboardScoreUploaded.m_nGlobalRankPrevious) + ", "
+		"\"Score\": " + std::to_string(m_LeaderboardScoreUploaded.m_nScore) + "}");
 }

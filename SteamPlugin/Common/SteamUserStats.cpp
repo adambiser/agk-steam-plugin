@@ -272,15 +272,6 @@ int SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 	return AddCallResultItem(callResult);
 }
 
-SteamLeaderboard_t SteamPlugin::GetLeaderboardHandle(int hCallResult)
-{
-	if (CLeaderboardFindCallResult *callResult = GetCallResultItem<CLeaderboardFindCallResult>(hCallResult))
-	{
-		return callResult->GetLeaderboardHandle();
-	}
-	return 0;
-}
-
 const char *SteamPlugin::GetLeaderboardName(SteamLeaderboard_t hLeaderboard)
 {
 	if (!m_StatsInitialized || !hLeaderboard)
@@ -330,51 +321,6 @@ int SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeader
 	return AddCallResultItem(callResult);
 }
 
-bool SteamPlugin::LeaderboardScoreStored(int hCallResult)
-{
-	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
-	{
-		return callResult->LeaderboardScoreStored();
-	}
-	return false;
-}
-
-bool SteamPlugin::LeaderboardScoreChanged(int hCallResult)
-{
-	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
-	{
-		return callResult->LeaderboardScoreChanged();
-	}
-	return false;
-}
-
-int SteamPlugin::GetLeaderboardUploadedScore(int hCallResult)
-{
-	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
-	{
-		return callResult->GetLeaderboardUploadedScore();
-	}
-	return 0;
-}
-
-int SteamPlugin::GetLeaderboardGlobalRankNew(int hCallResult)
-{
-	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
-	{
-		return callResult->GetLeaderboardGlobalRankNew();
-	}
-	return 0;
-}
-
-int SteamPlugin::GetLeaderboardGlobalRankPrevious(int hCallResult)
-{
-	if (CLeaderboardScoreUploadedCallResult *callResult = GetCallResultItem<CLeaderboardScoreUploadedCallResult>(hCallResult))
-	{
-		return callResult->GetLeaderboardGlobalRankPrevious();
-	}
-	return 0;
-}
-
 int SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
 	CheckInitialized(SteamUserStats, 0);
@@ -386,40 +332,4 @@ int SteamPlugin::DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELe
 	CLeaderboardScoresDownloadedCallResult *callResult = new CLeaderboardScoresDownloadedCallResult(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 	callResult->Run();
 	return AddCallResultItem(callResult);
-}
-
-int SteamPlugin::GetDownloadedLeaderboardEntryCount(int hCallResult)
-{
-	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		return callResult->GetEntryCount();
-	}
-	return 0;
-}
-
-int SteamPlugin::GetDownloadedLeaderboardEntryGlobalRank(int hCallResult, int index)
-{
-	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		return callResult->GetEntryGlobalRank(index);
-	}
-	return 0;
-}
-
-int SteamPlugin::GetDownloadedLeaderboardEntryScore(int hCallResult, int index)
-{
-	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		return callResult->GetEntryScore(index);
-	}
-	return 0;
-}
-
-CSteamID SteamPlugin::GetDownloadedLeaderboardEntryUser(int hCallResult, int index)
-{
-	if (CLeaderboardScoresDownloadedCallResult *callResult = GetCallResultItem<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		return callResult->GetEntryUser(index);
-	}
-	return k_steamIDNil;
 }

@@ -47,10 +47,7 @@ public:
 			+ std::to_string(m_nRangeStart) + ", "
 			+ std::to_string(m_nRangeEnd) + ")";
 	}
-	int GetEntryCount() { return (int)m_Entries.size(); }
-	int GetEntryGlobalRank(int index);
-	int GetEntryScore(int index);
-	CSteamID GetEntryUser(int index);
+	std::string GetResultJSON();
 protected:
 	void Call();
 private:

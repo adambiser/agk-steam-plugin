@@ -35,8 +35,8 @@ public:
 		m_eLobbyType(eLobbyType),
 		m_cMaxMembers(cMaxMembers)
 	{
-		m_Lobby.m_eResult = (EResult)0;
-		m_Lobby.m_ulSteamIDLobby = 0;
+		m_LobbyCreated.m_eResult = (EResult)0;
+		m_LobbyCreated.m_ulSteamIDLobby = 0;
 	}
 	virtual ~CLobbyCreatedCallResult(void)
 	{
@@ -56,7 +56,7 @@ private:
 	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
 	ELobbyType m_eLobbyType;
 	int m_cMaxMembers;
-	LobbyCreated_t m_Lobby;
+	LobbyCreated_t m_LobbyCreated;
 };
 
 #endif // _CLOBBYCREATEDCALLRESULT_H_

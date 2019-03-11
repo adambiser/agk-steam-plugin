@@ -53,11 +53,7 @@ public:
 			+ std::to_string(m_eLeaderboardUploadScoreMethod) + ", "
 			+ std::to_string(m_nScore) + ")";
 	}
-	bool LeaderboardScoreStored() { return m_LeaderboardScoreUploaded.m_bSuccess != 0; }
-	bool LeaderboardScoreChanged() { return m_LeaderboardScoreUploaded.m_bScoreChanged != 0; }
-	int GetLeaderboardUploadedScore() { return m_LeaderboardScoreUploaded.m_nScore; }
-	int GetLeaderboardGlobalRankNew() { return m_LeaderboardScoreUploaded.m_nGlobalRankNew; }
-	int GetLeaderboardGlobalRankPrevious() { return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious; }
+	std::string GetResultJSON();
 protected:
 	void Call();
 private:

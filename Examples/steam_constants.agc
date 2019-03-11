@@ -1,5 +1,4 @@
 #option_explicit
-
 ////////////////////////////////////////////////////////////////
 // NOTE:
 // These constants come from the Steamworks SDK.  However, the
@@ -8,7 +7,7 @@
 ////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////
-// Plugin constants
+// Constants defined for this plugin.
 ////////////////////////////////////////////////////////////////
 
 // Plugin Callback State Value
@@ -24,6 +23,7 @@
 #constant AVATAR_SMALL	0 // 32x32
 #constant AVATAR_MEDIUM	1 // 64x64
 #constant AVATAR_LARGE	2 // 128x128
+//--------------------------------------------------------------
 
 // Structs
 //--------------------------------------------------------------
@@ -440,16 +440,16 @@ EndType
 // EVRHMDType
 //--------------------------------------------------------------
 // Code points for VR HMD vendors and models. Use the special functions BIsOculusHMD and BIsViveHMD to check for a specific brand.
-#constant eEVRHMDType_None				-1	// Unknown vendor and model.
-#constant eEVRHMDType_Unknown			0	// Unknown vendor and model.
-#constant eEVRHMDType_HTC_Dev			1	// Original HTC dev kits.
-#constant eEVRHMDType_HTC_VivePre		2	// HTC Vive Pre dev kits.
-#constant eEVRHMDType_HTC_Vive			3	// HTC Vive Consumer Release.
-#constant eEVRHMDType_HTC_Unknown		20	// Unknown HTC HMD.
-#constant eEVRHMDType_Oculus_DK1		21	// Oculus Rift Development Kit 1.
-#constant eEVRHMDType_Oculus_DK2		22	// Oculus Rift Development Kit 2
-#constant eEVRHMDType_Oculus_Rift		23	// Oculus Rift Consumer Version 1.
-#constant eEVRHMDType_Oculus_Unknown	40	// Unknown Oculus HMD.
+#constant EVRHMDType_None				-1	// Unknown vendor and model.
+#constant EVRHMDType_Unknown			0	// Unknown vendor and model.
+#constant EVRHMDType_HTC_Dev			1	// Original HTC dev kits.
+#constant EVRHMDType_HTC_VivePre		2	// HTC Vive Pre dev kits.
+#constant EVRHMDType_HTC_Vive			3	// HTC Vive Consumer Release.
+#constant EVRHMDType_HTC_Unknown		20	// Unknown HTC HMD.
+#constant EVRHMDType_Oculus_DK1			21	// Oculus Rift Development Kit 1.
+#constant EVRHMDType_Oculus_DK2			22	// Oculus Rift Development Kit 2
+#constant EVRHMDType_Oculus_Rift		23	// Oculus Rift Consumer Version 1.
+#constant EVRHMDType_Oculus_Unknown		40	// Unknown Oculus HMD.
 
 // Constants
 //--------------------------------------------------------------
@@ -993,24 +993,83 @@ EndType
 
 // Structs
 //--------------------------------------------------------------
-// Favorite game information.
-// Obtainable from: GetFavoriteGameJSON.
+// Favorite game information.  Returned by GetFavoriteGameJSON.
+// This is in from the Steamworks SDK, but compensates for the values being returned via parameters.
 Type FavoriteGameInfo_t
 	AppID as integer
 	IP as string
-	ConnectPort as integer
+	ConnPort as integer
 	QueryPort as integer
 	Flags as integer
 	TimeLastPlayedOnServer as integer
 EndType
 
+//~ // No description given.
+//~ Type FavoritesListAccountsUpdated_t
+	//~ Result as integer		// EResult
+//~ EndType
+
+// A server was added/removed from the favorites list, you should refresh now.
+Type FavoritesListChanged_t
+	IP as string			// An IP of 0 means reload the whole list, any other value means just one server. This is host order, i.e 127.0.0.1 == 0x7f000001.
+	QueryPort as integer	// If m_nIP is set then this is the new servers query port, in host order.
+	ConnPort as integer		// If m_nIP is set then this is the new servers connection port, in host order.
+	AppID as integer		// If m_nIP is set then this is the App ID the game server belongs to.
+	Flags as integer		// If m_nIP is set then this returns whether the the server is on the favorites list or the history list. See k_unFavoriteFlagNone for more information.
+	Add as integer			// If m_nIP is set then this is whether the server was added to the list (true) or removed (false) from it.
+	//AccountId	AccountID_t	
+EndType
+
+// A chat (text or binary) message for this lobby has been received. 
+Type LobbyChatMsg_t
+	SteamIDLobby as integer		// The Steam ID handle of the lobby this message was sent in.
+	SteamIDUser as integer		// Steam ID of the user who sent this message. Note that it could have been the local user.
+	ChatEntryType as integer	// Type of message received. This is actually a EChatEntryType.
+	// ChatID as integer			// The index of the chat entry to use with GetLobbyChatEntry, this is not valid outside of the scope of this callback and should never be stored.
+EndType
+
+// A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
+Type LobbyChatUpdate_t
+	SteamIDLobby as integer				// The Steam ID of the lobby.
+	SteamIDUserChanged as integer		// The user who's status in the lobby just changed - can be recipient.
+	SteamIDMakingChange as integer		// Chat member who made the change. This can be different from m_ulSteamIDUserChanged if kicking, muting, etc. For example, if one user kicks another from the lobby, this will be set to the id of the user who initiated the kick.
+	ChatMemberStateChange as integer	// Bitfield of EChatMemberStateChange values.
+EndType
+
+// Result of our request to create a Lobby.
+Type LobbyCreated_t
+	SteamIDLobby as integer	// The Steam ID of the lobby that was created, 0 if failed.
+	Result as integer		// The result of the operation.
+EndType
+
+// The lobby metadata has changed.
+Type LobbyDataUpdate_t
+	SteamIDLobby as integer		// The Steam ID of the Lobby.
+	SteamIDMember as integer	// Steam ID of either the member whose data changed, or the room itself.
+	Success as integer			// true if the lobby data was successfully changed, otherwise false.
+EndType
+
+Type LobbyEnter_t
+	SteamIDLobby as integer				// The steam ID of the Lobby you have entered.
+	ChatPermissions as integer			// Unused - Always 0.
+	Locked as integer					// If true, then only invited users may join.
+	ChatRoomEnterResponse as integer	// This is actually a EChatRoomEnterResponse value. This will be set to k_EChatRoomEnterResponseSuccess if the lobby was successfully joined, otherwise it will be k_EChatRoomEnterResponseError.
+EndType
+
 // Game server information
 // Obtainable from: GetLobbyGameServerJSON
 Type LobbyGameCreated_t
-	hLobby as integer
-	IP as string
-	Port as integer
-	hGameServer as integer
+	SteamIDLobby as integer			// The lobby that set the game server.
+	SteamIDGameServer as integer	// The Steam ID of the game server, if it's set.
+	IP as string					// The IP address of the game server.
+	Port as integer					// The connection port of the game server, in host order, if it's set.
+EndType
+
+// Someone has invited you to join a Lobby.  Normally you don't need to do anything with this, as the Steam UI handles things.
+Type LobbyInvite_t
+	SteamIDUser as integer		// Steam ID of the person that sent the invite.
+	SteamIDLobby as integer		// Steam ID of the lobby we're invited to.
+	GameID as integer			// Game ID of the lobby we're invited to.
 EndType
 
 // Constants
@@ -1120,6 +1179,119 @@ EndType
 //~ #constant ELeaderboardUploadScoreMethodNone			0	
 #constant ELeaderboardUploadScoreMethodKeepBest		1	// Leaderboard will keep user's best score
 #constant ELeaderboardUploadScoreMethodForceUpdate	2	// Leaderboard will always replace score with specified
+
+// Structs and Callbacks
+
+// Called when the global achievement percentages have been received from the server.
+// Associated Functions: RequestGlobalAchievementPercentages
+Type GlobalAchievementPercentagesReady_t
+	GameID as integer	// Game ID which these achievement percentages are for.
+	Result as integer	// Result of the request.
+EndType
+
+// Called when the global stats have been received from the server.
+// Associated Functions: RequestGlobalStats
+Type GlobalStatsReceived_t
+	GameID as integer	// Game ID which these global stats are for.
+	Result as integer	// The result of the request.
+EndType
+
+// Result when finding a leaderboard.
+// Associated Functions: FindOrCreateLeaderboard, FindLeaderboard
+Type LeaderboardFindResult_t
+	SteamLeaderboard as integer	// Handle to the leaderboard that was serarched for. 0 if no leaderboard was found.
+	LeaderboardFound as integer // Was the leaderboard found? 1 if it was, 0 if it wasn't.
+EndType
+
+// Called when scores for a leaderboard have been downloaded and are ready to be retrieved.
+// Associated Functions: DownloadLeaderboardEntries, DownloadLeaderboardEntriesForUsers
+Type LeaderboardScoresDownloaded_t
+	m_hSteamLeaderboard as integer			// Handle to the leaderboard that these entries belong to.
+	m_hSteamLeaderboardEntries as integer	// The handle to pass into GetDownloadedLeaderboardEntry to retrieve the info for each downloaded entry.
+	m_cEntryCount as integer				// The number of entries downloaded.
+EndType
+
+// Result indicating that a leaderboard score has been uploaded.
+// Associated Functions: UploadLeaderboardScore
+Type LeaderboardScoreUploaded_t
+	SteamLeaderboard as integer 	// Handle to the leaderboard that this score was uploaded to.
+	Success as integer				// Was the call successful? Returns 1 if the call was successful, 0 on failure.
+	Score as integer				// The score that was attempted to set.
+	ScoreChanged as integer			// true if the score on the leaderboard changed otherwise false if the existing score was better.
+	GlobalRankNew as integer		// The new global rank of the user on this leaderboard.
+	GlobalRankPrevious as integer	// The previous global rank of the user on this leaderboard; 0 if the user had no existing entry in the leaderboard.
+EndType
+
+// Result indicating that user generated content has been attached to one of the current user's leaderboard entries.
+// Associated Functions: AttachLeaderboardUGC
+Type LeaderboardUGCSet_t
+	Result as integer			// The result of the operation.
+	SteamLeaderboard as integer	// Handle to the leaderboard that the UGC was attached to.
+EndType
+
+// Gets the current number of players for the current AppId.
+// Associated Functions: GetNumberOfCurrentPlayers
+Type NumberOfCurrentPlayers_t
+	Success as integer	// Was the call successful? Returns 1 if it was; otherwise, 0 on failure.
+	Players as integer	// Number of players currently playing.
+EndType
+
+// Called when PS3 trophies are available.
+Type PS3TrophiesInstalled_t
+	GameID as integer				// Game that these stats are for.
+	Result as integer				// The result of the operation.
+	RequiredDiskSpace as integer	// If m_eResult is k_EResultDiskFull, then this will contain the amount of space needed to install trophies.
+EndType
+
+// Result of an achievement icon that has been fetched
+// Associated Functions: GetAchievementIcon
+Type UserAchievementIconFetched_t
+	GameID as integer				// The Game ID this achievement is for.
+	gchAchievementName as string	// The name of the achievement that this callback is for.
+	Achieved as integer				// Returns whether the icon for the achieved (true) or unachieved (false) version.
+	IconHandle as integer			// Handle to the image, which can be used with ISteamUtils::GetImageRGBA to get the image data. 0 means no image is set for the achievement.
+EndType
+
+// Result of a request to store the achievements on the server, or an "indicate progress" call.
+// If both m_nCurProgress and m_nMaxProgress are zero, that means the achievement has been fully unlocked.
+// Associated Functions: StoreStats, IndicateAchievementProgress
+Type UserAchievementStored_t
+	GameID as integer			// Game ID that this achievement is for.
+	GroupAchievement as integer	// Unused.
+	AchievementName as String	// Name of the achievement.
+	CurProgress as integer		// Current progress towards the achievement.
+	MaxProgress as integer		// The total amount of progress required to unlock.
+EndType
+
+// Called when the latest stats and achievements for a specific user (including the local user) have been received from the server.
+// Associated Functions: RequestCurrentStats, RequestUserStats
+Type UserStatsReceived_t
+	GameID as integer		// Game ID that these stats are for.
+	Result as integer		// Returns whether the call was successful or not. If the user has no stats, this will be set to k_EResultFail.
+	SteamIDUser as integer	// The user whose stats were retrieved.
+EndType
+
+// Result of a request to store the user stats.
+// Associated Functions: StoreStats, IndicateAchievementProgress
+Type UserStatsStored_t
+	GameID as integer	// Game ID that these stats are for.
+	Result as integer	// Returns whether the call was successful or not.
+EndType
+
+// Callback indicating that a user's stats have been unloaded.
+// Call RequestUserStats again before accessing stats for this user.
+Type UserStatsUnloaded_t
+	SteamIDUser as integer	// User whose stats have been unloaded.
+EndType
+
+// A single entry in a leaderboard.
+Type LeaderboardEntry_t
+	SteamIDUser as integer	// User who this entry belongs to. You can use ISteamFriends::GetFriendPersonaName and ISteamFriends::GetSmallFriendAvatar to get more info.
+	GlobalRank as integer	// The global rank of this entry ranging from [1..N], where N is the number of users with an entry in the leaderboard.
+	Score as integer		// The raw score as set in the leaderboard.
+	Details as integer		// The number of details available for this entry.
+	UGC as integer			// Handle for the UGC attached to the entry. k_UGCHandleInvalid if there is none.	
+EndType
 
 // Constants
 //--------------------------------------------------------------

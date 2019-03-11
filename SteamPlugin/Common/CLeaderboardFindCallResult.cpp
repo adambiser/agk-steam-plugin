@@ -24,16 +24,18 @@ THE SOFTWARE.
 
 void CLeaderboardFindCallResult::OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure)
 {
-	m_hLeaderboard = pCallResult->m_hSteamLeaderboard;
-	bool found = pCallResult->m_bLeaderboardFound && !bIOFailure;
-	utils::Log(GetName() + ": Found = " + std::to_string(found) + ", Handle = " + std::to_string(m_hLeaderboard));
-	if (found)
+	m_LeaderboardFindResult = *pCallResult;
+	if (!bIOFailure)
 	{
+		utils::Log(GetName() + ": Succeeded.");
 		m_State = Done;
+		m_eResult = k_EResultOK;
 	}
 	else
 	{
+		utils::Log(GetName() + ": Failed.");
 		m_State = ServerError;
+		m_eResult = k_EResultFail;
 	}
 }
 
@@ -46,3 +48,10 @@ void CLeaderboardFindCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardFindCallResult::OnFindLeaderboard);
 }
+
+std::string CLeaderboardFindCallResult::GetResultJSON()
+{
+	return std::string("{"
+		"\"SteamLeaderboard\": " + std::to_string(GetPluginHandle(m_LeaderboardFindResult.m_hSteamLeaderboard)) + ", "
+		"\"LeaderboardFound\": " + std::to_string(m_LeaderboardFindResult.m_bLeaderboardFound) + "}");
+};
