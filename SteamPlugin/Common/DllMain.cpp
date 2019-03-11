@@ -1696,10 +1696,10 @@ int GetFavoriteGameCount()
 	return Steam->GetFavoriteGameCount();
 }
 
+// Leave this as by-index since AddFavoriteGame appears to return an index.
 char *GetFavoriteGameJSON(int index)
 {
-	std::ostringstream json;
-	json << "{";
+	std::string json("{");
 	if (Steam)
 	{
 		AppId_t nAppID;
@@ -1710,15 +1710,15 @@ char *GetFavoriteGameJSON(int index)
 		uint32 rTime32LastPlayedOnServer;
 		if (Steam->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &unFlags, &rTime32LastPlayedOnServer))
 		{
-			json << "\"AppID\": " << nAppID;
-			json << ", \"IP\": \"" << ConvertIPToString(nIP) << "\"";
-			json << ", \"ConnectPort\": " << nConnPort;
-			json << ", \"QueryPort\": " << nQueryPort;
-			json << ", \"Flags\": " << unFlags;
-			json << ", \"TimeLastPlayedOnServer\": " << (int)rTime32LastPlayedOnServer;
+			json += "\"AppID\": " + std::to_string(nAppID) + ", "
+				"\"IP\": \"" + ConvertIPToString(nIP) + "\", "
+				"\"ConnPort\": " + std::to_string(nConnPort) + ", "
+				"\"QueryPort\": " + std::to_string(nQueryPort) + ", "
+				"\"Flags\": " + std::to_string(unFlags) + ", "
+				"\"TimeLastPlayedOnServer\": " + std::to_string(rTime32LastPlayedOnServer);
 		}
 	}
-	json << "}";
+	json += "}";
 	return utils::CreateString(json);
 }
 
@@ -1924,8 +1924,7 @@ int HasGamepadTextInputDismissedInfo()
 
 char *GetGamepadTextInputDismissedInfoJSON()
 {
-	std::ostringstream json;
-	json << "{";
+	std::string json("{");
 	if (Steam)
 	{
 		if (Steam->HasGamepadTextInputDismissedInfo())
@@ -1933,11 +1932,11 @@ char *GetGamepadTextInputDismissedInfoJSON()
 			bool submitted;
 			char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
 			Steam->GetGamepadTextInputDismissedInfo(&submitted, text);
-			json << "\"Submitted\": " << (int)submitted;
-			json << ", \"Text\": \"" << EscapeJSON(text) << "\"";
+			json += "\"Submitted\": " + std::to_string(submitted) + ", "
+				"\"Text\": \"" + EscapeJSON(text) + "\"";
 		}
 	}
-	json << "}";
+	json += "}";
 	return utils::CreateString(json);
 }
 
@@ -2091,7 +2090,8 @@ int GetCloudFileCount()
 	return Steam->GetFileCount();
 }
 
-char * GetCloudFileName(int index)
+// Leave the by-index since this is pretty simple.
+char *GetCloudFileName(int index)
 {
 	CheckInitializedPlugin(NULL_STRING);
 	int32 pnFileSizeInBytes;
@@ -2100,33 +2100,32 @@ char * GetCloudFileName(int index)
 
 char *GetCloudFileListJSON()
 {
-	std::ostringstream json;
-	json << "[";
+	std::string json("[");
 	if (Steam)
 	{
 		for (int index = 0; index < Steam->GetFileCount(); index++)
 		{
 			if (index > 0)
 			{
-				json << ", ";
+				json += ", ";
 			}
-			json << "{";
+			json += "{";
 			int32 pnFileSizeInBytes;
 			const char *name = Steam->GetFileNameAndSize(index, &pnFileSizeInBytes);
 			if (name)
 			{
-				json << "\"Name\": \"" << EscapeJSON(name) << "\", ";
-				json << "\"Size\": " << pnFileSizeInBytes;
+				json += "\"Name\": \"" + EscapeJSON(name) + "\", "
+					"\"Size\": " + std::to_string(pnFileSizeInBytes);
 			}
 			else
 			{
-				json << "\"Name\": \"?\", ";
-				json << "\"Size\": 0";
+				json += "\"Name\": \"?\", "
+					"\"Size\": 0";
 			}
-			json << "}";
+			json += "}";
 		}
 	}
-	json << "]";
+	json += "]";
 	return utils::CreateString(json);
 }
 

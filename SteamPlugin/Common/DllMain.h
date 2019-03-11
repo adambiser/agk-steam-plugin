@@ -1657,7 +1657,7 @@ extern "C" DLL_EXPORT int GetCloudFileCount();
 The name of the file at the given index.  An empty string if the file doesn't exist.
 @api ISteamRemoteStorage#GetFileCount, ISteamRemoteStorage#GetFileNameAndSize
 */
-extern "C" DLL_EXPORT char * GetCloudFileName(int index);
+extern "C" DLL_EXPORT char *GetCloudFileName(int index);
 /*
 @desc Gets the name and size of all local files synchronized by Steam Cloud.
 @return

@@ -994,8 +994,9 @@ EndType
 
 // Structs
 //--------------------------------------------------------------
-// Favorite game information.  Returned by GetFavoriteGameJSON.
-// This is in from the Steamworks SDK, but compensates for the values being returned via parameters.
+// Favorite game information.
+// Returned by GetFavoriteGameJSON.
+// This isn't from the Steamworks SDK, but compensates for the values being returned via parameters.
 Type FavoriteGameInfo_t
 	AppID as integer
 	IP as string
