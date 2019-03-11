@@ -154,7 +154,16 @@ private:
 	GameLobbyJoinRequested_t m_GameLobbyJoinRequestedInfo;
 	// Lobby methods: Game server
 	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
-	LobbyGameCreated_t m_LobbyGameCreatedInfo;
+	std::list<LobbyGameCreated_t> m_LobbyGameCreatedList; // For callback reporting.
+	std::mutex m_LobbyGameCreatedMutex;
+	LobbyGameCreated_t m_CurrentLobbyGameCreated;
+	void ClearCurrentLobbyGameCreated()
+	{
+		m_CurrentLobbyGameCreated.m_ulSteamIDGameServer = 0;
+		m_CurrentLobbyGameCreated.m_ulSteamIDLobby = 0;
+		m_CurrentLobbyGameCreated.m_unIP = 0;
+		m_CurrentLobbyGameCreated.m_usPort = 0;
+	}
 	// Lobby methods: Members and Status
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
 	std::list<LobbyChatUpdate_t> m_LobbyChatUpdatedList;
@@ -379,8 +388,8 @@ public:
 	// Lobby methods: Game server
 	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
-	bool HasLobbyGameCreated() { return m_LobbyGameCreatedInfo.m_ulSteamIDLobby != 0; };
-	LobbyGameCreated_t GetLobbyGameCreated();
+	bool HasLobbyGameCreated();
+	LobbyGameCreated_t GetLobbyGameCreated() { return m_CurrentLobbyGameCreated; }
 	// Lobby methods: Data
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);

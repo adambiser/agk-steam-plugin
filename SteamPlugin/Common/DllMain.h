@@ -311,26 +311,6 @@ EndType
 */
 extern "C" DLL_EXPORT char *GetDLCDataJSON();
 /*
-@desc Gets the number of DLC pieces for the current app.
-@return The number of DLC pieces for the current app.
-@api ISteamApps#GetDLCCount
-*/
-extern "C" DLL_EXPORT int GetDLCCount();
-/*
-@desc Returns metadata for a DLC by index.
-@param index Index of the DLC to get between 0 and GetDLCCount.
-@return A JSON string of the DLC information for the given index. (See steam_constants.agc)
-```
-Type DLCData_t
-	AppID as integer	// If 0, the DLC is hidden.
-	Available as integer	// Boolean: If 1, the user owns the DLC.
-	Name as string
-EndType
-```
-@api ISteamApps#BGetDLCDataByIndex
-*/
-extern "C" DLL_EXPORT char *GetDLCDataByIndexJSON(int index);
-/*
 @desc HasNewDLCInstalled will report true when a DLC has finished installing.
 @param appID The App ID of the DLC you want to install.
 @api ISteamApps#InstallDLC

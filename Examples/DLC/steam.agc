@@ -39,26 +39,24 @@ AddStatus("VAC Banned: " + TF(Steam.IsVACBanned()))
 AddStatus("Subscribed: " + TF(Steam.IsSubscribed()))
 AddStatus("Subscribed From Free Weekend: " + TF(Steam.IsSubscribedFromFreeWeekend()))
 //~ AddStatus("Half-Life 2 Subscribed: " + TF(Steam.IsSubscribedApp(220)))
-AddStatus("DLC Count: " + str(Steam.GetDLCCount()))
+dlcData as DLCData_t[]
+dlcData.fromjson(Steam.GetDLCDataJSON())
+AddStatus("DLC Count: " + str(dlcData.length + 1))
 AddStatus("DLC Data JSON: " + Steam.GetDLCDataJSON())
 AddStatus("GetLaunchQueryParam at startup.  param1 = " + Steam.GetLaunchQueryParam("param1"))
 AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
 
-
 // For reference: https://steamdb.info/app/480/
-// GetDLCDataJSON is the same as using GetDLCDataByIndexJSON for indices 0 to GetDLCCount.
-for x = 0 to Steam.GetDLCCount() - 1
-	dlcData as DLCData_t
-	dlcData.fromjson(Steam.GetDLCDataByIndexJSON(x))
-	if dlcData.AppID // Check whether DLC is hidden
-		AddStatus("DLC " + str(dlcData.AppID) + ": " + dlcData.Name)
-		AddStatus("Owned: " + TF(dlcData.Available)) // DLC app id
-		AddStatus("Installed: " + TF(Steam.IsDLCInstalled(dlcData.AppID))) // DLC app id
+for x = 0 to dlcData.length
+	if dlcData[x].AppID // Check whether DLC is hidden
+		AddStatus("DLC " + str(dlcData[x].AppID) + ": " + dlcData[x].Name)
+		AddStatus("Owned: " + TF(dlcData[x].Available)) // DLC app id
+		AddStatus("Installed: " + TF(Steam.IsDLCInstalled(dlcData[x].AppID))) // DLC app id
 		// Add button to toggle DLC installation
-		dlcAppIDs.insert(dlcData.AppID)
-		CreateButton(DLC_START_BUTTON + x, 752 + (DLC_START_BUTTON + x - 6) * 100, 40, "DLC" + NEWLINE + str(dlcData.AppID))
+		dlcAppIDs.insert(dlcData[x].AppID)
+		CreateButton(DLC_START_BUTTON + x, 752 + (DLC_START_BUTTON + x - 6) * 100, 40, "DLC" + NEWLINE + str(dlcData[x].AppID))
 		// Enable the DLC button if the DLC is available/owned.
-		if dlcData.Available
+		if dlcData[x].Available
 			SetButtonEnabled(DLC_START_BUTTON + x, 1)
 		endif
 	endif

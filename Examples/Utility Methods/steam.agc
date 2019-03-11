@@ -23,6 +23,8 @@ Steam.SetOverlayNotificationInset(50, 50)
 // one to fire, so I can only assume the plugin code is correct.
 Steam.SetWarningMessageHook()
 
+AddStatus("SteamID3: " + Steam.GetSteamID3(Steam.GetSteamID()))
+AddStatus("SteamID64: " + Steam.GetSteamID64(Steam.GetSteamID()))
 AddStatus("IP Country: " + Steam.GetIPCountry())
 AddStatus("Steam UI Language: " + Steam.GetSteamUILanguage())
 

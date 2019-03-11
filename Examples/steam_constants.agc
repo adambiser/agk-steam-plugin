@@ -28,7 +28,7 @@
 // Structs
 //--------------------------------------------------------------
 // DLC information
-// Obtainable from: GetDLCDataJSON, GetDLCDataByIndexJSON.
+// Obtainable from: GetDLCDataJSON
 Type DLCData_t
 	AppID as integer		// If 0, the DLC is hidden.
 	Available as integer	// Boolean: If 1, the user owns the DLC.
@@ -143,12 +143,12 @@ EndType
 // EBeginAuthSessionResult
 //--------------------------------------------------------------
 // Results returned from ISteamUser::BeginAuthSession and ISteamGameServer::BeginAuthSession.
-#constant EBeginAuthSessionResultOK				0	// Ticket is valid for this game and this Steam ID.
-#constant EBeginAuthSessionResultInvalidTicket	1	// The ticket is invalid.
+#constant EBeginAuthSessionResultOK					0	// Ticket is valid for this game and this Steam ID.
+#constant EBeginAuthSessionResultInvalidTicket		1	// The ticket is invalid.
 #constant EBeginAuthSessionResultDuplicateRequest	2	// A ticket has already been submitted for this Steam ID.
-#constant EBeginAuthSessionResultInvalidVersion	3	// Ticket is from an incompatible interface version.
+#constant EBeginAuthSessionResultInvalidVersion		3	// Ticket is from an incompatible interface version.
 #constant EBeginAuthSessionResultGameMismatch		4	// Ticket is not for this game.
-#constant EBeginAuthSessionResultExpiredTicket	5	// Ticket has expired.
+#constant EBeginAuthSessionResultExpiredTicket		5	// Ticket has expired.
 
 // EBroadcastUploadResult
 //--------------------------------------------------------------
@@ -204,9 +204,9 @@ EndType
 //--------------------------------------------------------------
 // Special flags for Chat accounts - they go in the top 8 bits of the Steam ID's "instance", leaving 12 for the actual instances
 #constant EChatAccountInstanceMask	0x00000FFF	// Top 8 bits are flags.
-#constant EChatInstanceFlagClan		0x0080000 	// The Steam ID is for a Steam group.	// (k_unSteamAccountInstanceMask + 1) >> 1
-#constant EChatInstanceFlagLobby	0x0040000	// The Steam ID is for a Lobby.			// (k_unSteamAccountInstanceMask + 1) >> 2
-#constant EChatInstanceFlagMMSLobby	0x0020000	// The Steam ID is for a MMS Lobby.		// (k_unSteamAccountInstanceMask + 1) >> 3
+#constant EChatInstanceFlagClan		0x00000800 	// The Steam ID is for a Steam group.	// (k_unSteamAccountInstanceMask + 1) >> 1
+#constant EChatInstanceFlagLobby	0x00000400	// The Steam ID is for a Lobby.			// (k_unSteamAccountInstanceMask + 1) >> 2
+#constant EChatInstanceFlagMMSLobby	0x00000200	// The Steam ID is for a MMS Lobby.		// (k_unSteamAccountInstanceMask + 1) >> 3
 
 // EDenyReason
 //--------------------------------------------------------------
@@ -262,10 +262,10 @@ EndType
 //--------------------------------------------------------------
 // Internal Steam marketing message flags that change how a client should handle them.
 #constant EMarketingMessageFlagsNone				0	
-#constant EMarketingMessageFlagsHighPriority		1 << 0
-#constant EMarketingMessageFlagsPlatformWindows		1 << 1
-#constant EMarketingMessageFlagsPlatformMac			1 << 2
-#constant EMarketingMessageFlagsPlatformLinux		1 << 3
+#constant EMarketingMessageFlagsHighPriority		1	// 1 << 0
+#constant EMarketingMessageFlagsPlatformWindows		2	// 1 << 1
+#constant EMarketingMessageFlagsPlatformMac			4	// 1 << 2
+#constant EMarketingMessageFlagsPlatformLinux		8	// 1 << 3
 //~ #constant EMarketingMessageFlagsPlatformRestrictions	=	aggregate flags
 
 // ENotificationPosition
@@ -562,11 +562,12 @@ EndType
 // Structs
 //--------------------------------------------------------------
 // Information about the game a friend is playing.
-// Obtainable from: GetFriendGamePlayed.
+// Obtainable from: GetFriendGamePlayedJSON
+// Modified from Steamworks SDK.
 Type FriendGameInfo_t
 	InGame as integer // boolean
 	GameAppID as integer
-	GameIP as integer
+	GameIP as string
 	GamePort as integer
 	QueryPort as integer
 	SteamIDLobby as integer // CSteamID handle

@@ -26,7 +26,6 @@ GetCallResultJSON,S,I,GetCallResultJSON,0,0,0,0,GetCallResultJSON
 # App/DLC methods
 #
 GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
-GetDLCDataByIndexJSON,S,I,GetDLCDataByIndexJSON,0,0,0,0,GetDLCDataByIndexJSON
 IsAppInstalled,I,I,IsAppInstalled,0,0,0,0,IsAppInstalled
 IsCybercafe,I,0,IsCybercafe,0,0,0,0,IsCybercafe
 IsDLCInstalled,I,I,IsDLCInstalled,0,0,0,0,IsDLCInstalled
@@ -41,7 +40,6 @@ GetAppOwner,I,0,GetAppOwner,0,0,0,0,GetAppOwner
 GetAvailableGameLanguages,S,0,GetAvailableGameLanguages,0,0,0,0,GetAvailableGameLanguages
 GetCurrentBetaName,S,0,GetCurrentBetaName,0,0,0,0,GetCurrentBetaName
 GetCurrentGameLanguage,S,0,GetCurrentGameLanguage,0,0,0,0,GetCurrentGameLanguage
-GetDLCCount,I,0,GetDLCCount,0,0,0,0,GetDLCCount
 GetDLCDownloadProgressJSON,S,I,GetDLCDownloadProgressJSON,0,0,0,0,GetDLCDownloadProgressJSON
 GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,GetEarliestPurchaseUnixTime
 # GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.

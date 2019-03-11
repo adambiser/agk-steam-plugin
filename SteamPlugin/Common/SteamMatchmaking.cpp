@@ -170,21 +170,27 @@ void SteamPlugin::SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerI
 	SteamMatchmaking()->SetLobbyGameServer(steamIDLobby, unGameServerIP, unGameServerPort, steamIDGameServer);
 }
 
-LobbyGameCreated_t SteamPlugin::GetLobbyGameCreated()
-{
-	LobbyGameCreated_t temp = m_LobbyGameCreatedInfo;
-	// Clear the stored value.
-	m_LobbyGameCreatedInfo.m_ulSteamIDLobby = 0;
-	m_LobbyGameCreatedInfo.m_ulSteamIDGameServer = 0;
-	m_LobbyGameCreatedInfo.m_unIP = 0;
-	m_LobbyGameCreatedInfo.m_usPort = 0;
-	return temp;
-}
-
 void SteamPlugin::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
-	agk::Log("Callback: OnLobbyGameCreated");
-	m_LobbyGameCreatedInfo = *pParam;
+	utils::Log("Callback: OnLobbyGameCreated: " + std::to_string(pParam->m_ulSteamIDLobby));
+	m_LobbyGameCreatedMutex.lock();
+	m_LobbyGameCreatedList.push_back(*pParam);
+	m_LobbyGameCreatedMutex.unlock();
+}
+
+bool SteamPlugin::HasLobbyGameCreated()
+{
+	m_LobbyGameCreatedMutex.lock();
+	if (m_LobbyGameCreatedList.size() > 0)
+	{
+		m_CurrentLobbyGameCreated = m_LobbyGameCreatedList.front();
+		m_LobbyGameCreatedList.pop_front();
+		m_LobbyGameCreatedMutex.unlock();
+		return true;
+	}
+	ClearCurrentLobbyGameCreated();
+	m_LobbyGameCreatedMutex.unlock();
+	return false;
 }
 
 const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)

@@ -70,6 +70,7 @@ SteamPlugin::SteamPlugin() :
 	ClearCurrentLobbyChatUpdate();
 	ClearCurrentLobbyDataUpdate();
 	ClearCurrentLobbyEnter();
+	ClearCurrentLobbyGameCreated();
 	ClearInputData();
 }
 
@@ -142,6 +143,7 @@ void SteamPlugin::Shutdown()
 		ClearCurrentLobbyChatUpdate();
 		ClearCurrentLobbyDataUpdate();
 		ClearCurrentLobbyEnter();
+		ClearCurrentLobbyGameCreated();
 		ClearInputData();
 	}
 }
