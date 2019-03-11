@@ -25,6 +25,7 @@ GetCallResultJSON,S,I,GetCallResultJSON,0,0,0,0,GetCallResultJSON
 #
 # App/DLC methods
 #
+GetDLCCount,I,0,GetDLCCount,0,0,0,0,GetDLCCount
 GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
 IsAppInstalled,I,I,IsAppInstalled,0,0,0,0,IsAppInstalled
 IsCybercafe,I,0,IsCybercafe,0,0,0,0,IsCybercafe

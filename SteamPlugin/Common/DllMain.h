@@ -298,6 +298,12 @@ extern "C" DLL_EXPORT int MarkContentCorrupt(int missingFilesOnly);
 */
 extern "C" DLL_EXPORT int IsDLCInstalled(int appID);
 /*
+@desc Gets the number of DLC pieces for the current app.
+@return The number of DLC pieces for the current app.
+@api ISteamApps#GetDLCCount
+*/
+extern "C" DLL_EXPORT int GetDLCCount();
+/*
 @desc Gets DLC metadata of all DLCs for this app.
 @return A JSON string of an array of DLC information. (See steam_constants.agc)
 ```

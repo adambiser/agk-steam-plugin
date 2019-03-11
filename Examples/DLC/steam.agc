@@ -39,14 +39,14 @@ AddStatus("VAC Banned: " + TF(Steam.IsVACBanned()))
 AddStatus("Subscribed: " + TF(Steam.IsSubscribed()))
 AddStatus("Subscribed From Free Weekend: " + TF(Steam.IsSubscribedFromFreeWeekend()))
 //~ AddStatus("Half-Life 2 Subscribed: " + TF(Steam.IsSubscribedApp(220)))
-dlcData as DLCData_t[]
-dlcData.fromjson(Steam.GetDLCDataJSON())
-AddStatus("DLC Count: " + str(dlcData.length + 1))
+AddStatus("DLC Count: " + str(Steam.GetDLCCount()))
 AddStatus("DLC Data JSON: " + Steam.GetDLCDataJSON())
 AddStatus("GetLaunchQueryParam at startup.  param1 = " + Steam.GetLaunchQueryParam("param1"))
 AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
 
 // For reference: https://steamdb.info/app/480/
+dlcData as DLCData_t[]
+dlcData.fromjson(Steam.GetDLCDataJSON())
 for x = 0 to dlcData.length
 	if dlcData[x].AppID // Check whether DLC is hidden
 		AddStatus("DLC " + str(dlcData[x].AppID) + ": " + dlcData[x].Name)

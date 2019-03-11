@@ -480,6 +480,12 @@ char *GetCallResultJSON(int hCallResult)
 };
 
 // App/DLC methods
+int GetDLCCount()
+{
+	CheckInitializedPlugin(0);
+	return Steam->GetDLCCount();
+}
+
 char *GetDLCDataJSON()
 {
 	std::string json("[");
@@ -1681,7 +1687,7 @@ int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort,
 	}
 	std::time_t now = std::time(0);
 	//agk::Message(agk::Str((int)now));
-	return Steam->AddFavoriteGame(appID, (uint32)ip, connectPort, queryPort, flags, (uint32)now);
+	return Steam->AddFavoriteGame(appID, ip, connectPort, queryPort, flags, (uint32)now);
 }
 
 int GetFavoriteGameCount()
