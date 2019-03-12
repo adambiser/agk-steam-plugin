@@ -50,6 +50,21 @@ ENUM_VALUE_FIXES = {
     'ESteamItemNoTrade': '1',
     'ESteamItemRemoved': '0x100',
     'ESteamItemConsumed': '0x200',
+    # ESteamPartyBeaconLocationData
+    'ESteamPartyBeaconLocationDataIconURLSmall': '2',
+    'ESteamPartyBeaconLocationDataIconURLMedium': '3',
+    'ESteamPartyBeaconLocationDataIconURLLarge': '4',
+    # EUGCMatchingUGCType
+    'EUGCMatchingUGCType_All': '0xffffffff',
+}
+
+MEMBER_NAME_OVERRIDE = {
+    'SteamPartyBeaconLocation_t': {
+        'Type': 'LocationType',
+    },
+    'ScreenshotReady_t': {
+        'Local': 'Handle',
+    },
 }
 
 
@@ -285,7 +300,8 @@ def parse_api_page(filename):
             return True
         if 'deprecated' in enum_member['name'].lower():
             return True
-        if enum_member['name'] in ['EFriendRelationshipMax', 'EPersonaStateMax']:
+        if enum_member['name'] in ['EFriendRelationshipMax', 'EPersonaStateMax', 'ESteamPartyBeaconLocationType_Max',
+                                   'EMarketingMessageFlagsPlatformRestrictions']:
             return True
         return False
 
@@ -295,6 +311,9 @@ def parse_api_page(filename):
         for x in range(len(struct['members'])):
             member = struct['members'][x]
             member['name'] = clean_member_name(member['name'])
+            if struct['name'] in MEMBER_NAME_OVERRIDE:
+                if member['name'] in MEMBER_NAME_OVERRIDE[struct['name']]:
+                    member['name'] = MEMBER_NAME_OVERRIDE[struct['name']][member['name']]
             member['desc'] = get_first_sentence(member['desc'])
             if member['type'].startswith('E'):
                 member['desc'] = member['type'] + ". " + member['desc']
