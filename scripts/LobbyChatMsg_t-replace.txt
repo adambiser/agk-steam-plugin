@@ -1,0 +1,8 @@
+// A chat (text or binary) message for this lobby has been received. 
+// Associated Functions: SendLobbyChatMsg
+Type LobbyChatMsg_t
+	SteamIDLobby as integer		// The Steam ID handle of the lobby this message was sent in.
+	SteamIDUser as integer		// Steam ID of the user who sent this message. Note that it could have been the local user.
+	ChatEntryType as integer	// Type of message received. This is actually a EChatEntryType.
+	// ChatID as integer			// The index of the chat entry to use with GetLobbyChatEntry, this is not valid outside of the scope of this callback and should never be stored.
+EndType

@@ -1,0 +1,13 @@
+// Cloud file list information
+// Obtainable from: GetCloudFileListJSON
+Type CloudFileInfo_t
+	Name as string		// The file name.
+	Size as integer		// The size of the file.
+EndType
+
+// Cloud quota information
+// Obtainable from: GetCloudQuotaJSON
+Type CloudQuota_t
+	Available as integer	// The number of bytes available.
+	Total as integer		// Total amount of bytes the user has access to.
+EndType

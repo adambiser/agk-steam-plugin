@@ -1,0 +1,50 @@
+#option_explicit
+////////////////////////////////////////////////////////////////////////////////
+// NOTE:
+// These constants come from the Steamworks SDK.
+// However, the k_ prefix has been removed from the constant names.
+// Prefixes used to indicate variable type are also removed. ie: un, cch
+////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+// Constants defined by the plugin.
+//------------------------------------------------------------------------------
+
+// Plugin Callback State Value
+#constant STATE_SERVER_ERROR	-2	// A problem was reported by the Steam API,
+#constant STATE_CLIENT_ERROR	-1	// There was a problem calling the command.
+#constant STATE_IDLE			0	// The initial state of the callback. Safe to start callback commands while in this state.
+#constant STATE_RUNNING			1	// Generally don't need to check for this state.  Callback state will transition to DONE or SERVER_ERROR.
+#constant STATE_DONE			2	// Reported once as soon as the callback finishes.  The callback returns to IDLE state immediately.
+
+// Avatar sizes
+#constant AVATAR_SMALL	0 // 32x32
+#constant AVATAR_MEDIUM	1 // 64x64
+#constant AVATAR_LARGE	2 // 128x128
+
+//------------------------------------------------------------------------------
+// Structs
+//------------------------------------------------------------------------------
+
+// DLC information
+// Associated Functions: GetDLCDataJSON
+Type DLCData_t
+	AppID as integer	// If 0, the DLC is hidden.
+	Available as integer	// Boolean: If 1, the user owns the DLC.
+	Name as string
+EndType
+
+// DLC download progress
+// Associated Functions: GetDLCDownloadProgressJSON.
+Type DownloadProgress_t
+	AppID as integer	// If 0, the DLC is not currently downloading.
+	BytesDownloaded as integer
+	BytesTotal as integer
+EndType
+
+// Big Picture Mode gamepad text input
+// Associated Functions: GetGamepadTextInputDismissedInfoJSON
+Type GamepadTextInputDismissedInfo_t
+	Submitted as integer	// 1 when the user submitted text. 0 when the user cancels.
+	Text as string
+EndType
