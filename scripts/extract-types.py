@@ -59,6 +59,9 @@ ENUM_VALUE_FIXES = {
 }
 
 MEMBER_NAME_OVERRIDE = {
+    'LobbyEnter_t': {
+        'EChatRoomEnterResponse': 'ChatRoomEnterResponse',
+    },
     'SteamPartyBeaconLocation_t': {
         'Type': 'LocationType',
     },

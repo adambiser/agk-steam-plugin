@@ -1217,7 +1217,7 @@ Type LobbyEnter_t
 	SteamIDLobby as integer	// The steam ID of the Lobby you have entered.
 	ChatPermissions as integer	// Unused - Always 0.
 	Locked as integer	// If true, then only invited users may join.
-	EChatRoomEnterResponse as integer	// This is actually a EChatRoomEnterResponse value.
+	ChatRoomEnterResponse as integer	// This is actually a EChatRoomEnterResponse value.
 EndType
 
 // A game server has been set via SetLobbyGameServer for all of the members of the lobby to join.
