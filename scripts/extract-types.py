@@ -7,7 +7,9 @@ import re
 import requests
 
 
-OUTPUT_FILENAME = "../Examples/steam_constants.agc"
+OUTPUT_FILENAME = "steam_constants.agc"
+JSON_H_OUTPUT_FILENAME = "ToJSON.h"
+JSON_CPP_OUTPUT_FILENAME = "ToJSON.cpp"
 
 STEAMWORKS_API_URL_BASE = "https://partner.steamgames.com/doc/api/"
 
@@ -56,6 +58,12 @@ ENUM_VALUE_FIXES = {
     'ESteamPartyBeaconLocationDataIconURLLarge': '4',
     # EUGCMatchingUGCType
     'EUGCMatchingUGCType_All': '0xffffffff',
+}
+
+EXCLUDED_STRUCT_MEMBER = {
+    'HTML_NewWindow_t': [
+        'NewWindow_BrowserHandle',
+    ],
 }
 
 MEMBER_NAME_OVERRIDE = {
@@ -156,6 +164,39 @@ def download_api_page(filename):
     html = response.text
     with open(filename + '.htm', 'w', encoding='utf-8') as f:
         f.write(html)
+
+
+# noinspection PyShadowingNames
+def to_json_function(struct):
+    # Build the member list string first.
+    member_code = []
+    for member in struct['members']:
+        if member['exclude']:
+            continue
+        if member['old_type'] in ['CSteamID', 'SteamLeaderboard_t']:
+            value = 'std::to_string(GetPluginHandle(value.{old_name}))'.format(**member)
+        elif member['type'] == 'string':
+            value = 'std::string("\\"" + EscapeJSON(value.{old_name}) + "\\"")'.format(**member)
+        elif member['type'] in ['integer', 'float', 'uint32', 'uint16']:
+            value = 'std::to_string(value.{old_name})'.format(**member)
+        else:
+            print("! unsupported member type for to_json_function: " + member['type'])
+            value = 'do_something(value.{old_name})'.format(**member)
+        member_code.append('"\\"{name}\\": " + {value}'.format(value=value, **member))
+    member_code = ' + ", "\n\t\t'.join(member_code)
+    # Now the method code.
+    return '''std::string ToJSON({name} value)
+{{
+    return std::string("{{"
+        {member_code} + "}}");
+}}
+
+'''.format(member_code=member_code, **struct)
+# return utils::CreateString(std::string("{"
+#		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(lobbyEnter.m_ulSteamIDLobby)) + ", "
+#		"\"Locked\": " + std::to_string(lobbyEnter.m_bLocked) + ", "
+#		"\"ChatRoomEnterResponse\": " + std::to_string(lobbyEnter.m_EChatRoomEnterResponse) + ", "
+#		"\"ChatPermissions\": " + std::to_string(lobbyEnter.m_rgfChatPermissions) + "}"));
 
 
 # noinspection PyShadowingNames
@@ -313,6 +354,8 @@ def parse_api_page(filename):
         struct['desc'] = get_first_sentence(struct["desc"].strip())
         for x in range(len(struct['members'])):
             member = struct['members'][x]
+            member['old_name'] = member['name']
+            member['old_type'] = member['type']
             member['name'] = clean_member_name(member['name'])
             if struct['name'] in MEMBER_NAME_OVERRIDE:
                 if member['name'] in MEMBER_NAME_OVERRIDE[struct['name']]:
@@ -321,6 +364,8 @@ def parse_api_page(filename):
             if member['type'].startswith('E'):
                 member['desc'] = member['type'] + ". " + member['desc']
             member['type'] = clean_member_type(member['type'], member['name'])
+            member['exclude'] = struct['name'] in EXCLUDED_STRUCT_MEMBER \
+                                and member['name'] in EXCLUDED_STRUCT_MEMBER[struct['name']]
 
     # noinspection PyShadowingNames
     def cleanup_enum(enum):
@@ -348,15 +393,17 @@ def parse_api_page(filename):
             f.write('//' + '-' * 78 + '\n')
             f.write('\n')
             for struct in structs:
+                cleanup_struct(struct)
                 if append_text_file(struct['name'] + '-replace', False, outfile=f):
                     continue
-                cleanup_struct(struct)
                 if struct['desc']:
                     f.write('// {desc}\n'.format(**struct))
                 if 'functions' in struct:
                     f.write('// Associated Functions: {0}\n'.format(' '.join(struct['functions'])))
                 f.write('Type {name}\n'.format(**struct))
                 for member in struct['members']:  # type: dict
+                    if member['exclude']:
+                        continue
                     f.write('\t{name} as {type}'.format(**member))
                     if member['desc'] != '':
                         f.write('\t// {desc}'.format(**member))
@@ -370,9 +417,9 @@ def parse_api_page(filename):
             f.write('//' + '-' * 78 + '\n')
             f.write('\n')
             for enum in enums:
+                cleanup_enum(enum)
                 if append_text_file(enum['name'] + '-replace', False, outfile=f):
                     continue
-                cleanup_enum(enum)
                 f.write('// {name}\n'.format(**enum))
                 if enum['desc']:
                     f.write('// {desc}\n'.format(**enum))
@@ -386,6 +433,12 @@ def parse_api_page(filename):
                 append_text_file(enum['name'] + '-append', False, outfile=f)
                 f.write("\n")
             append_text_file(filename + "-enums-append",False,  outfile=f)
+    with open(JSON_CPP_OUTPUT_FILENAME, 'a') as f:
+        for struct in structs:
+            f.write(to_json_function(struct))
+    with open(JSON_H_OUTPUT_FILENAME, 'a') as f:
+        for struct in structs:
+            f.write(to_json_function(struct).split('\n')[0] + ";\n")
 
 
 api_files = [
@@ -427,7 +480,11 @@ api_files = [
 
 if os.path.exists(OUTPUT_FILENAME):
     os.remove(OUTPUT_FILENAME)
-append_text_file('header', False)
+if os.path.exists(JSON_H_OUTPUT_FILENAME):
+    os.remove(JSON_H_OUTPUT_FILENAME)
+if os.path.exists(JSON_CPP_OUTPUT_FILENAME):
+    os.remove(JSON_CPP_OUTPUT_FILENAME)
+append_text_file('steam_constants_header', False)
 for filename in api_files:
     if not os.path.exists(filename + ".htm"):
         download_api_page(filename)
