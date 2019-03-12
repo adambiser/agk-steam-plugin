@@ -43,7 +43,7 @@ Type DownloadProgress_t
 	BytesTotal as integer
 EndType
 
-// Bit Picture Mode gamepad text input
+// Big Picture Mode gamepad text input
 // Obtainable from: GetGamepadTextInputDismissedInfoJSON
 Type GamepadTextInputDismissedInfo_t
 	Submitted as integer	// 1 when the user submitted text. 0 when the user cancels.
@@ -561,6 +561,14 @@ EndType
 
 // Structs
 //--------------------------------------------------------------
+
+// Called whenever a friends' status changes.
+// Associated Functions: RequestUserInformation
+Type PersonaStateChange_t
+	SteamID as integer	// Steam ID of the user who changed.
+	ChangeFlags as integer	// A bit-wise union of EPersonaChange values.
+EndType
+
 // Information about the game a friend is playing.
 // Obtainable from: GetFriendGamePlayedJSON
 // Modified from Steamworks SDK.
@@ -867,7 +875,6 @@ EndType
 #constant EInputActionOrigin_Switch_Reserved20				257
 
 #constant EInputActionOrigin_Count							258	// The number of values in this enum, useful for iterating.
-//#constant EInputActionOrigin_MaximumPossibleValue			32767	// Origins are currently a maximum of 16 bits.
 
 // EInputSourceMode
 //--------------------------------------------------------------
@@ -1080,7 +1087,6 @@ EndType
 //~ #constant nMaxLobbyKeyLength						255		// Maximum number of characters a lobby metadata key can be.
 #constant FavoriteFlagFavorite					0x01	// This favorite game server entry is for the favorites list.
 #constant FavoriteFlagHistory					0x02	// This favorite game server entry is for the history list.
-#constant FavoriteFlagNone						0x00	// This favorite game server has no flags set.
 //~ #constant STEAMMATCHMAKINGSERVERS_INTERFACE_VERSION	"SteamMatchMakingServers002"	
 //~ #constant STEAMMATCHMAKING_INTERFACE_VERSION		"SteamMatchMaking009"	
 

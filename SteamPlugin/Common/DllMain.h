@@ -159,8 +159,19 @@ extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
 @return [A callback state](Callbacks-and-Call-Results#states)
 */
 extern "C" DLL_EXPORT int GetCallResultState(int hCallResult);
-
+/*
+@desc Returns the result code of the given [call result](Callbacks-and-Call-Results#call-results).
+@param hCallResult The call result handle to check.
+@return An EResult code.
+@api link to EResult
+*/
 extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult);
+/*
+@desc A JSON string representing the data returned by the given [call result](Callbacks-and-Call-Results#call-results).
+The format of the JSON string is determined by the call the call result is for.
+@param hCallResult The call result handle to check.
+@return A JSON string.
+*/
 extern "C" DLL_EXPORT char *GetCallResultJSON(int hCallResult);
 /* @page App Information */
 /*
@@ -480,21 +491,13 @@ extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
 */
 extern "C" DLL_EXPORT int HasPersonaStateChanged();
 /*
-@desc Returns a handle for m_ulSteamID stored from the PersonaStateChange_t callback.
+@desc Returns a JSON object for the PersonaStateChange_t callback data.
 
 _HasPersonaStateChanged must be called prior to this method._
 @return The SteamID handle of the user whose persona state changed
 @api ISteamFriends#PersonaStateChange_t
 */
-extern "C" DLL_EXPORT int GetPersonaStateChangedUser();
-/*
-@desc Returns m_nChangeFlags stored from the PersonaStateChange_t callback.
-
-_HasPersonaStateChanged must be called prior to this method._
-@return [EPersonaChange](https://partner.steamgames.com/doc/api/ISteamFriends#EPersonaChange) flag values.
-@api ISteamFriends#EPersonaChange, ISteamFriends#PersonaStateChange_t
-*/
-extern "C" DLL_EXPORT int GetPersonaStateChangedFlags();
+extern "C" DLL_EXPORT char *GetPersonaStateChangedJSON();
 /*
 @desc Requests the persona name and optionally the avatar of a specified user (when requireNameOnly is 0).
 @param hUserSteamID A user Steam ID handle.

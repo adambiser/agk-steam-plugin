@@ -98,13 +98,19 @@ private:
 	bool m_IsGameOverlayActive;
 	// User/Friend methods
 	STEAM_CALLBACK(SteamPlugin, OnPersonaStateChanged, PersonaStateChange_t, m_CallbackPersonaStateChanged);
+	bool m_PersonaStateChangedEnabled;
+	std::list<PersonaStateChange_t> m_PersonaStateChangeList;
+	std::mutex m_PersonaStateChangeMutex;
+	PersonaStateChange_t m_CurrentPersonaStateChange;
+	void ClearCurrentPersonaStateChange()
+	{
+		m_CurrentPersonaStateChange.m_ulSteamID = 0;
+		m_CurrentPersonaStateChange.m_nChangeFlags = 0;
+	}
 	STEAM_CALLBACK(SteamPlugin, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded);
 	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
 	std::list<CSteamID> m_AvatarImageLoadedUsers;
 	CSteamID m_AvatarUser;
-	bool m_PersonaStateChangedEnabled;
-	std::list<PersonaStateChange_t> m_PersonaStateChangeList;
-	PersonaStateChange_t m_PersonaStateChange;
 	// Image methods
 	// General user stats methods.
 	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
@@ -303,8 +309,7 @@ public:
 	//steamUser->GetPlayerSteamLevel()
 	//m_PersonaStateChange
 	bool HasPersonaStateChanged();
-	CSteamID GetPersonaStateChangedUser() { return m_PersonaStateChange.m_ulSteamID; }
-	EPersonaChange GetPersonaStateChangedFlags() { return (EPersonaChange)m_PersonaStateChange.m_nChangeFlags; }
+	PersonaStateChange_t GetPersonaStateChange() { return m_CurrentPersonaStateChange; }
 	bool RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly);
 	bool HasAvatarImageLoaded();
 	CSteamID GetAvatarImageLoadedUser() { return m_AvatarUser; }

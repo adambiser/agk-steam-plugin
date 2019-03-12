@@ -71,7 +71,9 @@ void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 	agk::Log("Callback: OnPersonaStateChanged");
 	if (m_PersonaStateChangedEnabled)
 	{
+		m_PersonaStateChangeMutex.lock();
 		m_PersonaStateChangeList.push_back(*pParam);
+		m_PersonaStateChangeMutex.unlock();
 	}
 	if (m_AvatarImageLoadedEnabled)
 	{
@@ -85,14 +87,16 @@ void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 
 bool SteamPlugin::HasPersonaStateChanged()
 {
+	m_PersonaStateChangeMutex.lock();
 	if (m_PersonaStateChangeList.size() > 0)
 	{
-		m_PersonaStateChange = m_PersonaStateChangeList.front();
+		m_CurrentPersonaStateChange = m_PersonaStateChangeList.front();
 		m_PersonaStateChangeList.pop_front();
+		m_PersonaStateChangeMutex.unlock();
 		return true;
 	}
-	m_PersonaStateChange.m_ulSteamID = NULL;
-	m_PersonaStateChange.m_nChangeFlags = 0;
+	m_PersonaStateChangeMutex.unlock();
+	ClearCurrentPersonaStateChange();
 	return false;
 }
 

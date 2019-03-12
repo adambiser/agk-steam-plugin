@@ -97,8 +97,10 @@ Function ProcessCallbacks()
 	flags as integer
 	index as integer
 	while Steam.HasPersonaStateChanged()
-		hSteamID = Steam.GetPersonaStateChangedUser()
-		flags = Steam.GetPersonaStateChangedFlags()
+		change as PersonaStateChange_t
+		change.fromjson(Steam.GetPersonaStateChangedJSON())
+		hSteamID = change.SteamID
+		flags = change.ChangeFlags
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
 		index = GetFriendSteamIDIndex(hSteamID)
 		if index >= 0

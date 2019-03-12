@@ -851,16 +851,13 @@ int HasPersonaStateChanged()
 	return Steam->HasPersonaStateChanged();
 }
 
-int GetPersonaStateChangedUser()
+char *GetPersonaStateChangedJSON()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetPersonaStateChangedUser());
-}
-
-int GetPersonaStateChangedFlags()
-{
-	CheckInitializedPlugin(0);
-	return Steam->GetPersonaStateChangedFlags();
+	PersonaStateChange_t value = Steam->GetPersonaStateChange();
+	return utils::CreateString(std::string("{"
+		"\"SteamID\": " + std::to_string(GetPluginHandle(value.m_ulSteamID)) + ","
+		"\"ChangeFlags\": " + std::to_string(value.m_nChangeFlags) + "}"));
 }
 
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
