@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include <vector>
 #include <mutex>
 #include "CCallResultItem.h"
+#include "StructClear.h"
 
 #if defined(_WINDOWS)
 #if defined(_WIN64)
@@ -38,8 +39,6 @@ THE SOFTWARE.
 #pragma comment(lib, "steam_api.lib")
 #endif
 #endif
-
-#define MAX_CHAT_MESSAGE_LENGTH			4096
 
 enum EAvatarSize
 {
@@ -64,11 +63,28 @@ private:									\
 	std::mutex m_##callback##Mutex;			\
 	type m_Current##callback
 
+// Reports true only once per change.
+#define SETUP_CALLBACK_BOOL(callback)		\
+private:									\
+	bool m_b##callback##;					\
+public:										\
+	bool Has##callback##()					\
+	{										\
+		if (m_b##callback##)				\
+		{									\
+			m_b##callback## = false;		\
+			return true;					\
+		}									\
+		return false;						\
+	}
+
+// Adds the result to the end of the callback list.  Uses mutex.
 #define StoreCallbackResult(callback, result)	\
 	m_##callback##Mutex.lock();					\
 	m_##callback##List.push_back(result);		\
 	m_##callback##Mutex.unlock()
 
+// Moves the front value of the list into the current value variable.  Uses mutex.
 #define GetNextCallbackResult(callback)						\
 	m_##callback##Mutex.lock();								\
 	if (m_##callback##List.size() > 0)						\
@@ -78,9 +94,16 @@ private:									\
 		m_##callback##Mutex.unlock();						\
 		return true;										\
 	}														\
-	ClearCurrent##callback##();								\
+	Clear(m_Current##callback##);							\
 	m_##callback##Mutex.unlock();							\
 	return false
+
+// Clears the callback list and current value variable.  Uses mutex.
+#define ClearCallbackList(callback) \
+	m_##callback##Mutex.lock();		\
+	m_##callback##List.clear();		\
+	Clear(m_Current##callback##);	\
+	m_##callback##Mutex.unlock()
 
 class SteamPlugin
 {
@@ -92,6 +115,7 @@ public:
 private:
 	uint64 m_AppID;
 	bool m_SteamInitialized;
+	void ResetSessionVariables();
 public:
 	bool Init();
 	void Shutdown();
@@ -157,14 +181,10 @@ public:
 	// App/DLC methods
 private:
 	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewUrlLaunchParameters_t, m_CallbackNewLaunchQueryParameters);
-	bool m_HasNewLaunchQueryParameters;
+	SETUP_CALLBACK_BOOL(NewLaunchQueryParameters);
 	STEAM_CALLBACK(SteamPlugin, OnDlcInstalled, DlcInstalled_t, m_CallbackDlcInstalled);
 	SETUP_CALLBACK_LIST(NewDlcInstalled, DlcInstalled_t);
 	bool m_OnDlcInstalledEnabled;
-	void ClearCurrentNewDlcInstalled()
-	{
-		m_CurrentNewDlcInstalled.m_nAppID = 0;
-	}
 public:
 	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
 	bool IsAppInstalled(AppId_t appID);
@@ -188,7 +208,6 @@ public:
 	//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 	uint32 GetInstalledDepots(AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots);
 	const char *GetLaunchQueryParam(const char *pchKey);
-	bool HasNewLaunchQueryParameters();
 	int GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine);
 	void InstallDLC(AppId_t nAppID); // Triggers a DlcInstalled_t callback.
 	bool MarkContentCorrupt(bool bMissingFilesOnly);
@@ -211,15 +230,9 @@ private:
 	STEAM_CALLBACK(SteamPlugin, OnPersonaStateChange, PersonaStateChange_t, m_CallbackPersonaStateChange);
 	SETUP_CALLBACK_LIST(PersonaStateChange, PersonaStateChange_t);
 	bool m_PersonaStateChangedEnabled;
-	void ClearCurrentPersonaStateChange()
-	{
-		m_CurrentPersonaStateChange.m_ulSteamID = 0;
-		m_CurrentPersonaStateChange.m_nChangeFlags = 0;
-	}
 	STEAM_CALLBACK(SteamPlugin, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded);
+	SETUP_CALLBACK_LIST(AvatarImageLoadedUser, CSteamID);
 	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
-	std::list<CSteamID> m_AvatarImageLoadedUsers;
-	CSteamID m_AvatarUser;
 public:
 	const char *GetPersonaName();
 	//EPersonaState GetPersonaState();
@@ -228,8 +241,6 @@ public:
 	//steamUser->GetPlayerSteamLevel()
 	//m_PersonaStateChange
 	bool RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly);
-	bool HasAvatarImageLoaded();
-	CSteamID GetAvatarImageLoadedUser() { return m_AvatarUser; }
 	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
 	int GetFriendCount(EFriendFlags iFriendFlags);
 	CSteamID GetFriendByIndex(int iFriend, EFriendFlags iFriendFlags);
@@ -331,64 +342,32 @@ public:
 	// Lobby methods: Create, Join, Leave
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_MainCallResultLobbyEnter);
+	SETUP_CALLBACK_LIST(LobbyEnter, LobbyEnter_t);
 	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
-	std::list<LobbyEnter_t> m_LobbyEnterList; // For callback reporting.
-	std::mutex m_LobbyEnterMutex;
-	LobbyEnter_t m_CurrentLobbyEnter;
-	void ClearCurrentLobbyEnter()
-	{
-		m_CurrentLobbyEnter.m_bLocked = 0;
-		m_CurrentLobbyEnter.m_EChatRoomEnterResponse = 0;
-		m_CurrentLobbyEnter.m_rgfChatPermissions = 0;
-		m_CurrentLobbyEnter.m_ulSteamIDLobby = 0;
-	}
 	STEAM_CALLBACK(SteamPlugin, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, m_CallbackGameLobbyJoinRequested);
-	GameLobbyJoinRequested_t m_GameLobbyJoinRequestedInfo;
+	SETUP_CALLBACK_LIST(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 public:
 	int CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
 	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 	int JoinLobby(CSteamID steamIDLobby);
-	bool HasLobbyEnterResponse();
-	LobbyEnter_t GetLobbyEnterResponse() { return m_CurrentLobbyEnter; }
 	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
-	bool HasGameLobbyJoinRequest() { return m_GameLobbyJoinRequestedInfo.m_steamIDLobby != k_steamIDNil; }
-	CSteamID GetGameLobbyJoinRequestedLobby();
 	void LeaveLobby(CSteamID steamIDLobby);
 
 	// Lobby methods: Game server
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
-	std::list<LobbyGameCreated_t> m_LobbyGameCreatedList; // For callback reporting.
-	std::mutex m_LobbyGameCreatedMutex;
-	LobbyGameCreated_t m_CurrentLobbyGameCreated;
-	void ClearCurrentLobbyGameCreated()
-	{
-		m_CurrentLobbyGameCreated.m_ulSteamIDGameServer = 0;
-		m_CurrentLobbyGameCreated.m_ulSteamIDLobby = 0;
-		m_CurrentLobbyGameCreated.m_unIP = 0;
-		m_CurrentLobbyGameCreated.m_usPort = 0;
-	}
+	SETUP_CALLBACK_LIST(LobbyGameCreated, LobbyGameCreated_t);
 public:
 	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
-	bool HasLobbyGameCreated();
-	LobbyGameCreated_t GetLobbyGameCreated() { return m_CurrentLobbyGameCreated; }
 	//uint32 GetPublicIP();
 
 	// Lobby methods: Data
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdate, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
-	std::list<LobbyDataUpdate_t> m_LobbyDataUpdateList;
-	std::mutex m_LobbyDataUpdateMutex;
-	LobbyDataUpdate_t m_CurrentLobbyDataUpdate;
-	void ClearCurrentLobbyDataUpdate()
-	{
-		m_CurrentLobbyDataUpdate.m_bSuccess = 0;
-		m_CurrentLobbyDataUpdate.m_ulSteamIDLobby = 0;
-		m_CurrentLobbyDataUpdate.m_ulSteamIDMember = 0;
-	}
+	SETUP_CALLBACK_LIST(LobbyDataUpdate, LobbyDataUpdate_t);
 public:
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
@@ -396,24 +375,13 @@ public:
 	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	bool RequestLobbyData(CSteamID steamIDLobby);
-	bool HasLobbyDataUpdateResponse();
-	LobbyDataUpdate_t GetLobbyDataUpdateResponse() { return m_CurrentLobbyDataUpdate; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 
 	// Lobby methods: Members and Status
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdate, LobbyChatUpdate_t, m_CallbackLobbyChatUpdate);
-	std::list<LobbyChatUpdate_t> m_LobbyChatUpdateList;
-	std::mutex m_LobbyChatUpdateMutex;
-	LobbyChatUpdate_t m_CurrentLobbyChatUpdate;
-	void ClearCurrentLobbyChatUpdate()
-	{
-		m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange = (EChatMemberStateChange)0;
-		m_CurrentLobbyChatUpdate.m_ulSteamIDLobby = 0;
-		m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange = 0;
-		m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged = 0;
-	}
+	SETUP_CALLBACK_LIST(LobbyChatUpdate, LobbyChatUpdate_t);
 public:
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
@@ -421,32 +389,12 @@ public:
 	bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
 	int GetNumLobbyMembers(CSteamID steamIDLobby);
 	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
-	bool HasLobbyChatUpdate();
-	CSteamID GetLobbyChatUpdateLobby() { return m_CurrentLobbyChatUpdate.m_ulSteamIDLobby; }
-	CSteamID GetLobbyChatUpdateUserChanged() { return m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged; }
-	EChatMemberStateChange GetLobbyChatUpdateUserState() { return (EChatMemberStateChange)m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange; }
-	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange; }
 
 	// Lobby methods: Chat messages
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
-	struct ChatMessageInfo_t
-	{
-		CSteamID user;
-		char text[MAX_CHAT_MESSAGE_LENGTH];
-	};
-	std::list<ChatMessageInfo_t> m_LobbyChatMessageList;
-	std::timed_mutex m_LobbyChatMessageMutex;
-	ChatMessageInfo_t m_CurrentLobbyChatMessage;
-	void ClearCurrentLobbyChatMessage()
-	{
-		m_CurrentLobbyChatMessage.user = k_steamIDNil;
-		*m_CurrentLobbyChatMessage.text = NULL;
-	}
+	SETUP_CALLBACK_LIST(LobbyChatMessage, plugin::LobbyChatMsg_t);
 public:
-	bool HasLobbyChatMessage();
-	CSteamID GetLobbyChatMessageUser() { return m_CurrentLobbyChatMessage.user; }
-	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, MAX_CHAT_MESSAGE_LENGTH, m_CurrentLobbyChatMessage.text); }
 	bool SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody);
 	// Lobby methods: Favorite games
 	int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
@@ -457,9 +405,9 @@ public:
 	// Music methods
 private:
 	STEAM_CALLBACK(SteamPlugin, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t, m_CallbackPlaybackStatusHasChanged);
-	bool m_PlaybackStatusHasChanged;
+	SETUP_CALLBACK_BOOL(MusicPlaybackStatusChanged);
 	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
-	bool m_VolumeHasChanged;
+	SETUP_CALLBACK_BOOL(MusicVolumeChanged);
 public:
 	bool IsMusicEnabled();
 	bool IsMusicPlaying();
@@ -470,18 +418,16 @@ public:
 	void PlayNextSong();
 	void PlayPreviousSong();
 	void SetMusicVolume(float flVolume);
-	bool HasMusicPlaybackStatusChanged();
-	bool HasMusicVolumeChanged();
 
 	// Util methods
 private:
 	STEAM_CALLBACK(SteamPlugin, OnIPCountryChanged, IPCountry_t, m_CallbackIPCountryChanged);
-	bool m_HasIPCountryChanged;
+	SETUP_CALLBACK_BOOL(IPCountryChanged);
 	STEAM_CALLBACK(SteamPlugin, OnLowBatteryPower, LowBatteryPower_t, m_CallbackLowBatteryPower);
-	bool m_HasLowBatteryWarning;
+	SETUP_CALLBACK_BOOL(LowBatteryWarning);
 	uint8 m_nMinutesBatteryLeft;
 	STEAM_CALLBACK(SteamPlugin, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
-	bool m_IsSteamShuttingDown;
+	SETUP_CALLBACK_BOOL(SteamShutdownNotification);
 public:
 	uint8 GetCurrentBatteryPower();
 	uint32 GetIPCCallCount();
@@ -493,20 +439,15 @@ public:
 	bool IsOverlayEnabled();
 	void SetOverlayNotificationInset(int nHorizontalInset, int nVerticalInset);
 	void SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition);
-	bool HasIPCountryChanged();
-	bool HasLowBatteryWarning();
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
-	bool IsSteamShuttingDown();
 	void SetWarningMessageHook();
 
 	// Big Picture methods
 private:
 	STEAM_CALLBACK(SteamPlugin, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, m_CallbackGamepadTextInputDismissed);
-	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
+	SETUP_CALLBACK_LIST(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t);
 public:
 	bool IsSteamInBigPictureMode();
-	bool HasGamepadTextInputDismissedInfo();
-	void GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchText);
 	bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText);
 
 	// VR methods
@@ -585,25 +526,6 @@ public:
 	InputDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
 	InputMotionData_t m_MotionData;
 	void GetMotionData(InputHandle_t inputHandle);
-	void ClearInputData()
-	{
-		m_AnalogActionData.bActive = false;
-		m_AnalogActionData.eMode = k_EInputSourceMode_None;
-		m_AnalogActionData.x = 0;
-		m_AnalogActionData.y = 0;
-		m_DigitalActionData.bActive = false;
-		m_DigitalActionData.bState = false;
-		m_MotionData.posAccelX = 0;
-		m_MotionData.posAccelY = 0;
-		m_MotionData.posAccelZ = 0;
-		m_MotionData.rotQuatW = 0;
-		m_MotionData.rotQuatX = 0;
-		m_MotionData.rotQuatY = 0;
-		m_MotionData.rotQuatZ = 0;
-		m_MotionData.rotVelX = 0;
-		m_MotionData.rotVelY = 0;
-		m_MotionData.rotVelZ = 0;
-	}
 
 	// Input Action Origins.
 public:

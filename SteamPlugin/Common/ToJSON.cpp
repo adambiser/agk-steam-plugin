@@ -89,7 +89,7 @@ std::string ToJSON(DlcInstalled_t value)
         "\"AppID\": " + std::to_string(value.m_nAppID) + "}");
 }
 
-std::string ToJSON(DLCData_t value)
+std::string ToJSON(plugin::DLCData_t value)
 {
 	return std::string("{"
 		"\"AppID\": " + std::to_string(value.m_AppID) + ", "
@@ -97,7 +97,7 @@ std::string ToJSON(DLCData_t value)
 		"\"Name\": \"" + EscapeJSON(value.m_chName) + "\"}");
 }
 
-std::string ToJSON(DownloadProgress_t value)
+std::string ToJSON(plugin::DownloadProgress_t value)
 {
 	return std::string("{"
 		"\"AppID\": " + std::to_string(value.m_AppID) + ", "
@@ -105,7 +105,7 @@ std::string ToJSON(DownloadProgress_t value)
 		"\"BytesTotal\": " + std::to_string(value.m_unBytesTotal) + "}");
 }
 
-std::string ToJSON(FavoriteGameInfo_t value)
+std::string ToJSON(plugin::FavoriteGame_t value)
 {
 	return std::string("{"
 		"\"AppID\": " + std::to_string(value.m_AppID) + ", "
@@ -638,13 +638,13 @@ std::string ToJSON(FavoritesListChanged_t value)
 		"\"AccountId\": " + std::to_string(value.m_unAccountId) + "}");
 }
 
-std::string ToJSON(LobbyChatMsg_t value)
+std::string ToJSON(plugin::LobbyChatMsg_t value)
 {
     return std::string("{"
         "\"SteamIDLobby\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDLobby)) + ", "
 		"\"SteamIDUser\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDUser)) + ", "
 		"\"ChatEntryType\": " + std::to_string(value.m_eChatEntryType) + ", "
-		"\"ChatID\": " + std::to_string(value.m_iChatID) + "}");
+		"\"ChatEntry\": \"" + EscapeJSON(value.m_chChatEntry) + "\"}");
 }
 
 std::string ToJSON(LobbyChatUpdate_t value)
@@ -689,7 +689,7 @@ std::string ToJSON(LobbyGameCreated_t value)
 		"\"Port\": " + std::to_string(value.m_usPort) + "}");
 }
 
-std::string ToJSON(LobbyGameServer_t value)
+std::string ToJSON(plugin::LobbyGameServer_t value)
 {
 	return std::string("{"
 		"\"SteamIDGameServer\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDGameServer)) + ", "
@@ -1241,11 +1241,11 @@ std::string ToJSON(CheckFileSignature_t value)
         "\"CheckFileSignature\": " + std::to_string(value.m_eCheckFileSignature) + "}");
 }
 
-std::string ToJSON(GamepadTextInputDismissed_t value)
+std::string ToJSON(plugin::GamepadTextInputDismissed_t value)
 {
     return std::string("{"
         "\"Submitted\": " + std::to_string(value.m_bSubmitted) + ", "
-		"\"SubmittedText\": " + std::to_string(value.m_unSubmittedText) + "}");
+		"\"SubmittedText\": \"" + value.m_chSubmittedText + "\"}");
 }
 
 std::string ToJSON(LowBatteryPower_t value)

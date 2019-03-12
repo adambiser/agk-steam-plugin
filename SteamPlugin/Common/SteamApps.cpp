@@ -154,18 +154,7 @@ const char * SteamPlugin::GetLaunchQueryParam(const char *pchKey)
 void SteamPlugin::OnNewLaunchQueryParameters(NewUrlLaunchParameters_t *pParam)
 {
 	agk::Log("Callback: OnNewLaunchQueryParameters");
-	m_HasNewLaunchQueryParameters = true;
-}
-
-bool SteamPlugin::HasNewLaunchQueryParameters()
-{
-	// Reports true only once per change.
-	if (m_HasNewLaunchQueryParameters)
-	{
-		m_HasNewLaunchQueryParameters = false;
-		return true;
-	}
-	return false;
+	m_bNewLaunchQueryParameters = true;
 }
 
 int SteamPlugin::GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine)
@@ -188,7 +177,6 @@ bool SteamPlugin::HasNewDlcInstalled()
 {
 	m_OnDlcInstalledEnabled = true;
 	GetNextCallbackResult(NewDlcInstalled);
-	return false;
 }
 
 void SteamPlugin::InstallDLC(AppId_t nAppID)
@@ -196,7 +184,7 @@ void SteamPlugin::InstallDLC(AppId_t nAppID)
 	// Triggers a DlcInstalled_t callback.
 	CheckInitialized(SteamApps, );
 	m_OnDlcInstalledEnabled = true;
-	return SteamApps()->InstallDLC(nAppID);
+	SteamApps()->InstallDLC(nAppID);
 }
 
 bool SteamPlugin::MarkContentCorrupt(bool bMissingFilesOnly)
@@ -208,5 +196,5 @@ bool SteamPlugin::MarkContentCorrupt(bool bMissingFilesOnly)
 void SteamPlugin::UninstallDLC(AppId_t nAppID)
 {
 	CheckInitialized(SteamApps, );
-	return SteamApps()->UninstallDLC(nAppID);
+	SteamApps()->UninstallDLC(nAppID);
 }

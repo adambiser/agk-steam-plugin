@@ -71,33 +71,21 @@ void SteamPlugin::OnPersonaStateChange(PersonaStateChange_t *pParam)
 	agk::Log("Callback: OnPersonaStateChange");
 	if (m_PersonaStateChangedEnabled)
 	{
-		m_PersonaStateChangeMutex.lock();
-		m_PersonaStateChangeList.push_back(*pParam);
-		m_PersonaStateChangeMutex.unlock();
+		StoreCallbackResult(PersonaStateChange, *pParam);
 	}
 	if (m_AvatarImageLoadedEnabled)
 	{
 		if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
 		{
 			// Allow HasAvatarImageLoaded to report avatar changes from here as well.
-			m_AvatarImageLoadedUsers.push_back(pParam->m_ulSteamID);
+			StoreCallbackResult(AvatarImageLoadedUser, pParam->m_ulSteamID);
 		}
 	}
 }
 
 bool SteamPlugin::HasPersonaStateChange()
 {
-	m_PersonaStateChangeMutex.lock();
-	if (m_PersonaStateChangeList.size() > 0)
-	{
-		m_CurrentPersonaStateChange = m_PersonaStateChangeList.front();
-		m_PersonaStateChangeList.pop_front();
-		m_PersonaStateChangeMutex.unlock();
-		return true;
-	}
-	m_PersonaStateChangeMutex.unlock();
-	ClearCurrentPersonaStateChange();
-	return false;
+	GetNextCallbackResult(PersonaStateChange);
 }
 
 bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly)
@@ -110,23 +98,15 @@ bool SteamPlugin::RequestUserInformation(CSteamID steamIDUser, bool bRequireName
 void SteamPlugin::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 {
 	agk::Log("Callback: OnAvatarImageLoaded");
-	if (!m_AvatarImageLoadedEnabled)
+	if (m_AvatarImageLoadedEnabled)
 	{
-		return;
+		StoreCallbackResult(AvatarImageLoadedUser, pParam->m_steamID);
 	}
-	m_AvatarImageLoadedUsers.push_back(pParam->m_steamID);
 }
 
-bool SteamPlugin::HasAvatarImageLoaded()
+bool SteamPlugin::HasAvatarImageLoadedUser()
 {
-	if (m_AvatarImageLoadedUsers.size() > 0)
-	{
-		m_AvatarUser = m_AvatarImageLoadedUsers.front();
-		m_AvatarImageLoadedUsers.pop_front();
-		return true;
-	}
-	m_AvatarUser = k_steamIDNil;
-	return false;
+	GetNextCallbackResult(AvatarImageLoadedUser);
 }
 
 // NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.

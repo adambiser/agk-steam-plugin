@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _TOJSON_H
-#define _TOJSON_H
+#ifndef _TOJSON_H_
+#define _TOJSON_H_
 #pragma once
 
 #include <string>
@@ -36,9 +36,9 @@ std::string ToJSON(uint32 *pValues, int count);
 std::string ToJSON(char *key, char *value);
 
 std::string ToJSON(DlcInstalled_t value);
-std::string ToJSON(DLCData_t value);
-std::string ToJSON(DownloadProgress_t value);
-std::string ToJSON(FavoriteGameInfo_t value);
+std::string ToJSON(plugin::DLCData_t value);
+std::string ToJSON(plugin::DownloadProgress_t value);
+std::string ToJSON(plugin::FavoriteGame_t value);
 //std::string ToJSON(FileDetailsResult_t value);
 std::string ToJSON(AvatarImageLoaded_t value);
 std::string ToJSON(ClanOfficerListResponse_t value);
@@ -105,13 +105,13 @@ std::string ToJSON(SteamInventoryRequestPricesResult_t value);
 std::string ToJSON(SteamItemDetails_t value);
 std::string ToJSON(FavoritesListAccountsUpdated_t value);
 std::string ToJSON(FavoritesListChanged_t value);
-std::string ToJSON(LobbyChatMsg_t value);
+std::string ToJSON(plugin::LobbyChatMsg_t value);
 std::string ToJSON(LobbyChatUpdate_t value);
 std::string ToJSON(LobbyCreated_t value);
 std::string ToJSON(LobbyDataUpdate_t value);
 std::string ToJSON(LobbyEnter_t value);
 std::string ToJSON(LobbyGameCreated_t value);
-std::string ToJSON(LobbyGameServer_t value);
+std::string ToJSON(plugin::LobbyGameServer_t value);
 std::string ToJSON(LobbyInvite_t value);
 std::string ToJSON(MatchMakingKeyValuePair_t value);
 std::string ToJSON(VolumeHasChanged_t value);
@@ -181,7 +181,7 @@ std::string ToJSON(UserStatsStored_t value);
 std::string ToJSON(UserStatsUnloaded_t value);
 std::string ToJSON(LeaderboardEntry_t value);
 std::string ToJSON(CheckFileSignature_t value);
-std::string ToJSON(GamepadTextInputDismissed_t value);
+std::string ToJSON(plugin::GamepadTextInputDismissed_t value);
 std::string ToJSON(LowBatteryPower_t value);
 std::string ToJSON(SteamAPICallCompleted_t value);
 std::string ToJSON(BroadcastUploadStop_t value);

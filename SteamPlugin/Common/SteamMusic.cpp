@@ -80,30 +80,11 @@ void SteamPlugin::SetMusicVolume(float flVolume)
 void SteamPlugin::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pParam)
 {
 	agk::Log("Callback: OnPlaybackStatusHasChanged");
-	m_PlaybackStatusHasChanged = true;
-}
-
-bool SteamPlugin::HasMusicPlaybackStatusChanged()
-{
-	// Reports true only once per change.
-	if (m_PlaybackStatusHasChanged)
-	{
-		m_PlaybackStatusHasChanged = false;
-		return true;
-	}
-	return false;
+	m_bMusicPlaybackStatusChanged = true;
 }
 
 void SteamPlugin::OnVolumeHasChanged(VolumeHasChanged_t *pParam)
 {
 	agk::Log("Callback: OnVolumeHasChanged");
-	m_VolumeHasChanged = true;
-}
-
-bool SteamPlugin::HasMusicVolumeChanged()
-{
-	// Reports true only once per change.
-	bool temp = m_VolumeHasChanged;
-	m_VolumeHasChanged = false;
-	return temp;
+	m_bMusicVolumeChanged = true;
 }

@@ -101,7 +101,7 @@ void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam)
 	m_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
 }
 
-bool SteamPlugin::HasLobbyEnterResponse()
+bool SteamPlugin::HasLobbyEnter()
 {
 	GetNextCallbackResult(LobbyEnter);
 }
@@ -123,15 +123,12 @@ bool SteamPlugin::InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvit
 void SteamPlugin::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 {
 	agk::Log("Callback: OnGameLobbyJoinRequested");
-	m_GameLobbyJoinRequestedInfo = *pParam;
+	StoreCallbackResult(GameLobbyJoinRequested, *pParam);
 }
 
-CSteamID SteamPlugin::GetGameLobbyJoinRequestedLobby()
+bool SteamPlugin::HasGameLobbyJoinRequested()
 {
-	CSteamID lobby = m_GameLobbyJoinRequestedInfo.m_steamIDLobby;
-	m_GameLobbyJoinRequestedInfo.m_steamIDLobby = k_steamIDNil;
-	m_GameLobbyJoinRequestedInfo.m_steamIDFriend = k_steamIDNil;
-	return lobby;
+	GetNextCallbackResult(GameLobbyJoinRequested);
 }
 
 void SteamPlugin::LeaveLobby(CSteamID steamIDLobby)
@@ -211,7 +208,7 @@ void SteamPlugin::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 	StoreCallbackResult(LobbyDataUpdate, *pParam);
 }
 
-bool SteamPlugin::HasLobbyDataUpdateResponse()
+bool SteamPlugin::HasLobbyDataUpdate()
 {
 	GetNextCallbackResult(LobbyDataUpdate);
 }
@@ -278,27 +275,14 @@ bool SteamPlugin::HasLobbyChatUpdate()
 void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
 	agk::Log("Callback: OnLobbyChatMessage");
-	ChatMessageInfo_t info;
-	info.user = pParam->m_ulSteamIDUser;
-	SteamMatchmaking()->GetLobbyChatEntry(pParam->m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.text, MAX_CHAT_MESSAGE_LENGTH, NULL);
-	m_LobbyChatMessageMutex.lock();
-	m_LobbyChatMessageList.push_back(info);
-	m_LobbyChatMessageMutex.unlock();
+	plugin::LobbyChatMsg_t info(*pParam);
+	SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.m_chChatEntry, MAX_CHAT_MESSAGE_LENGTH, NULL);
+	StoreCallbackResult(LobbyChatMessage, info);
 }
 
 bool SteamPlugin::HasLobbyChatMessage()
 {
-	m_LobbyChatMessageMutex.lock();
-	if (m_LobbyChatMessageList.size() > 0)
-	{
-		m_CurrentLobbyChatMessage = m_LobbyChatMessageList.front();
-		m_LobbyChatMessageList.pop_front();
-		m_LobbyChatMessageMutex.unlock();
-		return true;
-	}
-	m_LobbyChatMessageMutex.unlock();
-	ClearCurrentLobbyChatMessage();
-	return false;
+	GetNextCallbackResult(LobbyChatMessage);
 }
 
 bool SteamPlugin::SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody)

@@ -48,13 +48,6 @@ Type DownloadProgress_t
 	BytesTotal as integer
 EndType
 
-// Big Picture Mode gamepad text input
-// Associated Functions: GetGamepadTextInputDismissedInfoJSON
-Type GamepadTextInputDismissedInfo_t
-	Submitted as integer	// 1 when the user submitted text. 0 when the user cancels.
-	Text as string
-EndType
-
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamApps
 // https://partner.steamgames.com/doc/api/ISteamApps
@@ -1190,7 +1183,7 @@ Type LobbyChatMsg_t
 	SteamIDLobby as integer		// The Steam ID handle of the lobby this message was sent in.
 	SteamIDUser as integer		// Steam ID of the user who sent this message. Note that it could have been the local user.
 	ChatEntryType as integer	// Type of message received. This is actually a EChatEntryType.
-	// ChatID as integer			// The index of the chat entry to use with GetLobbyChatEntry, this is not valid outside of the scope of this callback and should never be stored.
+	ChatEntry as string			// The text of the message.
 EndType
 
 // A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
@@ -1252,7 +1245,7 @@ EndType
 // Returned by GetFavoriteGameJSON.
 // This isn't from the Steamworks SDK, but compensates for the values being returned via parameters.
 // Associated functions: GetFavoriteGameJSON
-Type FavoriteGameInfo_t
+Type FavoriteGame_t
 	AppID as integer
 	IP as string
 	ConnPort as integer
@@ -2201,7 +2194,7 @@ EndType
 // Called when the big picture gamepad text input has been closed.
 Type GamepadTextInputDismissed_t
 	Submitted as integer	// true if user entered & accepted text (Call GetEnteredGamepadTextInput to receive the text), false if input was canceled.
-	SubmittedText as integer	// Contains the length in bytes if there was text submitted.
+	SubmittedText as string	// Contains the text if there was any submitted.
 EndType
 
 // Called when running on a laptop and less than 10 minutes of battery is left, and then fires then every minute afterwards.

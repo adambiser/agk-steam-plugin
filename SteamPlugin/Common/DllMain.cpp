@@ -452,7 +452,7 @@ char *GetDLCDataJSON()
 			{
 				json += ", ";
 			}
-			DLCData_t dlc;
+			plugin::DLCData_t dlc;
 			bool success = Steam->GetDLCDataByIndex(index, &dlc.m_AppID, &dlc.m_bAvailable, dlc.m_chName, sizeof(dlc.m_chName));
 			if (!success)
 			{
@@ -578,7 +578,7 @@ char *GetDLCDownloadProgressJSON(int appID)
 {
 	if (Steam)
 	{
-		DownloadProgress_t progress;
+		plugin::DownloadProgress_t progress;
 		bool downloading = Steam->GetDlcDownloadProgress(appID, &progress.m_unBytesDownloaded, &progress.m_unBytesTotal);
 		if (!downloading)
 		{
@@ -797,7 +797,7 @@ int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 int HasAvatarImageLoaded()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasAvatarImageLoaded();
+	return Steam->HasAvatarImageLoadedUser();
 }
 
 int GetAvatarImageLoadedUser()
@@ -1297,14 +1297,14 @@ int JoinLobby(int hLobbySteamID)
 int HasLobbyEnterResponse()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyEnterResponse();
+	return Steam->HasLobbyEnter();
 }
 
 char *GetLobbyEnterResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
 	// Must be the same as in CLobbyEnterCallResult.
-	return utils::CreateString(ToJSON(Steam->GetLobbyEnterResponse()));
+	return utils::CreateString(ToJSON(Steam->GetLobbyEnter()));
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
@@ -1316,13 +1316,13 @@ int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 int HasGameLobbyJoinRequest()
 {
 	CheckInitializedPlugin(0);
-	return Steam->HasGameLobbyJoinRequest();
+	return Steam->HasGameLobbyJoinRequested();
 }
 
 int GetGameLobbyJoinRequestedLobby()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetGameLobbyJoinRequestedLobby());
+	return GetPluginHandle(Steam->GetGameLobbyJoinRequested().m_steamIDLobby);
 }
 
 void LeaveLobby(int hLobbySteamID)
@@ -1336,7 +1336,7 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 {
 	if (Steam)
 	{
-		LobbyGameServer_t server;
+		plugin::LobbyGameServer_t server;
 		if (Steam->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
 		{
 			return utils::CreateString(ToJSON(server));
@@ -1432,13 +1432,13 @@ int RequestLobbyData(int hLobbySteamID)
 int HasLobbyDataUpdateResponse()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyDataUpdateResponse();
+	return Steam->HasLobbyDataUpdate();
 }
 
 char *GetLobbyDataUpdateResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(ToJSON(Steam->GetLobbyDataUpdateResponse()));
+	return utils::CreateString(ToJSON(Steam->GetLobbyDataUpdate()));
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
@@ -1495,28 +1495,29 @@ int HasLobbyChatUpdate()
 	return Steam->HasLobbyChatUpdate();
 }
 
+// TODO JSON
 int GetLobbyChatUpdateLobby()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatUpdateLobby());
+	return GetPluginHandle(Steam->GetLobbyChatUpdate().m_ulSteamIDLobby);
 }
 
 int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatUpdateUserChanged());
+	return GetPluginHandle(Steam->GetLobbyChatUpdate().m_ulSteamIDUserChanged);
 }
 
 int GetLobbyChatUpdateUserState()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLobbyChatUpdateUserState();
+	return Steam->GetLobbyChatUpdate().m_rgfChatMemberStateChange;
 }
 
 int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatUpdateUserMakingChange());
+	return GetPluginHandle(Steam->GetLobbyChatUpdate().m_ulSteamIDMakingChange);
 }
 
 int HasLobbyChatMessage()
@@ -1525,18 +1526,17 @@ int HasLobbyChatMessage()
 	return Steam->HasLobbyChatMessage();
 }
 
+// TODO JSON
 int GetLobbyChatMessageUser()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatMessageUser());
+	return GetPluginHandle(Steam->GetLobbyChatMessage().m_ulSteamIDUser);
 }
 
 char *GetLobbyChatMessageText()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	char msg[4096];
-	Steam->GetLobbyChatMessageText(msg);
-	return utils::CreateString(msg);
+	return utils::CreateString(Steam->GetLobbyChatMessage().m_chChatEntry);
 }
 
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
@@ -1580,7 +1580,7 @@ char *GetFavoriteGameJSON(int index)
 {
 	if (Steam)
 	{
-		FavoriteGameInfo_t info;
+		plugin::FavoriteGame_t info;
 		if (Steam->GetFavoriteGame(index, &info.m_AppID, &info.m_nIP, &info.m_nConnPort, &info.m_nQueryPort, &info.m_unFlags, &info.m_rTime32LastPlayedOnServer))
 		{
 			return utils::CreateString(ToJSON(info));
@@ -1767,7 +1767,7 @@ int GetMinutesBatteryLeft()
 int IsSteamShuttingDown()
 {
 	CheckInitializedPlugin(false);
-	return Steam->IsSteamShuttingDown();
+	return Steam->HasSteamShutdownNotification();
 }
 
 void SetWarningMessageHook()
@@ -1786,25 +1786,16 @@ int IsSteamInBigPictureMode()
 int HasGamepadTextInputDismissedInfo()
 {
 	CheckInitializedPlugin(0);
-	return Steam->HasGamepadTextInputDismissedInfo();
+	return Steam->HasGamepadTextInputDismissed();
 }
 
 char *GetGamepadTextInputDismissedInfoJSON()
 {
-	std::string json("{");
 	if (Steam)
 	{
-		if (Steam->HasGamepadTextInputDismissedInfo())
-		{
-			bool submitted;
-			char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
-			Steam->GetGamepadTextInputDismissedInfo(&submitted, text);
-			json += "\"Submitted\": " + std::to_string(submitted) + ", "
-				"\"Text\": \"" + EscapeJSON(text) + "\"";
-		}
+		return utils::CreateString(ToJSON(Steam->GetGamepadTextInputDismissed()));
 	}
-	json += "}";
-	return utils::CreateString(json);
+	return utils::CreateString("{}");
 }
 
 int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)

@@ -23,23 +23,9 @@ THE SOFTWARE.
 #include "SteamPlugin.h"
 
 SteamPlugin::SteamPlugin() :
-	m_AppID(0),
-	m_CurrentCallResultHandle(0),
-	m_SteamInitialized(false),
 	m_CallbackNewLaunchQueryParameters(this, &SteamPlugin::OnNewLaunchQueryParameters),
-	m_HasNewLaunchQueryParameters(false),
 	m_CallbackDlcInstalled(this, &SteamPlugin::OnDlcInstalled),
-	m_OnDlcInstalledEnabled(false),
 	m_CallbackGameOverlayActivated(this, &SteamPlugin::OnGameOverlayActivated),
-	m_IsGameOverlayActive(false),
-	m_AvatarImageLoadedEnabled(false),
-	m_AvatarUser(k_steamIDNil),
-	m_PersonaStateChangedEnabled(false),
-	m_RequestStatsCallbackState(Idle),
-	m_StatsInitialized(false),
-	m_StoreStatsCallbackState(Idle),
-	m_StatsStored(false),
-	m_AchievementStored(false),
 	m_CallbackAchievementStored(this, &SteamPlugin::OnAchievementStored),
 	m_CallbackUserStatsReceived(this, &SteamPlugin::OnUserStatsReceived),
 	m_CallbackUserStatsStored(this, &SteamPlugin::OnUserStatsStored),
@@ -53,26 +39,13 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackLobbyChatUpdate(this, &SteamPlugin::OnLobbyChatUpdate),
 	m_CallbackLobbyChatMessage(this, &SteamPlugin::OnLobbyChatMessage),
 	m_CallbackPlaybackStatusHasChanged(this, &SteamPlugin::OnPlaybackStatusHasChanged),
-	m_PlaybackStatusHasChanged(false),
 	m_CallbackVolumeHasChanged(this, &SteamPlugin::OnVolumeHasChanged),
-	m_VolumeHasChanged(false),
-	m_HasIPCountryChanged(false),
 	m_CallbackIPCountryChanged(this, &SteamPlugin::OnIPCountryChanged),
-	m_HasLowBatteryWarning(false),
-	m_nMinutesBatteryLeft(255),
 	m_CallbackLowBatteryPower(this, &SteamPlugin::OnLowBatteryPower),
-	m_IsSteamShuttingDown(false),
 	m_CallbackSteamShutdown(this, &SteamPlugin::OnSteamShutdown),
 	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
-	ClearCurrentLobbyChatMessage();
-	ClearCurrentLobbyChatUpdate();
-	ClearCurrentLobbyDataUpdate();
-	ClearCurrentLobbyEnter();
-	ClearCurrentLobbyGameCreated();
-	ClearCurrentNewDlcInstalled();
-	ClearCurrentPersonaStateChange();
-	ClearInputData();
+	ResetSessionVariables();
 }
 
 SteamPlugin::~SteamPlugin(void)
@@ -106,48 +79,54 @@ void SteamPlugin::Shutdown()
 		for (auto iter = m_CallResultItems.begin(); iter != m_CallResultItems.end(); iter++) {
 			delete iter->second;
 		}
-		m_CallResultItems.clear();
-		m_CurrentCallResultHandle = 0;
 		ShutdownSteamInput();
 		SteamAPI_Shutdown();
-		// Reset member variables.
-		m_AppID = 0;
-		m_SteamInitialized = false;
-		m_HasNewLaunchQueryParameters = false;
-		m_OnDlcInstalledEnabled = false;
-		m_NewDlcInstalledList.clear();
-		m_IsGameOverlayActive = false;
-		m_AvatarImageLoadedEnabled = false;
-		m_AvatarImageLoadedUsers.clear();
-		m_AvatarUser = k_steamIDNil;
-		m_PersonaStateChangedEnabled = false;
-		m_PersonaStateChangeList.clear();
-		m_RequestStatsCallbackState = Idle;
-		m_StatsInitialized = false;
-		m_StoreStatsCallbackState = Idle;
-		m_StatsStored = false;
-		m_AchievementStored = false;
-		m_AchievementIconsMap.clear();
-		m_LobbyDataUpdateList.clear();
-		m_JoinedLobbies.clear();
-		m_LobbyEnterList.clear();
-		m_LobbyChatUpdateList.clear();
-		m_LobbyChatMessageList.clear();
-		m_PlaybackStatusHasChanged = false;
-		m_VolumeHasChanged = false;
-		m_HasIPCountryChanged = false;
-		m_HasLowBatteryWarning = false;
-		m_nMinutesBatteryLeft = 255;
-		m_IsSteamShuttingDown = false;
-		ClearCurrentLobbyChatMessage();
-		ClearCurrentLobbyChatUpdate();
-		ClearCurrentLobbyDataUpdate();
-		ClearCurrentLobbyEnter();
-		ClearCurrentLobbyGameCreated();
-		ClearCurrentNewDlcInstalled();
-		ClearCurrentPersonaStateChange();
-		ClearInputData();
+		ResetSessionVariables();
 	}
+}
+
+void SteamPlugin::ResetSessionVariables()
+{
+	// CallResults
+	m_CallResultItems.clear();
+	m_CurrentCallResultHandle = 0;
+	// Callback bools
+	m_bIPCountryChanged = false;
+	m_bLowBatteryWarning = false;
+	m_bMusicPlaybackStatusChanged = false;
+	m_bMusicVolumeChanged = false;
+	m_bNewLaunchQueryParameters = false;
+	m_bSteamShutdownNotification = false;
+	// Callback lists.
+	ClearCallbackList(AvatarImageLoadedUser);
+	ClearCallbackList(GameLobbyJoinRequested);
+	ClearCallbackList(GamepadTextInputDismissed);
+	ClearCallbackList(LobbyChatMessage);
+	ClearCallbackList(LobbyChatUpdate);
+	ClearCallbackList(LobbyDataUpdate);
+	ClearCallbackList(LobbyEnter);
+	ClearCallbackList(LobbyGameCreated);
+	ClearCallbackList(NewDlcInstalled);
+	ClearCallbackList(PersonaStateChange);
+	// Input 
+	Clear(m_AnalogActionData);
+	Clear(m_DigitalActionData);
+	Clear(m_MotionData);
+	// Additional variables.
+	m_AchievementIconsMap.clear();
+	m_AchievementStored = false;
+	m_AppID = 0;
+	m_AvatarImageLoadedEnabled = false;
+	m_IsGameOverlayActive = false;
+	m_JoinedLobbies.clear();
+	m_nMinutesBatteryLeft = 255;
+	m_OnDlcInstalledEnabled = false;
+	m_PersonaStateChangedEnabled = false;
+	m_RequestStatsCallbackState = Idle;
+	m_StatsInitialized = false;
+	m_StatsStored = false;
+	m_SteamInitialized = false;
+	m_StoreStatsCallbackState = Idle;
 }
 
 int SteamPlugin::AddCallResultItem(CCallResultItem *callResult)

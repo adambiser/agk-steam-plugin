@@ -142,50 +142,20 @@ void SteamPlugin::SetOverlayNotificationPosition(ENotificationPosition eNotifica
 void SteamPlugin::OnIPCountryChanged(IPCountry_t *pParam)
 {
 	agk::Log("Callback: IP Country Changed");
-	m_HasIPCountryChanged = true;
-}
-
-bool SteamPlugin::HasIPCountryChanged()
-{
-	if (m_HasIPCountryChanged)
-	{
-		m_HasIPCountryChanged = false;
-		return true;
-	}
-	return false;
+	m_bIPCountryChanged = true;
 }
 
 void SteamPlugin::OnLowBatteryPower(LowBatteryPower_t *pParam)
 {
 	agk::Log("Callback: Low Battery Power Warning");
-	m_HasLowBatteryWarning = true;
+	m_bLowBatteryWarning = true;
 	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
-}
-
-bool SteamPlugin::HasLowBatteryWarning()
-{
-	if (m_HasLowBatteryWarning)
-	{
-		m_HasLowBatteryWarning = false;
-		return true;
-	}
-	return false;
 }
 
 void SteamPlugin::OnSteamShutdown(SteamShutdown_t *pParam)
 {
 	agk::Log("Callback: Steam Shutdown");
-	m_IsSteamShuttingDown = true;
-}
-
-bool SteamPlugin::IsSteamShuttingDown()
-{
-	if (m_IsSteamShuttingDown)
-	{
-		m_IsSteamShuttingDown = false;
-		return true;
-	}
-	return m_IsSteamShuttingDown;
+	m_bSteamShutdownNotification = true;
 }
 
 extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
@@ -209,44 +179,33 @@ bool SteamPlugin::IsSteamInBigPictureMode()
 bool SteamPlugin::ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText)
 {
 	CheckInitialized(SteamUtils, false);
-	if (unCharMax >= sizeof(m_GamepadTextInputDismissedInfo.text))
+	if (unCharMax > MAX_GAMEPAD_TEXT_INPUT_LENGTH)
 	{
 		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
-		unCharMax = sizeof(m_GamepadTextInputDismissedInfo.text) - 1;
+		unCharMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
 	}
 	return SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
-}
-
-bool SteamPlugin::HasGamepadTextInputDismissedInfo()
-{
-	return m_GamepadTextInputDismissedInfo.dismissed;
-}
-
-void SteamPlugin::GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchText)
-{
-	//*info = m_GamepadTextInputDismissedInfo;
-	*pbSubmitted = m_GamepadTextInputDismissedInfo.submitted;
-	strcpy_s(pchText, strnlen_s(m_GamepadTextInputDismissedInfo.text, MAX_GAMEPAD_TEXT_INPUT_LENGTH) + 1, m_GamepadTextInputDismissedInfo.text);
-	m_GamepadTextInputDismissedInfo.dismissed = false;
 }
 
 void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
 {
 	agk::Log("Callback: Gamepad Text Input Dismissed");
-	m_GamepadTextInputDismissedInfo.dismissed = true;
-	m_GamepadTextInputDismissedInfo.submitted = pCallback->m_bSubmitted;
-	*m_GamepadTextInputDismissedInfo.text = NULL;
-	if (!pCallback->m_bSubmitted)
+	plugin::GamepadTextInputDismissed_t info(*pCallback);
+	if (info.m_bSubmitted)
 	{
-		// User canceled.
-		return;
+		uint32 length = SteamUtils()->GetEnteredGamepadTextLength();
+		if (!SteamUtils()->GetEnteredGamepadTextInput(info.m_chSubmittedText, length))
+		{
+			// This should only ever happen if there's a length mismatch.
+			agk::PluginError("GetEnteredGamepadTextInput failed.");
+		}
 	}
-	uint32 length = SteamUtils()->GetEnteredGamepadTextLength();
-	bool success = SteamUtils()->GetEnteredGamepadTextInput(m_GamepadTextInputDismissedInfo.text, length);
-	if (!success) {
-		// This should only ever happen if there's a length mismatch.
-		agk::Log("GetEnteredGamepadTextInput failed.");
-	}
+	StoreCallbackResult(GamepadTextInputDismissed, info);
+}
+
+bool SteamPlugin::HasGamepadTextInputDismissed()
+{
+	GetNextCallbackResult(GamepadTextInputDismissed);
 }
 
 // VR methods

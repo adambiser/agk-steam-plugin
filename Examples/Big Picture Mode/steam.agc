@@ -69,11 +69,11 @@ EndFunction
 //
 Function ProcessCallbacks()
 	if Steam.HasGamepadTextInputDismissedInfo()
-		info as GamepadTextInputDismissedInfo_t
+		info as GamepadTextInputDismissed_t
 		info.fromJSON(Steam.GetGamepadTextInputDismissedInfoJSON())
 		if info.Submitted
-			textinput[lastButtonPressed - 1] = info.Text
-			AddStatus("User entered: " + info.Text)
+			textinput[lastButtonPressed - 1] = info.SubmittedText
+			AddStatus("User entered: " + info.SubmittedText)
 		else
 			AddStatus("User cancelled text input.")
 		endif
