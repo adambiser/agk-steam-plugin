@@ -431,7 +431,7 @@ char *GetCallResultJSON(int hCallResult)
 	{
 		return utils::CreateString(callResult->GetResultJSON());
 	}
-	return NULL_STRING;
+	return utils::CreateString("{}");
 };
 
 // App/DLC methods
@@ -452,25 +452,13 @@ char *GetDLCDataJSON()
 			{
 				json += ", ";
 			}
-			AppId_t appID;
-			bool available;
-			char name[128];
-			bool success = Steam->GetDLCDataByIndex(index, &appID, &available, name, sizeof(name));
-			json += "{";
-			if (success)
+			DLCData_t dlc;
+			bool success = Steam->GetDLCDataByIndex(index, &dlc.m_AppID, &dlc.m_bAvailable, dlc.m_chName, sizeof(dlc.m_chName));
+			if (!success)
 			{
-				json += "\"AppID\": " + std::to_string(appID) + ", "
-					"\"Available\": " + std::to_string(available) + ", "
-					"\"Name\": \"" + EscapeJSON(name) + "\"";
+				dlc.Clear();
 			}
-			else
-			{
-				// Send an empty entry to indicate failure for this index.
-				json += "\"AppID\": 0, "
-					"\"Available\": 0, "
-					"\"Name\": \"\"";
-			}
-			json += "}";
+			json += ToJSON(dlc);
 		}
 	}
 	json += "]";
@@ -588,21 +576,17 @@ char *GetCurrentGameLanguage()
 
 char *GetDLCDownloadProgressJSON(int appID)
 {
-	std::string json("{");
 	if (Steam)
 	{
-		uint64 downloaded;
-		uint64 total;
-		bool downloading = Steam->GetDlcDownloadProgress(appID, &downloaded, &total);
-		if (downloading)
+		DownloadProgress_t progress;
+		bool downloading = Steam->GetDlcDownloadProgress(appID, &progress.m_unBytesDownloaded, &progress.m_unBytesTotal);
+		if (!downloading)
 		{
-			json += "\"AppID\": " + std::to_string(appID) + ", "
-				"\"BytesDownloaded\": " + std::to_string(downloaded) + ", "
-				"\"BytesTotal\": " + std::to_string(total);
+			progress.Clear();
 		}
+		return utils::CreateString(ToJSON(progress));
 	}
-	json += "}";
-	return utils::CreateString(json);
+	return utils::CreateString("{}");
 }
 
 int GetEarliestPurchaseUnixTime(int appID)
@@ -615,23 +599,15 @@ int GetEarliestPurchaseUnixTime(int appID)
 
 char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {
-	std::string json("[");
 	if (Steam)
 	{
 		DepotId_t *depots = new DepotId_t[maxDepots];
 		int count = Steam->GetInstalledDepots(appID, depots, maxDepots);
-		for (int x = 0; x < count; x++)
-		{
-			if (x > 0)
-			{
-				json += ", ";
-			}
-			json += std::to_string(depots[x]);
-		}
+		std::string json = ToJSON(depots, count);
 		delete[] depots;
+		return utils::CreateString(json);
 	}
-	json += "]";
-	return utils::CreateString(json);
+	return utils::CreateString("[]");
 }
 
 char *GetLaunchQueryParam(const char *key)
@@ -809,10 +785,7 @@ int HasPersonaStateChanged()
 char *GetPersonaStateChangedJSON()
 {
 	CheckInitializedPlugin(0);
-	PersonaStateChange_t value = Steam->GetPersonaStateChange();
-	return utils::CreateString(std::string("{"
-		"\"SteamID\": " + std::to_string(GetPluginHandle(value.m_ulSteamID)) + ","
-		"\"ChangeFlags\": " + std::to_string(value.m_nChangeFlags) + "}"));
+	return utils::CreateString(ToJSON(Steam->GetPersonaStateChange()));
 }
 
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
@@ -859,24 +832,13 @@ char *GetFriendListJSON(int friendFlags)
 
 char *GetFriendGamePlayedJSON(int hUserSteamID)
 {
-	std::string json("{");
 	if (Steam)
 	{
 		FriendGameInfo_t pFriendGameInfo;
 		bool ingame = Steam->GetFriendGamePlayed(GetSteamHandle(hUserSteamID), &pFriendGameInfo);
-		json += "\"InGame\": " + std::to_string(ingame);
-		if (ingame)
-		{
-			json += ", "
-				"\"GameAppID\": " + std::to_string(pFriendGameInfo.m_gameID.AppID()) + ", "
-				"\"GameIP\": \"" + ConvertIPToString(pFriendGameInfo.m_unGameIP) + "\", "
-				"\"GamePort\": " + std::to_string(pFriendGameInfo.m_usGamePort) + ", "
-				"\"QueryPort\": " + std::to_string(pFriendGameInfo.m_usQueryPort) + ", "
-				"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(pFriendGameInfo.m_steamIDLobby));
-		}
+		return utils::CreateString(ToJSON(ingame, pFriendGameInfo));
 	}
-	json += "}";
-	return utils::CreateString(json);
+	return utils::CreateString("{}");
 }
 
 char *GetFriendPersonaName(int hUserSteamID)
@@ -935,26 +897,19 @@ int GetFriendsGroupMembersCount(int hFriendsGroupID)
 
 char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array of SteamID handles
 {
-	std::string json("[");
 	if (Steam)
 	{
 		int memberCount = Steam->GetFriendsGroupMembersCount(hFriendsGroupID);
 		if (memberCount > 0)
 		{
-			std::vector<CSteamID> friends(memberCount);
-			Steam->GetFriendsGroupMembersList(hFriendsGroupID, friends.data(), memberCount);
-			for (int x = 0; x < memberCount; x++)
-			{
-				if (x > 0)
-				{
-					json += ",";
-				}
-				json += std::to_string(GetPluginHandle(friends[x]));
-			}
+			CSteamID *pSteamIDMembers = new CSteamID[memberCount];
+			Steam->GetFriendsGroupMembersList(hFriendsGroupID, pSteamIDMembers, memberCount);
+			std::string json = ToJSON(pSteamIDMembers, memberCount);
+			delete[] pSteamIDMembers;
+			return utils::CreateString(json);
 		}
 	}
-	json += "]";
-	return utils::CreateString(json);
+	return utils::CreateString("[]");
 }
 
 char *GetFriendsGroupName(int hFriendsGroupID)
@@ -1348,13 +1303,8 @@ int HasLobbyEnterResponse()
 char *GetLobbyEnterResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	LobbyEnter_t lobbyEnter = Steam->GetLobbyEnterResponse();
 	// Must be the same as in CLobbyEnterCallResult.
-	return utils::CreateString(std::string("{"
-		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(lobbyEnter.m_ulSteamIDLobby)) + ", "
-		"\"Locked\": " + std::to_string(lobbyEnter.m_bLocked) + ", "
-		"\"ChatRoomEnterResponse\": " + std::to_string(lobbyEnter.m_EChatRoomEnterResponse) + ", "
-		"\"ChatPermissions\": " + std::to_string(lobbyEnter.m_rgfChatPermissions) + "}"));
+	return utils::CreateString(ToJSON(Steam->GetLobbyEnterResponse()));
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
@@ -1384,22 +1334,15 @@ void LeaveLobby(int hLobbySteamID)
 // Lobby methods: Game server
 char *GetLobbyGameServerJSON(int hLobbySteamID)
 {
-	std::string json("{");
 	if (Steam)
 	{
-		uint32 unGameServerIP;
-		uint16 unGameServerPort;
-		CSteamID steamIDGameServer;
-		if (Steam->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &unGameServerIP, &unGameServerPort, &steamIDGameServer))
+		LobbyGameServer_t server;
+		if (Steam->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
 		{
-			json += "\"SteamIDLobby\": " + std::to_string(hLobbySteamID) + ", " // Add this to match LobbyGameCreated_t.
-				"\"IP\": \"" + ConvertIPToString(unGameServerIP) +  "\", "
-				"\"Port\": " + std::to_string(unGameServerPort) + ", "
-				"\"SteamIDGameServer\": " + std::to_string(GetPluginHandle(steamIDGameServer));
+			return utils::CreateString(ToJSON(server));
 		}
 	}
-	json += "}";
-	return utils::CreateString(json);
+	return utils::CreateString("{}");
 }
 
 int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
@@ -1427,20 +1370,11 @@ int HasLobbyGameCreated()
 
 char *GetLobbyGameCreatedJSON()
 {
-	std::string json("{");
 	if (Steam)
 	{
-		LobbyGameCreated_t gameServer = Steam->GetLobbyGameCreated();
-		//if (gameServer.m_ulSteamIDLobby != 0)
-		//{
-			json += "\"SteamIDLobby\": " + std::to_string(GetPluginHandle(gameServer.m_ulSteamIDLobby)) + ", "
-				"\"SteamIDGameServer\": " + std::to_string(GetPluginHandle(gameServer.m_ulSteamIDGameServer)) + ", "
-				"\"IP\": \"" + ConvertIPToString(gameServer.m_unIP) + "\", "
-				"\"Port\": " + std::to_string(gameServer.m_usPort);
-		//}
+		return utils::CreateString(ToJSON(Steam->GetLobbyGameCreated()));
 	}
-	json += "}";
-	return utils::CreateString(json);
+	return utils::CreateString("{}");
 }
 
 // Lobby methods: Data
@@ -1465,9 +1399,7 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 			{
 				json += ", ";
 			}
-			json += "{"
-				"\"Key\": \"" + EscapeJSON(key) + "\", "
-				"\"Value\": \"" + EscapeJSON(value) + "\"}";
+			json += ToJSON(key, value);
 		}
 		else
 		{
@@ -1506,12 +1438,7 @@ int HasLobbyDataUpdateResponse()
 char *GetLobbyDataUpdateResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	LobbyDataUpdate_t update = Steam->GetLobbyDataUpdateResponse();
-	// Must be the same as in CLobbyEnterCallResult.
-	return utils::CreateString(std::string("{"
-		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(update.m_ulSteamIDLobby)) + ", "
-		"\"SteamIDMember\": " + std::to_string(GetPluginHandle(update.m_ulSteamIDMember)) + ", "
-		"\"Success\": " + std::to_string(update.m_bSuccess) + "}"));
+	return utils::CreateString(ToJSON(Steam->GetLobbyDataUpdateResponse()));
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
@@ -1651,27 +1578,15 @@ int GetFavoriteGameCount()
 // Leave this as by-index since AddFavoriteGame appears to return an index.
 char *GetFavoriteGameJSON(int index)
 {
-	std::string json("{");
 	if (Steam)
 	{
-		AppId_t nAppID;
-		uint32 nIP;
-		uint16 nConnPort;
-		uint16 nQueryPort;
-		uint32 unFlags;
-		uint32 rTime32LastPlayedOnServer;
-		if (Steam->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &unFlags, &rTime32LastPlayedOnServer))
+		FavoriteGameInfo_t info;
+		if (Steam->GetFavoriteGame(index, &info.m_AppID, &info.m_nIP, &info.m_nConnPort, &info.m_nQueryPort, &info.m_unFlags, &info.m_rTime32LastPlayedOnServer))
 		{
-			json += "\"AppID\": " + std::to_string(nAppID) + ", "
-				"\"IP\": \"" + ConvertIPToString(nIP) + "\", "
-				"\"ConnPort\": " + std::to_string(nConnPort) + ", "
-				"\"QueryPort\": " + std::to_string(nQueryPort) + ", "
-				"\"Flags\": " + std::to_string(unFlags) + ", "
-				"\"TimeLastPlayedOnServer\": " + std::to_string(rTime32LastPlayedOnServer);
+			return utils::CreateString(ToJSON(info));
 		}
 	}
-	json += "}";
-	return utils::CreateString(json);
+	return utils::CreateString("{}");
 }
 
 int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags)

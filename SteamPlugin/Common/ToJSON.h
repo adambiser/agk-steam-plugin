@@ -25,18 +25,26 @@ THE SOFTWARE.
 #pragma once
 
 #include <string>
+#include "DllMain.h"
 #include "steam_api.h"
 //#include "steam_gameserver.h"
 
 std::string EscapeJSON(const std::string &input);
 
+std::string ToJSON(CSteamID *pSteamIDs, int count);
+std::string ToJSON(uint32 *pValues, int count);
+std::string ToJSON(char *key, char *value);
+
 std::string ToJSON(DlcInstalled_t value);
-std::string ToJSON(FileDetailsResult_t value);
+std::string ToJSON(DLCData_t value);
+std::string ToJSON(DownloadProgress_t value);
+std::string ToJSON(FavoriteGameInfo_t value);
+//std::string ToJSON(FileDetailsResult_t value);
 std::string ToJSON(AvatarImageLoaded_t value);
 std::string ToJSON(ClanOfficerListResponse_t value);
 std::string ToJSON(DownloadClanActivityCountsResult_t value);
 std::string ToJSON(FriendRichPresenceUpdate_t value);
-std::string ToJSON(FriendsEnumerateFollowingList_t value);
+//std::string ToJSON(FriendsEnumerateFollowingList_t value);
 std::string ToJSON(FriendsGetFollowerCount_t value);
 std::string ToJSON(FriendsIsFollowing_t value);
 std::string ToJSON(GameConnectedChatJoin_t value);
@@ -50,7 +58,7 @@ std::string ToJSON(GameServerChangeRequested_t value);
 std::string ToJSON(JoinClanChatRoomCompletionResult_t value);
 std::string ToJSON(PersonaStateChange_t value);
 std::string ToJSON(SetPersonaNameResponse_t value);
-std::string ToJSON(FriendGameInfo_t value);
+std::string ToJSON(bool ingame, FriendGameInfo_t value);
 std::string ToJSON(FriendSessionStateInfo_t value);
 #ifdef ISTEAMGAMESERVER_H
 std::string ToJSON(AssociateWithClanResult_t value);
@@ -103,6 +111,7 @@ std::string ToJSON(LobbyCreated_t value);
 std::string ToJSON(LobbyDataUpdate_t value);
 std::string ToJSON(LobbyEnter_t value);
 std::string ToJSON(LobbyGameCreated_t value);
+std::string ToJSON(LobbyGameServer_t value);
 std::string ToJSON(LobbyInvite_t value);
 std::string ToJSON(MatchMakingKeyValuePair_t value);
 std::string ToJSON(VolumeHasChanged_t value);
@@ -134,7 +143,7 @@ std::string ToJSON(AddAppDependencyResult_t value);
 std::string ToJSON(AddUGCDependencyResult_t value);
 std::string ToJSON(CreateItemResult_t value);
 std::string ToJSON(DownloadItemResult_t value);
-std::string ToJSON(GetAppDependenciesResult_t value);
+//std::string ToJSON(GetAppDependenciesResult_t value);
 std::string ToJSON(DeleteItemResult_t value);
 std::string ToJSON(GetUserItemVoteResult_t value);
 std::string ToJSON(ItemInstalled_t value);

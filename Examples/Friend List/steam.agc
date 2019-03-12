@@ -183,6 +183,7 @@ Function RefreshFriendGroupList()
 	server.friendGroups.insert("All Friends (" + str(friends.length + 1) + ")")
 	groupCount as integer
 	groupCount = Steam.GetFriendsGroupCount()
+	AddStatus("FriendsGroupCount: " + str(Steam.GetFriendsGroupCount()))
 	x as integer
 	for x = 0 to groupCount - 1
 		groupID as integer
@@ -229,6 +230,7 @@ Function SelectFriendGroup(index as integer)
 		// Subtract 1 because in this app index 0 = all friends
 		friendListJSON = Steam.GetFriendsGroupMembersListJSON(Steam.GetFriendsGroupIDByIndex(index - 1))
 	endif
+	AddStatus(friendListJSON)
 	server.groupFriends.length = -1
 	groupFriendIDs as integer[]
 	groupFriendIDs.fromJSON(friendListJSON)

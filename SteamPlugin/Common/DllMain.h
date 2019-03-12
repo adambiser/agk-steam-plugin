@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include "..\AGKLibraryCommands.h"
 #include "steam_api.h"
+#include "PluginTypes.h"
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.

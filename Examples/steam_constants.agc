@@ -26,6 +26,12 @@
 // Structs
 //------------------------------------------------------------------------------
 
+// Associated Functions: GetLobbyDataJSON
+Type KeyValuePair_t
+	Key as string
+	Value as string
+EndType
+
 // DLC information
 // Associated Functions: GetDLCDataJSON
 Type DLCData_t
@@ -1228,6 +1234,13 @@ Type LobbyGameCreated_t
 	Port as integer	// The connection port of the game server, in host order, if it's set.
 EndType
 
+// Associated Fcuntion: GetLobbyGameServerJSON
+Type LobbyGameServer_t
+	GameServerIP as string			// IP of the game server (if any)
+	GameServerPort as integer		// The port of the game server (if any)
+	SteamIDGameServer as integer	// The game server.
+EndType
+
 // Someone has invited you to join a Lobby.
 Type LobbyInvite_t
 	SteamIDUser as integer	// Steam ID of the person that sent the invite.
@@ -1238,6 +1251,7 @@ EndType
 // Favorite game information.
 // Returned by GetFavoriteGameJSON.
 // This isn't from the Steamworks SDK, but compensates for the values being returned via parameters.
+// Associated functions: GetFavoriteGameJSON
 Type FavoriteGameInfo_t
 	AppID as integer
 	IP as string

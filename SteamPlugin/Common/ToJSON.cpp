@@ -1,6 +1,5 @@
 #include "ToJSON.h"
 #include <sstream>
-#include "DllMain.h"
 
 std::string EscapeJSON(const std::string &input)
 {
@@ -46,10 +45,75 @@ std::string EscapeJSON(const std::string &input)
 	return output.str();
 }
 
+std::string ToJSON(CSteamID *pSteamIDs, int count)
+{
+	std::string json("[");
+	for (int x = 0; x < count; x++)
+	{
+		if (x > 0)
+		{
+			json += ", ";
+		}
+		json += std::to_string(GetPluginHandle(pSteamIDs[x]));
+	}
+	json += "]";
+	return json;
+}
+
+std::string ToJSON(uint32 *pValues, int count)
+{
+	std::string json("[");
+	for (int x = 0; x < count; x++)
+	{
+		if (x > 0)
+		{
+			json += ", ";
+		}
+		json += std::to_string(pValues[x]);
+	}
+	json += "]";
+	return json;
+}
+
+std::string ToJSON(char *key, char *value)
+{
+	return "{"
+		"\"Key\": \"" + EscapeJSON(key) + "\", "
+		"\"Value\": \"" + EscapeJSON(value) + "\"}";
+}
+
+
 std::string ToJSON(DlcInstalled_t value)
 {
     return std::string("{"
         "\"AppID\": " + std::to_string(value.m_nAppID) + "}");
+}
+
+std::string ToJSON(DLCData_t value)
+{
+	return std::string("{"
+		"\"AppID\": " + std::to_string(value.m_AppID) + ", "
+		"\"Available\": " + std::to_string(value.m_bAvailable) + ", "
+		"\"Name\": \"" + EscapeJSON(value.m_chName) + "\"}");
+}
+
+std::string ToJSON(DownloadProgress_t value)
+{
+	return std::string("{"
+		"\"AppID\": " + std::to_string(value.m_AppID) + ", "
+		"\"BytesDownloaded\": " + std::to_string(value.m_unBytesDownloaded) + ", "
+		"\"BytesTotal\": " + std::to_string(value.m_unBytesTotal) + "}");
+}
+
+std::string ToJSON(FavoriteGameInfo_t value)
+{
+	return std::string("{"
+		"\"AppID\": " + std::to_string(value.m_AppID) + ", "
+		"\"IP\": \"" + ConvertIPToString(value.m_nIP) + "\", "
+		"\"ConnPort\": " + std::to_string(value.m_nConnPort) + ", "
+		"\"QueryPort\": " + std::to_string(value.m_nQueryPort) + ", "
+		"\"Flags\": " + std::to_string(value.m_unFlags) + ", "
+		"\"TimeLastPlayedOnServer\": " + std::to_string(value.m_rTime32LastPlayedOnServer) + "}");
 }
 
 // TODO
@@ -198,14 +262,20 @@ std::string ToJSON(SetPersonaNameResponse_t value)
 		"\"Result\": " + std::to_string(value.m_result) + "}");
 }
 
-std::string ToJSON(FriendGameInfo_t value)
+std::string ToJSON(bool ingame, FriendGameInfo_t value)
 {
-    return std::string("{"
-        "\"GameAppID\": " + std::to_string(value.m_gameID.AppID()) + ", "
-		"\"GameIP\": \"" + ConvertIPToString(value.m_unGameIP) + "\", "
-		"\"GamePort\": " + std::to_string(value.m_usGamePort) + ", "
-		"\"QueryPort\": " + std::to_string(value.m_usQueryPort) + ", "
-		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(value.m_steamIDLobby)) + "}");
+	std::string json("{\"InGame\": " + std::to_string(ingame));
+	if (ingame)
+	{
+		json += ", "
+			"\"GameAppID\": " + std::to_string(value.m_gameID.AppID()) + ", "
+			"\"GameIP\": \"" + ConvertIPToString(value.m_unGameIP) + "\", "
+			"\"GamePort\": " + std::to_string(value.m_usGamePort) + ", "
+			"\"QueryPort\": " + std::to_string(value.m_usQueryPort) + ", "
+			"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(value.m_steamIDLobby));
+	}
+	json += "}";
+	return json;
 }
 
 std::string ToJSON(FriendSessionStateInfo_t value)
@@ -612,11 +682,19 @@ std::string ToJSON(LobbyEnter_t value)
 
 std::string ToJSON(LobbyGameCreated_t value)
 {
-    return std::string("{"
-        "\"SteamIDLobby\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDLobby)) + ", "
+	return std::string("{"
+		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDLobby)) + ", "
 		"\"SteamIDGameServer\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDGameServer)) + ", "
 		"\"IP\": \"" + ConvertIPToString(value.m_unIP) + "\", "
 		"\"Port\": " + std::to_string(value.m_usPort) + "}");
+}
+
+std::string ToJSON(LobbyGameServer_t value)
+{
+	return std::string("{"
+		"\"SteamIDGameServer\": " + std::to_string(GetPluginHandle(value.m_ulSteamIDGameServer)) + ", "
+		"\"GameServerIP\": \"" + ConvertIPToString(value.m_unGameServerIP) + "\", "
+		"\"GameServerPort\": " + std::to_string(value.m_unGameServerPort) + "}");
 }
 
 std::string ToJSON(LobbyInvite_t value)
