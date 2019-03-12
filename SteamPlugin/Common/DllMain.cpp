@@ -640,7 +640,7 @@ int HasNewDLCInstalled()
 int GetNewDLCInstalled()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetNewDlcInstalled();
+	return Steam->GetNewDlcInstalled().m_nAppID;
 }
 
 void InstallDLC(int appID) // Triggers a DlcInstalled_t callback.
@@ -776,13 +776,13 @@ char *GetSteamID64(int hUserSteamID)
 	return utils::CreateString(id64);
 }
 
-int HasPersonaStateChanged()
+int HasPersonaStateChange()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasPersonaStateChanged();
+	return Steam->HasPersonaStateChange();
 }
 
-char *GetPersonaStateChangedJSON()
+char *GetPersonaStateChangeJSON()
 {
 	CheckInitializedPlugin(0);
 	return utils::CreateString(ToJSON(Steam->GetPersonaStateChange()));

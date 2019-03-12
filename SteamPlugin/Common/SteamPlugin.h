@@ -39,7 +39,6 @@ THE SOFTWARE.
 #endif
 #endif
 
-#define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
 #define MAX_CHAT_MESSAGE_LENGTH			4096
 
 enum EAvatarSize
@@ -56,18 +55,86 @@ enum EAvatarSize
 		return returnValue;											\
 	}
 
+#define SETUP_CALLBACK_LIST(callback, type)	\
+public:										\
+	bool Has##callback##();					\
+	type Get##callback##() { return m_Current##callback##; } \
+private:									\
+	std::list<##type##> m_##callback##List;	\
+	std::mutex m_##callback##Mutex;			\
+	type m_Current##callback
+
+#define StoreCallbackResult(callback, result)	\
+	m_##callback##Mutex.lock();					\
+	m_##callback##List.push_back(result);		\
+	m_##callback##Mutex.unlock()
+
+#define GetNextCallbackResult(callback)						\
+	m_##callback##Mutex.lock();								\
+	if (m_##callback##List.size() > 0)						\
+	{														\
+		m_Current##callback = m_##callback##List.front();	\
+		m_##callback##List.pop_front();						\
+		m_##callback##Mutex.unlock();						\
+		return true;										\
+	}														\
+	ClearCurrent##callback##();								\
+	m_##callback##Mutex.unlock();							\
+	return false
+
 class SteamPlugin
 {
-private:
+public:
+	SteamPlugin();
+	virtual ~SteamPlugin(void);
+
 	// General methods.
+private:
 	uint64 m_AppID;
 	bool m_SteamInitialized;
+public:
+	bool Init();
+	void Shutdown();
+	int GetAppID();
+	bool SteamInitialized() { return m_SteamInitialized; }
+	bool RestartAppIfNecessary(uint32 unOwnAppID)
+	{
+		return SteamAPI_RestartAppIfNecessary(unOwnAppID);
+	}
+	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
+	{
+		CheckInitialized(SteamAppList, 0);
+		return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
+	}
+	bool LoggedOn();
+	void RunCallbacks()
+	{
+		if (!m_SteamInitialized)
+		{
+			return;
+		}
+		SteamAPI_RunCallbacks();
+	}
+
+	// TODO Remove this.
+	// Return to Idle after reporting Done.
+	ECallbackState getCallbackState(ECallbackState *callbackState)
+	{
+		if (*callbackState == Done)
+		{
+			*callbackState = Idle;
+			return Done;
+		}
+		return *callbackState;
+	}
+
 	// CallResults
+private:
 	std::map<int, CCallResultItem*> m_CallResultItems;
 	int m_CurrentCallResultHandle;
 	int AddCallResultItem(CCallResultItem *callResult);
-	// Template methods MUST be defined in the header file!
 public:
+	// Template methods MUST be defined in the header file!
 	template <class T> T *GetCallResultItem(int hCallResult)
 	{
 		auto search = m_CallResultItems.find(hCallResult);
@@ -84,187 +151,21 @@ public:
 		}
 		return callResult;
 	}
-private:
+	void DeleteCallResultItem(int hCallResult);
+	ECallbackState GetCallResultItemState(int hCallResult);
+
 	// App/DLC methods
+private:
 	STEAM_CALLBACK(SteamPlugin, OnNewLaunchQueryParameters, NewUrlLaunchParameters_t, m_CallbackNewLaunchQueryParameters);
 	bool m_HasNewLaunchQueryParameters;
 	STEAM_CALLBACK(SteamPlugin, OnDlcInstalled, DlcInstalled_t, m_CallbackDlcInstalled);
+	SETUP_CALLBACK_LIST(NewDlcInstalled, DlcInstalled_t);
 	bool m_OnDlcInstalledEnabled;
-	std::list<AppId_t> m_DlcInstalledList;
-	std::mutex m_DlcInstalledMutex;
-	AppId_t m_NewDlcInstalled;
-	// Overlay methods
-	STEAM_CALLBACK(SteamPlugin, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
-	bool m_IsGameOverlayActive;
-	// User/Friend methods
-	STEAM_CALLBACK(SteamPlugin, OnPersonaStateChanged, PersonaStateChange_t, m_CallbackPersonaStateChanged);
-	bool m_PersonaStateChangedEnabled;
-	std::list<PersonaStateChange_t> m_PersonaStateChangeList;
-	std::mutex m_PersonaStateChangeMutex;
-	PersonaStateChange_t m_CurrentPersonaStateChange;
-	void ClearCurrentPersonaStateChange()
+	void ClearCurrentNewDlcInstalled()
 	{
-		m_CurrentPersonaStateChange.m_ulSteamID = 0;
-		m_CurrentPersonaStateChange.m_nChangeFlags = 0;
+		m_CurrentNewDlcInstalled.m_nAppID = 0;
 	}
-	STEAM_CALLBACK(SteamPlugin, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded);
-	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
-	std::list<CSteamID> m_AvatarImageLoadedUsers;
-	CSteamID m_AvatarUser;
-	// Image methods
-	// General user stats methods.
-	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
-	ECallbackState m_RequestStatsCallbackState;
-	bool m_StatsInitialized;
-	STEAM_CALLBACK(SteamPlugin, OnUserStatsStored, UserStatsStored_t, m_CallbackUserStatsStored);
-	STEAM_CALLBACK(SteamPlugin, OnAchievementStored, UserAchievementStored_t, m_CallbackAchievementStored);
-	ECallbackState m_StoreStatsCallbackState;
-	bool m_StatsStored;
-	bool m_AchievementStored;
-	// Achievements methods.
-	STEAM_CALLBACK(SteamPlugin, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
-	std::map<std::string, int> m_AchievementIconsMap;
-	// User stats methods.
-	// Leaderboard methods: Find
-	// Leaderboard methods: Information
-	// Leaderboard methods: Upload
-	// Leaderboard methods: Download
-	// Lobby methods: List
-	// Lobby methods: Data
-	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdated, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
-	std::list<LobbyDataUpdate_t> m_LobbyDataUpdatedList;
-	std::mutex m_LobbyDataUpdatedMutex;
-	LobbyDataUpdate_t m_CurrentLobbyDataUpdate;
-	void ClearCurrentLobbyDataUpdate()
-	{
-		m_CurrentLobbyDataUpdate.m_bSuccess = 0;
-		m_CurrentLobbyDataUpdate.m_ulSteamIDLobby = 0;
-		m_CurrentLobbyDataUpdate.m_ulSteamIDMember = 0;
-	}
-	// Lobby methods: Owner methods
-	// Lobby methods: Create
-	// Lobby methods: Join, Create, Leave
-	STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_MainCallResultLobbyEnter);
-	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
-	std::list<LobbyEnter_t> m_LobbyEnterList; // For callback reporting.
-	std::mutex m_LobbyEnterMutex;
-	LobbyEnter_t m_CurrentLobbyEnter;
-	void ClearCurrentLobbyEnter()
-	{
-		m_CurrentLobbyEnter.m_bLocked = 0;
-		m_CurrentLobbyEnter.m_EChatRoomEnterResponse = 0;
-		m_CurrentLobbyEnter.m_rgfChatPermissions = 0;
-		m_CurrentLobbyEnter.m_ulSteamIDLobby = 0;
-	}
-	STEAM_CALLBACK(SteamPlugin, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, m_CallbackGameLobbyJoinRequested);
-	GameLobbyJoinRequested_t m_GameLobbyJoinRequestedInfo;
-	// Lobby methods: Game server
-	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
-	std::list<LobbyGameCreated_t> m_LobbyGameCreatedList; // For callback reporting.
-	std::mutex m_LobbyGameCreatedMutex;
-	LobbyGameCreated_t m_CurrentLobbyGameCreated;
-	void ClearCurrentLobbyGameCreated()
-	{
-		m_CurrentLobbyGameCreated.m_ulSteamIDGameServer = 0;
-		m_CurrentLobbyGameCreated.m_ulSteamIDLobby = 0;
-		m_CurrentLobbyGameCreated.m_unIP = 0;
-		m_CurrentLobbyGameCreated.m_usPort = 0;
-	}
-	// Lobby methods: Members and Status
-	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdated, LobbyChatUpdate_t, m_CallbackLobbyChatUpdated);
-	std::list<LobbyChatUpdate_t> m_LobbyChatUpdatedList;
-	std::mutex m_LobbyChatUpdatedMutex;
-	LobbyChatUpdate_t m_CurrentLobbyChatUpdate;
-	void ClearCurrentLobbyChatUpdate()
-	{
-		m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange = (EChatMemberStateChange)0;
-		m_CurrentLobbyChatUpdate.m_ulSteamIDLobby = 0;
-		m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange = 0;
-		m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged = 0;
-	}
-	// Lobby methods: Chat messages
-	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
-	struct ChatMessageInfo_t
-	{
-		CSteamID user;
-		char text[MAX_CHAT_MESSAGE_LENGTH];
-	};
-	std::list<ChatMessageInfo_t> m_LobbyChatMessageList;
-	std::timed_mutex m_LobbyChatMessageMutex;
-	ChatMessageInfo_t m_CurrentLobbyChatMessage;
-	void ClearCurrentLobbyChatMessage()
-	{
-		m_CurrentLobbyChatMessage.user = k_steamIDNil;
-		*m_CurrentLobbyChatMessage.text = NULL;
-	}
-	// Music methods
-	STEAM_CALLBACK(SteamPlugin, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t, m_CallbackPlaybackStatusHasChanged);
-	bool m_PlaybackStatusHasChanged;
-	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
-	bool m_VolumeHasChanged;
-	// Util methods
-	STEAM_CALLBACK(SteamPlugin, OnIPCountryChanged, IPCountry_t, m_CallbackIPCountryChanged);
-	bool m_HasIPCountryChanged;
-	STEAM_CALLBACK(SteamPlugin, OnLowBatteryPower, LowBatteryPower_t, m_CallbackLowBatteryPower);
-	bool m_HasLowBatteryWarning;
-	uint8 m_nMinutesBatteryLeft;
-	STEAM_CALLBACK(SteamPlugin, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
-	bool m_IsSteamShuttingDown;
-	// Big Picture methods
-	STEAM_CALLBACK(SteamPlugin, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, m_CallbackGamepadTextInputDismissed);
-	struct GamepadTextInputDismissedInfo_t
-	{
-		bool dismissed;
-		bool submitted;
-		char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
-	};
-	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
-	// Cloud method: FileWriteAsync
-	// Cloud method: FileReadAsync
-	// Input
-	//int m_InputCount;
-	//InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
-
-	// Return to Idle after reporting Done.
-	ECallbackState getCallbackState(ECallbackState *callbackState)
-	{
-		if (*callbackState == Done)
-		{
-			*callbackState = Idle;
-			return Done;
-		}
-		return *callbackState;
-	}
-
 public:
-	SteamPlugin();
-	virtual ~SteamPlugin(void);
-	// General methods.
-	bool Init();
-	void Shutdown();
-	bool SteamInitialized() { return m_SteamInitialized; }
-	bool RestartAppIfNecessary(uint32 unOwnAppID)
-	{
-		return SteamAPI_RestartAppIfNecessary(unOwnAppID);
-	}
-	int GetAppID();
-	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
-	{
-		CheckInitialized(SteamAppList, 0);
-		return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
-	}
-	bool LoggedOn();
-	void RunCallbacks()
-	{
-		if (!m_SteamInitialized)
-		{
-			return;
-		}
-		SteamAPI_RunCallbacks();
-	}
-	void DeleteCallResultItem(int hCallResult);
-	ECallbackState GetCallResultItemState(int hCallResult);
-	// App/DLC methods
 	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
 	bool IsAppInstalled(AppId_t appID);
 	bool IsCybercafe();
@@ -289,27 +190,43 @@ public:
 	const char *GetLaunchQueryParam(const char *pchKey);
 	bool HasNewLaunchQueryParameters();
 	int GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine);
-	bool HasNewDlcInstalled();
-	AppId_t GetNewDlcInstalled() { return m_NewDlcInstalled; }
 	void InstallDLC(AppId_t nAppID); // Triggers a DlcInstalled_t callback.
 	bool MarkContentCorrupt(bool bMissingFilesOnly);
 	void UninstallDLC(AppId_t nAppID);
+
 	// Overlay methods
+private:
+	STEAM_CALLBACK(SteamPlugin, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
+	bool m_IsGameOverlayActive;
+public:
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 	void ActivateGameOverlay(const char *pchDialog);
 	void ActivateGameOverlayInviteDialog(CSteamID steamIDLobby);
 	void ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag);
 	void ActivateGameOverlayToUser(const char *pchDialog, CSteamID steamID);
 	void ActivateGameOverlayToWebPage(const char *pchURL, EActivateGameOverlayToWebPageMode eMode);
+
 	// User/Friend methods
+private:
+	STEAM_CALLBACK(SteamPlugin, OnPersonaStateChange, PersonaStateChange_t, m_CallbackPersonaStateChange);
+	SETUP_CALLBACK_LIST(PersonaStateChange, PersonaStateChange_t);
+	bool m_PersonaStateChangedEnabled;
+	void ClearCurrentPersonaStateChange()
+	{
+		m_CurrentPersonaStateChange.m_ulSteamID = 0;
+		m_CurrentPersonaStateChange.m_nChangeFlags = 0;
+	}
+	STEAM_CALLBACK(SteamPlugin, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded);
+	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
+	std::list<CSteamID> m_AvatarImageLoadedUsers;
+	CSteamID m_AvatarUser;
+public:
 	const char *GetPersonaName();
 	//EPersonaState GetPersonaState();
 	//uint32 GetUserRestrictions();
 	CSteamID GetSteamID();
 	//steamUser->GetPlayerSteamLevel()
 	//m_PersonaStateChange
-	bool HasPersonaStateChanged();
-	PersonaStateChange_t GetPersonaStateChange() { return m_CurrentPersonaStateChange; }
 	bool RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly);
 	bool HasAvatarImageLoaded();
 	CSteamID GetAvatarImageLoadedUser() { return m_AvatarUser; }
@@ -324,16 +241,31 @@ public:
 	const char *GetPlayerNickname(CSteamID steamIDPlayer);
 	bool HasFriend(CSteamID steamIDFriend, EFriendFlags iFriendFlags);
 	//bool InviteUserToGame(CSteamID steamIDFriend, const char *pchConnectString);
+
 	// Friend group methods
+public:
 	int GetFriendsGroupCount();
 	FriendsGroupID_t GetFriendsGroupIDByIndex(int iFriendGroup);
 	int GetFriendsGroupMembersCount(FriendsGroupID_t friendsGroupID);
 	void GetFriendsGroupMembersList(FriendsGroupID_t friendsGroupID, CSteamID *pOutSteamIDMembers, int nMembersCount);
 	const char * GetFriendsGroupName(FriendsGroupID_t friendsGroupID);
+
 	// Image methods
+public:
 	int LoadImageFromHandle(int hImage);
 	int LoadImageFromHandle(int imageID, int hImage);
+
 	// General user stats methods.
+private:
+	STEAM_CALLBACK(SteamPlugin, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
+	ECallbackState m_RequestStatsCallbackState;
+	bool m_StatsInitialized;
+	STEAM_CALLBACK(SteamPlugin, OnUserStatsStored, UserStatsStored_t, m_CallbackUserStatsStored);
+	STEAM_CALLBACK(SteamPlugin, OnAchievementStored, UserAchievementStored_t, m_CallbackAchievementStored);
+	ECallbackState m_StoreStatsCallbackState;
+	bool m_StatsStored;
+	bool m_AchievementStored;
+public:
 	bool RequestStats();
 	ECallbackState GetRequestStatsCallbackState() { return getCallbackState(&m_RequestStatsCallbackState); }
 	bool StatsInitialized() { return m_StatsInitialized; }
@@ -342,7 +274,12 @@ public:
 	ECallbackState GetStoreStatsCallbackState() { return getCallbackState(&m_StoreStatsCallbackState); }
 	bool StatsStored() { return m_StatsStored; }
 	bool AchievementStored() { return m_AchievementStored; }
+
 	// Achievements methods.
+private:
+	STEAM_CALLBACK(SteamPlugin, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
+	std::map<std::string, int> m_AchievementIconsMap;
+public:
 	int GetNumAchievements();
 	const char* GetAchievementAPIName(int index);
 	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
@@ -353,24 +290,36 @@ public:
 	bool SetAchievement(const char *pchName);
 	bool IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress);
 	bool ClearAchievement(const char *pchName);
+
 	// User stats methods.
+public:
 	bool GetStat(const char *pchName, int32 *pData);
 	bool GetStat(const char *pchName, float *pData);
 	bool SetStat(const char *pchName, int32 nData);
 	bool SetStat(const char *pchName, float fData);
 	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
-	// Leaderboards
+
+	// Leaderboard methods: Find
+public:
 	int FindLeaderboard(const char *pchLeaderboardName);
-	// General information
+
+	// Leaderboard methods: Information
+public:
 	const char *GetLeaderboardName(SteamLeaderboard_t hLeaderboard);
 	int GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard);
 	ELeaderboardDisplayType GetLeaderboardDisplayType(SteamLeaderboard_t hLeaderboard);
 	ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hLeaderboard);
-	// Uploading scores
+
+	// Leaderboard methods: Upload
+public:
 	int UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score);
-	// Downloading entries.
+
+	// Leaderboard methods: Download
+public:
 	int DownloadLeaderboardEntries(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd);
+
 	// Lobby methods: List
+public:
 	void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
 	void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
 	void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
@@ -378,7 +327,24 @@ public:
 	void AddRequestLobbyListResultCountFilter(int cMaxResults);
 	void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
 	int RequestLobbyList();
+		
 	// Lobby methods: Create, Join, Leave
+private:
+	STEAM_CALLBACK(SteamPlugin, OnLobbyEnter, LobbyEnter_t, m_MainCallResultLobbyEnter);
+	std::vector<CSteamID> m_JoinedLobbies; // Keep track so we don't leave any left open when closing.
+	std::list<LobbyEnter_t> m_LobbyEnterList; // For callback reporting.
+	std::mutex m_LobbyEnterMutex;
+	LobbyEnter_t m_CurrentLobbyEnter;
+	void ClearCurrentLobbyEnter()
+	{
+		m_CurrentLobbyEnter.m_bLocked = 0;
+		m_CurrentLobbyEnter.m_EChatRoomEnterResponse = 0;
+		m_CurrentLobbyEnter.m_rgfChatPermissions = 0;
+		m_CurrentLobbyEnter.m_ulSteamIDLobby = 0;
+	}
+	STEAM_CALLBACK(SteamPlugin, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, m_CallbackGameLobbyJoinRequested);
+	GameLobbyJoinRequested_t m_GameLobbyJoinRequestedInfo;
+public:
 	int CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
 	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
@@ -390,12 +356,40 @@ public:
 	bool HasGameLobbyJoinRequest() { return m_GameLobbyJoinRequestedInfo.m_steamIDLobby != k_steamIDNil; }
 	CSteamID GetGameLobbyJoinRequestedLobby();
 	void LeaveLobby(CSteamID steamIDLobby);
+
 	// Lobby methods: Game server
+private:
+	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
+	std::list<LobbyGameCreated_t> m_LobbyGameCreatedList; // For callback reporting.
+	std::mutex m_LobbyGameCreatedMutex;
+	LobbyGameCreated_t m_CurrentLobbyGameCreated;
+	void ClearCurrentLobbyGameCreated()
+	{
+		m_CurrentLobbyGameCreated.m_ulSteamIDGameServer = 0;
+		m_CurrentLobbyGameCreated.m_ulSteamIDLobby = 0;
+		m_CurrentLobbyGameCreated.m_unIP = 0;
+		m_CurrentLobbyGameCreated.m_usPort = 0;
+	}
+public:
 	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
 	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
 	bool HasLobbyGameCreated();
 	LobbyGameCreated_t GetLobbyGameCreated() { return m_CurrentLobbyGameCreated; }
+	//uint32 GetPublicIP();
+
 	// Lobby methods: Data
+private:
+	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdate, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
+	std::list<LobbyDataUpdate_t> m_LobbyDataUpdateList;
+	std::mutex m_LobbyDataUpdateMutex;
+	LobbyDataUpdate_t m_CurrentLobbyDataUpdate;
+	void ClearCurrentLobbyDataUpdate()
+	{
+		m_CurrentLobbyDataUpdate.m_bSuccess = 0;
+		m_CurrentLobbyDataUpdate.m_ulSteamIDLobby = 0;
+		m_CurrentLobbyDataUpdate.m_ulSteamIDMember = 0;
+	}
+public:
 	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
 	int GetLobbyDataCount(CSteamID steamIDLobby);
 	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
@@ -406,7 +400,21 @@ public:
 	LobbyDataUpdate_t GetLobbyDataUpdateResponse() { return m_CurrentLobbyDataUpdate; }
 	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
 	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
-	// Lobby methods: members and status
+
+	// Lobby methods: Members and Status
+private:
+	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdate, LobbyChatUpdate_t, m_CallbackLobbyChatUpdate);
+	std::list<LobbyChatUpdate_t> m_LobbyChatUpdateList;
+	std::mutex m_LobbyChatUpdateMutex;
+	LobbyChatUpdate_t m_CurrentLobbyChatUpdate;
+	void ClearCurrentLobbyChatUpdate()
+	{
+		m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange = (EChatMemberStateChange)0;
+		m_CurrentLobbyChatUpdate.m_ulSteamIDLobby = 0;
+		m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange = 0;
+		m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged = 0;
+	}
+public:
 	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
 	bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
 	int GetLobbyMemberLimit(CSteamID steamIDLobby);
@@ -418,7 +426,24 @@ public:
 	CSteamID GetLobbyChatUpdateUserChanged() { return m_CurrentLobbyChatUpdate.m_ulSteamIDUserChanged; }
 	EChatMemberStateChange GetLobbyChatUpdateUserState() { return (EChatMemberStateChange)m_CurrentLobbyChatUpdate.m_rgfChatMemberStateChange; }
 	CSteamID GetLobbyChatUpdateUserMakingChange() { return m_CurrentLobbyChatUpdate.m_ulSteamIDMakingChange; }
+
 	// Lobby methods: Chat messages
+private:
+	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
+	struct ChatMessageInfo_t
+	{
+		CSteamID user;
+		char text[MAX_CHAT_MESSAGE_LENGTH];
+	};
+	std::list<ChatMessageInfo_t> m_LobbyChatMessageList;
+	std::timed_mutex m_LobbyChatMessageMutex;
+	ChatMessageInfo_t m_CurrentLobbyChatMessage;
+	void ClearCurrentLobbyChatMessage()
+	{
+		m_CurrentLobbyChatMessage.user = k_steamIDNil;
+		*m_CurrentLobbyChatMessage.text = NULL;
+	}
+public:
 	bool HasLobbyChatMessage();
 	CSteamID GetLobbyChatMessageUser() { return m_CurrentLobbyChatMessage.user; }
 	void GetLobbyChatMessageText(char *msg) { strcpy_s(msg, MAX_CHAT_MESSAGE_LENGTH, m_CurrentLobbyChatMessage.text); }
@@ -428,9 +453,14 @@ public:
 	int GetFavoriteGameCount();
 	bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
 	bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
-	// Game server
-	//uint32 GetPublicIP();
+
 	// Music methods
+private:
+	STEAM_CALLBACK(SteamPlugin, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t, m_CallbackPlaybackStatusHasChanged);
+	bool m_PlaybackStatusHasChanged;
+	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
+	bool m_VolumeHasChanged;
+public:
 	bool IsMusicEnabled();
 	bool IsMusicPlaying();
 	AudioPlayback_Status GetMusicPlaybackStatus();
@@ -442,7 +472,17 @@ public:
 	void SetMusicVolume(float flVolume);
 	bool HasMusicPlaybackStatusChanged();
 	bool HasMusicVolumeChanged();
-	// Utils
+
+	// Util methods
+private:
+	STEAM_CALLBACK(SteamPlugin, OnIPCountryChanged, IPCountry_t, m_CallbackIPCountryChanged);
+	bool m_HasIPCountryChanged;
+	STEAM_CALLBACK(SteamPlugin, OnLowBatteryPower, LowBatteryPower_t, m_CallbackLowBatteryPower);
+	bool m_HasLowBatteryWarning;
+	uint8 m_nMinutesBatteryLeft;
+	STEAM_CALLBACK(SteamPlugin, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
+	bool m_IsSteamShuttingDown;
+public:
 	uint8 GetCurrentBatteryPower();
 	uint32 GetIPCCallCount();
 	const char *GetIPCountry();
@@ -458,28 +498,39 @@ public:
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
 	bool IsSteamShuttingDown();
 	void SetWarningMessageHook();
+
 	// Big Picture methods
+private:
+	STEAM_CALLBACK(SteamPlugin, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, m_CallbackGamepadTextInputDismissed);
+	GamepadTextInputDismissedInfo_t m_GamepadTextInputDismissedInfo;
+public:
 	bool IsSteamInBigPictureMode();
 	bool HasGamepadTextInputDismissedInfo();
 	void GetGamepadTextInputDismissedInfo(bool *pbSubmitted, char *pchText);
 	bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText);
+
 	// VR methods
+public:
 	bool IsSteamRunningInVR();
 	void StartVRDashboard();
 	void SetVRHeadsetStreamingEnabled(bool bEnabled);
 	bool IsVRHeadsetStreamingEnabled();
+
 	// Cloud methods : Information
+public:
 	bool IsCloudEnabledForAccount();
 	bool IsCloudEnabledForApp();
 	void SetCloudEnabledForApp(bool bEnabled);
+	bool GetQuota(uint64 *pnTotalBytes, uint64 *puAvailableBytes);
+
 	// Cloud Methods: Files
+public:
 	bool FileDelete(const char *pchFile);
 	bool FileExists(const char *pchFile);
 	bool FileForget(const char *pchFile);
 	bool FilePersisted(const char *pchFile);
 	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
 	int FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
-	//EResult GetFileReadAsyncResult(int hCallResult);
 	std::string GetFileReadAsyncFileName(int hCallResult);
 	int GetFileReadAsyncMemblock(int hCallResult);
 	//SteamAPICall_t FileShare(const char *pchFile);
@@ -494,29 +545,27 @@ public:
 	const char * GetFileNameAndSize(int iFile, int32 *pnFileSizeInBytes);
 	int32 GetFileSize(const char *pchFile);
 	int64 GetFileTimestamp(const char *pchFile);
-	bool GetQuota(uint64 *pnTotalBytes, uint64 *puAvailableBytes);
 	ERemoteStoragePlatform GetSyncPlatforms(const char *pchFile);
 	bool SetSyncPlatforms(const char *pchFile, ERemoteStoragePlatform eRemoteStoragePlatform);
+
 	// User-Generated Content
+public:
 	int32 GetCachedUGCCount();
-	//UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
-	//bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
-	//bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
-	//SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
-	//SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
-	//int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
-	/*
-	Input Information
-	*/
+
+	// Input Information
+private:
+	//int m_InputCount;
+	//InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
+public:
 	bool InitSteamInput();
 	bool ShutdownSteamInput();
 	int GetConnectedControllers(InputHandle_t *handlesOut);
 	ESteamInputType GetInputTypeForHandle(InputHandle_t inputHandle);
 	void RunFrame();
 	bool ShowBindingPanel(InputHandle_t inputHandle);
-	/*
-	Input Action Sets and Layers
-	*/
+
+	// Input Action Sets and Layers
+public:
 	void ActivateActionSet(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle);
 	InputActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
 	InputActionSetHandle_t GetCurrentActionSet(InputHandle_t inputHandle);
@@ -524,9 +573,9 @@ public:
 	void DeactivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t hActionSetLayer);
 	void DeactivateAllActionSetLayers(InputHandle_t inputHandle);
 	int GetActiveActionSetLayers(InputHandle_t inputHandle, InputActionSetHandle_t *handlesOut);
-	/*
-	Input Actions and Motion
-	*/
+
+	// Input Actions and Motion
+public:
 	InputAnalogActionData_t m_AnalogActionData;
 	void GetAnalogActionData(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle);
 	InputAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
@@ -555,9 +604,9 @@ public:
 		m_MotionData.rotVelY = 0;
 		m_MotionData.rotVelZ = 0;
 	}
-	/*
-	Input Action Origins.
-	*/
+
+	// Input Action Origins.
+public:
 	int GetAnalogActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut);
 	int GetDigitalActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
 	const char *GetGlyphForActionOrigin(EInputActionOrigin eOrigin);
@@ -566,9 +615,9 @@ public:
 	const char *GetStringForXboxOrigin(EXboxOrigin eOrigin);
 	const char *GetGlyphForXboxOrigin(EXboxOrigin eOrigin);
 	EInputActionOrigin TranslateActionOrigin(ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin);
-	/*
-	Input Effects
-	*/
+
+	// Input Effects
+public:
 	void SetLEDColor(InputHandle_t inputHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
 	void TriggerHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short duration);
 	void TriggerRepeatedHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);

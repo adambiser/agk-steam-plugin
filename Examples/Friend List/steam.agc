@@ -96,9 +96,9 @@ Function ProcessCallbacks()
 	hSteamID as integer
 	flags as integer
 	index as integer
-	while Steam.HasPersonaStateChanged()
+	while Steam.HasPersonaStateChange()
 		change as PersonaStateChange_t
-		change.fromjson(Steam.GetPersonaStateChangedJSON())
+		change.fromjson(Steam.GetPersonaStateChangeJSON())
 		hSteamID = change.SteamID
 		flags = change.ChangeFlags
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
@@ -230,7 +230,6 @@ Function SelectFriendGroup(index as integer)
 		// Subtract 1 because in this app index 0 = all friends
 		friendListJSON = Steam.GetFriendsGroupMembersListJSON(Steam.GetFriendsGroupIDByIndex(index - 1))
 	endif
-	AddStatus(friendListJSON)
 	server.groupFriends.length = -1
 	groupFriendIDs as integer[]
 	groupFriendIDs.fromJSON(friendListJSON)

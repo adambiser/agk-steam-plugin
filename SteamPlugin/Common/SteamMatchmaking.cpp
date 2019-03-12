@@ -97,25 +97,13 @@ bool SteamPlugin::SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType)
 void SteamPlugin::OnLobbyEnter(LobbyEnter_t *pParam)
 {
 	utils::Log("Callback: OnLobbyEnter");
-	m_LobbyEnterMutex.lock();
-	m_LobbyEnterList.push_back(*pParam);
-	m_LobbyEnterMutex.unlock();
+	StoreCallbackResult(LobbyEnter, *pParam);
 	m_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
 }
 
 bool SteamPlugin::HasLobbyEnterResponse()
 {
-	m_LobbyEnterMutex.lock();
-	if (m_LobbyEnterList.size() > 0)
-	{
-		m_CurrentLobbyEnter = m_LobbyEnterList.front();
-		m_LobbyEnterList.pop_front();
-		m_LobbyEnterMutex.unlock();
-		return true;
-	}
-	m_LobbyEnterMutex.unlock();
-	ClearCurrentLobbyEnter();
-	return false;
+	GetNextCallbackResult(LobbyEnter);
 }
 
 int SteamPlugin::JoinLobby(CSteamID steamIDLobby)
@@ -173,24 +161,12 @@ void SteamPlugin::SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerI
 void SteamPlugin::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
 	utils::Log("Callback: OnLobbyGameCreated: " + std::to_string(pParam->m_ulSteamIDLobby));
-	m_LobbyGameCreatedMutex.lock();
-	m_LobbyGameCreatedList.push_back(*pParam);
-	m_LobbyGameCreatedMutex.unlock();
+	StoreCallbackResult(LobbyGameCreated, *pParam);
 }
 
 bool SteamPlugin::HasLobbyGameCreated()
 {
-	m_LobbyGameCreatedMutex.lock();
-	if (m_LobbyGameCreatedList.size() > 0)
-	{
-		m_CurrentLobbyGameCreated = m_LobbyGameCreatedList.front();
-		m_LobbyGameCreatedList.pop_front();
-		m_LobbyGameCreatedMutex.unlock();
-		return true;
-	}
-	ClearCurrentLobbyGameCreated();
-	m_LobbyGameCreatedMutex.unlock();
-	return false;
+	GetNextCallbackResult(LobbyGameCreated);
 }
 
 const char *SteamPlugin::GetLobbyData(CSteamID steamIDLobby, const char *pchKey)
@@ -229,27 +205,15 @@ bool SteamPlugin::RequestLobbyData(CSteamID steamIDLobby)
 	return SteamMatchmaking()->RequestLobbyData(steamIDLobby);
 }
 
-void SteamPlugin::OnLobbyDataUpdated(LobbyDataUpdate_t *pParam)
+void SteamPlugin::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 {
-	utils::Log("Callback OnLobbyDataUpdated: " + std::string((pParam->m_bSuccess) ? "Succeeded" : "Failed"));
-	m_LobbyDataUpdatedMutex.lock();
-	m_LobbyDataUpdatedList.push_back(*pParam);
-	m_LobbyDataUpdatedMutex.unlock();
+	utils::Log("Callback OnLobbyDataUpdate: " + std::string((pParam->m_bSuccess) ? "Succeeded" : "Failed"));
+	StoreCallbackResult(LobbyDataUpdate, *pParam);
 }
 
 bool SteamPlugin::HasLobbyDataUpdateResponse()
 {
-	m_LobbyDataUpdatedMutex.lock();
-	if (m_LobbyDataUpdatedList.size() > 0)
-	{
-		m_CurrentLobbyDataUpdate = m_LobbyDataUpdatedList.front();
-		m_LobbyDataUpdatedList.pop_front();
-		m_LobbyDataUpdatedMutex.unlock();
-		return true;
-	}
-	ClearCurrentLobbyDataUpdate();
-	m_LobbyDataUpdatedMutex.unlock();
-	return false;
+	GetNextCallbackResult(LobbyDataUpdate);
 }
 
 const char *SteamPlugin::GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey)
@@ -300,27 +264,15 @@ CSteamID SteamPlugin::GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember)
 	return SteamMatchmaking()->GetLobbyMemberByIndex(steamIDLobby, iMember);
 }
 
-void SteamPlugin::OnLobbyChatUpdated(LobbyChatUpdate_t *pParam)
+void SteamPlugin::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
 {
-	agk::Log("Callback: OnLobbyChatUpdated");
-	m_LobbyChatUpdatedMutex.lock();
-	m_LobbyChatUpdatedList.push_back(*pParam);
-	m_LobbyChatUpdatedMutex.unlock();
+	agk::Log("Callback: OnLobbyChatUpdate");
+	StoreCallbackResult(LobbyChatUpdate, *pParam);
 }
 
 bool SteamPlugin::HasLobbyChatUpdate()
 {
-	m_LobbyChatUpdatedMutex.lock();
-	if (m_LobbyChatUpdatedList.size() > 0)
-	{
-		m_CurrentLobbyChatUpdate = m_LobbyChatUpdatedList.front();
-		m_LobbyChatUpdatedList.pop_front();
-		m_LobbyChatUpdatedMutex.unlock();
-		return true;
-	}
-	ClearCurrentLobbyChatUpdate();
-	m_LobbyChatUpdatedMutex.unlock();
-	return false;
+	GetNextCallbackResult(LobbyChatUpdate);
 }
 
 void SteamPlugin::OnLobbyChatMessage(LobbyChatMsg_t *pParam)

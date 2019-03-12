@@ -66,9 +66,9 @@ const char *SteamPlugin::GetPersonaName()
 }
 
 // Callback for RequestUserInformation and more.
-void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
+void SteamPlugin::OnPersonaStateChange(PersonaStateChange_t *pParam)
 {
-	agk::Log("Callback: OnPersonaStateChanged");
+	agk::Log("Callback: OnPersonaStateChange");
 	if (m_PersonaStateChangedEnabled)
 	{
 		m_PersonaStateChangeMutex.lock();
@@ -85,7 +85,7 @@ void SteamPlugin::OnPersonaStateChanged(PersonaStateChange_t *pParam)
 	}
 }
 
-bool SteamPlugin::HasPersonaStateChanged()
+bool SteamPlugin::HasPersonaStateChange()
 {
 	m_PersonaStateChangeMutex.lock();
 	if (m_PersonaStateChangeList.size() > 0)

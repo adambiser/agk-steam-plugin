@@ -492,7 +492,7 @@ extern "C" DLL_EXPORT char *GetSteamID64(int hUserSteamID);
 @return 1 when there is data stored; otherwise 0.
 @api ISteamFriends#PersonaStateChange_t
 */
-extern "C" DLL_EXPORT int HasPersonaStateChanged();
+extern "C" DLL_EXPORT int HasPersonaStateChange();
 /*
 @desc Returns a JSON object for the PersonaStateChange_t callback data.
 
@@ -500,7 +500,7 @@ _HasPersonaStateChanged must be called prior to this method._
 @return The SteamID handle of the user whose persona state changed
 @api ISteamFriends#PersonaStateChange_t
 */
-extern "C" DLL_EXPORT char *GetPersonaStateChangedJSON();
+extern "C" DLL_EXPORT char *GetPersonaStateChangeJSON();
 /*
 @desc Requests the persona name and optionally the avatar of a specified user (when requireNameOnly is 0).
 @param hUserSteamID A user Steam ID handle.

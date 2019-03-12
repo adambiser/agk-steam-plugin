@@ -73,4 +73,13 @@ struct FavoriteGameInfo_t
 	uint32 m_rTime32LastPlayedOnServer;
 };
 
+#define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
+
+struct GamepadTextInputDismissedInfo_t
+{
+	bool dismissed;
+	bool submitted;
+	char text[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
+};
+
 #endif // _PLUGINTYPES_H_

@@ -72,8 +72,8 @@ GetSteamID,I,0,GetSteamID,0,0,0,0,GetSteamID
 GetAccountID,I,I,GetAccountID,0,0,0,0,GetAccountID
 GetSteamID3,S,I,GetSteamID3,0,0,0,0,GetSteamID3
 GetSteamID64,S,I,GetSteamID64,0,0,0,0,GetSteamID64
-HasPersonaStateChanged,I,0,HasPersonaStateChanged,0,0,0,0,HasPersonaStateChanged
-GetPersonaStateChangedJSON,S,0,GetPersonaStateChangedJSON,0,0,0,0,GetPersonaStateChangedJSON
+HasPersonaStateChange,I,0,HasPersonaStateChange,0,0,0,0,HasPersonaStateChange
+GetPersonaStateChangeJSON,S,0,GetPersonaStateChangeJSON,0,0,0,0,GetPersonaStateChangeJSON
 RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,RequestUserInformation
 HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,HasAvatarImageLoaded
 GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,GetAvatarImageLoadedUser

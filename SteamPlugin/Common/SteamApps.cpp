@@ -180,25 +180,14 @@ void SteamPlugin::OnDlcInstalled(DlcInstalled_t *pParam)
 	// Don't store unless the main program is using this functionality.
 	if (m_OnDlcInstalledEnabled)
 	{
-		m_DlcInstalledMutex.lock();
-		m_DlcInstalledList.push_back(pParam->m_nAppID);
-		m_DlcInstalledMutex.unlock();
+		StoreCallbackResult(NewDlcInstalled, *pParam);
 	}
 }
 
 bool SteamPlugin::HasNewDlcInstalled()
 {
 	m_OnDlcInstalledEnabled = true;
-	m_DlcInstalledMutex.lock();
-	if (m_DlcInstalledList.size() > 0)
-	{
-		m_NewDlcInstalled = m_DlcInstalledList.front();
-		m_DlcInstalledList.pop_front();
-		m_DlcInstalledMutex.unlock();
-		return true;
-	}
-	m_DlcInstalledMutex.unlock();
-	m_NewDlcInstalled = 0;
+	GetNextCallbackResult(NewDlcInstalled);
 	return false;
 }
 
