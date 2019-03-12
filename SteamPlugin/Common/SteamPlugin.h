@@ -78,13 +78,13 @@ public:										\
 		return false;						\
 	}
 
-// Adds the result to the end of the callback list.  Uses mutex.
+// Adds the result to the end of the callback list.
 #define StoreCallbackResult(callback, result)	\
 	m_##callback##Mutex.lock();					\
 	m_##callback##List.push_back(result);		\
 	m_##callback##Mutex.unlock()
 
-// Moves the front value of the list into the current value variable.  Uses mutex.
+// Moves the front value of the list into the current value variable.
 #define GetNextCallbackResult(callback)						\
 	m_##callback##Mutex.lock();								\
 	if (m_##callback##List.size() > 0)						\
@@ -98,7 +98,7 @@ public:										\
 	m_##callback##Mutex.unlock();							\
 	return false
 
-// Clears the callback list and current value variable.  Uses mutex.
+// Clears the callback list and current value variable.
 #define ClearCallbackList(callback) \
 	m_##callback##Mutex.lock();		\
 	m_##callback##List.clear();		\
