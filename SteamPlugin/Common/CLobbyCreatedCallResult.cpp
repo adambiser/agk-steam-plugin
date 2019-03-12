@@ -60,7 +60,5 @@ void CLobbyCreatedCallResult::Call()
 
 std::string CLobbyCreatedCallResult::GetResultJSON()
 {
-	return std::string("{"
-		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(m_LobbyCreated.m_ulSteamIDLobby)) + ", "
-		"\"Result\": " + std::to_string(m_LobbyCreated.m_eResult) + "}");
+	return ToJSON(m_LobbyCreated);
 };

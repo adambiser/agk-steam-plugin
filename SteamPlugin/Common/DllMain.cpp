@@ -62,50 +62,6 @@ If it has not been, return a default value.
 		value = max;					\
 	}
 
-std::string EscapeJSON(const std::string &input)
-{
-	std::ostringstream output;
-	for (auto c = input.cbegin(); c != input.cend(); c++)
-	{
-		switch (*c) {
-		case '"':
-			output << "\\\"";
-			break;
-		case '\\':
-			output << "\\\\";
-			break;
-		case '\b':
-			output << "\\b";
-			break;
-		case '\f':
-			output << "\\f";
-			break;
-		case '\n':
-			output << "\\n";
-			break;
-		case '\r':
-			output << "\\r";
-			break;
-		case '\t':
-			output << "\\t";
-			break;
-		default:
-			if ('\x00' <= *c && *c <= '\x1f')
-			{
-				char buffer[8];
-				sprintf_s(buffer, "\\u%04x", *c);
-				output << buffer;
-			}
-			else
-			{
-				output << *c;
-			}
-			break;
-		}
-	}
-	return output.str();
-}
-
 /*
 	CSteamID Handle Methods
 */
@@ -233,7 +189,6 @@ bool ParseIP(const char *ipv4, uint32 *ip)
 }
 
 //#define ConvertIPToString(ip) ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff)
-#define ConvertIPToString(ip) std::to_string((ip >> 24) & 0xff) + "." + std::to_string((ip >> 16) & 0xff) + "." + std::to_string((ip >> 8) & 0xff) + "." + std::to_string((ip >> 0) & 0xff)
 
 void ResetVariables()
 {

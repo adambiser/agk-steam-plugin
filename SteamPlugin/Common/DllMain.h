@@ -44,6 +44,8 @@ enum ECallbackState
 int GetPluginHandle(uint64 handle);
 int GetPluginHandle(CSteamID steamID);
 
+#define ConvertIPToString(ip) std::to_string((ip >> 24) & 0xff) + "." + std::to_string((ip >> 16) & 0xff) + "." + std::to_string((ip >> 8) & 0xff) + "." + std::to_string((ip >> 0) & 0xff)
+
 /* @page General Commands */
 /*
 @desc

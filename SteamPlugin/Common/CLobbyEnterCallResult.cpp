@@ -51,9 +51,5 @@ void CLobbyEnterCallResult::Call()
 
 std::string CLobbyEnterCallResult::GetResultJSON()
 {
-	return std::string("{"
-		"\"SteamIDLobby\": " + std::to_string(GetPluginHandle(m_LobbyEnter.m_ulSteamIDLobby)) + ", "
-		"\"Locked\": " + std::to_string(m_LobbyEnter.m_bLocked) + ", "
-		"\"ChatRoomEnterResponse\": " + std::to_string(m_LobbyEnter.m_EChatRoomEnterResponse) + ", "
-		"\"ChatPermissions\": " + std::to_string(m_LobbyEnter.m_rgfChatPermissions) + "}");
+	return ToJSON(m_LobbyEnter);
 };

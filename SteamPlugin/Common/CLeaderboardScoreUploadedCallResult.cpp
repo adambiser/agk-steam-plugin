@@ -52,11 +52,5 @@ void CLeaderboardScoreUploadedCallResult::Call()
 
 std::string CLeaderboardScoreUploadedCallResult::GetResultJSON()
 {
-	return std::string("{"
-		"\"SteamLeaderboard\": " + std::to_string(GetPluginHandle(m_LeaderboardScoreUploaded.m_hSteamLeaderboard)) + ", "
-		"\"Success\": " + std::to_string(m_LeaderboardScoreUploaded.m_bSuccess) + ", "
-		"\"ScoreChanged\": " + std::to_string(m_LeaderboardScoreUploaded.m_bScoreChanged) + ", "
-		"\"GlobalRankNew\": " + std::to_string(m_LeaderboardScoreUploaded.m_nGlobalRankNew) + ", "
-		"\"GlobalRankPrevious\": " + std::to_string(m_LeaderboardScoreUploaded.m_nGlobalRankPrevious) + ", "
-		"\"Score\": " + std::to_string(m_LeaderboardScoreUploaded.m_nScore) + "}");
+	return ToJSON(m_LeaderboardScoreUploaded);
 }
