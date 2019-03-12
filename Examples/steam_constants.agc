@@ -504,7 +504,6 @@ Type HTML_NewWindow_t
 	Y as integer	// The y pos into the page to display the popup.
 	Wide as integer	// The total width of the pBGRA texture.
 	Tall as integer	// The total height of the pBGRA texture.
-	NewWindow_BrowserHandle as integer	// The handle of the new window surface.
 EndType
 
 // The browser has requested to load a url in a new tab.
