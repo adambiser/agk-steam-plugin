@@ -46,8 +46,6 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
 	ResetSessionVariables();
-	// TODO REMOVE!
-	m_AppID = 480;
 }
 
 SteamPlugin::~SteamPlugin(void)
@@ -57,7 +55,7 @@ SteamPlugin::~SteamPlugin(void)
 
 void SteamPlugin::Shutdown()
 {
-	if (m_SteamInitialized)
+	if (g_SteamInitialized)
 	{
 		// Disconnect from any lobbies.
 		while (m_JoinedLobbies.size() > 0)
@@ -102,9 +100,9 @@ void SteamPlugin::ResetSessionVariables()
 	// Additional variables.
 	m_AchievementIconsMap.clear();
 	m_AchievementStored = false;
-	m_AppID = 0;
+	g_AppID = 0;
 	m_AvatarImageLoadedEnabled = false;
-	m_IsGameOverlayActive = false;
+	g_IsGameOverlayActive = false;
 	m_JoinedLobbies.clear();
 	m_nMinutesBatteryLeft = 255;
 	m_OnDlcInstalledEnabled = false;
@@ -112,7 +110,7 @@ void SteamPlugin::ResetSessionVariables()
 	m_RequestStatsCallbackState = Idle;
 	m_StatsInitialized = false;
 	m_StatsStored = false;
-	m_SteamInitialized = false;
+	g_SteamInitialized = false;
 	m_StoreStatsCallbackState = Idle;
 }
 

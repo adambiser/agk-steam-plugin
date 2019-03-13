@@ -48,7 +48,7 @@ enum EAvatarSize
 };
 
 #define CheckInitialized(steamInterface, returnValue)				\
-	if (!m_SteamInitialized || (NULL == steamInterface()))			\
+	if (!g_SteamInitialized || (NULL == steamInterface()))			\
 	{																\
 		agk::PluginError("Steam API has not been initialized.");	\
 		return returnValue;											\
@@ -113,12 +113,9 @@ public:
 
 	// General methods.
 private:
-	uint64 m_AppID;
-	bool m_SteamInitialized;
 	void ResetSessionVariables();
 public:
 	void Shutdown();
-	bool SteamInitialized() { return m_SteamInitialized; }
 
 	// TODO Remove this.
 	// Return to Idle after reporting Done.
@@ -170,9 +167,6 @@ public:
 	// Overlay methods
 private:
 	STEAM_CALLBACK(SteamPlugin, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
-	bool m_IsGameOverlayActive;
-public:
-	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 
 	// User/Friend methods
 private:
@@ -189,11 +183,6 @@ public:
 	//steamUser->GetPlayerSteamLevel()
 	//m_PersonaStateChange
 	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
-
-	// Image methods
-public:
-	int LoadImageFromHandle(int hImage);
-	int LoadImageFromHandle(int imageID, int hImage);
 
 	// General user stats methods.
 private:
@@ -281,16 +270,6 @@ private:
 	SETUP_CALLBACK_BOOL(MusicPlaybackStatusChanged);
 	STEAM_CALLBACK(SteamPlugin, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged);
 	SETUP_CALLBACK_BOOL(MusicVolumeChanged);
-public:
-	bool IsMusicEnabled();
-	bool IsMusicPlaying();
-	AudioPlayback_Status GetMusicPlaybackStatus();
-	float GetMusicVolume();
-	void PauseMusic();
-	void PlayMusic();
-	void PlayNextSong();
-	void PlayPreviousSong();
-	void SetMusicVolume(float flVolume);
 
 	// Util methods
 private:
@@ -302,120 +281,44 @@ private:
 	STEAM_CALLBACK(SteamPlugin, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
 	SETUP_CALLBACK_BOOL(SteamShutdownNotification);
 public:
-	uint8 GetCurrentBatteryPower();
-	uint32 GetIPCCallCount();
-	const char *GetIPCountry();
-	uint32 GetSecondsSinceAppActive();
-	uint32 GetSecondsSinceComputerActive();
-	uint32 GetServerRealTime();
-	const char *GetSteamUILanguage();
-	bool IsOverlayEnabled();
-	void SetOverlayNotificationInset(int nHorizontalInset, int nVerticalInset);
-	void SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition);
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
-	void SetWarningMessageHook();
 
 	// Big Picture methods
 private:
 	STEAM_CALLBACK(SteamPlugin, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, m_CallbackGamepadTextInputDismissed);
 	SETUP_CALLBACK_LIST(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t);
-public:
-	bool IsSteamInBigPictureMode();
-	bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText);
-
-	// VR methods
-public:
-	bool IsSteamRunningInVR();
-	void StartVRDashboard();
-	void SetVRHeadsetStreamingEnabled(bool bEnabled);
-	bool IsVRHeadsetStreamingEnabled();
-
-	// Cloud methods : Information
-public:
-	bool IsCloudEnabledForAccount();
-	bool IsCloudEnabledForApp();
-	void SetCloudEnabledForApp(bool bEnabled);
-	bool GetQuota(uint64 *pnTotalBytes, uint64 *puAvailableBytes);
 
 	// Cloud Methods: Files
 public:
-	bool FileDelete(const char *pchFile);
-	bool FileExists(const char *pchFile);
-	bool FileForget(const char *pchFile);
-	bool FilePersisted(const char *pchFile);
-	int32 FileRead(const char *pchFile, void *pvData, int32 cubDataToRead);
 	int FileReadAsync(const char *pchFile, uint32 nOffset, uint32 cubToRead);
 	std::string GetFileReadAsyncFileName(int hCallResult);
 	int GetFileReadAsyncMemblock(int hCallResult);
 	//SteamAPICall_t FileShare(const char *pchFile);
-	bool FileWrite(const char *pchFile, const void *pvData, int32 cubData);
 	int FileWriteAsync(const char *pchFile, const void *pvData, uint32 cubData);
 	std::string GetFileWriteAsyncFileName(int hCallResult);
 	//bool FileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
 	//bool FileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
 	//UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *pchFile);
 	//bool FileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
-	int32 GetFileCount();
-	const char * GetFileNameAndSize(int iFile, int32 *pnFileSizeInBytes);
-	int32 GetFileSize(const char *pchFile);
-	int64 GetFileTimestamp(const char *pchFile);
-	ERemoteStoragePlatform GetSyncPlatforms(const char *pchFile);
-	bool SetSyncPlatforms(const char *pchFile, ERemoteStoragePlatform eRemoteStoragePlatform);
-
-	// User-Generated Content
-public:
-	int32 GetCachedUGCCount();
 
 	// Input Information
 private:
 	//int m_InputCount;
 	//InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 public:
-	bool InitSteamInput();
-	int GetConnectedControllers(InputHandle_t *handlesOut);
-	ESteamInputType GetInputTypeForHandle(InputHandle_t inputHandle);
-	void RunFrame();
-	bool ShowBindingPanel(InputHandle_t inputHandle);
 
 	// Input Action Sets and Layers
 public:
-	void ActivateActionSet(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle);
-	InputActionSetHandle_t GetActionSetHandle(const char *pszActionSetName);
-	InputActionSetHandle_t GetCurrentActionSet(InputHandle_t inputHandle);
-	void ActivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t hActionSetLayer);
-	void DeactivateActionSetLayer(InputHandle_t inputHandle, InputActionSetHandle_t hActionSetLayer);
-	void DeactivateAllActionSetLayers(InputHandle_t inputHandle);
-	int GetActiveActionSetLayers(InputHandle_t inputHandle, InputActionSetHandle_t *handlesOut);
 
 	// Input Actions and Motion
 public:
 	InputAnalogActionData_t m_AnalogActionData;
 	void GetAnalogActionData(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle);
-	InputAnalogActionHandle_t GetAnalogActionHandle(const char *pszActionName);
-	void StopAnalogActionMomentum(InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle);
 	InputDigitalActionData_t m_DigitalActionData;
 	void GetDigitalActionData(InputHandle_t inputHandle, InputDigitalActionHandle_t digitalActionHandle);
-	InputDigitalActionHandle_t GetDigitalActionHandle(const char *pszActionName);
 	InputMotionData_t m_MotionData;
 	void GetMotionData(InputHandle_t inputHandle);
 
-	// Input Action Origins.
-public:
-	int GetAnalogActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut);
-	int GetDigitalActionOrigins(InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
-	const char *GetGlyphForActionOrigin(EInputActionOrigin eOrigin);
-	const char *GetStringForActionOrigin(EInputActionOrigin eOrigin);
-	EInputActionOrigin GetActionOriginFromXboxOrigin(InputHandle_t inputHandle, EXboxOrigin eOrigin);
-	const char *GetStringForXboxOrigin(EXboxOrigin eOrigin);
-	const char *GetGlyphForXboxOrigin(EXboxOrigin eOrigin);
-	EInputActionOrigin TranslateActionOrigin(ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin);
-
-	// Input Effects
-public:
-	void SetLEDColor(InputHandle_t inputHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags);
-	void TriggerHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short duration);
-	void TriggerRepeatedHapticPulse(InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short onDuration, unsigned short offDuration, unsigned short repeat, unsigned int flags);
-	void TriggerVibration(InputHandle_t inputHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed);
 };
 
 #endif // _STEAMPLUGIN_H_

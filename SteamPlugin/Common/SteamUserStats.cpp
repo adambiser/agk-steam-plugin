@@ -31,7 +31,7 @@ THE SOFTWARE.
 void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	agk::Log("OnUserStatsReceived");
-	if (pCallback->m_nGameID == m_AppID)
+	if (pCallback->m_nGameID == g_AppID)
 	{
 		utils::Log("Callback: OnUserStatsReceived " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
 		if (pCallback->m_eResult == k_EResultOK)
@@ -49,7 +49,7 @@ void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 // Callback for StoreStats and ResetAllStats.
 void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
-	if (pCallback->m_nGameID == m_AppID)
+	if (pCallback->m_nGameID == g_AppID)
 	{
 		utils::Log("Callback: OnUserStatsStored " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
 		if (pCallback->m_eResult == k_EResultOK)
@@ -67,7 +67,7 @@ void SteamPlugin::OnUserStatsStored(UserStatsStored_t *pCallback)
 // Callback for StoreStats.
 void SteamPlugin::OnAchievementStored(UserAchievementStored_t *pCallback)
 {
-	if (pCallback->m_nGameID == m_AppID)
+	if (pCallback->m_nGameID == g_AppID)
 	{
 		agk::Log("Callback: OnAchievementStored");
 		m_AchievementStored = true;
@@ -115,7 +115,7 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 // Callback for GetAchievementIcon.
 void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 {
-	if (pParam->m_nGameID.AppID() == m_AppID)
+	if (pParam->m_nGameID.AppID() == g_AppID)
 	{
 		agk::Log("Callback: OnAchievementIconFetched");
 		// Only store the results for values that are expected.

@@ -36,15 +36,23 @@ THE SOFTWARE.
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
 
+#define MEMBLOCK_IMAGE_HEADER_LENGTH	12
+
 static SteamPlugin *Steam;
+
+// GLOBALS!
+// TODO clean this up!
+uint64 g_AppID = 480;
+bool g_SteamInitialized = false;
+bool g_IsGameOverlayActive = false;
+
 
 /*
 Check to see if the SteamPlugin has been initialized.
 If it has not been, return a default value.
 */
-bool m_SteamInitialized = false;
 #define CheckInitializedPlugin(returnValue)	\
-	if (!m_SteamInitialized || !Steam)	\
+	if (!g_SteamInitialized || !Steam)	\
 	{									\
 		return returnValue;				\
 	}
@@ -194,14 +202,13 @@ int Init()
 	{
 		Steam = new SteamPlugin();
 	}
-	if (!m_SteamInitialized)
+	if (!g_SteamInitialized)
 	{
 		ResetVariables();
-		m_SteamInitialized = SteamAPI_Init();
-		if (m_SteamInitialized)
+		g_SteamInitialized = SteamAPI_Init();
+		if (g_SteamInitialized)
 		{
-			// TODO
-			//m_AppID = SteamUtils()->GetAppID();
+			g_AppID = SteamUtils()->GetAppID();
 			RequestStats();
 			return true;
 		}
@@ -228,7 +235,7 @@ When it has, this method returns 1.  Otherwise 0 is returned.
 int SteamInitialized()
 {
 	CheckInitializedPlugin(false);
-	return Steam->SteamInitialized();
+	return g_SteamInitialized;
 }
 
 int RestartAppIfNecessary(int ownAppID)
@@ -634,7 +641,7 @@ void UninstallDLC(int appID)
 int IsGameOverlayActive()
 {
 	CheckInitializedPlugin(false);
-	return Steam->IsGameOverlayActive();
+	return g_IsGameOverlayActive;
 }
 
 void ActivateGameOverlay(const char *dialogName)
@@ -901,16 +908,59 @@ char *GetFriendsGroupName(int hFriendsGroupID)
 	return utils::CreateString(SteamFriends()->GetFriendsGroupName(hFriendsGroupID));
 }
 
+int LoadImageFromHandle(int imageID, int hImage)
+{
+	if (hImage == -1 || hImage == 0)
+	{
+		return 0;
+	}
+	uint32 width;
+	uint32 height;
+	if (!SteamUtils()->GetImageSize(hImage, &width, &height))
+	{
+		agk::PluginError("GetImageSize failed.");
+		return 0;
+	}
+	// Get the actual raw RGBA data from Steam and turn it into a texture in our game engine
+	const int imageSizeInBytes = width * height * 4;
+	uint8 *imageBuffer = new uint8[imageSizeInBytes];
+	if (SteamUtils()->GetImageRGBA(hImage, imageBuffer, imageSizeInBytes))
+	{
+		unsigned int memID = agk::CreateMemblock(imageSizeInBytes + MEMBLOCK_IMAGE_HEADER_LENGTH);
+		agk::SetMemblockInt(memID, 0, width);
+		agk::SetMemblockInt(memID, 4, height);
+		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
+		memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
+		if (imageID)
+		{
+			agk::CreateImageFromMemblock(imageID, memID);
+		}
+		else
+		{
+			imageID = agk::CreateImageFromMemblock(memID);
+		}
+		agk::DeleteMemblock(memID);
+	}
+	else
+	{
+		imageID = 0;
+		agk::PluginError("GetImageRGBA failed.");
+	}
+	// Free memory.
+	delete[] imageBuffer;
+	return imageID;
+}
+
 int LoadImageFromHandle(int hImage)
 {
 	CheckInitializedPlugin(0);
-	return Steam->LoadImageFromHandle(hImage);
+	return LoadImageFromHandle(0, hImage);
 }
 
 void LoadImageIDFromHandle(int imageID, int hImage)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->LoadImageFromHandle(imageID, hImage);
+	LoadImageFromHandle(imageID, hImage);
 }
 
 /*
@@ -1623,55 +1673,55 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 int IsMusicEnabled()
 {
 	CheckInitializedPlugin(0);
-	return Steam->IsMusicEnabled();
+	return SteamMusic()->BIsEnabled();
 }
 
 int IsMusicPlaying()
 {
 	CheckInitializedPlugin(0);
-	return Steam->IsMusicPlaying();
+	return SteamMusic()->BIsPlaying();
 }
 
 int GetMusicPlaybackStatus()
 {
-	CheckInitializedPlugin(0);
-	return Steam->GetMusicPlaybackStatus();
+	CheckInitializedPlugin(AudioPlayback_Undefined);
+	return SteamMusic()->GetPlaybackStatus();
 }
 
 float GetMusicVolume()
 {
 	CheckInitializedPlugin(0.0);
-	return Steam->GetMusicVolume();
+	return SteamMusic()->GetVolume();
 }
 
 void PauseMusic()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->PauseMusic();
+	SteamMusic()->Pause();
 }
 
 void PlayMusic()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->PlayMusic();
+	SteamMusic()->Play();
 }
 
 void PlayNextSong()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->PlayNextSong();
+	SteamMusic()->PlayNext();
 }
 
 void PlayPreviousSong()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->PlayPreviousSong();
+	SteamMusic()->PlayPrevious();
 }
 
 void SetMusicVolume(float volume)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->SetMusicVolume(volume);
+	SteamMusic()->SetVolume(volume);
 }
 
 int HasMusicPlaybackStatusChanged()
@@ -1690,61 +1740,61 @@ int HasMusicVolumeChanged()
 int GetCurrentBatteryPower()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetCurrentBatteryPower();
+	return SteamUtils()->GetCurrentBatteryPower();
 }
 
 int GetIPCCallCount()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetIPCCallCount();
+	return SteamUtils()->GetIPCCallCount();
 }
 
 char *GetIPCountry()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetIPCountry());
+	return utils::CreateString(SteamUtils()->GetIPCountry());
 }
 
 int GetSecondsSinceAppActive()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetSecondsSinceAppActive();
+	return SteamUtils()->GetSecondsSinceAppActive();
 }
 
 int GetSecondsSinceComputerActive()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetSecondsSinceComputerActive();
+	return SteamUtils()->GetSecondsSinceComputerActive();
 }
 
 int GetServerRealTime()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetServerRealTime();
+	return SteamUtils()->GetServerRealTime();
 }
 
 char *GetSteamUILanguage()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetSteamUILanguage());
+	return utils::CreateString(SteamUtils()->GetSteamUILanguage());
 }
 
 int IsOverlayEnabled()
 {
 	CheckInitializedPlugin(0);
-	return Steam->IsOverlayEnabled();
+	return SteamUtils()->IsOverlayEnabled();
 }
 
 void SetOverlayNotificationInset(int horizontalInset, int verticalInset)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->SetOverlayNotificationInset(horizontalInset, verticalInset);
+	SteamUtils()->SetOverlayNotificationInset(horizontalInset, verticalInset);
 }
 
 void SetOverlayNotificationPosition(int eNotificationPosition)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->SetOverlayNotificationPosition((ENotificationPosition) eNotificationPosition);
+	SteamUtils()->SetOverlayNotificationPosition((ENotificationPosition) eNotificationPosition);
 }
 
 int HasIPCountryChanged()
@@ -1771,17 +1821,22 @@ int IsSteamShuttingDown()
 	return Steam->HasSteamShutdownNotification();
 }
 
+extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
+{
+	agk::Log(pchDebugText);
+}
+
 void SetWarningMessageHook()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->SetWarningMessageHook();
+	SteamUtils()->SetWarningMessageHook(&SteamAPIDebugTextHook);
 }
 
 // Big Picture methods
 int IsSteamInBigPictureMode()
 {
 	CheckInitializedPlugin(0);
-	return Steam->IsSteamInBigPictureMode();
+	return SteamUtils()->IsSteamInBigPictureMode();
 }
 
 int HasGamepadTextInputDismissedInfo()
@@ -1802,84 +1857,89 @@ char *GetGamepadTextInputDismissedInfoJSON()
 int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
 {
 	CheckInitializedPlugin(false);
-	return Steam->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
+	if (charMax > MAX_GAMEPAD_TEXT_INPUT_LENGTH)
+	{
+		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
+		charMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
+	}
+	return SteamUtils()->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
 // VR Methods
 int IsSteamRunningInVR()
 {
 	CheckInitializedPlugin(false);
-	return Steam->IsSteamRunningInVR();
+	return SteamUtils()->IsSteamRunningInVR();
 }
 
 void StartVRDashboard()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->StartVRDashboard();
+	SteamUtils()->StartVRDashboard();
 }
 
 void SetVRHeadsetStreamingEnabled(int enabled)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->SetVRHeadsetStreamingEnabled(enabled != 0);
+	SteamUtils()->SetVRHeadsetStreamingEnabled(enabled != 0);
 }
 
 int IsVRHeadsetStreamingEnabled()
 {
 	CheckInitializedPlugin(false);
-	return Steam->IsVRHeadsetStreamingEnabled();
+	return SteamUtils()->IsVRHeadsetStreamingEnabled();
 }
 
 // Cloud methods: Information
 int IsCloudEnabledForAccount()
 {
 	CheckInitializedPlugin(false);
-	return Steam->IsCloudEnabledForAccount();
+	return SteamRemoteStorage()->IsCloudEnabledForAccount();
 }
 
 int IsCloudEnabledForApp()
 {
 	CheckInitializedPlugin(false);
-	return Steam->IsCloudEnabledForApp();
+	return SteamRemoteStorage()->IsCloudEnabledForApp();
 }
 
 void SetCloudEnabledForApp(int enabled)
 {
 	CheckInitializedPlugin(NORETURN);
-	return Steam->SetCloudEnabledForApp(enabled != 0);
+	return SteamRemoteStorage()->SetCloudEnabledForApp(enabled != 0);
 }
 
 // Cloud methods: Files
 int CloudFileDelete(const char *filename)
 {
 	CheckInitializedPlugin(false);
-	return Steam->FileDelete(filename);
+	return SteamRemoteStorage()->FileDelete(filename);
 }
 
 int CloudFileExists(const char *filename)
 {
 	CheckInitializedPlugin(false);
-	return Steam->FileExists(filename);
+	return SteamRemoteStorage()->FileExists(filename);
 }
 
 int CloudFileForget(const char *filename)
 {
 	CheckInitializedPlugin(false);
-	return Steam->FileForget(filename);
+	return SteamRemoteStorage()->FileForget(filename);
 }
 
 int CloudFilePersisted(const char *filename)
 {
 	CheckInitializedPlugin(false);
-	return Steam->FilePersisted(filename);
+	return SteamRemoteStorage()->FilePersisted(filename);
 }
 
 int CloudFileRead(const char *filename)
 {
 	CheckInitializedPlugin(0);
-	int fileSize = Steam->GetFileSize(filename);
+	int fileSize = SteamRemoteStorage()->GetFileSize(filename);
 	unsigned int memblock = agk::CreateMemblock(fileSize);
-	if (Steam->FileRead(filename, agk::GetMemblockPtr(memblock), fileSize))
+	if (SteamRemoteStorage()->FileRead(filename, agk::GetMemblockPtr(memblock), fileSize))
 	{
 		return memblock;
 	}
@@ -1892,7 +1952,7 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 	CheckInitializedPlugin(0);
 	if (length == -1)
 	{
-		length = Steam->GetFileSize(filename);
+		length = SteamRemoteStorage()->GetFileSize(filename);
 	}
 	return Steam->FileReadAsync(filename, offset, length);
 }
@@ -1916,7 +1976,7 @@ int CloudFileWrite(const char *filename, int memblockID)
 	CheckInitializedPlugin(false);
 	if (agk::GetMemblockExists(memblockID))
 	{
-		return Steam->FileWrite(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
+		return SteamRemoteStorage()->FileWrite(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
 	}
 	return false;
 }
@@ -1946,7 +2006,7 @@ char *GetCloudFileWriteAsyncFileName(int hCallResult)
 int GetCloudFileCount()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFileCount();
+	return SteamRemoteStorage()->GetFileCount();
 }
 
 // Leave the by-index since this is pretty simple.
@@ -1954,7 +2014,7 @@ char *GetCloudFileName(int index)
 {
 	CheckInitializedPlugin(NULL_STRING);
 	int32 pnFileSizeInBytes;
-	return utils::CreateString(Steam->GetFileNameAndSize(index, &pnFileSizeInBytes));
+	return utils::CreateString(SteamRemoteStorage()->GetFileNameAndSize(index, &pnFileSizeInBytes));
 }
 
 char *GetCloudFileListJSON()
@@ -1962,7 +2022,7 @@ char *GetCloudFileListJSON()
 	std::string json("[");
 	//if (Steam)
 	//{
-	//	for (int index = 0; index < Steam->GetFileCount(); index++)
+	//	for (int index = 0; index < SteamRemoteStorage()->GetFileCount(); index++)
 	//	{
 	//		if (index > 0)
 	//		{
@@ -1970,7 +2030,7 @@ char *GetCloudFileListJSON()
 	//		}
 	//		json += "{";
 	//		int32 pnFileSizeInBytes;
-	//		const char *name = Steam->GetFileNameAndSize(index, &pnFileSizeInBytes);
+	//		const char *name = SteamRemoteStorage()->GetFileNameAndSize(index, &pnFileSizeInBytes);
 	//		if (name)
 	//		{
 	//			json += "\"Name\": \"" + EscapeJSON(name) + "\", "
@@ -1991,14 +2051,14 @@ char *GetCloudFileListJSON()
 int GetCloudFileSize(const char *filename)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFileSize(filename);
+	return SteamRemoteStorage()->GetFileSize(filename);
 }
 
 int GetCloudFileTimestamp(const char *filename)
 {
 	CheckInitializedPlugin(0);
 	// NOTE: Dangerous conversion int64 to int.
-	return (int) Steam->GetFileTimestamp(filename);
+	return (int)SteamRemoteStorage()->GetFileTimestamp(filename);
 }
 
 int GetCloudQuotaAvailable()
@@ -2006,7 +2066,7 @@ int GetCloudQuotaAvailable()
 	CheckInitializedPlugin(0);
 	uint64 pnTotalBytes;
 	uint64 puAvailableBytes;
-	if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
+	if (SteamRemoteStorage()->GetQuota(&pnTotalBytes, &puAvailableBytes))
 	{
 		// Note: Potential issue converting uint64 to int if the quote gets to be more than 2GB.
 		return (int)puAvailableBytes;
@@ -2019,7 +2079,7 @@ int GetCloudQuotaTotal()
 	CheckInitializedPlugin(0);
 	uint64 pnTotalBytes;
 	uint64 puAvailableBytes;
-	if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
+	if (SteamRemoteStorage()->GetQuota(&pnTotalBytes, &puAvailableBytes))
 	{
 		// Note: Potential issue converting uint64 to int if the quote gets to be more than 2GB.
 		return (int)pnTotalBytes;
@@ -2035,7 +2095,7 @@ char *GetCloudQuotaJSON()
 	{
 		uint64 pnTotalBytes;
 		uint64 puAvailableBytes;
-		if (Steam->GetQuota(&pnTotalBytes, &puAvailableBytes))
+		if (SteamRemoteStorage()->GetQuota(&pnTotalBytes, &puAvailableBytes))
 		{
 			json << "\"Available\": " << puAvailableBytes << ", ";
 			json << "\"Total\": " << pnTotalBytes;
@@ -2048,13 +2108,13 @@ char *GetCloudQuotaJSON()
 int GetCloudFileSyncPlatforms(const char *filename)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetSyncPlatforms(filename);
+	return SteamRemoteStorage()->GetSyncPlatforms(filename);
 }
 
 int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 {
 	CheckInitializedPlugin(false);
-	return Steam->SetSyncPlatforms(filename, (ERemoteStoragePlatform) eRemoteStoragePlatform);
+	return SteamRemoteStorage()->SetSyncPlatforms(filename, (ERemoteStoragePlatform) eRemoteStoragePlatform);
 }
 
 // User-Generated Content
@@ -2062,7 +2122,7 @@ int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 int GetCachedUGCCount()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetCachedUGCCount();
+	return SteamRemoteStorage()->GetCachedUGCCount();
 }
 
 //UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
@@ -2077,7 +2137,7 @@ Input Information
 */
 int InitSteamInput()
 {
-	//CheckInitializedPlugin(false);
+	CheckInitializedPlugin(false);
 	if (SteamInput()->Init())
 	{
 		// Give the API some time to refresh the inputs.
@@ -2096,7 +2156,7 @@ int ShutdownSteamInput()
 int GetConnectedControllers()
 {
 	CheckInitializedPlugin(0);
-	m_InputCount = Steam->GetConnectedControllers(m_InputHandles);
+	m_InputCount = SteamInput()->GetConnectedControllers(m_InputHandles);
 	return m_InputCount;
 }
 
@@ -2104,20 +2164,20 @@ int GetInputTypeForHandle(int hInput)
 {
 	CheckInitializedPlugin(0);
 	ValidateInputHandle(hInput, k_ESteamInputType_Unknown);
-	return Steam->GetInputTypeForHandle(m_InputHandles[hInput]);
+	return SteamInput()->GetInputTypeForHandle(m_InputHandles[hInput]);
 }
 
 void RunFrame()
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->RunFrame();
+	SteamInput()->RunFrame();
 }
 
 int ShowBindingPanel(int hInput)
 {
 	CheckInitializedPlugin(false);
 	ValidateInputHandle(hInput, false);
-	return Steam->ShowBindingPanel(m_InputHandles[hInput]);
+	return SteamInput()->ShowBindingPanel(m_InputHandles[hInput]);
 }
 
 /*
@@ -2129,20 +2189,20 @@ void ActivateActionSet(int hInput, int hActionSet)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
-	Steam->ActivateActionSet(m_InputHandles[hInput], actionSetHandle);
+	SteamInput()->ActivateActionSet(m_InputHandles[hInput], actionSetHandle);
 }
 
 int GetActionSetHandle(const char *actionSetName)
 {
 	CheckInitializedPlugin(0);
-	return GetActionHandleIndex(Steam->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
+	return GetActionHandleIndex(SteamInput()->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
 }
 
 int GetCurrentActionSet(int hInput)
 {
 	CheckInitializedPlugin(0);
 	ValidateInputHandle(hInput, false);
-	return GetActionHandleIndex(Steam->GetCurrentActionSet(m_InputHandles[hInput]), &m_ActionSetHandles);
+	return GetActionHandleIndex(SteamInput()->GetCurrentActionSet(m_InputHandles[hInput]), &m_ActionSetHandles);
 }
 
 void ActivateActionSetLayer(int hInput, int hActionSetLayer)
@@ -2150,7 +2210,7 @@ void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
-	Steam->ActivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
+	SteamInput()->ActivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
 }
 
 void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
@@ -2158,14 +2218,14 @@ void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
-	Steam->DeactivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
+	SteamInput()->DeactivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
 }
 
 void DeactivateAllActionSetLayers(int hInput)
 {
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
-	Steam->DeactivateAllActionSetLayers(m_InputHandles[hInput]);
+	SteamInput()->DeactivateAllActionSetLayers(m_InputHandles[hInput]);
 }
 
 char *GetActiveActionSetLayersJSON(int hInput)
@@ -2178,7 +2238,7 @@ char *GetActiveActionSetLayersJSON(int hInput)
 	{
 		// TODO The API document has incorrect information.  Is STEAM_INPUT_MAX_COUNT correct?
 		InputActionSetHandle_t *handlesOut = new InputActionSetHandle_t[STEAM_INPUT_MAX_COUNT];
-		int count = Steam->GetActiveActionSetLayers(m_InputHandles[hInput], handlesOut);
+		int count = SteamInput()->GetActiveActionSetLayers(m_InputHandles[hInput], handlesOut);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -2232,7 +2292,7 @@ float GetAnalogActionDataY()
 int GetAnalogActionHandle(const char *actionName)
 {
 	CheckInitializedPlugin(0);
-	return GetActionHandleIndex(Steam->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
+	return GetActionHandleIndex(SteamInput()->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
 }
 
 void StopAnalogActionMomentum(int hInput, int hAnalogAction)
@@ -2240,7 +2300,7 @@ void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	Steam->StopAnalogActionMomentum(m_InputHandles[hInput], analogActionHandle);
+	SteamInput()->StopAnalogActionMomentum(m_InputHandles[hInput], analogActionHandle);
 }
 
 void GetDigitalActionData(int hInput, int hDigitalAction)
@@ -2266,7 +2326,7 @@ int GetDigitalActionDataState()
 int GetDigitalActionHandle(const char *actionName)
 {
 	CheckInitializedPlugin(0);
-	return GetActionHandleIndex(Steam->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
+	return GetActionHandleIndex(SteamInput()->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
 }
 
 void GetMotionData(int hInput)
@@ -2350,7 +2410,7 @@ char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 	if (Steam)
 	{
 		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
-		int count = Steam->GetAnalogActionOrigins(m_InputHandles[hInput], actionSetHandle, analogActionHandle, origins);
+		int count = SteamInput()->GetAnalogActionOrigins(m_InputHandles[hInput], actionSetHandle, analogActionHandle, origins);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -2375,7 +2435,7 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 	if (Steam)
 	{
 		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
-		int count = Steam->GetDigitalActionOrigins(m_InputHandles[hInput], actionSetHandle, digitalActionHandle, origins);
+		int count = SteamInput()->GetDigitalActionOrigins(m_InputHandles[hInput], actionSetHandle, digitalActionHandle, origins);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -2393,38 +2453,38 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 char *GetGlyphForActionOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
+	return utils::CreateString(SteamInput()->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 char *GetStringForActionOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
+	return utils::CreateString(SteamInput()->GetStringForActionOrigin((EInputActionOrigin)eOrigin));
 }
 
 int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 {
 	ValidateInputHandle(hInput, k_EInputActionOrigin_None);
 	CheckInitializedPlugin(k_EInputActionOrigin_None);
-	return Steam->GetActionOriginFromXboxOrigin(m_InputHandles[hInput], (EXboxOrigin)eOrigin);
+	return SteamInput()->GetActionOriginFromXboxOrigin(m_InputHandles[hInput], (EXboxOrigin)eOrigin);
 }
 
 char *GetStringForXboxOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetStringForXboxOrigin((EXboxOrigin)eOrigin));
+	return utils::CreateString(SteamInput()->GetStringForXboxOrigin((EXboxOrigin)eOrigin));
 }
 
 char *GetGlyphForXboxOrigin(int eOrigin)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetGlyphForXboxOrigin((EXboxOrigin)eOrigin));
+	return utils::CreateString(SteamInput()->GetGlyphForXboxOrigin((EXboxOrigin)eOrigin));
 }
 
 int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin)
 {
 	CheckInitializedPlugin(k_EInputActionOrigin_None);
-	return Steam->TranslateActionOrigin((ESteamInputType)eDestinationInputType,(EInputActionOrigin)eSourceOrigin);
+	return SteamInput()->TranslateActionOrigin((ESteamInputType)eDestinationInputType,(EInputActionOrigin)eSourceOrigin);
 }
 
 /*
@@ -2437,14 +2497,14 @@ void SetInputLEDColor(int hInput, int red, int green, int blue)
 	Clamp(red, 0, UINT8_MAX);
 	Clamp(green, 0, UINT8_MAX);
 	Clamp(blue, 0, UINT8_MAX);
-	Steam->SetLEDColor(m_InputHandles[hInput], red, green, blue, k_ESteamInputLEDFlag_SetColor);
+	SteamInput()->SetLEDColor(m_InputHandles[hInput], red, green, blue, k_ESteamInputLEDFlag_SetColor);
 }
 
 void ResetInputLEDColor(int hInput)
 {
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
-	Steam->SetLEDColor(m_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
+	SteamInput()->SetLEDColor(m_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
 }
 
 void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
@@ -2452,7 +2512,7 @@ void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(duration, 0, USHRT_MAX);
-	Steam->TriggerHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+	SteamInput()->TriggerHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
 }
 
 void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat)
@@ -2462,7 +2522,7 @@ void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration,
 	Clamp(onDuration, 0, USHRT_MAX);
 	Clamp(offDuration, 0, USHRT_MAX);
 	Clamp(repeat, 0, USHRT_MAX);
-	Steam->TriggerRepeatedHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
+	SteamInput()->TriggerRepeatedHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
 }
 
 void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
@@ -2471,7 +2531,7 @@ void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 	ValidateInputHandle(hInput, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
-	Steam->TriggerVibration(m_InputHandles[hInput], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+	SteamInput()->TriggerVibration(m_InputHandles[hInput], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)

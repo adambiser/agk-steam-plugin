@@ -24,115 +24,55 @@ THE SOFTWARE.
 
 #define MEMBLOCK_IMAGE_HEADER_LENGTH	12
 
-int SteamPlugin::LoadImageFromHandle(int hImage)
-{
-	return SteamPlugin::LoadImageFromHandle(0, hImage);
-}
-
-int SteamPlugin::LoadImageFromHandle(int imageID, int hImage)
-{
-	if (hImage == -1 || hImage == 0)
-	{
-		return 0;
-	}
-	uint32 width;
-	uint32 height;
-	if (!SteamUtils()->GetImageSize(hImage, &width, &height))
-	{
-		agk::PluginError("GetImageSize failed.");
-		return 0;
-	}
-	// Get the actual raw RGBA data from Steam and turn it into a texture in our game engine
-	const int imageSizeInBytes = width * height * 4;
-	uint8 *imageBuffer = new uint8[imageSizeInBytes];
-	if (SteamUtils()->GetImageRGBA(hImage, imageBuffer, imageSizeInBytes))
-	{
-		unsigned int memID = agk::CreateMemblock(imageSizeInBytes + MEMBLOCK_IMAGE_HEADER_LENGTH);
-		agk::SetMemblockInt(memID, 0, width);
-		agk::SetMemblockInt(memID, 4, height);
-		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
-		memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
-		if (imageID)
-		{
-			agk::CreateImageFromMemblock(imageID, memID);
-		}
-		else
-		{
-			imageID = agk::CreateImageFromMemblock(memID);
-		}
-		agk::DeleteMemblock(memID);
-	}
-	else
-	{
-		imageID = 0;
-		agk::PluginError("GetImageRGBA failed.");
-	}
-	// Free memory.
-	delete[] imageBuffer;
-	return imageID;
-}
+//int SteamPlugin::LoadImageFromHandle(int hImage)
+//{
+//	return SteamPlugin::LoadImageFromHandle(0, hImage);
+//}
+//
+//int SteamPlugin::LoadImageFromHandle(int imageID, int hImage)
+//{
+	//if (hImage == -1 || hImage == 0)
+	//{
+	//	return 0;
+	//}
+	//uint32 width;
+	//uint32 height;
+	//if (!SteamUtils()->GetImageSize(hImage, &width, &height))
+	//{
+	//	agk::PluginError("GetImageSize failed.");
+	//	return 0;
+	//}
+	//// Get the actual raw RGBA data from Steam and turn it into a texture in our game engine
+	//const int imageSizeInBytes = width * height * 4;
+	//uint8 *imageBuffer = new uint8[imageSizeInBytes];
+	//if (SteamUtils()->GetImageRGBA(hImage, imageBuffer, imageSizeInBytes))
+	//{
+	//	unsigned int memID = agk::CreateMemblock(imageSizeInBytes + MEMBLOCK_IMAGE_HEADER_LENGTH);
+	//	agk::SetMemblockInt(memID, 0, width);
+	//	agk::SetMemblockInt(memID, 4, height);
+	//	agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
+	//	memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
+	//	if (imageID)
+	//	{
+	//		agk::CreateImageFromMemblock(imageID, memID);
+	//	}
+	//	else
+	//	{
+	//		imageID = agk::CreateImageFromMemblock(memID);
+	//	}
+	//	agk::DeleteMemblock(memID);
+	//}
+	//else
+	//{
+	//	imageID = 0;
+	//	agk::PluginError("GetImageRGBA failed.");
+	//}
+	//// Free memory.
+	//delete[] imageBuffer;
+	//return imageID;
+//}
 
 // Utils
-uint8 SteamPlugin::GetCurrentBatteryPower()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->GetCurrentBatteryPower();
-}
-
-uint32 SteamPlugin::GetIPCCallCount()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->GetIPCCallCount();
-}
-
-const char *SteamPlugin::GetIPCountry()
-{
-	CheckInitialized(SteamUtils, NULL);
-	return SteamUtils()->GetIPCountry();
-}
-
-uint32 SteamPlugin::GetSecondsSinceAppActive()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->GetSecondsSinceAppActive();
-}
-
-uint32 SteamPlugin::GetSecondsSinceComputerActive()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->GetSecondsSinceComputerActive();
-}
-
-uint32 SteamPlugin::GetServerRealTime()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->GetServerRealTime();
-}
-
-const char *SteamPlugin::GetSteamUILanguage()
-{
-	CheckInitialized(SteamUtils, NULL);
-	return SteamUtils()->GetSteamUILanguage();
-}
-
-bool SteamPlugin::IsOverlayEnabled()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->IsOverlayEnabled();
-}
-
-void SteamPlugin::SetOverlayNotificationInset(int nHorizontalInset, int nVerticalInset)
-{
-	CheckInitialized(SteamUtils, );
-	SteamUtils()->SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
-}
-
-void SteamPlugin::SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition)
-{
-	CheckInitialized(SteamUtils, );
-	SteamUtils()->SetOverlayNotificationPosition(eNotificationPosition);
-}
-
 void SteamPlugin::OnIPCountryChanged(IPCountry_t *pParam)
 {
 	agk::Log("Callback: IP Country Changed");
@@ -152,35 +92,7 @@ void SteamPlugin::OnSteamShutdown(SteamShutdown_t *pParam)
 	m_bSteamShutdownNotification = true;
 }
 
-extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
-{
-	agk::Log(pchDebugText);
-}
-
-void SteamPlugin::SetWarningMessageHook()
-{
-	CheckInitialized(SteamUtils, );
-	SteamUtils()->SetWarningMessageHook(&SteamAPIDebugTextHook);
-}
-
 // Big Picture Mode methods
-bool SteamPlugin::IsSteamInBigPictureMode()
-{
-	CheckInitialized(SteamUtils, false);
-	return SteamUtils()->IsSteamInBigPictureMode();
-
-}
-bool SteamPlugin::ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText)
-{
-	CheckInitialized(SteamUtils, false);
-	if (unCharMax > MAX_GAMEPAD_TEXT_INPUT_LENGTH)
-	{
-		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
-		unCharMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
-	}
-	return SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
-}
-
 void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
 {
 	agk::Log("Callback: Gamepad Text Input Dismissed");
@@ -200,30 +112,5 @@ void SteamPlugin::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCall
 bool SteamPlugin::HasGamepadTextInputDismissed()
 {
 	GetNextCallbackResult(GamepadTextInputDismissed);
-}
-
-// VR methods
-bool SteamPlugin::IsSteamRunningInVR()
-{
-	CheckInitialized(SteamUtils, false);
-	return SteamUtils()->IsSteamRunningInVR();
-}
-
-void SteamPlugin::StartVRDashboard()
-{
-	CheckInitialized(SteamUtils, );
-	SteamUtils()->StartVRDashboard();
-}
-
-void SteamPlugin::SetVRHeadsetStreamingEnabled(bool bEnabled)
-{
-	CheckInitialized(SteamUtils, );
-	SteamUtils()->SetVRHeadsetStreamingEnabled(bEnabled);
-}
-
-bool SteamPlugin::IsVRHeadsetStreamingEnabled()
-{
-	CheckInitialized(SteamUtils, false);
-	return SteamUtils()->IsVRHeadsetStreamingEnabled();
 }
 

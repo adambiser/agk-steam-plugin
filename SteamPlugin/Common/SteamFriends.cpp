@@ -26,7 +26,7 @@ THE SOFTWARE.
 void SteamPlugin::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
 	agk::Log("Callback: OnGameOverlayActivated");
-	m_IsGameOverlayActive = pParam->m_bActive != 0;
+	g_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
 // Callback for RequestUserInformation and more.
