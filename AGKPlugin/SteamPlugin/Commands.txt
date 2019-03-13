@@ -354,6 +354,7 @@ GetDigitalActionDataActive,I,0,GetDigitalActionDataActive,0,0,0,0,GetDigitalActi
 GetDigitalActionDataState,I,0,GetDigitalActionDataState,0,0,0,0,GetDigitalActionDataState
 GetDigitalActionHandle,I,S,GetDigitalActionHandle,0,0,0,0,GetDigitalActionHandle
 GetMotionData,0,I,GetMotionData,0,0,0,0,GetMotionData
+GetMotionDataJSON,S,I,GetMotionDataJSON,0,0,0,0,GetMotionDataJSON
 GetMotionDataPosAccelX,F,0,GetMotionDataPosAccelX,0,0,0,0,GetMotionDataPosAccelX
 GetMotionDataPosAccelY,F,0,GetMotionDataPosAccelY,0,0,0,0,GetMotionDataPosAccelY
 GetMotionDataPosAccelZ,F,0,GetMotionDataPosAccelZ,0,0,0,0,GetMotionDataPosAccelZ

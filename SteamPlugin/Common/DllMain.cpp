@@ -2269,6 +2269,17 @@ void GetMotionData(int hInput)
 	Steam->GetMotionData(m_InputHandles[hInput]);
 }
 
+char *GetMotionDataJSON(int hInput)
+{
+	ValidateInputHandle(hInput, utils::CreateString("{}"));
+	if (Steam)
+	{
+		Steam->GetMotionData(m_InputHandles[hInput]);
+		return utils::CreateString(ToJSON(Steam->m_MotionData));
+	}
+	return utils::CreateString("{}");
+}
+
 float GetMotionDataPosAccelX()
 {
 	CheckInitializedPlugin(0);

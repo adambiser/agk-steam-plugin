@@ -738,6 +738,22 @@ EndType
 // https://partner.steamgames.com/doc/api/ISteamInput
 ////////////////////////////////////////////////////////////////////////////////
 
+Type InputMotionData_t
+	// Sensor-fused absolute rotation; will drift in heading
+	QuatX as float
+	QuatY as float
+	QuatZ as float
+	QuatW as float
+	// Positional acceleration
+	AccelX as float
+	AccelY as float
+	AccelZ as float
+	// Angular velocity
+	VelX as float
+	VelY as float
+	VelZ as float
+EndType
+
 //------------------------------------------------------------------------------
 // Enums and Constants
 //------------------------------------------------------------------------------

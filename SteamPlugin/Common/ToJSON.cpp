@@ -116,6 +116,52 @@ std::string ToJSON(plugin::FavoriteGame_t value)
 		"\"TimeLastPlayedOnServer\": " + std::to_string(value.m_rTime32LastPlayedOnServer) + "}");
 }
 
+void Replace(std::string &str, const std::string &from, const std::string &to)
+{
+	int pos;
+	if ((pos = str.find(from)) != std::string::npos)
+	{
+		str.replace(pos, from.length(), to);
+	}
+}
+
+std::string ToJSON(InputMotionData_t value)
+{
+	std::string json("{"
+		"\"QuatX\": {0}, "
+		"\"QuatY\": {1}, "
+		"\"QuatZ\": {2}, "
+		"\"QuatW\": {3}, "
+		"\"AccelX\": {4}, "
+		"\"AccelY\": {5}, "
+		"\"AccelZ\": {6}, "
+		"\"VelX\": {7}, "
+		"\"VelY\": {8}, "
+		"\"VelZ\":  {9}}");
+	Replace(json, "{0}", std::to_string(value.rotQuatX));
+	Replace(json, "{1}", std::to_string(value.rotQuatY));
+	Replace(json, "{2}", std::to_string(value.rotQuatZ));
+	Replace(json, "{3}", std::to_string(value.rotQuatW));
+	Replace(json, "{4}", std::to_string(value.posAccelX));
+	Replace(json, "{5}", std::to_string(value.posAccelY));
+	Replace(json, "{6}", std::to_string(value.posAccelZ));
+	Replace(json, "{7}", std::to_string(value.rotVelX));
+	Replace(json, "{8}", std::to_string(value.rotVelY));
+	Replace(json, "{9}", std::to_string(value.rotVelZ));
+	return json;
+	//return std::string("{"
+	//	"\"QuatX\": " + std::to_string(value.rotQuatX) + ", "
+	//	"\"QuatY\": " + std::to_string(value.rotQuatY) + ", "
+	//	"\"QuatZ\": " + std::to_string(value.rotQuatZ) + ", "
+	//	"\"QuatW\": " + std::to_string(value.posAccelX) + ", "
+	//	"\"AccelX\": " + std::to_string(value.posAccelY) + ", "
+	//	"\"AccelY\": " + std::to_string(value.posAccelZ) + ", "
+	//	"\"AccelZ\": " + std::to_string(value.rotQuatX) + ", "
+	//	"\"VelX\": " + std::to_string(value.rotVelX) + ", "
+	//	"\"VelY\": " + std::to_string(value.rotVelY) + ", "
+	//	"\"VelZ\": " + std::to_string(value.rotVelZ) + "}");
+}
+
 // TODO
 //std::string ToJSON(FileDetailsResult_t value)
 //{
