@@ -2083,7 +2083,6 @@ GetMotionDataPosRotVelX, GetMotionDataPosRotVelY, and GetMotionDataPosRotVelZ.
 @api ISteamController#GetMotionData, ISteamController#ControllerMotionData_t
 */
 extern "C" DLL_EXPORT void GetMotionData(int hInput);
-extern "C" DLL_EXPORT char *GetMotionDataJSON(int hInput);
 /*
 @desc Returns the positional acceleration, x axis of the controller motion data read by the last GetMotionData call.
 

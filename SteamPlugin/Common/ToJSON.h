@@ -39,7 +39,6 @@ std::string ToJSON(DlcInstalled_t value);
 std::string ToJSON(plugin::DLCData_t value);
 std::string ToJSON(plugin::DownloadProgress_t value);
 std::string ToJSON(plugin::FavoriteGame_t value);
-std::string ToJSON(InputMotionData_t value);
 //std::string ToJSON(FileDetailsResult_t value);
 std::string ToJSON(AvatarImageLoaded_t value);
 std::string ToJSON(ClanOfficerListResponse_t value);

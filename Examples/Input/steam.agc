@@ -74,7 +74,6 @@ do
 	endif
 loop
 
-global done as integer
 //
 // Check and handle input.
 //
@@ -84,30 +83,6 @@ Function CheckInput()
 	// Check action data
 	Steam.RunFrame()
 	if controllerCount
-		if not done
-			done = 1
-			value as InputMotionData_t
-			ResetTimer()
-			for x = 0 to 10000
-				Steam.GetMotionData(1)
-				value.AccelX = Steam.GetMotionDataPosAccelX()
-				value.AccelY = Steam.GetMotionDataPosAccelY()
-				value.AccelZ = Steam.GetMotionDataPosAccelZ()
-				value.QuatW = Steam.GetMotionDataRotQuatW()
-				value.QuatX = Steam.GetMotionDataRotQuatX()
-				value.QuatY = Steam.GetMotionDataRotQuatY()
-				value.QuatZ = Steam.GetMotionDataRotQuatZ()
-				value.VelX = Steam.GetMotionDataRotVelX()
-				value.VelY = Steam.GetMotionDataRotVelY()
-				value.VelZ = Steam.GetMotionDataRotVelZ()
-			next
-			AddStatus("Method 1: " + str(Timer()))
-			ResetTimer()
-			for x = 0 to 10000
-				value.fromjson(Steam.GetMotionDataJSON(1))
-			next
-			AddStatus("Method 1: " + str(Timer()))
-		endif
 		Steam.ActivateActionSet(1, ActionSetHandles.shipControls)
 		// Space War has an action set layer, but I don't know its name.  Pretending menu_controls is an action set layer for now.
 		Steam.ActivateActionSetLayer(1, ActionSetHandles.menuControls) // Hit DETECT again to see this layer activated.
