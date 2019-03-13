@@ -37,12 +37,6 @@ bool SteamPlugin::InitSteamInput()
 	return false;
 }
 
-bool SteamPlugin::ShutdownSteamInput()
-{
-	CheckInitialized(SteamInput, 0);
-	return SteamInput()->Shutdown();
-}
-
 int SteamPlugin::GetConnectedControllers(InputHandle_t *handlesOut)
 {
 	CheckInitialized(SteamInput, 0);

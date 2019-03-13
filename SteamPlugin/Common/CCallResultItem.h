@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include <steam_api.h>
 #include "DllMain.h"
-#include "AGKUtils.h"
+#include "Utils.h"
 
 class CCallResultItem
 {

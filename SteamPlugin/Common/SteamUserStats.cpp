@@ -30,6 +30,7 @@ THE SOFTWARE.
 // Callback for RequestStats.
 void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
+	agk::Log("OnUserStatsReceived");
 	if (pCallback->m_nGameID == m_AppID)
 	{
 		utils::Log("Callback: OnUserStatsReceived " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
@@ -43,29 +44,6 @@ void SteamPlugin::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 			m_RequestStatsCallbackState = ServerError;
 		}
 	}
-}
-
-bool SteamPlugin::RequestStats()
-{
-	// Set to false so that we can detect when the callback finishes for this request.
-	m_StatsInitialized = false;
-	if (!LoggedOn())
-	{
-		return false;
-	}
-	CheckInitialized(SteamUserStats, false);
-	// Fail when the callback is currently running.
-	if (m_RequestStatsCallbackState == Running)
-	{
-		return false;
-	}
-	if (!SteamUserStats()->RequestCurrentStats())
-	{
-		m_RequestStatsCallbackState = ClientError;
-		return false;
-	}
-	m_RequestStatsCallbackState = Running;
-	return true;
 }
 
 // Callback for StoreStats and ResetAllStats.

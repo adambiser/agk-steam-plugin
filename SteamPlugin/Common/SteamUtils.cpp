@@ -24,12 +24,6 @@ THE SOFTWARE.
 
 #define MEMBLOCK_IMAGE_HEADER_LENGTH	12
 
-int SteamPlugin::GetAppID()
-{
-	CheckInitialized(SteamUtils, 0);
-	return SteamUtils()->GetAppID();
-}
-
 int SteamPlugin::LoadImageFromHandle(int hImage)
 {
 	return SteamPlugin::LoadImageFromHandle(0, hImage);

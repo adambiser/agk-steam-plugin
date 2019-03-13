@@ -117,28 +117,8 @@ private:
 	bool m_SteamInitialized;
 	void ResetSessionVariables();
 public:
-	bool Init();
 	void Shutdown();
-	int GetAppID();
 	bool SteamInitialized() { return m_SteamInitialized; }
-	bool RestartAppIfNecessary(uint32 unOwnAppID)
-	{
-		return SteamAPI_RestartAppIfNecessary(unOwnAppID);
-	}
-	int GetAppName(AppId_t nAppID, char *pchName, int cchNameMax)
-	{
-		CheckInitialized(SteamAppList, 0);
-		return SteamAppList()->GetAppName(nAppID, pchName, cchNameMax);
-	}
-	bool LoggedOn();
-	void RunCallbacks()
-	{
-		if (!m_SteamInitialized)
-		{
-			return;
-		}
-		SteamAPI_RunCallbacks();
-	}
 
 	// TODO Remove this.
 	// Return to Idle after reporting Done.
@@ -186,32 +166,6 @@ private:
 	SETUP_CALLBACK_LIST(NewDlcInstalled, DlcInstalled_t);
 	bool m_OnDlcInstalledEnabled;
 public:
-	bool GetDLCDataByIndex(int iDLC, AppId_t *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize);
-	bool IsAppInstalled(AppId_t appID);
-	bool IsCybercafe();
-	bool IsDlcInstalled(AppId_t appID);
-	bool IsLowViolence();
-	bool IsSubscribed();
-	bool IsSubscribedApp(AppId_t appID);
-	bool IsSubscribedFromFamilySharing();
-	bool IsSubscribedFromFreeWeekend();
-	bool IsVACBanned();
-	int GetAppBuildId();
-	uint32 GetAppInstallDir(AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize);
-	CSteamID GetAppOwner();
-	const char *GetAvailableGameLanguages();
-	bool GetCurrentBetaName(char *pchName, int cchNameBufferSize);
-	const char *GetCurrentGameLanguage();
-	int GetDLCCount();
-	bool GetDlcDownloadProgress(AppId_t nAppID, uint64 *punBytesDownloaded, uint64 *punBytesTotal);
-	uint32 GetEarliestPurchaseUnixTime(AppId_t nAppID);
-	//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
-	uint32 GetInstalledDepots(AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots);
-	const char *GetLaunchQueryParam(const char *pchKey);
-	int GetLaunchCommandLine(char *pchCommandLine, int cubCommandLine);
-	void InstallDLC(AppId_t nAppID); // Triggers a DlcInstalled_t callback.
-	bool MarkContentCorrupt(bool bMissingFilesOnly);
-	void UninstallDLC(AppId_t nAppID);
 
 	// Overlay methods
 private:
@@ -219,11 +173,6 @@ private:
 	bool m_IsGameOverlayActive;
 public:
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
-	void ActivateGameOverlay(const char *pchDialog);
-	void ActivateGameOverlayInviteDialog(CSteamID steamIDLobby);
-	void ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag);
-	void ActivateGameOverlayToUser(const char *pchDialog, CSteamID steamID);
-	void ActivateGameOverlayToWebPage(const char *pchURL, EActivateGameOverlayToWebPageMode eMode);
 
 	// User/Friend methods
 private:
@@ -234,32 +183,12 @@ private:
 	SETUP_CALLBACK_LIST(AvatarImageLoadedUser, CSteamID);
 	bool m_AvatarImageLoadedEnabled; // Added so games that don't load friend avatars don't waste memory storing things it never uses.
 public:
-	const char *GetPersonaName();
 	//EPersonaState GetPersonaState();
 	//uint32 GetUserRestrictions();
 	CSteamID GetSteamID();
 	//steamUser->GetPlayerSteamLevel()
 	//m_PersonaStateChange
-	bool RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly);
 	int GetFriendAvatar(CSteamID steamID, EAvatarSize size);
-	int GetFriendCount(EFriendFlags iFriendFlags);
-	CSteamID GetFriendByIndex(int iFriend, EFriendFlags iFriendFlags);
-	bool GetFriendGamePlayed(CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo);
-	const char *GetFriendPersonaName(CSteamID steamID);
-	EPersonaState GetFriendPersonaState(CSteamID steamIDFriend);
-	EFriendRelationship GetFriendRelationship(CSteamID steamIDFriend);
-	int GetFriendSteamLevel(CSteamID steamIDFriend);
-	const char *GetPlayerNickname(CSteamID steamIDPlayer);
-	bool HasFriend(CSteamID steamIDFriend, EFriendFlags iFriendFlags);
-	//bool InviteUserToGame(CSteamID steamIDFriend, const char *pchConnectString);
-
-	// Friend group methods
-public:
-	int GetFriendsGroupCount();
-	FriendsGroupID_t GetFriendsGroupIDByIndex(int iFriendGroup);
-	int GetFriendsGroupMembersCount(FriendsGroupID_t friendsGroupID);
-	void GetFriendsGroupMembersList(FriendsGroupID_t friendsGroupID, CSteamID *pOutSteamIDMembers, int nMembersCount);
-	const char * GetFriendsGroupName(FriendsGroupID_t friendsGroupID);
 
 	// Image methods
 public:
@@ -277,7 +206,6 @@ private:
 	bool m_StatsStored;
 	bool m_AchievementStored;
 public:
-	bool RequestStats();
 	ECallbackState GetRequestStatsCallbackState() { return getCallbackState(&m_RequestStatsCallbackState); }
 	bool StatsInitialized() { return m_StatsInitialized; }
 	bool StoreStats();
@@ -499,7 +427,6 @@ private:
 	//InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 public:
 	bool InitSteamInput();
-	bool ShutdownSteamInput();
 	int GetConnectedControllers(InputHandle_t *handlesOut);
 	ESteamInputType GetInputTypeForHandle(InputHandle_t inputHandle);
 	void RunFrame();

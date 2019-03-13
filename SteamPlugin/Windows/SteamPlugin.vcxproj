@@ -226,7 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
-    <ClInclude Include="..\Common\AGKUtils.h" />
+    <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
     <ClInclude Include="..\Common\CFileReadAsyncCallResult.h" />
     <ClInclude Include="..\Common\CFileWriteAsyncCallResult.h" />

@@ -28,8 +28,3 @@ CSteamID SteamPlugin::GetSteamID()
 	return SteamUser()->GetSteamID();
 }
 
-bool SteamPlugin::LoggedOn()
-{
-	CheckInitialized(SteamUser, 0);
-	return SteamUser()->BLoggedOn();
-}

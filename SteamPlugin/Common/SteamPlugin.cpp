@@ -46,24 +46,13 @@ SteamPlugin::SteamPlugin() :
 	m_CallbackGamepadTextInputDismissed(this, &SteamPlugin::OnGamepadTextInputDismissed)
 {
 	ResetSessionVariables();
+	// TODO REMOVE!
+	m_AppID = 480;
 }
 
 SteamPlugin::~SteamPlugin(void)
 {
 	this->Shutdown();
-}
-
-bool SteamPlugin::Init()
-{
-	if (!m_SteamInitialized)
-	{
-		m_SteamInitialized = SteamAPI_Init();
-		if (m_SteamInitialized)
-		{
-			m_AppID = SteamUtils()->GetAppID();
-		}
-	}
-	return m_SteamInitialized;
 }
 
 void SteamPlugin::Shutdown()
@@ -79,8 +68,6 @@ void SteamPlugin::Shutdown()
 		for (auto iter = m_CallResultItems.begin(); iter != m_CallResultItems.end(); iter++) {
 			delete iter->second;
 		}
-		ShutdownSteamInput();
-		SteamAPI_Shutdown();
 		ResetSessionVariables();
 	}
 }
