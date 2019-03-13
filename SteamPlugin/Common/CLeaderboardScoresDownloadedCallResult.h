@@ -47,7 +47,6 @@ public:
 			+ std::to_string(m_nRangeStart) + ", "
 			+ std::to_string(m_nRangeEnd) + ")";
 	}
-	std::string GetResultJSON();
 protected:
 	void Call();
 private:

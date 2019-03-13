@@ -35,12 +35,12 @@ public:
 		m_eLeaderboardUploadScoreMethod(m_eLeaderboardUploadScoreMethod),
 		m_nScore(nScore)
 	{
-		m_LeaderboardScoreUploaded.m_bScoreChanged = 0;
-		m_LeaderboardScoreUploaded.m_bSuccess = 0;
-		m_LeaderboardScoreUploaded.m_hSteamLeaderboard = 0;
-		m_LeaderboardScoreUploaded.m_nGlobalRankNew = 0;
-		m_LeaderboardScoreUploaded.m_nGlobalRankPrevious = 0;
-		m_LeaderboardScoreUploaded.m_nScore = 0;
+		//m_LeaderboardScoreUploaded.m_bScoreChanged = 0;
+		//m_LeaderboardScoreUploaded.m_bSuccess = 0;
+		//m_LeaderboardScoreUploaded.m_hSteamLeaderboard = 0;
+		//m_LeaderboardScoreUploaded.m_nGlobalRankNew = 0;
+		//m_LeaderboardScoreUploaded.m_nGlobalRankPrevious = 0;
+		//m_LeaderboardScoreUploaded.m_nScore = 0;
 	}
 	virtual ~CLeaderboardScoreUploadedCallResult(void)
 	{
@@ -53,7 +53,6 @@ public:
 			+ std::to_string(m_eLeaderboardUploadScoreMethod) + ", "
 			+ std::to_string(m_nScore) + ")";
 	}
-	std::string GetResultJSON();
 protected:
 	void Call();
 private:

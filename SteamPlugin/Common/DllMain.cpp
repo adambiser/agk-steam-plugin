@@ -118,7 +118,7 @@ InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 	}
 
 /*
-CSteamID Handle Methods
+Input Handles
 */
 std::vector <InputActionSetHandle_t> m_ActionSetHandles;
 std::vector <InputDigitalActionHandle_t> m_DigitalActionHandles;
@@ -166,6 +166,53 @@ void ClearActionSetHandleList()
 	m_ActionSetHandles.push_back(0);
 	m_DigitalActionHandles.push_back(0);
 	m_AnalogActionHandles.push_back(0);
+}
+
+/*
+Escape JSON characters.
+*/
+std::string EscapeJSON(const std::string &input)
+{
+	std::ostringstream output;
+	for (auto c = input.cbegin(); c != input.cend(); c++)
+	{
+		switch (*c) {
+		case '"':
+			output << "\\\"";
+			break;
+		case '\\':
+			output << "\\\\";
+			break;
+		case '\b':
+			output << "\\b";
+			break;
+		case '\f':
+			output << "\\f";
+			break;
+		case '\n':
+			output << "\\n";
+			break;
+		case '\r':
+			output << "\\r";
+			break;
+		case '\t':
+			output << "\\t";
+			break;
+		default:
+			if ('\x00' <= *c && *c <= '\x1f')
+			{
+				char buffer[8];
+				sprintf_s(buffer, "\\u%04x", *c);
+				output << buffer;
+			}
+			else
+			{
+				output << *c;
+			}
+			break;
+		}
+	}
+	return output.str();
 }
 
 /*
@@ -425,14 +472,14 @@ int GetCallResultCode(int hCallResult)
 	return 0;
 }
 
-char *GetCallResultJSON(int hCallResult)
-{
-	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
-	{
-		return utils::CreateString(callResult->GetResultJSON());
-	}
-	return utils::CreateString("{}");
-};
+//char *GetCallResultJSON(int hCallResult)
+//{
+//	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
+//	{
+//		return utils::CreateString(callResult->GetResultJSON());
+//	}
+//	return utils::CreateString("{}");
+//};
 
 // App/DLC methods
 int GetDLCCount()
@@ -458,7 +505,7 @@ char *GetDLCDataJSON()
 			{
 				dlc.Clear();
 			}
-			json += ToJSON(dlc);
+			//json += ToJSON(dlc);
 		}
 	}
 	json += "]";
@@ -584,7 +631,7 @@ char *GetDLCDownloadProgressJSON(int appID)
 		{
 			progress.Clear();
 		}
-		return utils::CreateString(ToJSON(progress));
+		//return utils::CreateString(ToJSON(progress));
 	}
 	return utils::CreateString("{}");
 }
@@ -601,11 +648,11 @@ char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {
 	if (Steam)
 	{
-		DepotId_t *depots = new DepotId_t[maxDepots];
-		int count = Steam->GetInstalledDepots(appID, depots, maxDepots);
-		std::string json = ToJSON(depots, count);
-		delete[] depots;
-		return utils::CreateString(json);
+		//DepotId_t *depots = new DepotId_t[maxDepots];
+		//int count = Steam->GetInstalledDepots(appID, depots, maxDepots);
+		//std::string json = ToJSON(depots, count);
+		//delete[] depots;
+		//return utils::CreateString(json);
 	}
 	return utils::CreateString("[]");
 }
@@ -785,7 +832,8 @@ int HasPersonaStateChange()
 char *GetPersonaStateChangeJSON()
 {
 	CheckInitializedPlugin(0);
-	return utils::CreateString(ToJSON(Steam->GetPersonaStateChange()));
+	//return utils::CreateString(ToJSON(Steam->GetPersonaStateChange()));
+	return utils::CreateString("{}");
 }
 
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
@@ -836,7 +884,7 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 	{
 		FriendGameInfo_t pFriendGameInfo;
 		bool ingame = Steam->GetFriendGamePlayed(GetSteamHandle(hUserSteamID), &pFriendGameInfo);
-		return utils::CreateString(ToJSON(ingame, pFriendGameInfo));
+		//return utils::CreateString(ToJSON(ingame, pFriendGameInfo));
 	}
 	return utils::CreateString("{}");
 }
@@ -904,9 +952,9 @@ char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array
 		{
 			CSteamID *pSteamIDMembers = new CSteamID[memberCount];
 			Steam->GetFriendsGroupMembersList(hFriendsGroupID, pSteamIDMembers, memberCount);
-			std::string json = ToJSON(pSteamIDMembers, memberCount);
+			//std::string json = ToJSON(pSteamIDMembers, memberCount);
 			delete[] pSteamIDMembers;
-			return utils::CreateString(json);
+			//return utils::CreateString(json);
 		}
 	}
 	return utils::CreateString("[]");
@@ -1304,7 +1352,7 @@ char *GetLobbyEnterResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
 	// Must be the same as in CLobbyEnterCallResult.
-	return utils::CreateString(ToJSON(Steam->GetLobbyEnter()));
+	return utils::CreateString("{}"); // ToJSON(Steam->GetLobbyEnter()));
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
@@ -1339,7 +1387,7 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 		plugin::LobbyGameServer_t server;
 		if (Steam->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
 		{
-			return utils::CreateString(ToJSON(server));
+			//return utils::CreateString(ToJSON(server));
 		}
 	}
 	return utils::CreateString("{}");
@@ -1372,7 +1420,7 @@ char *GetLobbyGameCreatedJSON()
 {
 	if (Steam)
 	{
-		return utils::CreateString(ToJSON(Steam->GetLobbyGameCreated()));
+		//return utils::CreateString(ToJSON(Steam->GetLobbyGameCreated()));
 	}
 	return utils::CreateString("{}");
 }
@@ -1399,7 +1447,7 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 			{
 				json += ", ";
 			}
-			json += ToJSON(key, value);
+			//json += ToJSON(key, value);
 		}
 		else
 		{
@@ -1438,7 +1486,8 @@ int HasLobbyDataUpdateResponse()
 char *GetLobbyDataUpdateResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(ToJSON(Steam->GetLobbyDataUpdate()));
+	//return utils::CreateString(ToJSON(Steam->GetLobbyDataUpdate()));
+	return utils::CreateString("{}");
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
@@ -1583,7 +1632,7 @@ char *GetFavoriteGameJSON(int index)
 		plugin::FavoriteGame_t info;
 		if (Steam->GetFavoriteGame(index, &info.m_AppID, &info.m_nIP, &info.m_nConnPort, &info.m_nQueryPort, &info.m_unFlags, &info.m_rTime32LastPlayedOnServer))
 		{
-			return utils::CreateString(ToJSON(info));
+			//return utils::CreateString(ToJSON(info));
 		}
 	}
 	return utils::CreateString("{}");
@@ -1793,7 +1842,7 @@ char *GetGamepadTextInputDismissedInfoJSON()
 {
 	if (Steam)
 	{
-		return utils::CreateString(ToJSON(Steam->GetGamepadTextInputDismissed()));
+		//return utils::CreateString(ToJSON(Steam->GetGamepadTextInputDismissed()));
 	}
 	return utils::CreateString("{}");
 }
@@ -1959,30 +2008,30 @@ char *GetCloudFileName(int index)
 char *GetCloudFileListJSON()
 {
 	std::string json("[");
-	if (Steam)
-	{
-		for (int index = 0; index < Steam->GetFileCount(); index++)
-		{
-			if (index > 0)
-			{
-				json += ", ";
-			}
-			json += "{";
-			int32 pnFileSizeInBytes;
-			const char *name = Steam->GetFileNameAndSize(index, &pnFileSizeInBytes);
-			if (name)
-			{
-				json += "\"Name\": \"" + EscapeJSON(name) + "\", "
-					"\"Size\": " + std::to_string(pnFileSizeInBytes);
-			}
-			else
-			{
-				json += "\"Name\": \"?\", "
-					"\"Size\": 0";
-			}
-			json += "}";
-		}
-	}
+	//if (Steam)
+	//{
+	//	for (int index = 0; index < Steam->GetFileCount(); index++)
+	//	{
+	//		if (index > 0)
+	//		{
+	//			json += ", ";
+	//		}
+	//		json += "{";
+	//		int32 pnFileSizeInBytes;
+	//		const char *name = Steam->GetFileNameAndSize(index, &pnFileSizeInBytes);
+	//		if (name)
+	//		{
+	//			json += "\"Name\": \"" + EscapeJSON(name) + "\", "
+	//				"\"Size\": " + std::to_string(pnFileSizeInBytes);
+	//		}
+	//		else
+	//		{
+	//			json += "\"Name\": \"?\", "
+	//				"\"Size\": 0";
+	//		}
+	//		json += "}";
+	//	}
+	//}
 	json += "]";
 	return utils::CreateString(json);
 }

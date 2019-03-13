@@ -63,24 +63,3 @@ void CLeaderboardScoresDownloadedCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardScoresDownloadedCallResult::OnDownloadScore);
 }
-
-std::string CLeaderboardScoresDownloadedCallResult::GetResultJSON()
-{
-	std::string json("[");
-	for (size_t index = 0; index < m_Entries.size(); index++)
-	{
-		if (index > 0)
-		{
-			json += ", ";
-		}
-		LeaderboardEntry_t entry = m_Entries[index];
-		json += "{"
-			"\"SteamIDUser\": " + std::to_string(GetPluginHandle(entry.m_steamIDUser)) + ", "
-			"\"Score\": " + std::to_string(entry.m_nScore) + ", "
-			"\"GlobalRank\": " + std::to_string(entry.m_nGlobalRank) + ", "
-			"\"UGC\": " + std::to_string(GetPluginHandle(entry.m_hUGC)) + ", "
-			"\"Details\": " + std::to_string(entry.m_cDetails) + "}";
-	}
-	json += "]";
-	return json;
-}

@@ -33,15 +33,14 @@ public:
 		CCallResultItem(),
 		m_Name(leaderboardName)
 	{
-		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
-		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
+		//m_LeaderboardFindResult.m_bLeaderboardFound = 0;
+		//m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
 	}
 	virtual ~CLeaderboardFindCallResult(void)
 	{
 		m_CallResult.Cancel();
 	}
 	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
-	std::string GetResultJSON();
 protected:
 	void Call();
 private:

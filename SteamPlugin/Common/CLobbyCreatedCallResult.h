@@ -35,8 +35,8 @@ public:
 		m_eLobbyType(eLobbyType),
 		m_cMaxMembers(cMaxMembers)
 	{
-		m_LobbyCreated.m_eResult = (EResult)0;
-		m_LobbyCreated.m_ulSteamIDLobby = 0;
+		//m_LobbyCreated.m_eResult = (EResult)0;
+		//m_LobbyCreated.m_ulSteamIDLobby = 0;
 	}
 	virtual ~CLobbyCreatedCallResult(void)
 	{
@@ -48,7 +48,6 @@ public:
 			+ std::to_string(m_eLobbyType) + ", "
 			+ std::to_string(m_cMaxMembers) + ")";
 	}
-	std::string GetResultJSON();
 protected:
 	void Call();
 private:

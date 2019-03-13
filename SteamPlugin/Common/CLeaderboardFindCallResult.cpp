@@ -48,10 +48,3 @@ void CLeaderboardFindCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardFindCallResult::OnFindLeaderboard);
 }
-
-std::string CLeaderboardFindCallResult::GetResultJSON()
-{
-	return std::string("{"
-		"\"SteamLeaderboard\": " + std::to_string(GetPluginHandle(m_LeaderboardFindResult.m_hSteamLeaderboard)) + ", "
-		"\"LeaderboardFound\": " + std::to_string(m_LeaderboardFindResult.m_bLeaderboardFound) + "}");
-};

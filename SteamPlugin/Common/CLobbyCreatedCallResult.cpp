@@ -57,8 +57,3 @@ void CLobbyCreatedCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyCreatedCallResult::OnLobbyCreated);
 }
-
-std::string CLobbyCreatedCallResult::GetResultJSON()
-{
-	return ToJSON(m_LobbyCreated);
-};

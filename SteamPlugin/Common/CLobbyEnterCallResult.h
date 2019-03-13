@@ -34,10 +34,10 @@ public:
 		CCallResultItem(),
 		m_steamIDLobby(steamIDLobby)
 	{
-		m_LobbyEnter.m_bLocked = 0;
-		m_LobbyEnter.m_EChatRoomEnterResponse = 0;
-		m_LobbyEnter.m_rgfChatPermissions = 0; // unused - always 0.
-		m_LobbyEnter.m_ulSteamIDLobby = 0;
+		//m_LobbyEnter.m_bLocked = 0;
+		//m_LobbyEnter.m_EChatRoomEnterResponse = 0;
+		//m_LobbyEnter.m_rgfChatPermissions = 0; // unused - always 0.
+		//m_LobbyEnter.m_ulSteamIDLobby = 0;
 	}
 	virtual ~CLobbyEnterCallResult(void)
 	{
@@ -47,7 +47,6 @@ public:
 	{
 		return "JoinLobby(" + std::to_string(m_steamIDLobby.ConvertToUint64()) + ")";
 	}
-	std::string GetResultJSON();
 protected:
 	void Call();
 private:

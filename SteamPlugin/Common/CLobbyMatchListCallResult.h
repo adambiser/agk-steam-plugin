@@ -39,7 +39,6 @@ public:
 	{
 		return "RequestLobbyList()";
 	}
-	std::string GetResultJSON();
 protected:
 	void Call();
 private:

@@ -48,8 +48,3 @@ void CLobbyEnterCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyEnterCallResult::OnLobbyEnter);
 }
-
-std::string CLobbyEnterCallResult::GetResultJSON()
-{
-	return ToJSON(m_LobbyEnter);
-};

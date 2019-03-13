@@ -49,8 +49,3 @@ void CLeaderboardScoreUploadedCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardScoreUploadedCallResult::OnUploadScore);
 }
-
-std::string CLeaderboardScoreUploadedCallResult::GetResultJSON()
-{
-	return ToJSON(m_LeaderboardScoreUploaded);
-}

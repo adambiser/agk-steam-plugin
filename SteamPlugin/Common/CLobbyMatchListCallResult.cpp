@@ -51,18 +51,3 @@ void CLobbyMatchListCallResult::Call()
 	}
 	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyMatchListCallResult::OnLobbyMatchList);
 }
-
-std::string CLobbyMatchListCallResult::GetResultJSON()
-{
-	std::string json("[");
-	for (int index = 0; index < (int)m_Lobbies.size(); index++)
-	{
-		if (index > 0)
-		{
-			json += ", ";
-		}
-		json += std::to_string(GetPluginHandle(m_Lobbies[index]));
-	}
-	json += "]";
-	return json;
-};

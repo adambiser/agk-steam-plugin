@@ -27,7 +27,6 @@ THE SOFTWARE.
 #include <steam_api.h>
 #include "DllMain.h"
 #include "AGKUtils.h"
-#include "ToJSON.h"
 
 class CCallResultItem
 {
@@ -75,14 +74,13 @@ public:
 		}
 	}
 	virtual EResult GetResultCode() { return m_eResult; }
-	virtual std::string GetResultJSON() { return std::string("{}"); }
 protected:
+	SteamAPICall_t m_hSteamAPICall;
 	// Throw std::string for errors
 	virtual void Call() = 0;
 	ECallbackState m_State;
 	EResult m_eResult;
 	bool m_Running;
-	SteamAPICall_t m_hSteamAPICall;
 };
 
 #endif // _CCALLRESULTITEM_H_
