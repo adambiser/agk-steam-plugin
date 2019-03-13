@@ -219,35 +219,12 @@ private:
 	STEAM_CALLBACK(SteamPlugin, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
 	std::map<std::string, int> m_AchievementIconsMap;
 public:
-	int GetNumAchievements();
-	const char* GetAchievementAPIName(int index);
-	const char *GetAchievementDisplayAttribute(const char *pchName, const char *pchKey);
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
 	int GetAchievementIcon(const char *pchName);
-	bool GetAchievement(const char *name, bool *pbAchieved);
-	bool GetAchievementAndUnlockTime(const char *pchName, bool *pbAchieved, uint32 *punUnlockTime);
-	bool SetAchievement(const char *pchName);
-	bool IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress);
-	bool ClearAchievement(const char *pchName);
-
-	// User stats methods.
-public:
-	bool GetStat(const char *pchName, int32 *pData);
-	bool GetStat(const char *pchName, float *pData);
-	bool SetStat(const char *pchName, int32 nData);
-	bool SetStat(const char *pchName, float fData);
-	bool UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength);
 
 	// Leaderboard methods: Find
 public:
 	int FindLeaderboard(const char *pchLeaderboardName);
-
-	// Leaderboard methods: Information
-public:
-	const char *GetLeaderboardName(SteamLeaderboard_t hLeaderboard);
-	int GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard);
-	ELeaderboardDisplayType GetLeaderboardDisplayType(SteamLeaderboard_t hLeaderboard);
-	ELeaderboardSortMethod GetLeaderboardSortMethod(SteamLeaderboard_t hLeaderboard);
 
 	// Leaderboard methods: Upload
 public:
@@ -259,12 +236,6 @@ public:
 
 	// Lobby methods: List
 public:
-	void AddRequestLobbyListDistanceFilter(ELobbyDistanceFilter eLobbyDistanceFilter);
-	void AddRequestLobbyListFilterSlotsAvailable(int nSlotsAvailable);
-	void AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo);
-	void AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType);
-	void AddRequestLobbyListResultCountFilter(int cMaxResults);
-	void AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType);
 	int RequestLobbyList();
 		
 	// Lobby methods: Create, Join, Leave
@@ -277,10 +248,7 @@ private:
 public:
 	int CreateLobby(ELobbyType eLobbyType, int cMaxMembers);
 	//bool SetLinkedLobby(CSteamID steamIDLobby, CSteamID steamIDLobbyDependent);
-	bool SetLobbyJoinable(CSteamID steamIDLobby, bool bLobbyJoinable);
-	bool SetLobbyType(CSteamID steamIDLobby, ELobbyType eLobbyType);
 	int JoinLobby(CSteamID steamIDLobby);
-	bool InviteUserToLobby(CSteamID steamIDLobby, CSteamID steamIDInvitee);
 	void LeaveLobby(CSteamID steamIDLobby);
 
 	// Lobby methods: Game server
@@ -288,47 +256,24 @@ private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyGameCreated, LobbyGameCreated_t, m_CallbackLobbyGameCreated);
 	SETUP_CALLBACK_LIST(LobbyGameCreated, LobbyGameCreated_t);
 public:
-	bool GetLobbyGameServer(CSteamID steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, CSteamID *psteamIDGameServer);
-	void SetLobbyGameServer(CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, CSteamID steamIDGameServer); // Triggers a LobbyGameCreated_t callback.
-	//uint32 GetPublicIP();
 
 	// Lobby methods: Data
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyDataUpdate, LobbyDataUpdate_t, m_CallResultLobbyDataUpdate);
 	SETUP_CALLBACK_LIST(LobbyDataUpdate, LobbyDataUpdate_t);
 public:
-	const char *GetLobbyData(CSteamID steamIDLobby, const char *pchKey);
-	int GetLobbyDataCount(CSteamID steamIDLobby);
-	bool GetLobbyDataByIndex(CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize);
-	void SetLobbyData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
-	bool DeleteLobbyData(CSteamID steamIDLobby, const char *pchKey);
-	bool RequestLobbyData(CSteamID steamIDLobby);
-	const char *GetLobbyMemberData(CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey);
-	void SetLobbyMemberData(CSteamID steamIDLobby, const char *pchKey, const char *pchValue);
 
 	// Lobby methods: Members and Status
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatUpdate, LobbyChatUpdate_t, m_CallbackLobbyChatUpdate);
 	SETUP_CALLBACK_LIST(LobbyChatUpdate, LobbyChatUpdate_t);
 public:
-	CSteamID GetLobbyOwner(CSteamID steamIDLobby);
-	bool SetLobbyOwner(CSteamID steamIDLobby, CSteamID steamIDNewOwner);
-	int GetLobbyMemberLimit(CSteamID steamIDLobby);
-	bool SetLobbyMemberLimit(CSteamID steamIDLobby, int cMaxMembers);
-	int GetNumLobbyMembers(CSteamID steamIDLobby);
-	CSteamID GetLobbyMemberByIndex(CSteamID steamIDLobby, int iMember);
 
 	// Lobby methods: Chat messages
 private:
 	STEAM_CALLBACK(SteamPlugin, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage);
 	SETUP_CALLBACK_LIST(LobbyChatMessage, plugin::LobbyChatMsg_t);
 public:
-	bool SendLobbyChatMessage(CSteamID steamIDLobby, const char *pvMsgBody);
-	// Lobby methods: Favorite games
-	int AddFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer);
-	int GetFavoriteGameCount();
-	bool GetFavoriteGame(int iGame, AppId_t *pnAppID, uint32 *pnIP, uint16 *pnConnPort, uint16 *pnQueryPort, uint32 *punFlags, uint32 *pRTime32LastPlayedOnServer);
-	bool RemoveFavoriteGame(AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags);
 
 	// Music methods
 private:

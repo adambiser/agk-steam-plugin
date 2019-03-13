@@ -112,24 +112,6 @@ bool SteamPlugin::ResetAllStats(bool bAchievementsToo)
 	return true;
 }
 
-int SteamPlugin::GetNumAchievements()
-{
-	CheckInitialized(SteamUserStats, 0);
-	return SteamUserStats()->GetNumAchievements();
-}
-
-const char *SteamPlugin::GetAchievementAPIName(int index)
-{
-	CheckInitialized(SteamUserStats, NULL);
-	return SteamUserStats()->GetAchievementName(index);
-}
-
-const char *SteamPlugin::GetAchievementDisplayAttribute(const char *pchName, const char *pchKey)
-{
-	CheckInitialized(SteamUserStats, NULL);
-	return SteamUserStats()->GetAchievementDisplayAttribute(pchName, pchKey);
-}
-
 // Callback for GetAchievementIcon.
 void SteamPlugin::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 {
@@ -182,108 +164,12 @@ int SteamPlugin::GetAchievementIcon(const char *pchName)
 	return hImage;
 }
 
-bool SteamPlugin::GetAchievement(const char *pchName, bool *pbAchieved)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->GetAchievement(pchName, pbAchieved);
-}
-
-bool SteamPlugin::SetAchievement(const char *pchName)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->SetAchievement(pchName);
-}
-
-bool SteamPlugin::GetAchievementAndUnlockTime(const char *pchName, bool *pbAchieved, uint32 *punUnlockTime)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->GetAchievementAndUnlockTime(pchName, pbAchieved, punUnlockTime);
-}
-
-bool SteamPlugin::IndicateAchievementProgress(const char *pchName, uint32 nCurProgress, uint32 nMaxProgress)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
-}
-
-bool SteamPlugin::ClearAchievement(const char *pchName)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->ClearAchievement(pchName);
-}
-
-bool SteamPlugin::GetStat(const char *pchName, int32 *pData)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->GetStat(pchName, pData);
-}
-
-bool SteamPlugin::GetStat(const char *pchName, float *pData)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->GetStat(pchName, pData);
-}
-
-bool SteamPlugin::SetStat(const char *pchName, int32 nData)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->SetStat(pchName, nData);
-}
-
-bool SteamPlugin::SetStat(const char *pchName, float fData)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->SetStat(pchName, fData);
-}
-
-bool SteamPlugin::UpdateAvgRateStat(const char *pchName, float flCountThisSession, double dSessionLength)
-{
-	CheckInitialized(SteamUserStats, false);
-	return SteamUserStats()->UpdateAvgRateStat(pchName, flCountThisSession, dSessionLength);
-}
-
 int SteamPlugin::FindLeaderboard(const char *pchLeaderboardName)
 {
 	CheckInitialized(SteamUserStats, false);
 	CLeaderboardFindCallResult *callResult = new CLeaderboardFindCallResult(pchLeaderboardName);
 	callResult->Run();
 	return AddCallResultItem(callResult);
-}
-
-const char *SteamPlugin::GetLeaderboardName(SteamLeaderboard_t hLeaderboard)
-{
-	if (!m_StatsInitialized || !hLeaderboard)
-	{
-		return NULL;
-	}
-	return SteamUserStats()->GetLeaderboardName(hLeaderboard);
-}
-
-int SteamPlugin::GetLeaderboardEntryCount(SteamLeaderboard_t hLeaderboard)
-{
-	if (!m_StatsInitialized || !hLeaderboard)
-	{
-		return 0;
-	}
-	return SteamUserStats()->GetLeaderboardEntryCount(hLeaderboard);
-}
-
-ELeaderboardDisplayType SteamPlugin::GetLeaderboardDisplayType(SteamLeaderboard_t hLeaderboard)
-{
-	if (!m_StatsInitialized || !hLeaderboard)
-	{
-		return k_ELeaderboardDisplayTypeNone;
-	}
-	return SteamUserStats()->GetLeaderboardDisplayType(hLeaderboard);
-}
-
-ELeaderboardSortMethod SteamPlugin::GetLeaderboardSortMethod(SteamLeaderboard_t hLeaderboard)
-{
-	if (!m_StatsInitialized || !hLeaderboard)
-	{
-		return k_ELeaderboardSortMethodNone;
-	}
-	return SteamUserStats()->GetLeaderboardSortMethod(hLeaderboard);
 }
 
 int SteamPlugin::UploadLeaderboardScore(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int nScore)
