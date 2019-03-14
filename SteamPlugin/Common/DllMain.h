@@ -27,6 +27,8 @@ THE SOFTWARE.
 #include "..\AGKLibraryCommands.h"
 #include "steam_api.h"
 #include "PluginTypes.h"
+#include <mutex>
+#include <vector>
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -47,7 +49,11 @@ int GetPluginHandle(CSteamID steamID);
 
 extern uint64 g_AppID;
 extern bool g_SteamInitialized;
-extern bool g_IsGameOverlayActive;
+extern InputAnalogActionData_t g_AnalogActionData;
+extern InputMotionData_t g_MotionData;
+extern InputDigitalActionData_t g_DigitalActionData;
+extern std::mutex g_JoinedLobbiesMutex;
+extern std::vector<CSteamID> g_JoinedLobbies;
 
 /* @page General Commands */
 /*
@@ -177,7 +183,7 @@ The format of the JSON string is determined by the call the call result is for.
 @param hCallResult The call result handle to check.
 @return A JSON string.
 */
-extern "C" DLL_EXPORT char *GetCallResultJSON(int hCallResult);
+//extern "C" DLL_EXPORT char *GetCallResultJSON(int hCallResult);
 /* @page App Information */
 /*
 @desc Gets the buildid of this app, may change at any time based on backend updates to the game.
