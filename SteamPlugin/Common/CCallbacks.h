@@ -304,6 +304,8 @@ private:
 	//LeaderboardUGCSet_t - Call result for AttachLeaderboardUGC
 	//NumberOfCurrentPlayers_t - GetNumberOfCurrentPlayers
 	//PS3TrophiesInstalled_t - ignore
+
+	// TODO  Should be UserAchievement... not just Achievement.
 	STEAM_CALLBACK(CCallbacks, OnAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackAchievementIconFetched);
 	std::map<std::string, int> m_AchievementIconsMap;
 public:
