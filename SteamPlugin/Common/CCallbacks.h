@@ -116,22 +116,31 @@ public:
 		return *callbackState;
 	}
 private:
-	// ISteamApps
+#pragma region ISteamApps
 	ADD_CALLBACK(CCallbacks, OnDlcInstalled, DlcInstalled_t, m_CallbackDlcInstalled);	// InstallDLC
 	SETUP_CALLBACK_LIST(DlcInstalled, DlcInstalled_t);
-	ADD_CALLBACK(CCallbacks, OnFileDetailsResult, FileDetailsResult_t, m_CallbackFileDetailsResult);	// GetFileDetails
-	SETUP_CALLBACK_LIST(FileDetailsResult, FileDetailsResult_t);
+	//ADD_CALLBACK(CCallbacks, OnFileDetailsResult, FileDetailsResult_t, m_CallbackFileDetailsResult);	// GetFileDetails
+	//SETUP_CALLBACK_LIST(FileDetailsResult, FileDetailsResult_t);
 	STEAM_CALLBACK(CCallbacks, OnNewUrlLaunchParameters, NewUrlLaunchParameters_t, m_CallbackNewUrlLaunchParameters);
 	SETUP_CALLBACK_BOOL(NewUrlLaunchParameters);
 	// Removed SDK v1.43
 	//STEAM_CALLBACK(CCallbacks, OnNewLaunchQueryParameters, NewLaunchQueryParameters_t, m_CallbackNewLaunchQueryParameters);
 	//SETUP_CALLBACK_BOOL(NewLaunchQueryParameters);
+#pragma endregion
 
-	// ISteamAppTicket - This should never be needed in most cases.
-	// ISteamClient - No callbacks.
-	// ISteamController - No callbacks.
+#pragma region ISteamAppTicket
+	// This should never be needed in most cases.
+#pragma endregion
 
-	// ISteamFriends
+#pragma region ISteamClient
+	// No callbacks.
+#pragma endregion
+
+#pragma region ISteamController
+	// No callbacks.  Replaced by ISteamInput.
+#pragma endregion
+
+#pragma region ISteamFriends
 	ADD_CALLBACK(CCallbacks, OnAvatarImageLoaded, AvatarImageLoaded_t, m_CallbackAvatarImageLoaded); // GetFriendAvatar
 	SETUP_CALLBACK_LIST(AvatarImageLoadedUser, CSteamID);
 	// ClanOfficerListResponse_t - RequestClanOfficerList
@@ -157,16 +166,33 @@ private:
 	ADD_CALLBACK(CCallbacks, OnPersonaStateChange, PersonaStateChange_t, m_CallbackPersonaStateChange); // RequestUserInformation
 	SETUP_CALLBACK_LIST(PersonaStateChange, PersonaStateChange_t);
 	// SetPersonaNameResponse_t - SetPersonaName
+#pragma endregion
 
-	// ISteamGameCoordinator - deprecated
+#pragma region ISteamGameCoordinator
+	 // deprecated
+#pragma endregion
 
-	// TODO? ISteamGameServer
-	// TODO? ISteamGameServerStats
-	// TODO? ISteamHTMLSurface
-	// TODO? ISteamHTTP
-	// TODO? ISteamInventory
+#pragma region ISteamGameServer
+	// TODO? 
+#pragma endregion
 
-	// ISteamMatchmaking
+#pragma region ISteamGameServerStats
+	// TODO?
+#pragma endregion
+
+#pragma region ISteamHTMLSurface
+	// TODO?
+#pragma endregion
+
+#pragma region ISteamHTTP
+	// TODO?
+#pragma endregion
+
+#pragma region ISteamInventory
+	// TODO?
+#pragma endregion
+
+#pragma region ISteamMatchmaking
 	// FavoritesListChanged_t - fires when server favorites list changes.
 	STEAM_CALLBACK(CCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, m_CallbackLobbyChatMessage); // While in a lobby
 	SETUP_CALLBACK_LIST(LobbyChatMessage, plugin::LobbyChatMsg_t);
@@ -182,26 +208,40 @@ private:
 	// LobbyInvite_t - when invited by someone.
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
+#pragma endregion
 
-	// ISteamMatchmakingServers - No callbacks.
+#pragma region ISteamMatchmakingServers
+	// No callbacks.
+#pragma endregion
 
-	// ISteamMusic
+#pragma region ISteamMusic
 	STEAM_CALLBACK(CCallbacks, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t, m_CallbackPlaybackStatusHasChanged);
 	SETUP_CALLBACK_BOOL(MusicPlaybackStatusChanged);
 	STEAM_CALLBACK(CCallbacks, OnVolumeHasChanged, VolumeHasChanged_t, m_CallbackVolumeHasChanged); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
 	SETUP_CALLBACK_BOOL(MusicVolumeChanged);
+#pragma endregion
 
-	// TODO? ISteamMusicRemote
+#pragma region ISteamMusicRemote
+	// TODO?
+#pragma endregion
 
-	// TODO? ISteamNetworking
+#pragma region ISteamNetworking
+	// TODO?
+#pragma endregion
 
-	// TODO? ISteamNetworkingSockets
+#pragma region ISteamNetworkingSockets
+	// TODO?
+#pragma endregion
 
-	// TODO? ISteamNetworkingUtils
+#pragma region ISteamNetworkingUtils
+	// TODO?
+#pragma endregion
 
-	// TODO? ISteamParties
+#pragma region ISteamParties
+	// TODO?
+#pragma endregion
 
-	// ISteamRemoteStorage
+#pragma region ISteamRemoteStorage
 	// RemoteStorageDownloadUGCResult_t - Call result for UGCDownload, UGCDownloadToLocation.
 	// RemoteStorageFileReadAsyncComplete_t - Call result for FileReadAsync.
 	// RemoteStorageFileShareResult_t - Call result for FileShare.
@@ -210,10 +250,14 @@ private:
 	// RemoteStoragePublishedFileUnsubscribed_t - deprecated?
 	// RemoteStorageSubscribePublishedFileResult_t - Call result for SubscribePublishedFile, ISteamUGC::SubscribeItem.
 	// RemoteStorageUnsubscribePublishedFileResult_t - Call result for UnsubscribePublishedFile, ISteamUGC::UnsubscribeItem.
+#pragma endregion
 
-	// TODO? ISteamScreenshots
+#pragma region ISteamScreenshots
+	// TODO?
+#pragma endregion
 
-	// TODO? ISteamUGC
+#pragma region ISteamUGC
+	// TODO?
 	//AddAppDependencyResult_t - Call result for AddAppDependency
 	//AddUGCDependencyResult_t - Call result for AddDependency
 	//CreateItemResult_t - Call result for CreateItem
@@ -230,10 +274,13 @@ private:
 	//StopPlaytimeTrackingResult_t - Call result for StopPlaytimeTracking, StopPlaytimeTrackingForAllItems
 	//SubmitItemUpdateResult_t - Call result for SubmitItemUpdate
 	//UserFavoriteItemsListChanged_t - Call result for AddItemToFavorites, RemoveItemFromFavorites
+#pragma endregion
 
-	// ISteamUnifiedMessages - deprecated
+#pragma region ISteamUnifiedMessages
+	// Deprecated
+#pragma endregion
 
-	// ISteamUser
+#pragma region ISteamUser
 	//ClientGameServerDeny_t
 	//EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
 	//GameWebCallback_t
@@ -246,8 +293,9 @@ private:
 	//SteamServersDisconnected_t
 	//StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
 	//ValidateAuthTicketResponse_t - Call result for BeginAuthSession
+#pragma endregion
 
-	// ISteamUserStats
+#pragma region ISteamUserStats
 	//GlobalAchievementPercentagesReady_t - RequestGlobalAchievementPercentages
 	//GlobalStatsReceived_t - RequestGlobalStats
 	//LeaderboardFindResult_t - Call result for FindOrCreateLeaderboard, FindLeaderboard
@@ -286,8 +334,9 @@ public:
 	bool StoreStats();
 	bool ResetAllStats(bool bAchievementsToo);
 private:
+#pragma endregion
 
-	// ISteamUtils
+#pragma region ISteamUtils
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
 	STEAM_CALLBACK(CCallbacks, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, m_CallbackGamepadTextInputDismissed);
 	SETUP_CALLBACK_LIST(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t);
@@ -296,13 +345,17 @@ private:
 	STEAM_CALLBACK(CCallbacks, OnLowBatteryPower, LowBatteryPower_t, m_CallbackLowBatteryPower);
 	SETUP_CALLBACK_BOOL(LowBatteryWarning);
 	uint8 m_nMinutesBatteryLeft;
-	//SteamAPICallCompleted_t - not needed
-	STEAM_CALLBACK(CCallbacks, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
-	SETUP_CALLBACK_BOOL(SteamShutdownNotification);
 public:
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
 private:
-	// TODO? ISteamVideo
+	//SteamAPICallCompleted_t - not needed
+	STEAM_CALLBACK(CCallbacks, OnSteamShutdown, SteamShutdown_t, m_CallbackSteamShutdown);
+	SETUP_CALLBACK_BOOL(SteamShutdownNotification);
+#pragma endregion
+
+#pragma region ISteamVideo
+	// TODO?
+#pragma endregion
 };
 
 CCallbacks *Callbacks();

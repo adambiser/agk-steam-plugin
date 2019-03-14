@@ -126,12 +126,7 @@ void CCallbacks::ResetSessionVariables()
 	m_StoreStatsCallbackState = Idle;
 }
 
-void CCallbacks::OnNewUrlLaunchParameters(NewUrlLaunchParameters_t *pParam)
-{
-	agk::Log("Callback: OnNewLaunchQueryParameters");
-	m_bNewUrlLaunchParameters = true;
-}
-
+#pragma region ISteamApps
 void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 {
 	utils::Log("Callback: OnDlcInstalled: AppID = " + std::to_string(pParam->m_nAppID));
@@ -143,12 +138,68 @@ bool CCallbacks::HasNewDlcInstalled()
 	GetNextCallbackResult(DlcInstalled);
 }
 
-// Overlay methods
+void CCallbacks::OnNewUrlLaunchParameters(NewUrlLaunchParameters_t *pParam)
+{
+	agk::Log("Callback: OnNewLaunchQueryParameters");
+	m_bNewUrlLaunchParameters = true;
+}
+#pragma endregion
+
+#pragma region ISteamAppTicket
+// This should never be needed in most cases.
+#pragma endregion
+
+#pragma region ISteamClient
+// No callbacks.
+#pragma endregion
+
+#pragma region ISteamController
+// No callbacks.  Replaced by ISteamInput.
+#pragma endregion
+
+#pragma region ISteamFriends
+void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
+{
+	agk::Log("Callback: OnAvatarImageLoaded");
+	StoreCallbackResult(AvatarImageLoadedUser, pParam->m_steamID);
+}
+
+bool CCallbacks::HasNewAvatarImageLoadedUser()
+{
+	GetNextCallbackResult(AvatarImageLoadedUser);
+}
+
+// ClanOfficerListResponse_t - RequestClanOfficerList
+// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
+// FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
+// FriendsEnumerateFollowingList_t - EnumerateFollowingList
+// FriendsGetFollowerCount_t - GetFollowerCount
+// FriendsIsFollowing_t - IsFollowing
+// GameConnectedChatJoin_t - JoinClanChatRoom
+// GameConnectedChatLeave_t - LeaveClanChatRoom
+// GameConnectedClanChatMsg_t - JoinClanChatRoom
+// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
+
+void CCallbacks::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
+{
+	agk::Log("Callback: OnGameLobbyJoinRequested");
+	StoreCallbackResult(GameLobbyJoinRequested, *pParam);
+}
+
+bool CCallbacks::HasNewGameLobbyJoinRequested()
+{
+	GetNextCallbackResult(GameLobbyJoinRequested);
+}
+
 void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
 	agk::Log("Callback: OnGameOverlayActivated");
 	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
+
+// GameRichPresenceJoinRequested_t - InviteUserToGame
+// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
+// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
 
 // Callback for RequestUserInformation and more.
 void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
@@ -169,16 +220,66 @@ bool CCallbacks::HasNewPersonaStateChange()
 {
 	GetNextCallbackResult(PersonaStateChange);
 }
+#pragma endregion
 
-void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
+#pragma region ISteamGameCoordinator
+// deprecated
+#pragma endregion
+
+#pragma region ISteamGameServer
+// TODO? 
+#pragma endregion
+
+#pragma region ISteamGameServerStats
+// TODO?
+#pragma endregion
+
+#pragma region ISteamHTMLSurface
+// TODO?
+#pragma endregion
+
+#pragma region ISteamHTTP
+// TODO?
+#pragma endregion
+
+#pragma region ISteamInventory
+// TODO?
+#pragma endregion
+
+#pragma region ISteamMatchmaking
+void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
-	agk::Log("Callback: OnAvatarImageLoaded");
-	StoreCallbackResult(AvatarImageLoadedUser, pParam->m_steamID);
+	agk::Log("Callback: OnLobbyChatMessage");
+	plugin::LobbyChatMsg_t info(*pParam);
+	SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.m_chChatEntry, MAX_CHAT_MESSAGE_LENGTH, NULL);
+	StoreCallbackResult(LobbyChatMessage, info);
 }
 
-bool CCallbacks::HasNewAvatarImageLoadedUser()
+bool CCallbacks::HasNewLobbyChatMessage()
 {
-	GetNextCallbackResult(AvatarImageLoadedUser);
+	GetNextCallbackResult(LobbyChatMessage);
+}
+
+void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
+{
+	agk::Log("Callback: OnLobbyChatUpdate");
+	StoreCallbackResult(LobbyChatUpdate, *pParam);
+}
+
+bool CCallbacks::HasNewLobbyChatUpdate()
+{
+	GetNextCallbackResult(LobbyChatUpdate);
+}
+
+void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
+{
+	utils::Log("Callback OnLobbyDataUpdate: " + std::string((pParam->m_bSuccess) ? "Succeeded" : "Failed"));
+	StoreCallbackResult(LobbyDataUpdate, *pParam);
+}
+
+bool CCallbacks::HasNewLobbyDataUpdate()
+{
+	GetNextCallbackResult(LobbyDataUpdate);
 }
 
 // Fires from CreateLobby and JoinLobby.
@@ -196,17 +297,6 @@ bool CCallbacks::HasNewLobbyEnter()
 	GetNextCallbackResult(LobbyEnter);
 }
 
-void CCallbacks::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
-{
-	agk::Log("Callback: OnGameLobbyJoinRequested");
-	StoreCallbackResult(GameLobbyJoinRequested, *pParam);
-}
-
-bool CCallbacks::HasNewGameLobbyJoinRequested()
-{
-	GetNextCallbackResult(GameLobbyJoinRequested);
-}
-
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
 	utils::Log("Callback: OnLobbyGameCreated: " + std::to_string(pParam->m_ulSteamIDLobby));
@@ -218,42 +308,16 @@ bool CCallbacks::HasNewLobbyGameCreated()
 	GetNextCallbackResult(LobbyGameCreated);
 }
 
-void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
-{
-	utils::Log("Callback OnLobbyDataUpdate: " + std::string((pParam->m_bSuccess) ? "Succeeded" : "Failed"));
-	StoreCallbackResult(LobbyDataUpdate, *pParam);
-}
+// LobbyInvite_t - when invited by someone.
+// LobbyKicked_t - Currently unused!
+// LobbyMatchList_t - Call result.
+#pragma endregion
 
-bool CCallbacks::HasNewLobbyDataUpdate()
-{
-	GetNextCallbackResult(LobbyDataUpdate);
-}
+#pragma region ISteamMatchmakingServers
+// No callbacks.
+#pragma endregion
 
-void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
-{
-	agk::Log("Callback: OnLobbyChatUpdate");
-	StoreCallbackResult(LobbyChatUpdate, *pParam);
-}
-
-bool CCallbacks::HasNewLobbyChatUpdate()
-{
-	GetNextCallbackResult(LobbyChatUpdate);
-}
-
-void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
-{
-	agk::Log("Callback: OnLobbyChatMessage");
-	plugin::LobbyChatMsg_t info(*pParam);
-	SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.m_chChatEntry, MAX_CHAT_MESSAGE_LENGTH, NULL);
-	StoreCallbackResult(LobbyChatMessage, info);
-}
-
-bool CCallbacks::HasNewLobbyChatMessage()
-{
-	GetNextCallbackResult(LobbyChatMessage);
-}
-
-// Music methods
+#pragma region ISteamMusic
 void CCallbacks::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pParam)
 {
 	agk::Log("Callback: OnPlaybackStatusHasChanged");
@@ -265,92 +329,61 @@ void CCallbacks::OnVolumeHasChanged(VolumeHasChanged_t *pParam)
 	agk::Log("Callback: OnVolumeHasChanged");
 	m_bMusicVolumeChanged = true;
 }
+#pragma endregion
 
-// Callback for RequestStats.
-void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
-{
-	agk::Log("OnUserStatsReceived");
-	if (pCallback->m_nGameID == g_AppID)
-	{
-		utils::Log("Callback: OnUserStatsReceived " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
-		if (pCallback->m_eResult == k_EResultOK)
-		{
-			m_RequestStatsCallbackState = Done;
-			m_StatsInitialized = true;
-		}
-		else
-		{
-			m_RequestStatsCallbackState = ServerError;
-		}
-	}
-}
+#pragma region ISteamMusicRemote
+// TODO?
+#pragma endregion
 
-// Callback for StoreStats and ResetAllStats.
-void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
-{
-	if (pCallback->m_nGameID == g_AppID)
-	{
-		utils::Log("Callback: OnUserStatsStored " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
-		if (pCallback->m_eResult == k_EResultOK)
-		{
-			m_StoreStatsCallbackState = Done;
-			m_StatsStored = true;
-		}
-		else
-		{
-			m_StoreStatsCallbackState = ServerError;
-		}
-	}
-}
+#pragma region ISteamNetworking
+// TODO?
+#pragma endregion
 
-// Callback for StoreStats.
-void CCallbacks::OnAchievementStored(UserAchievementStored_t *pCallback)
-{
-	if (pCallback->m_nGameID == g_AppID)
-	{
-		agk::Log("Callback: OnAchievementStored");
-		m_AchievementStored = true;
-	}
-}
+#pragma region ISteamNetworkingSockets
+// TODO?
+#pragma endregion
 
-bool CCallbacks::StoreStats()
-{
-	CheckInitialized(SteamUserStats, false);
-	// Fail when the callback is currently running.
-	if (m_StoreStatsCallbackState == Running)
-	{
-		return false;
-	}
-	m_StatsStored = false;
-	m_AchievementStored = false;
-	if (!SteamUserStats()->StoreStats())
-	{
-		m_StoreStatsCallbackState = ClientError;
-		return false;
-	}
-	m_StoreStatsCallbackState = Running;
-	return true;
-}
+#pragma region ISteamNetworkingUtils
+// TODO?
+#pragma endregion
 
-bool CCallbacks::ResetAllStats(bool bAchievementsToo)
-{
-	CheckInitialized(SteamUserStats, false);
-	// Fail when the callback is currently running.
-	if (m_StoreStatsCallbackState == Running)
-	{
-		return false;
-	}
-	m_StatsStored = false;
-	m_AchievementStored = false;
-	if (!SteamUserStats()->ResetAllStats(bAchievementsToo))
-	{
-		m_StoreStatsCallbackState = ClientError;
-		return false;
-	}
-	m_StoreStatsCallbackState = Running;
-	return true;
-}
+#pragma region ISteamParties
+// TODO?
+#pragma endregion
 
+#pragma region ISteamRemoteStorage
+// Only call results.
+#pragma endregion
+
+#pragma region ISteamScreenshots
+// TODO?
+#pragma endregion
+
+#pragma region ISteamUGC
+// TODO?
+// Only call results.
+#pragma endregion
+
+#pragma region ISteamUnifiedMessages
+// Deprecated
+#pragma endregion
+
+#pragma region ISteamUser
+//ClientGameServerDeny_t
+//EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
+//GameWebCallback_t
+//GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
+//IPCFailure_t
+//LicensesUpdated_t
+//MicroTxnAuthorizationResponse_t
+//SteamServerConnectFailure_t
+//SteamServersConnected_t
+//SteamServersDisconnected_t
+//StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
+//ValidateAuthTicketResponse_t - Call result for BeginAuthSession
+#pragma endregion
+
+#pragma region ISteamUserStats
 // Callback for GetAchievementIcon.
 void CCallbacks::OnAchievementIconFetched(UserAchievementIconFetched_t *pParam)
 {
@@ -403,27 +436,92 @@ int CCallbacks::GetAchievementIcon(const char *pchName)
 	return hImage;
 }
 
-// Utils
-void CCallbacks::OnIPCountryChanged(IPCountry_t *pParam)
+// Callback for StoreStats.
+void CCallbacks::OnAchievementStored(UserAchievementStored_t *pCallback)
 {
-	agk::Log("Callback: IP Country Changed");
-	m_bIPCountryChanged = true;
+	if (pCallback->m_nGameID == g_AppID)
+	{
+		agk::Log("Callback: OnAchievementStored");
+		m_AchievementStored = true;
+	}
 }
 
-void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
+void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
-	agk::Log("Callback: Low Battery Power Warning");
-	m_bLowBatteryWarning = true;
-	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
+	agk::Log("OnUserStatsReceived");
+	if (pCallback->m_nGameID == g_AppID)
+	{
+		utils::Log("Callback: OnUserStatsReceived " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
+		if (pCallback->m_eResult == k_EResultOK)
+		{
+			m_RequestStatsCallbackState = Done;
+			m_StatsInitialized = true;
+		}
+		else
+		{
+			m_RequestStatsCallbackState = ServerError;
+		}
+	}
 }
 
-void CCallbacks::OnSteamShutdown(SteamShutdown_t *pParam)
+// Callback for StoreStats and ResetAllStats.
+void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
-	agk::Log("Callback: Steam Shutdown");
-	m_bSteamShutdownNotification = true;
+	if (pCallback->m_nGameID == g_AppID)
+	{
+		utils::Log("Callback: OnUserStatsStored " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
+		if (pCallback->m_eResult == k_EResultOK)
+		{
+			m_StoreStatsCallbackState = Done;
+			m_StatsStored = true;
+		}
+		else
+		{
+			m_StoreStatsCallbackState = ServerError;
+		}
+	}
 }
 
-// Big Picture Mode methods
+bool CCallbacks::StoreStats()
+{
+	CheckInitialized(SteamUserStats, false);
+	// Fail when the callback is currently running.
+	if (m_StoreStatsCallbackState == Running)
+	{
+		return false;
+	}
+	m_StatsStored = false;
+	m_AchievementStored = false;
+	if (!SteamUserStats()->StoreStats())
+	{
+		m_StoreStatsCallbackState = ClientError;
+		return false;
+	}
+	m_StoreStatsCallbackState = Running;
+	return true;
+}
+
+bool CCallbacks::ResetAllStats(bool bAchievementsToo)
+{
+	CheckInitialized(SteamUserStats, false);
+	// Fail when the callback is currently running.
+	if (m_StoreStatsCallbackState == Running)
+	{
+		return false;
+	}
+	m_StatsStored = false;
+	m_AchievementStored = false;
+	if (!SteamUserStats()->ResetAllStats(bAchievementsToo))
+	{
+		m_StoreStatsCallbackState = ClientError;
+		return false;
+	}
+	m_StoreStatsCallbackState = Running;
+	return true;
+}
+#pragma endregion
+
+#pragma region ISteamUtils
 void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
 {
 	agk::Log("Callback: Gamepad Text Input Dismissed");
@@ -445,3 +543,26 @@ bool CCallbacks::HasNewGamepadTextInputDismissed()
 	GetNextCallbackResult(GamepadTextInputDismissed);
 }
 
+void CCallbacks::OnIPCountryChanged(IPCountry_t *pParam)
+{
+	agk::Log("Callback: IP Country Changed");
+	m_bIPCountryChanged = true;
+}
+
+void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
+{
+	agk::Log("Callback: Low Battery Power Warning");
+	m_bLowBatteryWarning = true;
+	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
+}
+
+void CCallbacks::OnSteamShutdown(SteamShutdown_t *pParam)
+{
+	agk::Log("Callback: Steam Shutdown");
+	m_bSteamShutdownNotification = true;
+}
+#pragma endregion
+
+#pragma region ISteamVideo
+// TODO?
+#pragma endregion
