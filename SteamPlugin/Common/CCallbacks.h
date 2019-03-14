@@ -301,6 +301,8 @@ private:
 	SETUP_CALLBACK_BOOL(SteamShutdownNotification);
 public:
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
+private:
+	// TODO? ISteamVideo
 };
 
 CCallbacks *Callbacks();
