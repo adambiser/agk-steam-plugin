@@ -219,46 +219,26 @@ void ResetVariables()
 	g_SteamInitialized = false;
 }
 
-/*
-This method should be called before attempting to do anything else with this plugin.
-Returns 1 when the Steam API has been initialized.  Otherwise 0 is returned.
-Note that this also calls RequestStats, so calling code does not need to do so.
-The result of the RequestStats call has no effect on the return value.
-*/
+#pragma region steam_api.h
 int Init()
 {
-	agk::Log("Initializing Steam API.");
-	if (!g_SteamInitialized)
+	if (g_SteamInitialized)
 	{
-		ResetVariables();
-		g_SteamInitialized = SteamAPI_Init();
-		if (g_SteamInitialized)
-		{
-			g_AppID = SteamUtils()->GetAppID();
-			RequestStats();
-			return true;
-		}
+		agk::Log("Steam API already initialized.");
 	}
+	agk::Log("Initializing Steam API.");
+	ResetVariables();
+	g_SteamInitialized = SteamAPI_Init();
+	if (g_SteamInitialized)
+	{
+		g_AppID = SteamUtils()->GetAppID();
+		RequestStats();
+		return true;
+	}
+	agk::Log("Failed to initialize Steam API.");
 	return false;
 }
 
-/*
-Shuts down the plugin and frees memory.
-*/
-void Shutdown()
-{
-	ResetVariables();
-	SteamAPI_Shutdown();
-	Callbacks()->ResetSessionVariables();
-	//delete Steam;
-	//Steam = NULL;
-}
-
-/*
-Gets whether the Steam API has been initialized.
-When it has, this method returns 1.  Otherwise 0 is returned.
-
-*/
 int SteamInitialized()
 {
 	return g_SteamInitialized;
@@ -269,9 +249,242 @@ int RestartAppIfNecessary(int ownAppID)
 	return SteamAPI_RestartAppIfNecessary(ownAppID);
 }
 
-/*
-Returns the AppID or 0 if the Steam API has not been not initialized or the AppID cannot be found.
-*/
+// S_API void S_CALLTYPE SteamAPI_ReleaseCurrentThreadMemory(); - not needed
+
+void RunCallbacks()
+{
+	CheckInitializedPlugin(NORETURN);
+	SteamAPI_RunCallbacks();
+}
+
+// TODO S_API void S_CALLTYPE SteamAPI_SetMiniDumpComment( const char *pchMsg );
+
+void Shutdown()
+{
+	ResetVariables();
+	SteamAPI_Shutdown();
+	Callbacks()->ResetSessionVariables();
+	//delete Steam;
+	//Steam = NULL;
+}
+
+// TODO S_API void S_CALLTYPE SteamAPI_WriteMiniDump( uint32 uStructuredExceptionCode, void* pvExceptionInfo, uint32 uBuildID );
+#pragma endregion
+
+#pragma region steam_gameserver.h
+// TODO
+#pragma endregion
+
+
+#pragma region ISteamApps
+int IsAppInstalled(int appID)
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsAppInstalled(appID);
+}
+
+int IsCybercafe()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsCybercafe();
+}
+
+int IsDLCInstalled(int appID)
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsDlcInstalled(appID);
+}
+
+int IsLowViolence()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsLowViolence();
+}
+
+int IsSubscribed()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsSubscribed();
+}
+
+int IsSubscribedApp(int appID)
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsSubscribedApp(appID);
+}
+
+int IsSubscribedFromFamilySharing()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsSubscribedFromFamilySharing();
+}
+
+int IsSubscribedFromFreeWeekend()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsSubscribedFromFreeWeekend();
+}
+
+int IsVACBanned()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->BIsVACBanned();
+}
+
+int GetAppBuildID()
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->GetAppBuildId();
+}
+
+char *GetAppInstallDir(int appID)
+{
+	CheckInitializedPlugin(NULL_STRING);
+	char folder[MAX_PATH];
+	uint32 length = SteamApps()->GetAppInstallDir(appID, folder, sizeof(folder));
+	if (length)
+	{
+		//length++; // NULL terminator
+		//char *result = agk::utils::CreateString(length);
+		//strcpy_s(result, length, folder);
+		//return result;
+		// TODO Verify this works as expected without using the returned length.
+		return utils::CreateString(folder);
+	}
+	return NULL_STRING;
+}
+
+int GetAppOwner()
+{
+	CheckInitializedPlugin(false);
+	return GetPluginHandle(SteamApps()->GetAppOwner());
+}
+
+char *GetAvailableGameLanguages()
+{
+	CheckInitializedPlugin(NULL_STRING);
+	return utils::CreateString(SteamApps()->GetAvailableGameLanguages());
+}
+
+char *GetCurrentBetaName()
+{
+	CheckInitializedPlugin(NULL_STRING);
+	char name[256];
+	if (SteamApps()->GetCurrentBetaName(name, sizeof(name)))
+	{
+		return utils::CreateString(name);
+	}
+	return NULL_STRING;
+}
+
+char *GetCurrentGameLanguage()
+{
+	CheckInitializedPlugin(NULL_STRING);
+	return utils::CreateString(SteamApps()->GetCurrentGameLanguage());
+}
+
+// TODO Split into parts
+char *GetDLCDownloadProgressJSON(int appID)
+{
+	if (SteamInitialized())
+	{
+		plugin::DownloadProgress_t progress;
+		bool downloading = SteamApps()->GetDlcDownloadProgress(appID, &progress.m_unBytesDownloaded, &progress.m_unBytesTotal);
+		if (!downloading)
+		{
+			progress.Clear();
+		}
+		//return utils::CreateString(ToJSON(progress));
+	}
+	return utils::CreateString("{}");
+}
+
+int GetEarliestPurchaseUnixTime(int appID)
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->GetEarliestPurchaseUnixTime(appID);
+}
+
+//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+
+// TODO add by index.
+char *GetInstalledDepotsJSON(int appID, int maxDepots)
+{
+	if (SteamInitialized())
+	{
+		//DepotId_t *depots = new DepotId_t[maxDepots];
+		//int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
+		//std::string json = ToJSON(depots, count);
+		//delete[] depots;
+		//return utils::CreateString(json);
+	}
+	return utils::CreateString("[]");
+}
+
+char *GetLaunchCommandLine()
+{
+	CheckInitializedPlugin(NULL_STRING);
+	char cmd[2084];
+	int length = SteamApps()->GetLaunchCommandLine(cmd, 2084);
+	cmd[length] = 0;
+	return utils::CreateString(cmd);
+}
+
+char *GetLaunchQueryParam(const char *key)
+{
+	CheckInitializedPlugin(NULL_STRING);
+	return utils::CreateString(SteamApps()->GetLaunchQueryParam(key));
+}
+
+void InstallDLC(int appID) // Check HasNewDLCInstalled, GetNewDLCInstalled
+{
+	CheckInitializedPlugin(NORETURN);
+	Callbacks()->EnableOnDlcInstalledCallback();
+	SteamApps()->InstallDLC(appID);
+}
+
+int MarkContentCorrupt(int missingFilesOnly)
+{
+	CheckInitializedPlugin(false);
+	return SteamApps()->MarkContentCorrupt(missingFilesOnly != 0);
+}
+
+// RequestAllProofOfPurchaseKeys - deprecated
+// RequestAppProofOfPurchaseKey - deprecated
+
+void UninstallDLC(int appID)
+{
+	CheckInitializedPlugin(NORETURN);
+	SteamApps()->UninstallDLC(appID);
+}
+
+// Callbacks
+int HasNewDLCInstalled()
+{
+	CheckInitializedPlugin(false);
+	return Callbacks()->HasNewDlcInstalled();
+}
+
+int GetNewDLCInstalled()
+{
+	CheckInitializedPlugin(0);
+	return Callbacks()->GetNewDlcInstalled().m_nAppID;
+}
+
+int HasNewLaunchQueryParameters()
+{
+	CheckInitializedPlugin(false);
+	return Callbacks()->HasNewUrlLaunchParameters();
+}
+#pragma endregion
+
+#pragma region ISteamAppTicket
+// TODO?
+// ISteamAppTicket does not expose a global accessor function. You must access it through ISteamClient::GetISteamGenericInterface.
+// uint32 GetAppOwnershipTicketData( uint32 nAppID, void *pvBuffer, uint32 cbBufferLength, uint32 *piAppId, uint32 *piSteamId, uint32 *piSignature, uint32 *pcbSignature );
+// See docs for example.
+#pragma endregion
+
 int GetAppID()
 {
 	return SteamUtils()->GetAppID();
@@ -307,16 +520,6 @@ int GetHandleFromSteamID64(const char *steamID64)
 	CheckInitializedPlugin(0);
 	uint64 id = _atoi64(steamID64);
 	return GetPluginHandle(CSteamID(id));
-}
-
-/*
-Call every frame to allow the Steam API callbacks to process.
-Should be used in conjunction with RequestStats and StoreStats to ensure the callbacks finish.
-*/
-void RunCallbacks()
-{
-	CheckInitializedPlugin(NORETURN);
-	SteamAPI_RunCallbacks();
 }
 
 char *GetCommandLineArgsJSON()
@@ -465,203 +668,6 @@ char *GetDLCDataJSON()
 	}
 	json += "]";
 	return utils::CreateString(json);
-}
-
-int IsAppInstalled(int appID)
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsAppInstalled(appID);
-}
-
-int IsCybercafe()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsCybercafe();
-}
-
-int IsDLCInstalled(int appID)
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsDlcInstalled(appID);
-}
-
-int IsLowViolence()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsLowViolence();
-}
-
-int IsSubscribed()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsSubscribed();
-}
-
-int IsSubscribedApp(int appID)
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsSubscribedApp(appID);
-}
-
-int IsSubscribedFromFamilySharing()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsSubscribedFromFamilySharing();
-}
-
-int IsSubscribedFromFreeWeekend()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsSubscribedFromFreeWeekend();
-}
-
-int IsVACBanned()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->BIsVACBanned();
-}
-
-int GetAppBuildID()
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->GetAppBuildId();
-}
-
-char *GetAppInstallDir(int appID)
-{
-	CheckInitializedPlugin(NULL_STRING);
-	char folder[MAX_PATH];
-	uint32 length = SteamApps()->GetAppInstallDir(appID, folder, sizeof(folder));
-	if (length)
-	{
-		//length++; // NULL terminator
-		//char *result = agk::utils::CreateString(length);
-		//strcpy_s(result, length, folder);
-		//return result;
-		// TODO Verify this works as expected without using the returned length.
-		return utils::CreateString(folder);
-	}
-	else
-	{
-		return NULL_STRING;
-	}
-}
-
-int GetAppOwner()
-{
-	CheckInitializedPlugin(false);
-	return GetPluginHandle(SteamApps()->GetAppOwner());
-}
-
-char *GetAvailableGameLanguages()
-{
-	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(SteamApps()->GetAvailableGameLanguages());
-}
-
-char *GetCurrentBetaName()
-{
-	CheckInitializedPlugin(NULL_STRING);
-	char name[256];
-	if (SteamApps()->GetCurrentBetaName(name, sizeof(name)))
-	{
-		return utils::CreateString(name);
-	}
-	return NULL_STRING;
-}
-
-char *GetCurrentGameLanguage()
-{
-	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(SteamApps()->GetCurrentGameLanguage());
-}
-
-char *GetDLCDownloadProgressJSON(int appID)
-{
-	if (SteamInitialized())
-	{
-		plugin::DownloadProgress_t progress;
-		bool downloading = SteamApps()->GetDlcDownloadProgress(appID, &progress.m_unBytesDownloaded, &progress.m_unBytesTotal);
-		if (!downloading)
-		{
-			progress.Clear();
-		}
-		//return utils::CreateString(ToJSON(progress));
-	}
-	return utils::CreateString("{}");
-}
-
-int GetEarliestPurchaseUnixTime(int appID)
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->GetEarliestPurchaseUnixTime(appID);
-}
-
-//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
-
-char *GetInstalledDepotsJSON(int appID, int maxDepots)
-{
-	if (SteamInitialized())
-	{
-		//DepotId_t *depots = new DepotId_t[maxDepots];
-		//int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
-		//std::string json = ToJSON(depots, count);
-		//delete[] depots;
-		//return utils::CreateString(json);
-	}
-	return utils::CreateString("[]");
-}
-
-char *GetLaunchQueryParam(const char *key)
-{
-	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(SteamApps()->GetLaunchQueryParam(key));
-}
-
-int HasNewLaunchQueryParameters()
-{
-	CheckInitializedPlugin(false);
-	return Callbacks()->HasNewUrlLaunchParameters();
-}
-
-char *GetLaunchCommandLine()
-{
-	CheckInitializedPlugin(NULL_STRING);
-	char cmd[2084];
-	int length = SteamApps()->GetLaunchCommandLine(cmd, 2084);
-	cmd[length] = 0;
-	return utils::CreateString(cmd);
-}
-
-int HasNewDLCInstalled()
-{
-	CheckInitializedPlugin(false);
-	return Callbacks()->HasNewDlcInstalled();
-}
-
-int GetNewDLCInstalled()
-{
-	CheckInitializedPlugin(0);
-	return Callbacks()->GetNewDlcInstalled().m_nAppID;
-}
-
-void InstallDLC(int appID) // Triggers a DlcInstalled_t callback.
-{
-	CheckInitializedPlugin(NORETURN);
-	//TODO m_OnDlcInstalledEnabled = true;
-	SteamApps()->InstallDLC(appID);
-}
-
-int MarkContentCorrupt(int missingFilesOnly)
-{
-	CheckInitializedPlugin(false);
-	return SteamApps()->MarkContentCorrupt(missingFilesOnly != 0);
-}
-
-void UninstallDLC(int appID)
-{
-	CheckInitializedPlugin(NORETURN);
-	SteamApps()->UninstallDLC(appID);
 }
 
 // Overlay methods
