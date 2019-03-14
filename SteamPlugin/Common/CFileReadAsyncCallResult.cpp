@@ -24,37 +24,31 @@ THE SOFTWARE.
 
 void CFileReadAsyncCallResult::OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure)
 {
+	m_eResult = pResult->m_eResult;
 	if (pResult->m_eResult == k_EResultOK) // && !bFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
 		m_MemblockID = agk::CreateMemblock(pResult->m_cubRead);
-		if (SteamRemoteStorage()->FileReadAsyncComplete(pResult->m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), pResult->m_cubRead))
-		{
-			//utils::Log(GetName() + ": FileReadAsyncComplete succeeded.");
-			m_State = Done;
-		}
-		else
+		if (!SteamRemoteStorage()->FileReadAsyncComplete(pResult->m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), pResult->m_cubRead))
 		{
 			utils::Log(GetName() + ": FileReadAsyncComplete failed.");
 			agk::DeleteMemblock(m_MemblockID);
 			m_MemblockID = 0;
-			m_State = ServerError;
+			m_eResult = k_EResultFail;
 		}
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed with result " + std::to_string(pResult->m_eResult) + ".");
-		m_State = ServerError;
 	}
 }
 void CFileReadAsyncCallResult::Call()
 {
 	const char *m_pchFile = m_FileName.c_str();
 	// Check for file existence because calling FileReadAsync() on files that have been FileDeleted()
-	// will cause Steamworks report an error in the event, but subsequent FileReadAsync() attempts
-	// when the exists again will return k_uAPICallInvalid until the user logs out and back into 
-	// the Steam client.
-	// FileRead() does not have this issue.
+	// will cause Steamworks report an error in the callback, but subsequent FileReadAsync() attempts
+	// when the file exists again will return k_uAPICallInvalid until the user logs out and back into 
+	// the Steam client.  FileRead() does not have this issue.
 	if (!SteamRemoteStorage()->FileExists(m_pchFile))
 	{
 		throw std::string(GetName() + ": File does not exist.");

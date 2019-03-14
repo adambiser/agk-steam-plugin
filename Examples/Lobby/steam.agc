@@ -237,15 +237,15 @@ Function ProcessCallbacks()
 		result = Steam.GetCallResultCode(server.lobbyListCallResult)
 		if result
 			AddStatus("RequestLobbyList call result code: " + str(result))
-			AddStatus("JSON: " + Steam.GetCallResultJSON(server.lobbyListCallResult))
+			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.lobbyListCallResult))
 			if result = EResultOk
-				server.lobbies.fromjson(Steam.GetCallResultJSON(server.lobbyListCallResult))
-				for x = 0 to server.lobbies.length
-					hLobby = server.lobbies[x]
-					name as string
-					name = "Lobby " + str(x) + " (" + str(Steam.GetNumLobbyMembers(hLobby)) + "/" + str(Steam.GetLobbyMemberLimit(hLobby)) + ")"
-					AddLineToScrollableTextArea(lobbyList, name)
-				next
+				//~ server.lobbies.fromjson(Steam.GetCallResultJSON(server.lobbyListCallResult))
+				//~ for x = 0 to server.lobbies.length
+					//~ hLobby = server.lobbies[x]
+					//~ name as string
+					//~ name = "Lobby " + str(x) + " (" + str(Steam.GetNumLobbyMembers(hLobby)) + "/" + str(Steam.GetLobbyMemberLimit(hLobby)) + ")"
+					//~ AddLineToScrollableTextArea(lobbyList, name)
+				//~ next
 				HighlightLobbyIndex()
 			else
 				AddStatus("Error getting lobby match list: " + str(result))
@@ -260,9 +260,9 @@ Function ProcessCallbacks()
 		result = Steam.GetCallResultCode(server.createLobbyCallResult)
 		if result
 			AddStatus("CreateLobby call result code: " + str(result))
-			AddStatus("JSON: " + Steam.GetCallResultJSON(server.createLobbyCallResult))
+			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.createLobbyCallResult))
 			if result = EResultOk
-				createdLobby.fromjson(Steam.GetCallResultJSON(server.createLobbyCallResult))
+				//~ createdLobby.fromjson(Steam.GetCallResultJSON(server.createLobbyCallResult))
 				AddStatus("Lobby created.  Handle: " + str(createdLobby.SteamIDLobby))
 			else
 				AddStatus("Error creating lobby: " + str(result))
@@ -279,9 +279,9 @@ Function ProcessCallbacks()
 		result = Steam.GetCallResultCode(server.joinLobbyCallResult)
 		if result
 			AddStatus("JoinLobby call result code: " + str(result))
-			AddStatus("JSON: " + Steam.GetCallResultJSON(server.joinLobbyCallResult))
+			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.joinLobbyCallResult))
 			if result = EResultOk
-				joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
+				//~ joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
 				AddStatus("Lobby joined.  Handle: " + str(joinedLobby.SteamIDLobby))
 			else
 				AddStatus("Error joining lobby: " + str(result))

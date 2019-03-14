@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <ctime>
 #include <shellapi.h>
@@ -28,9 +28,18 @@ THE SOFTWARE.
 #include <sstream>
 #include <psapi.h>
 #include "DllMain.h"
-#include "SteamPlugin.h"
 #include "..\AGKLibraryCommands.h"
 #include "Utils.h"
+// CallResult classes.
+#include "CCallbacks.h"
+#include "CFileReadAsyncCallResult.h"
+#include "CFileWriteAsyncCallResult.h"
+#include "CLeaderboardFindCallResult.h"
+#include "CLeaderboardScoresDownloadedCallResult.h"
+#include "CLeaderboardScoreUploadedCallResult.h"
+#include "CLobbyCreatedCallResult.h"
+#include "CLobbyEnterCallResult.h"
+#include "CLobbyMatchListCallResult.h"
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -38,13 +47,16 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 
 #define MEMBLOCK_IMAGE_HEADER_LENGTH	12
 
-static SteamPlugin *Steam;
-
 // GLOBALS!
 // TODO clean this up!
 uint64 g_AppID = 480;
 bool g_SteamInitialized = false;
-bool g_IsGameOverlayActive = false;
+InputAnalogActionData_t g_AnalogActionData;
+InputMotionData_t g_MotionData;
+InputDigitalActionData_t g_DigitalActionData;
+uint8 g_nMinutesBatteryLeft = 255;
+std::mutex g_JoinedLobbiesMutex;
+std::vector<CSteamID> g_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 
 
 /*
@@ -52,9 +64,9 @@ Check to see if the SteamPlugin has been initialized.
 If it has not been, return a default value.
 */
 #define CheckInitializedPlugin(returnValue)	\
-	if (!g_SteamInitialized || !Steam)	\
-	{									\
-		return returnValue;				\
+	if (!g_SteamInitialized)				\
+	{										\
+		return returnValue;					\
 	}
 
 // Token for passing an empty returnValue into CheckInitializedPlugin();
@@ -181,12 +193,30 @@ void ClearActionSetHandleList()
 	IP Address Parsing Methods
 */
 //#define ConvertIPToString(ip) ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff)
-
 void ResetVariables()
 {
+	// Disconnect from any lobbies.
+	g_JoinedLobbiesMutex.lock();
+	for (size_t index = 0; index < g_JoinedLobbies.size(); index++)
+	{
+		SteamMatchmaking()->LeaveLobby(g_JoinedLobbies[index]);
+	}
+	g_JoinedLobbies.clear();
+	g_JoinedLobbiesMutex.unlock();
+	// Clear handles
+	CallResults()->Clear();
 	ClearSteamHandlesList();
 	ClearActionSetHandleList();
+	// Input
+	Clear(g_AnalogActionData);
+	Clear(g_DigitalActionData);
+	Clear(g_MotionData);
 	m_InputCount = 0;
+	// Variables
+	g_AppID = 0;
+	g_SteamInitialized = 0;
+	g_JoinedLobbies.clear();
+	g_SteamInitialized = false;
 }
 
 /*
@@ -197,11 +227,7 @@ The result of the RequestStats call has no effect on the return value.
 */
 int Init()
 {
-	// TODO Remove
-	if (!Steam)
-	{
-		Steam = new SteamPlugin();
-	}
+	agk::Log("Initializing Steam API.");
 	if (!g_SteamInitialized)
 	{
 		ResetVariables();
@@ -223,8 +249,9 @@ void Shutdown()
 {
 	ResetVariables();
 	SteamAPI_Shutdown();
-	delete Steam;
-	Steam = NULL;
+	Callbacks()->ResetSessionVariables();
+	//delete Steam;
+	//Steam = NULL;
 }
 
 /*
@@ -234,7 +261,6 @@ When it has, this method returns 1.  Otherwise 0 is returned.
 */
 int SteamInitialized()
 {
-	CheckInitializedPlugin(false);
 	return g_SteamInitialized;
 }
 
@@ -381,19 +407,20 @@ int SetFileAttributes(const char *filename, int attributes)
 void DeleteCallResult(int hCallResult)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->DeleteCallResultItem(hCallResult);
+	CallResults()->Delete(hCallResult);
 }
 
 int GetCallResultState(int hCallResult)
 {
 	CheckInitializedPlugin(ClientError);
-	return Steam->GetCallResultItemState(hCallResult);
+	//return Callbacks()->GetCallResultItemState(hCallResult);
+	return ClientError;
 }
 
 int GetCallResultCode(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
+	if (CCallResultItem *callResult = CallResults()->Get<CCallResultItem>(hCallResult))
 	{
 		return callResult->GetResultCode();
 	}
@@ -402,7 +429,7 @@ int GetCallResultCode(int hCallResult)
 
 //char *GetCallResultJSON(int hCallResult)
 //{
-//	if (CCallResultItem *callResult = Steam->GetCallResultItem<CCallResultItem>(hCallResult))
+//	if (CCallResultItem *callResult = Callbacks()->GetCallResultItem<CCallResultItem>(hCallResult))
 //	{
 //		return utils::CreateString(callResult->GetResultJSON());
 //	}
@@ -419,7 +446,7 @@ int GetDLCCount()
 char *GetDLCDataJSON()
 {
 	std::string json("[");
-	if (Steam)
+	if (SteamInitialized())
 	{
 		for (int index = 0; index < SteamApps()->GetDLCCount(); index++)
 		{
@@ -551,7 +578,7 @@ char *GetCurrentGameLanguage()
 
 char *GetDLCDownloadProgressJSON(int appID)
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
 		plugin::DownloadProgress_t progress;
 		bool downloading = SteamApps()->GetDlcDownloadProgress(appID, &progress.m_unBytesDownloaded, &progress.m_unBytesTotal);
@@ -574,7 +601,7 @@ int GetEarliestPurchaseUnixTime(int appID)
 
 char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
 		//DepotId_t *depots = new DepotId_t[maxDepots];
 		//int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
@@ -594,7 +621,7 @@ char *GetLaunchQueryParam(const char *key)
 int HasNewLaunchQueryParameters()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasNewLaunchQueryParameters();
+	return Callbacks()->HasNewUrlLaunchParameters();
 }
 
 char *GetLaunchCommandLine()
@@ -609,13 +636,13 @@ char *GetLaunchCommandLine()
 int HasNewDLCInstalled()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasNewDlcInstalled();
+	return Callbacks()->HasNewDlcInstalled();
 }
 
 int GetNewDLCInstalled()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetNewDlcInstalled().m_nAppID;
+	return Callbacks()->GetNewDlcInstalled().m_nAppID;
 }
 
 void InstallDLC(int appID) // Triggers a DlcInstalled_t callback.
@@ -641,7 +668,7 @@ void UninstallDLC(int appID)
 int IsGameOverlayActive()
 {
 	CheckInitializedPlugin(false);
-	return g_IsGameOverlayActive;
+	return Callbacks()->IsGameOverlayActive();
 }
 
 void ActivateGameOverlay(const char *dialogName)
@@ -689,7 +716,7 @@ char *GetPersonaName()
 int GetSteamID()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetSteamID());
+	return GetPluginHandle(SteamUser()->GetSteamID());
 }
 
 int GetAccountID(int hUserSteamID)
@@ -755,13 +782,13 @@ char *GetSteamID64(int hUserSteamID)
 int HasPersonaStateChange()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasPersonaStateChange();
+	return Callbacks()->HasNewPersonaStateChange();
 }
 
 char *GetPersonaStateChangeJSON()
 {
 	CheckInitializedPlugin(0);
-	//return utils::CreateString(ToJSON(Steam->GetPersonaStateChange()));
+	//return utils::CreateString(ToJSON(Callbacks()->GetPersonaStateChange()));
 	return utils::CreateString("{}");
 }
 
@@ -774,25 +801,45 @@ int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 int HasAvatarImageLoaded()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasAvatarImageLoadedUser();
+	return Callbacks()->HasNewAvatarImageLoadedUser();
 }
 
 int GetAvatarImageLoadedUser()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetAvatarImageLoadedUser());
+	return GetPluginHandle(Callbacks()->GetNewAvatarImageLoadedUser());
 }
 
+// NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFriendAvatar(GetSteamHandle(hUserSteamID), (EAvatarSize)size);
+	CSteamID steamID = GetSteamHandle(hUserSteamID);
+	Callbacks()->EnableOnAvatarImageLoadedCallback();
+	//SteamFriends()->RequestUserInformation(steamID, false);
+	int hImage = 0;
+	switch ((EAvatarSize)size)
+	{
+	case Small:
+		hImage = SteamFriends()->GetSmallFriendAvatar(steamID);
+		break;
+	case Medium:
+		hImage = SteamFriends()->GetMediumFriendAvatar(steamID);
+		break;
+	case Large:
+		hImage = SteamFriends()->GetLargeFriendAvatar(steamID);
+		break;
+	default:
+		agk::PluginError("Invalid avatar size.");
+		return 0;
+	}
+	return hImage;
 }
 
 char *GetFriendListJSON(int friendFlags)
 {
 	std::string json("[");
-	if (Steam)
+	if (SteamInitialized())
 	{
 		for (int x = 0; x < SteamFriends()->GetFriendCount((EFriendFlags)friendFlags); x++)
 		{
@@ -810,7 +857,7 @@ char *GetFriendListJSON(int friendFlags)
 char *GetFriendGamePlayedJSON(int hUserSteamID)
 {
 	// TODO m_PersonaStateChangedEnabled = true;
-	if (Steam)
+	if (SteamInitialized())
 	{
 		FriendGameInfo_t pFriendGameInfo;
 		bool ingame = SteamFriends()->GetFriendGamePlayed(GetSteamHandle(hUserSteamID), &pFriendGameInfo);
@@ -887,7 +934,7 @@ int GetFriendsGroupMembersCount(int hFriendsGroupID)
 
 char *GetFriendsGroupMembersListJSON(int hFriendsGroupID) // return a json array of SteamID handles
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
 		int memberCount = SteamFriends()->GetFriendsGroupMembersCount(hFriendsGroupID);
 		if (memberCount > 0)
@@ -994,7 +1041,7 @@ int RequestStats()
 int GetRequestStatsCallbackState()
 {
 	CheckInitializedPlugin(ClientError);
-	return Steam->GetRequestStatsCallbackState();
+	return Callbacks()->GetRequestStatsCallbackState();
 }
 
 /*
@@ -1003,7 +1050,7 @@ Returns 1 when user stats are initialized.  Otherwise, returns 0.
 int StatsInitialized()
 {
 	CheckInitializedPlugin(false);
-	return Steam->StatsInitialized();
+	return Callbacks()->StatsInitialized();
 }
 
 /*
@@ -1014,7 +1061,7 @@ Use StatsStored() to determine when user stats have been stored.
 int StoreStats()
 {
 	CheckInitializedPlugin(false);
-	return Steam->StoreStats();
+	return Callbacks()->StoreStats();
 }
 
 /*
@@ -1024,13 +1071,13 @@ Should generally only be used while testing.
 int ResetAllStats(int achievementsToo)
 {
 	CheckInitializedPlugin(false);
-	return Steam->ResetAllStats(achievementsToo != 0);
+	return Callbacks()->ResetAllStats(achievementsToo != 0);
 }
 
 int GetStoreStatsCallbackState()
 {
 	CheckInitializedPlugin(ClientError);
-	return Steam->GetStoreStatsCallbackState();
+	return Callbacks()->GetStoreStatsCallbackState();
 }
 
 /*
@@ -1039,7 +1086,7 @@ Returns 1 when user stats have been stored since the last StoreStats call.  Othe
 int StatsStored()
 {
 	CheckInitializedPlugin(false);
-	return Steam->StatsStored();
+	return Callbacks()->StatsStored();
 }
 
 /*
@@ -1048,7 +1095,7 @@ Returns 1 when an achievement has been stored since the last StoreStats call.  O
 int AchievementStored()
 {
 	CheckInitializedPlugin(false);
-	return Steam->AchievementStored();
+	return Callbacks()->AchievementStored();
 }
 
 /*
@@ -1093,7 +1140,7 @@ int GetAchievementDisplayHidden(const char *name)
 int GetAchievementIcon(const char *name)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetAchievementIcon(name);
+	return Callbacks()->GetAchievementIcon(name);
 }
 
 /*
@@ -1225,7 +1272,7 @@ int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLen
 int FindLeaderboard(const char *leaderboardName)
 {
 	CheckInitializedPlugin(false);
-	return Steam->FindLeaderboard(leaderboardName);
+	return CallResults()->Add(new CLeaderboardFindCallResult(leaderboardName));
 }
 
 char *GetLeaderboardName(int hLeaderboard)
@@ -1252,24 +1299,40 @@ int GetLeaderboardSortMethod(int hLeaderboard)
 	return SteamUserStats()->GetLeaderboardSortMethod(GetSteamHandle(hLeaderboard));
 }
 
+int UploadLeaderboardScore(int hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
+{
+	CheckInitializedPlugin(0);
+	SteamLeaderboard_t leaderboard = GetSteamHandle(hLeaderboard);
+	if (!leaderboard)
+	{
+		agk::PluginError("UploadLeaderboardScore: Invalid leaderboard handle.");
+		return 0;
+	}
+	return CallResults()->Add(new CLeaderboardScoreUploadedCallResult(leaderboard, eLeaderboardUploadScoreMethod, score));
+}
+
 // TODO Add force parameter? 
 // TODO Allow for a data memblock of integers.
 int UploadLeaderboardScore(int hLeaderboard, int score)
 {
-	CheckInitializedPlugin(0);
-	return Steam->UploadLeaderboardScore(GetSteamHandle(hLeaderboard), k_ELeaderboardUploadScoreMethodKeepBest, score);
+	return UploadLeaderboardScore(hLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score);
 }
 
-int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
+int UploadLeaderboardScoreForceUpdate(int hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
 {
-	CheckInitializedPlugin(0);
-	return Steam->UploadLeaderboardScore(GetSteamHandle(hLeaderboard), k_ELeaderboardUploadScoreMethodForceUpdate, score);
+	return UploadLeaderboardScore(hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
 }
 
-int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
+int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd)
 {
 	CheckInitializedPlugin(0);
-	return Steam->DownloadLeaderboardEntries(GetSteamHandle(hLeaderboard), (ELeaderboardDataRequest)eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	SteamLeaderboard_t leaderboard = GetSteamHandle(hLeaderboard);
+	if (!leaderboard)
+	{
+		agk::PluginError("DownloadLeaderboardEntries: Invalid leaderboard handle.");
+		return 0;
+	}
+	return CallResults()->Add(new CLeaderboardScoresDownloadedCallResult(leaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, rangeStart, rangeEnd));
 }
 
 void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)
@@ -1311,19 +1374,19 @@ void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueTo
 int RequestLobbyList()
 {
 	CheckInitializedPlugin(0);
-	return Steam->RequestLobbyList();
+	return CallResults()->Add(new CLobbyMatchListCallResult());
 }
 
 int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitializedPlugin(0);
-	return Steam->CreateLobby((ELobbyType)eLobbyType, maxMembers);
+	return CallResults()->Add(new CLobbyCreatedCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
 //int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
 //{
 //	CheckInitializedPlugin(false);
-//	return Steam->SetLinkedLobby(GetSteamHandle(hLobbySteamID), GetSteamHandle(hLobbyDependentSteamID));
+//	return Callbacks()->SetLinkedLobby(GetSteamHandle(hLobbySteamID), GetSteamHandle(hLobbyDependentSteamID));
 //}
 
 int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable)
@@ -1341,20 +1404,21 @@ int SetLobbyType(int hLobbySteamID, int eLobbyType)
 int JoinLobby(int hLobbySteamID)
 {
 	CheckInitializedPlugin(false);
-	return Steam->JoinLobby(GetSteamHandle(hLobbySteamID));
+	CheckInitialized(SteamMatchmaking, 0);
+	return CallResults()->Add(new CLobbyEnterCallResult(GetSteamHandle(hLobbySteamID)));
 }
 
 int HasLobbyEnterResponse()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyEnter();
+	return Callbacks()->HasNewLobbyEnter();
 }
 
 char *GetLobbyEnterResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
 	// Must be the same as in CLobbyEnterCallResult.
-	return utils::CreateString("{}"); // ToJSON(Steam->GetLobbyEnter()));
+	return utils::CreateString("{}"); // ToJSON(Callbacks()->GetLobbyEnter()));
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
@@ -1366,25 +1430,34 @@ int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 int HasGameLobbyJoinRequest()
 {
 	CheckInitializedPlugin(0);
-	return Steam->HasGameLobbyJoinRequested();
+	return Callbacks()->HasNewGameLobbyJoinRequested();
 }
 
 int GetGameLobbyJoinRequestedLobby()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetGameLobbyJoinRequested().m_steamIDLobby);
+	return GetPluginHandle(Callbacks()->GetNewGameLobbyJoinRequested().m_steamIDLobby);
 }
 
 void LeaveLobby(int hLobbySteamID)
 {
 	CheckInitializedPlugin(NORETURN);
-	Steam->LeaveLobby(GetSteamHandle(hLobbySteamID));
+	CSteamID steamIDLobby = GetSteamHandle(hLobbySteamID);
+	g_JoinedLobbiesMutex.lock();
+	SteamMatchmaking()->LeaveLobby(steamIDLobby);
+	// Remove from list of joined lobbies.
+	auto it = std::find(g_JoinedLobbies.begin(), g_JoinedLobbies.end(), steamIDLobby);
+	if (it != g_JoinedLobbies.end())
+	{
+		g_JoinedLobbies.erase(it);
+	}
+	g_JoinedLobbiesMutex.unlock();
 }
 
 // Lobby methods: Game server
 char *GetLobbyGameServerJSON(int hLobbySteamID)
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
 		plugin::LobbyGameServer_t server;
 		if (SteamMatchmaking()->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
@@ -1415,14 +1488,14 @@ int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServ
 int HasLobbyGameCreated()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyGameCreated();
+	return Callbacks()->HasNewLobbyGameCreated();
 }
 
 char *GetLobbyGameCreatedJSON()
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
-		//return utils::CreateString(ToJSON(Steam->GetLobbyGameCreated()));
+		//return utils::CreateString(ToJSON(Callbacks()->GetLobbyGameCreated()));
 	}
 	return utils::CreateString("{}");
 }
@@ -1482,13 +1555,13 @@ int RequestLobbyData(int hLobbySteamID)
 int HasLobbyDataUpdateResponse()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyDataUpdate();
+	return Callbacks()->HasNewLobbyDataUpdate();
 }
 
 char *GetLobbyDataUpdateResponseJSON()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	//return utils::CreateString(ToJSON(Steam->GetLobbyDataUpdate()));
+	//return utils::CreateString(ToJSON(Callbacks()->GetLobbyDataUpdate()));
 	return utils::CreateString("{}");
 }
 
@@ -1543,51 +1616,51 @@ int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 int HasLobbyChatUpdate()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyChatUpdate();
+	return Callbacks()->HasNewLobbyChatUpdate();
 }
 
 // TODO JSON
 int GetLobbyChatUpdateLobby()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatUpdate().m_ulSteamIDLobby);
+	return GetPluginHandle(Callbacks()->GetNewLobbyChatUpdate().m_ulSteamIDLobby);
 }
 
 int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatUpdate().m_ulSteamIDUserChanged);
+	return GetPluginHandle(Callbacks()->GetNewLobbyChatUpdate().m_ulSteamIDUserChanged);
 }
 
 int GetLobbyChatUpdateUserState()
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetLobbyChatUpdate().m_rgfChatMemberStateChange;
+	return Callbacks()->GetNewLobbyChatUpdate().m_rgfChatMemberStateChange;
 }
 
 int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatUpdate().m_ulSteamIDMakingChange);
+	return GetPluginHandle(Callbacks()->GetNewLobbyChatUpdate().m_ulSteamIDMakingChange);
 }
 
 int HasLobbyChatMessage()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLobbyChatMessage();
+	return Callbacks()->HasNewLobbyChatMessage();
 }
 
 // TODO JSON
 int GetLobbyChatMessageUser()
 {
 	CheckInitializedPlugin(0);
-	return GetPluginHandle(Steam->GetLobbyChatMessage().m_ulSteamIDUser);
+	return GetPluginHandle(Callbacks()->GetNewLobbyChatMessage().m_ulSteamIDUser);
 }
 
 char *GetLobbyChatMessageText()
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetLobbyChatMessage().m_chChatEntry);
+	return utils::CreateString(Callbacks()->GetNewLobbyChatMessage().m_chChatEntry);
 }
 
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
@@ -1629,7 +1702,7 @@ int GetFavoriteGameCount()
 // Leave this as by-index since AddFavoriteGame appears to return an index.
 char *GetFavoriteGameJSON(int index)
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
 		plugin::FavoriteGame_t info;
 		if (SteamMatchmaking()->GetFavoriteGame(index, &info.m_AppID, &info.m_nIP, &info.m_nConnPort, &info.m_nQueryPort, &info.m_unFlags, &info.m_rTime32LastPlayedOnServer))
@@ -1664,7 +1737,7 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 //char *GetPublicIP()
 //{
 //	CheckInitializedPlugin(NULL_STRING);
-//	uint32 ip = Steam->GetPublicIP();
+//	uint32 ip = Callbacks()->GetPublicIP();
 //	std::ostringstream ipc;
 //	ipc << ConvertIPToString(ip);
 //	return utils::CreateString(ipc);
@@ -1727,13 +1800,13 @@ void SetMusicVolume(float volume)
 int HasMusicPlaybackStatusChanged()
 {
 	CheckInitializedPlugin(0);
-	return Steam->HasMusicPlaybackStatusChanged();
+	return Callbacks()->HasMusicPlaybackStatusChanged();
 }
 
 int HasMusicVolumeChanged()
 {
 	CheckInitializedPlugin(0);
-	return Steam->HasMusicVolumeChanged();
+	return Callbacks()->HasMusicVolumeChanged();
 }
 
 // Util methods
@@ -1800,25 +1873,25 @@ void SetOverlayNotificationPosition(int eNotificationPosition)
 int HasIPCountryChanged()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasIPCountryChanged();
+	return Callbacks()->HasIPCountryChanged();
 }
 
 int HasLowBatteryWarning()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasLowBatteryWarning();
+	return Callbacks()->HasLowBatteryWarning();
 }
 
 int GetMinutesBatteryLeft()
 {
 	CheckInitializedPlugin(255);
-	return Steam->GetMinutesBatteryLeft();
+	return Callbacks()->GetMinutesBatteryLeft();
 }
 
 int IsSteamShuttingDown()
 {
 	CheckInitializedPlugin(false);
-	return Steam->HasSteamShutdownNotification();
+	return Callbacks()->HasSteamShutdownNotification();
 }
 
 extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebugText)
@@ -1842,14 +1915,14 @@ int IsSteamInBigPictureMode()
 int HasGamepadTextInputDismissedInfo()
 {
 	CheckInitializedPlugin(0);
-	return Steam->HasGamepadTextInputDismissed();
+	return Callbacks()->HasNewGamepadTextInputDismissed();
 }
 
 char *GetGamepadTextInputDismissedInfoJSON()
 {
-	if (Steam)
+	if (SteamInitialized())
 	{
-		//return utils::CreateString(ToJSON(Steam->GetGamepadTextInputDismissed()));
+		//return utils::CreateString(ToJSON(Callbacks()->GetGamepadTextInputDismissed()));
 	}
 	return utils::CreateString("{}");
 }
@@ -1954,19 +2027,27 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 	{
 		length = SteamRemoteStorage()->GetFileSize(filename);
 	}
-	return Steam->FileReadAsync(filename, offset, length);
+	return CallResults()->Add(new CFileReadAsyncCallResult(filename, offset, length));
 }
 
 char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetFileReadAsyncFileName(hCallResult));
+	if (CFileReadAsyncCallResult *callResult = CallResults()->Get<CFileReadAsyncCallResult>(hCallResult))
+	{
+		return utils::CreateString(callResult->GetFileName());
+	}
+	return NULL_STRING;
 }
 
 int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
 	CheckInitializedPlugin(0);
-	return Steam->GetFileReadAsyncMemblock(hCallResult);
+	if (CFileReadAsyncCallResult *callResult = CallResults()->Get<CFileReadAsyncCallResult>(hCallResult))
+	{
+		return callResult->GetMemblockID();
+	}
+	return 0;
 }
 
 //SteamAPICall_t CloudFileShare(const char *filename);
@@ -1987,15 +2068,19 @@ int CloudFileWriteAsync(const char *filename, int memblockID)
 	if (agk::GetMemblockExists(memblockID))
 	{
 		// The data buffer passed in to FileWriteAsync is immediately copied.  Safe to delete memblock immediately after call.
-		return Steam->FileWriteAsync(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
+		return CallResults()->Add(new CFileWriteAsyncCallResult(filename, agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID)));
 	}
-	return false;
+	return 0;
 }
 
 char *GetCloudFileWriteAsyncFileName(int hCallResult)
 {
 	CheckInitializedPlugin(NULL_STRING);
-	return utils::CreateString(Steam->GetFileWriteAsyncFileName(hCallResult));
+	if (CFileWriteAsyncCallResult *callResult = CallResults()->Get<CFileWriteAsyncCallResult>(hCallResult))
+	{
+		return utils::CreateString(callResult->GetFileName());
+	}
+	return NULL_STRING;
 }
 
 //bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
@@ -2020,7 +2105,7 @@ char *GetCloudFileName(int index)
 char *GetCloudFileListJSON()
 {
 	std::string json("[");
-	//if (Steam)
+	//if (SteamInitialized())
 	//{
 	//	for (int index = 0; index < SteamRemoteStorage()->GetFileCount(); index++)
 	//	{
@@ -2091,7 +2176,7 @@ char *GetCloudQuotaJSON()
 {
 	std::ostringstream json;
 	json << "{";
-	if (Steam)
+	if (SteamInitialized())
 	{
 		uint64 pnTotalBytes;
 		uint64 puAvailableBytes;
@@ -2234,7 +2319,7 @@ char *GetActiveActionSetLayersJSON(int hInput)
 	ValidateInputHandle(hInput, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
-	if (Steam)
+	if (SteamInitialized())
 	{
 		// TODO The API document has incorrect information.  Is STEAM_INPUT_MAX_COUNT correct?
 		InputActionSetHandle_t *handlesOut = new InputActionSetHandle_t[STEAM_INPUT_MAX_COUNT];
@@ -2261,32 +2346,32 @@ void GetAnalogActionData(int hInput, int hAnalogAction)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	Steam->GetAnalogActionData(m_InputHandles[hInput], analogActionHandle);
+	g_AnalogActionData = SteamInput()->GetAnalogActionData(m_InputHandles[hInput], analogActionHandle);
 }
 
 int GetAnalogActionDataActive()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_AnalogActionData.bActive;
+	return g_AnalogActionData.bActive;
 }
 
 int GetAnalogActionDataMode()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_AnalogActionData.eMode;
+	return g_AnalogActionData.eMode;
 }
 
 // TODO Add a per-Input dead zone.
 float GetAnalogActionDataX()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_AnalogActionData.x;
+	return g_AnalogActionData.x;
 }
 
 float GetAnalogActionDataY()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_AnalogActionData.y;
+	return g_AnalogActionData.y;
 }
 
 int GetAnalogActionHandle(const char *actionName)
@@ -2308,19 +2393,19 @@ void GetDigitalActionData(int hInput, int hDigitalAction)
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
 	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
-	Steam->GetDigitalActionData(m_InputHandles[hInput], digitalActionHandle);
+	g_DigitalActionData = SteamInput()->GetDigitalActionData(m_InputHandles[hInput], digitalActionHandle);
 }
 
 int GetDigitalActionDataActive()
 {
 	CheckInitializedPlugin(false);
-	return Steam->m_DigitalActionData.bActive;
+	return g_DigitalActionData.bActive;
 }
 
 int GetDigitalActionDataState()
 {
 	CheckInitializedPlugin(false);
-	return Steam->m_DigitalActionData.bState;
+	return g_DigitalActionData.bState;
 }
 
 int GetDigitalActionHandle(const char *actionName)
@@ -2333,67 +2418,67 @@ void GetMotionData(int hInput)
 {
 	CheckInitializedPlugin(NORETURN);
 	ValidateInputHandle(hInput, );
-	Steam->GetMotionData(m_InputHandles[hInput]);
+	g_MotionData = SteamInput()->GetMotionData(m_InputHandles[hInput]);
 }
 
 float GetMotionDataPosAccelX()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.posAccelX;
+	return g_MotionData.posAccelX;
 }
 
 float GetMotionDataPosAccelY()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.posAccelY;
+	return g_MotionData.posAccelY;
 }
 
 float GetMotionDataPosAccelZ()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.posAccelZ;
+	return g_MotionData.posAccelZ;
 }
 
 float GetMotionDataRotQuatW()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotQuatW;
+	return g_MotionData.rotQuatW;
 }
 
 float GetMotionDataRotQuatX()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotQuatX;
+	return g_MotionData.rotQuatX;
 }
 
 float GetMotionDataRotQuatY()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotQuatY;
+	return g_MotionData.rotQuatY;
 }
 
 float GetMotionDataRotQuatZ()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotQuatZ;
+	return g_MotionData.rotQuatZ;
 }
 
 float GetMotionDataRotVelX()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotVelX;
+	return g_MotionData.rotVelX;
 }
 
 float GetMotionDataRotVelY()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotVelY;
+	return g_MotionData.rotVelY;
 }
 
 float GetMotionDataRotVelZ()
 {
 	CheckInitializedPlugin(0);
-	return Steam->m_MotionData.rotVelZ;
+	return g_MotionData.rotVelZ;
 }
 
 /*
@@ -2407,7 +2492,7 @@ char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
-	if (Steam)
+	if (SteamInitialized())
 	{
 		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
 		int count = SteamInput()->GetAnalogActionOrigins(m_InputHandles[hInput], actionSetHandle, analogActionHandle, origins);
@@ -2432,7 +2517,7 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
-	if (Steam)
+	if (SteamInitialized())
 	{
 		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
 		int count = SteamInput()->GetDigitalActionOrigins(m_InputHandles[hInput], actionSetHandle, digitalActionHandle, origins);

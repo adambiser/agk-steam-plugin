@@ -35,18 +35,15 @@ public:
 		m_eLobbyType(eLobbyType),
 		m_cMaxMembers(cMaxMembers)
 	{
-		//m_LobbyCreated.m_eResult = (EResult)0;
-		//m_LobbyCreated.m_ulSteamIDLobby = 0;
+		m_CallResultName = "CreateLobby("
+			+ std::to_string(m_eLobbyType) + ", " 
+			+ std::to_string(m_cMaxMembers) + ")";
+		m_LobbyCreated.m_eResult = (EResult)0;
+		m_LobbyCreated.m_ulSteamIDLobby = 0;
 	}
 	virtual ~CLobbyCreatedCallResult(void)
 	{
 		m_CallResult.Cancel();
-	}
-	std::string GetName()
-	{
-		return "CreateLobby("
-			+ std::to_string(m_eLobbyType) + ", "
-			+ std::to_string(m_cMaxMembers) + ")";
 	}
 protected:
 	void Call();

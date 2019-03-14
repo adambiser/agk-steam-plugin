@@ -34,18 +34,15 @@ public:
 		CCallResultItem(),
 		m_steamIDLobby(steamIDLobby)
 	{
-		//m_LobbyEnter.m_bLocked = 0;
-		//m_LobbyEnter.m_EChatRoomEnterResponse = 0;
-		//m_LobbyEnter.m_rgfChatPermissions = 0; // unused - always 0.
-		//m_LobbyEnter.m_ulSteamIDLobby = 0;
+		m_CallResultName = "JoinLobby(" + std::to_string(m_steamIDLobby.ConvertToUint64()) + ")";
+		m_LobbyEnter.m_bLocked = 0;
+		m_LobbyEnter.m_EChatRoomEnterResponse = 0;
+		m_LobbyEnter.m_rgfChatPermissions = 0; // unused - always 0.
+		m_LobbyEnter.m_ulSteamIDLobby = 0;
 	}
 	virtual ~CLobbyEnterCallResult(void)
 	{
 		m_CallResult.Cancel();
-	}
-	std::string GetName()
-	{
-		return "JoinLobby(" + std::to_string(m_steamIDLobby.ConvertToUint64()) + ")";
 	}
 protected:
 	void Call();

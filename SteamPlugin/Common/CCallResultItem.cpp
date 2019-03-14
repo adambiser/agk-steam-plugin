@@ -20,29 +20,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#include "CCallResultItem.h"
 
-// App/DLC methods
-
-
-void SteamPlugin::OnNewLaunchQueryParameters(NewUrlLaunchParameters_t *pParam)
+// Add the call result and run it.
+int CCallResultMap::Add(CCallResultItem *callResult)
 {
-	agk::Log("Callback: OnNewLaunchQueryParameters");
-	m_bNewLaunchQueryParameters = true;
+	if (callResult)
+	{
+		try
+		{
+			utils::Log(callResult->GetName() + ": Calling.");
+			FriendCall(*callResult);
+			// Find the next unassigned handle.
+			while (m_Items.find(++m_CurrentHandle) != m_Items.end());
+			m_Items[m_CurrentHandle] = callResult;
+			return m_CurrentHandle;
+		}
+		catch (std::string e)
+		{
+			utils::PluginError(e);
+		}
+		catch (...)
+		{
+			utils::PluginError(callResult->GetName() + ": Call threw an unexpected error.");
+		}
+	}
+	return 0;
 }
 
-void SteamPlugin::OnDlcInstalled(DlcInstalled_t *pParam)
+void CCallResultMap::Delete(int handle)
 {
-	utils::Log("Callback: OnDlcInstalled: AppID = " + std::to_string(pParam->m_nAppID));
-	// Don't store unless the main program is using this functionality.
-	if (m_OnDlcInstalledEnabled)
+	auto search = m_Items.find(handle);
+	if (search != m_Items.end())
 	{
-		StoreCallbackResult(NewDlcInstalled, *pParam);
+		delete search->second;
+		m_Items.erase(search);
 	}
 }
 
-bool SteamPlugin::HasNewDlcInstalled()
+void CCallResultMap::Clear()
 {
-	m_OnDlcInstalledEnabled = true;
-	GetNextCallbackResult(NewDlcInstalled);
+	for (auto iter = m_Items.begin(); iter != m_Items.end(); iter++) {
+		delete iter->second;
+	}
+	m_Items.clear();
+	m_CurrentHandle = 0;
+}
+
+CCallResultMap *CallResults()
+{
+	// Construct on first use.
+	static CCallResultMap *map = new CCallResultMap();
+	return map;
 }

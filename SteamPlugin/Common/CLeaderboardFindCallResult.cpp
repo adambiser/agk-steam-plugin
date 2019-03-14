@@ -28,20 +28,18 @@ void CLeaderboardFindCallResult::OnFindLeaderboard(LeaderboardFindResult_t *pCal
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
 		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
 		m_eResult = k_EResultFail;
 	}
 }
 
 void CLeaderboardFindCallResult::Call()
 {
-	m_hSteamAPICall = SteamUserStats()->FindLeaderboard(m_Name.c_str());
+	m_hSteamAPICall = SteamUserStats()->FindLeaderboard(m_LeaderboardName.c_str());
 	if (m_hSteamAPICall == k_uAPICallInvalid)
 	{
 		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");

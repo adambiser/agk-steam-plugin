@@ -29,13 +29,11 @@ void CLeaderboardScoreUploadedCallResult::OnUploadScore(LeaderboardScoreUploaded
 	if (m_LeaderboardScoreUploaded.m_bSuccess && !bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
 		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
 		m_eResult = k_EResultFail;
 	}
 }

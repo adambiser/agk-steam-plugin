@@ -34,7 +34,13 @@ public:
 		m_FileName(pchFile),
 		m_nOffset(nOffset),
 		m_cubToRead(cubToRead),
-		m_MemblockID(0) {}
+		m_MemblockID(0)
+	{
+		m_CallResultName = "FileReadAsync("
+			+ m_FileName + ", "
+			+ std::to_string(m_nOffset) + ", "
+			+ std::to_string(m_cubToRead) + ")";
+	}
 	virtual ~CFileReadAsyncCallResult(void)
 	{
 		if (m_MemblockID && agk::GetMemblockExists(m_MemblockID))
@@ -43,13 +49,6 @@ public:
 		}
 		m_MemblockID = 0;
 		m_CallResult.Cancel();
-	}
-	std::string GetName()
-	{
-		return "FileReadAsync(" 
-			+ m_FileName + ", "
-			+ std::to_string(m_nOffset) + ", "
-			+ std::to_string(m_cubToRead) + ")";
 	}
 	std::string GetFileName() { return m_FileName; }
 	int GetMemblockID() { return m_MemblockID; }

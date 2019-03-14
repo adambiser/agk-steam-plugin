@@ -29,7 +29,6 @@ void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFai
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
 		// Make sure a failure response is set.
 		if (m_eResult == 0)
 		{
@@ -39,7 +38,6 @@ void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFai
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
 		// Make sure a failure response is set.
 		if (m_eResult <= k_EResultOK)
 		{

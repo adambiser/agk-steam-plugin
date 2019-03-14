@@ -25,62 +25,68 @@ THE SOFTWARE.
 #pragma once
 
 #include <steam_api.h>
-#include "DllMain.h"
 #include "Utils.h"
+#include <map>
 
 class CCallResultItem
 {
 public:
 	CCallResultItem() : 
-		m_State(Idle),
 		m_eResult((EResult)0),
-		m_Running(false) {}
+		m_bRunning(false) {}
 	virtual ~CCallResultItem(void) {}
 	// Return a 'name' for the CCallResultItem object, usually indicates type and some useful parameter values.
-	virtual std::string GetName() = 0;
-	ECallbackState GetState()
-	{
-		// Immediately return to Idle after reporting Done.
-		if (m_State == Done)
-		{
-			m_State = Idle;
-			return Done;
-		}
-		return m_State;
-	}
-	void Run()
-	{
-		if (m_Running)
-		{
-			return;
-		}
-		m_Running = true;
-		try
-		{
-			utils::Log(GetName() + ": Calling.");
-			Call();
-		}
-		catch (std::string e)
-		{
-			utils::PluginError(e);
-			m_State = ClientError;
-			m_eResult = k_EResultFail;
-		}
-		catch (...)
-		{
-			utils::PluginError(GetName() + ": Call threw an unexpected error.");
-			m_State = ClientError;
-			m_eResult = k_EResultFail;
-		}
-	}
-	virtual EResult GetResultCode() { return m_eResult; }
+	std::string GetName() { return m_CallResultName; }
+	EResult GetResultCode() { return m_eResult; }
 protected:
+	std::string m_CallResultName;
 	SteamAPICall_t m_hSteamAPICall;
-	// Throw std::string for errors
+	// Throw std::string for errors.
 	virtual void Call() = 0;
-	ECallbackState m_State;
+	// Called from CCallResultMap.Add().
+	friend void FriendCall(CCallResultItem &callResult)
+	{
+		callResult.Call();
+	}
 	EResult m_eResult;
-	bool m_Running;
+	bool m_bRunning;
 };
+
+/*
+Map for maintaining all existing call results.
+*/
+class CCallResultMap
+{
+public:
+	CCallResultMap() {}
+	virtual ~CCallResultMap(void) {}
+
+	int Add(CCallResultItem *callResult);
+	// Template methods MUST be defined in the header file!
+	template <class T> T *Get(int handle)
+	{
+		auto search = m_Items.find(handle);
+		if (search == m_Items.end())
+		{
+			utils::PluginError("Invalid call result handle: " + std::to_string(handle) + ".");
+			return NULL;
+		}
+		T *callResult = dynamic_cast<T*>(m_Items[handle]);
+		if (!callResult)
+		{
+			utils::PluginError("Call result handle " + std::to_string(handle) + " was not the expected call result type.");
+			return NULL;
+		}
+		return callResult;
+	}
+	void Delete(int handle);
+	void Clear();
+private:
+	std::map<int, CCallResultItem*> m_Items;
+	int m_CurrentHandle;
+};
+
+// Use this to access the call result map.
+CCallResultMap *CallResults();
 
 #endif // _CCALLRESULTITEM_H_

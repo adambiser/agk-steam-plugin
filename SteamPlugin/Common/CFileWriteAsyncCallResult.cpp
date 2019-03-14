@@ -24,15 +24,14 @@ THE SOFTWARE.
 
 void CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure)
 {
+	m_eResult = pResult->m_eResult;
 	if (pResult->m_eResult == k_EResultOK && !bFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed with result " + std::to_string(pResult->m_eResult) + ".");
-		m_State = ServerError;
 	}
 }
 

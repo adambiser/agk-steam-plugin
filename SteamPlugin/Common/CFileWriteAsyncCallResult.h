@@ -33,18 +33,16 @@ public:
 		CCallResultItem(),
 		m_FileName(pchFile),
 		m_pvData(pvData),
-		m_cubData(cubData) {}
+		m_cubData(cubData)
+	{
+		m_CallResultName = "FileWriteAsync("
+			+ m_FileName + ", "
+			+ "*data, "
+			+ std::to_string(m_cubData) + ")";
+	}
 	virtual ~CFileWriteAsyncCallResult(void)
 	{
 		m_CallResult.Cancel();
-	}
-	std::string GetName()
-	{
-		return "FileWriteAsync("
-			+ m_FileName + ", "
-			+ "*data, "
-			//+ std::to_string(m_nOffset) + ", "
-			+ std::to_string(m_cubData) + ")";
 	}
 	std::string GetFileName() { return m_FileName; }
 protected:

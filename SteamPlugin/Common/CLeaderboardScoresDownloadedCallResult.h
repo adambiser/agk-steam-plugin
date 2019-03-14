@@ -35,17 +35,17 @@ public:
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardDataRequest(eLeaderboardDataRequest),
 		m_nRangeStart(nRangeStart),
-		m_nRangeEnd(nRangeEnd) {}
-	virtual ~CLeaderboardScoresDownloadedCallResult(void)
+		m_nRangeEnd(nRangeEnd)
 	{
-		m_CallResult.Cancel();
-	}
-	std::string GetName() { 
-		return "DownloadLeaderboardEntries("
+		m_CallResultName = "DownloadLeaderboardEntries("
 			+ std::to_string(m_hLeaderboard) + ", "
 			+ std::to_string(m_eLeaderboardDataRequest) + ", "
 			+ std::to_string(m_nRangeStart) + ", "
 			+ std::to_string(m_nRangeEnd) + ")";
+	}
+	virtual ~CLeaderboardScoresDownloadedCallResult(void)
+	{
+		m_CallResult.Cancel();
 	}
 protected:
 	void Call();

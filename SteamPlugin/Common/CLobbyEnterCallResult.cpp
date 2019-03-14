@@ -28,13 +28,11 @@ void CLobbyEnterCallResult::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
 		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
 		m_eResult = k_EResultFail;
 	}
 }

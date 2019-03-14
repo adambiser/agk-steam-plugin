@@ -31,22 +31,22 @@ class CLeaderboardFindCallResult : public CCallResultItem
 public:
 	CLeaderboardFindCallResult(std::string leaderboardName) :
 		CCallResultItem(),
-		m_Name(leaderboardName)
+		m_LeaderboardName(leaderboardName)
 	{
-		//m_LeaderboardFindResult.m_bLeaderboardFound = 0;
-		//m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
+		m_CallResultName = "FindLeaderboard(" + m_LeaderboardName + ")";
+		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
+		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
 	}
 	virtual ~CLeaderboardFindCallResult(void)
 	{
 		m_CallResult.Cancel();
 	}
-	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
 protected:
 	void Call();
 private:
 	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
 	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
-	std::string m_Name;
+	std::string m_LeaderboardName;
 	LeaderboardFindResult_t m_LeaderboardFindResult;
 };
 

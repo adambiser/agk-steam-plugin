@@ -27,7 +27,6 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
 		for (int index = 0; index < pCallResult->m_cEntryCount; index++)
 		{
 			// TODO Add Details support.
@@ -49,7 +48,6 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
 		m_eResult = k_EResultFail;
 	}
 }

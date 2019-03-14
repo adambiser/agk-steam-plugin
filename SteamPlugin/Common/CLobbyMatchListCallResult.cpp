@@ -31,13 +31,11 @@ void CLobbyMatchListCallResult::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchLi
 		{
 			m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
 		}
-		m_State = Done;
 		m_eResult = k_EResultOK;
 	}
 	else
 	{
 		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
 		m_eResult = k_EResultFail;
 	}
 }

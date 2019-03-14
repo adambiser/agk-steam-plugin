@@ -30,14 +30,13 @@ THE SOFTWARE.
 class CLobbyMatchListCallResult : public CCallResultItem
 {
 public:
-	CLobbyMatchListCallResult() : CCallResultItem() {}
+	CLobbyMatchListCallResult() : CCallResultItem()
+	{
+		m_CallResultName = "RequestLobbyList()";
+	}
 	virtual ~CLobbyMatchListCallResult(void)
 	{
 		m_CallResult.Cancel();
-	}
-	std::string GetName()
-	{
-		return "RequestLobbyList()";
 	}
 protected:
 	void Call();
