@@ -198,6 +198,7 @@
     <ClCompile Include="..\Common\CLobbyCreatedCallResult.cpp" />
     <ClCompile Include="..\Common\CLobbyEnterCallResult.cpp" />
     <ClCompile Include="..\Common\CLobbyMatchListCallResult.cpp" />
+    <ClCompile Include="..\Common\CSteamHandleVector.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -216,6 +217,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
+    <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
     <ClInclude Include="..\Common\CFileReadAsyncCallResult.h" />

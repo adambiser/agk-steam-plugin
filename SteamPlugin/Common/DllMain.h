@@ -46,9 +46,6 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 
 extern uint64 g_AppID;
 extern bool g_SteamInitialized;
-extern InputAnalogActionData_t g_AnalogActionData;
-extern InputMotionData_t g_MotionData;
-extern InputDigitalActionData_t g_DigitalActionData;
 extern std::mutex g_JoinedLobbiesMutex;
 extern std::vector<CSteamID> g_JoinedLobbies;
 
@@ -291,7 +288,10 @@ EndType
 ```
 @api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
 */
-extern "C" DLL_EXPORT char *GetDLCDataJSON();
+//extern "C" DLL_EXPORT char *GetDLCDataJSON();
+extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index);
+extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index);
+extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index);
 
 /*
 @desc Gets the download progress for DLC.
@@ -306,7 +306,9 @@ EndType
 ```
 @api ISteamApps#GetDlcDownloadProgress
 */
-extern "C" DLL_EXPORT char *GetDLCDownloadProgressJSON(int appID);
+//extern "C" DLL_EXPORT char *GetDLCDownloadProgressJSON(int appID);
+extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesDownloaded(int appID);
+extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesTotal(int appID);
 
 /*
 @desc Gets the time of purchase of the specified app in Unix epoch format (time since Jan 1st, 1970).
@@ -340,7 +342,7 @@ extern "C" DLL_EXPORT char *GetLaunchCommandLine();
 extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key);
 
 /*
-@desc HasNewDLCInstalled will report true when a DLC has finished installing.
+@desc HasOnDLCInstalled will report true when a DLC has finished installing.
 @param appID The App ID of the DLC you want to install.
 @api ISteamApps#InstallDLC
 */
@@ -370,16 +372,16 @@ extern "C" DLL_EXPORT void UninstallDLC(int appID);
 @return 1 when a DLC has finished installing; otherwise 0.
 @api ISteamApps#DlcInstalled_t
 */
-extern "C" DLL_EXPORT int HasNewDLCInstalled();
+extern "C" DLL_EXPORT int HasOnDLCInstalled();
 
 /*
 @desc Gets the App ID of the newly installed DLC.
 
-_HasNewDLCInstalled must be called prior to this method._
+_HasOnDLCInstalled must be called prior to this method._
 @return An App ID.
 @api ISteamApps#DlcInstalled_t
 */
-extern "C" DLL_EXPORT int GetNewDLCInstalled();
+extern "C" DLL_EXPORT int GetOnDLCInstalled();
 
 /*
 @desc Posted after the user executes a steam url with query parameters while running.
@@ -387,7 +389,7 @@ Once a post has been reported, this method returns 0 until another post arrives.
 @return 1 when the user executes a steam url with query parameters while running; otherwise 0.
 @api ISteamApps#NewLaunchQueryParameters_t
 */
-extern "C" DLL_EXPORT int HasNewLaunchQueryParameters();
+extern "C" DLL_EXPORT int HasOnNewUrlLaunchParameters();
 #pragma endregion
 
 #pragma region ISteamAppsList
@@ -460,7 +462,9 @@ extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput);
 @return A JSON integer array of active action set layers.
 @api ISteamController#GetActiveActionSetLayers
 */
-extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hInput);
+//extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hInput);
+extern "C" DLL_EXPORT int GetActiveActionSetLayerCount(int hInput);
+extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index);
 
 /*
 @desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
@@ -2572,12 +2576,12 @@ extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, in
 StatsStored will also indicate success when this happens.
 @return 1 when achievements have been stored online; otherwise 0.
 */
-extern "C" DLL_EXPORT int HasNewUserAchievementStored();
+extern "C" DLL_EXPORT int HasOnUserAchievementStored();
 
-extern "C" DLL_EXPORT int HasNewUserStatsReceived();
-extern "C" DLL_EXPORT int GetNewUserStatsReceivedGameID();
-extern "C" DLL_EXPORT int GetNewUserStatsReceivedResult();
-extern "C" DLL_EXPORT int GetNewUserStatsReceivedUser();
+extern "C" DLL_EXPORT int HasOnUserStatsReceived();
+extern "C" DLL_EXPORT int GetOnUserStatsReceivedGameID();
+extern "C" DLL_EXPORT int GetOnUserStatsReceivedResult();
+extern "C" DLL_EXPORT int GetOnUserStatsReceivedUser();
 
 /*
 @desc Checks to see whether user stats have been initialized after a RequestStats call.
@@ -2589,7 +2593,7 @@ extern "C" DLL_EXPORT int StatsInitialized();
 @desc Checks to see whether user stats have been stored online.
 @return 1 when users stats have been stored online; otherwise 0.
 */
-extern "C" DLL_EXPORT int HasNewUserStatsStored();
+extern "C" DLL_EXPORT int HasOnUserStatsStored();
 #pragma endregion
 
 #pragma region ISteamUtils

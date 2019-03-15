@@ -41,8 +41,11 @@ GetAvailableGameLanguages,S,0,GetAvailableGameLanguages,0,0,0,0,GetAvailableGame
 GetCurrentBetaName,S,0,GetCurrentBetaName,0,0,0,0,GetCurrentBetaName
 GetCurrentGameLanguage,S,0,GetCurrentGameLanguage,0,0,0,0,GetCurrentGameLanguage
 GetDLCCount,I,0,GetDLCCount,0,0,0,0,GetDLCCount
-GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
-GetDLCDownloadProgressJSON,S,I,GetDLCDownloadProgressJSON,0,0,0,0,GetDLCDownloadProgressJSON
+GetDLCDataByIndexAppID,I,I,GetDLCDataByIndexAppID,0,0,0,0,GetDLCDataByIndexAppID
+GetDLCDataByIndexAvailable,I,I,GetDLCDataByIndexAvailable,0,0,0,0,GetDLCDataByIndexAvailable
+GetDLCDataByIndexName,S,I,GetDLCDataByIndexName,0,0,0,0,GetDLCDataByIndexName
+GetDLCDownloadProgressBytesDownloaded,I,I,GetDLCDownloadProgressBytesDownloaded,0,0,0,0,GetDLCDownloadProgressBytesDownloaded
+GetDLCDownloadProgressBytesTotal,I,I,GetDLCDownloadProgressBytesTotal,0,0,0,0,GetDLCDownloadProgressBytesTotal
 GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,GetEarliestPurchaseUnixTime
 # GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 GetInstalledDepotsJSON,S,II,GetInstalledDepotsJSON,0,0,0,0,GetInstalledDepotsJSON
@@ -54,7 +57,7 @@ UninstallDLC,0,I,UninstallDLC,0,0,0,0,UninstallDLC
 # Callbacks
 HasOnDLCInstalled,I,0,HasOnDLCInstalled,0,0,0,0,HasOnDLCInstalled
 GetOnDLCInstalled,I,0,GetOnDLCInstalled,0,0,0,0,GetOnDLCInstalled
-HasOnNewLaunchQueryParameters,I,0,HasOnNewLaunchQueryParameters,0,0,0,0,HasOnNewLaunchQueryParameters
+HasOnNewUrlLaunchParameters,I,0,HasOnNewUrlLaunchParameters,0,0,0,0,HasOnNewUrlLaunchParameters
 #
 # ISteamAppsList
 #
@@ -72,7 +75,8 @@ ActivateActionSet,0,II,ActivateActionSet,0,0,0,0,ActivateActionSet
 ActivateActionSetLayer,0,II,ActivateActionSetLayer,0,0,0,0,ActivateActionSetLayer
 DeactivateActionSetLayer,0,II,DeactivateActionSetLayer,0,0,0,0,DeactivateActionSetLayer
 DeactivateAllActionSetLayers,0,I,DeactivateAllActionSetLayers,0,0,0,0,DeactivateAllActionSetLayers
-GetActiveActionSetLayersJSON,S,I,GetActiveActionSetLayersJSON,0,0,0,0,GetActiveActionSetLayersJSON
+GetActiveActionSetLayerCount,I,I,GetActiveActionSetLayerCount,0,0,0,0,GetActiveActionSetLayerCount
+GetActiveActionSetLayerHandle,I,II,GetActiveActionSetLayerHandle,0,0,0,0
 GetActionSetHandle,I,S,GetActionSetHandle,0,0,0,0,GetActionSetHandle
 GetAnalogActionData,0,II,GetAnalogActionData,0,0,0,0,GetAnalogActionData
 GetAnalogActionDataActive,I,0,GetAnalogActionDataActive,0,0,0,0,GetAnalogActionDataActive

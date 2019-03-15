@@ -146,7 +146,10 @@ Function CheckInput()
 				AddStatus("Action origin: " + Steam.GetStringForActionOrigin(origins[0]))
 			endif
 			layers as integer[]
-			layers.fromjson(Steam.GetActiveActionSetLayersJSON(1))
+			for x = 0 to Steam.GetActiveActionSetLayerCount(1) - 1
+				layers.insert(Steam.GetActiveActionSetLayerHandle(1, x))
+			next
+			//~ layers.fromjson(Steam.GetActiveActionSetLayersJSON(1))
 			AddStatus("Active Action Set Layers: " + layers.tojson())
 		endif
 	endif

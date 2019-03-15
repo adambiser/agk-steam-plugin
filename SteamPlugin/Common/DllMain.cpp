@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "..\AGKLibraryCommands.h"
 #include "Utils.h"
 #include "StructClear.h"
+#include "CSteamHandleVector.h"
 // CallResult classes.
 #include "CCallbacks.h"
 #include "CFileReadAsyncCallResult.h"
@@ -49,9 +50,18 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 #define MEMBLOCK_IMAGE_HEADER_LENGTH	12
 
 // GLOBALS!
-// TODO clean this up!
 uint64 g_AppID = 0;
 bool g_SteamInitialized = false;
+// Used by GetActiveActionSetLayerCount and GetActiveActionSetLayerHandle.
+// First dimension is the Input Handle, second is the layer.
+//struct InputActionSetLayersInfo
+//{
+//	InputActionSetHandle_t handles[STEAM_INPUT_MAX_COUNT];
+//	int count;
+//};
+//std::map<InputHandle_t, InputActionSetLayersInfo> m_InputActionSetLayers;
+InputActionSetHandle_t g_hInputActionSetLayers[STEAM_INPUT_MAX_COUNT][STEAM_INPUT_MAX_COUNT];
+int g_nInputActionSetLayersCount[STEAM_INPUT_MAX_COUNT] = { 0 };
 InputAnalogActionData_t g_AnalogActionData;
 InputMotionData_t g_MotionData;
 InputDigitalActionData_t g_DigitalActionData;
@@ -65,75 +75,75 @@ Check to see if the SteamPlugin has been initialized.
 If it has not been, return a default value.
 */
 #define CheckInitialized(returnValue)	\
-	if (!g_SteamInitialized)				\
-	{										\
-		return returnValue;					\
+	if (!g_SteamInitialized)			\
+	{									\
+		return returnValue;				\
 	}
 
 // Token for passing an empty returnValue into CheckInitialized();
 #define NORETURN
 #define NULL_STRING utils::CreateString((const char *)NULL)
 
-#define Clamp(value, min, max)			\
-	if (value < min)					\
-	{									\
-		value = min;					\
-	}									\
-	else if (value > max)				\
-	{									\
-		value = max;					\
+#define Clamp(value, min, max)	\
+	if (value < min)			\
+	{							\
+		value = min;			\
+	}							\
+	else if (value > max)		\
+	{							\
+		value = max;			\
 	}
 
-/*
-	CSteamID Handle Methods
-*/
-std::vector <uint64> m_SteamHandles;
-
-uint64 GetSteamHandle(int handle) // from plugin handle.
-{
-	// Handles are 1-based!
-	if (handle >= 0 && handle < (int)m_SteamHandles.size())
-	{
-		return m_SteamHandles[handle];
-	}
-	agk::PluginError("Invalid CSteamID handle.");
-	return 0;
-}
-
-int GetPluginHandle(uint64 handle)
-{
-	int index = (int)(std::find(m_SteamHandles.begin(), m_SteamHandles.end(), handle) - m_SteamHandles.begin());
-	if (index < (int)m_SteamHandles.size())
-	{
-		// Handles are 1-based!
-		return index;
-	}
-	m_SteamHandles.push_back(handle);
-	return (int)m_SteamHandles.size() - 1;
-}
-
-int GetPluginHandle(CSteamID steamID)
-{
-	return GetPluginHandle(steamID.ConvertToUint64());
-}
-
-void ClearSteamHandlesList()
-{
-	m_SteamHandles.clear();
-	// Handle 0 is always k_steamIDNil.
-	m_SteamHandles.push_back(k_steamIDNil.ConvertToUint64());
-}
+///*
+//	CSteamID Handle Methods
+//*/
+//std::vector <uint64> m_SteamHandles;
+//
+//uint64 SteamHandles()->GetSteamHandle(int handle) // from plugin handle.
+//{
+//	// Handles are 1-based!
+//	if (handle >= 0 && handle < (int)m_SteamHandles.size())
+//	{
+//		return m_SteamHandles[handle];
+//	}
+//	agk::PluginError("Invalid CSteamID handle.");
+//	return 0;
+//}
+//
+//int SteamHandles()->GetPluginHandle(uint64 handle)
+//{
+//	int index = (int)(std::find(m_SteamHandles.begin(), m_SteamHandles.end(), handle) - m_SteamHandles.begin());
+//	if (index < (int)m_SteamHandles.size())
+//	{
+//		// Handles are 1-based!
+//		return index;
+//	}
+//	m_SteamHandles.push_back(handle);
+//	return (int)m_SteamHandles.size() - 1;
+//}
+//
+//int SteamHandles()->GetPluginHandle(CSteamID steamID)
+//{
+//	return SteamHandles()->GetPluginHandle(steamID.ConvertToUint64());
+//}
+//
+//void ClearSteamHandlesList()
+//{
+//	m_SteamHandles.clear();
+//	// Handle 0 is always k_steamIDNil.
+//	m_SteamHandles.push_back(k_steamIDNil.ConvertToUint64());
+//}
 
 /*
 	InputHandle_t Handle Methods
 */
-int m_InputCount = 0;
-InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
+int g_InputCount = 0;
+InputHandle_t g_InputHandles[STEAM_INPUT_MAX_COUNT];
 
 // Handles are 1-based!
 #define ValidateInputHandle(index, returnValue)		\
 	index--;										\
-	if (index < 0 || index >= m_InputCount)			\
+	if (index < 0 || index >= g_InputCount)			\
 	{												\
 		agk::PluginError("Invalid input handle.");	\
 		return returnValue;							\
@@ -142,9 +152,9 @@ InputHandle_t m_InputHandles[STEAM_INPUT_MAX_COUNT];
 /*
 Input Handles
 */
-std::vector <InputActionSetHandle_t> m_ActionSetHandles;
-std::vector <InputDigitalActionHandle_t> m_DigitalActionHandles;
-std::vector <InputAnalogActionHandle_t> m_AnalogActionHandles;
+//std::vector <InputActionSetHandle_t> m_ActionSetHandles;
+//std::vector <InputDigitalActionHandle_t> m_DigitalActionHandles;
+//std::vector <InputAnalogActionHandle_t> m_AnalogActionHandles;
 
 //template <typename T>
 //inline T GetActionHandle(int handle, std::vector<T> *vector)
@@ -158,38 +168,38 @@ std::vector <InputAnalogActionHandle_t> m_AnalogActionHandles;
 //	return 0;
 //}
 
-#define ValidateActionHandle(handleType, handleVar, handleIndex, vector, returnValue)	\
-	if (handleIndex <= 0 || handleIndex >= (int)vector.size())	\
-	{															\
-		agk::PluginError("Invalid " #handleType " handle.");		\
-		return returnValue;										\
-	}															\
-	handleType handleVar = vector[handleIndex]
+//#define ValidateActionHandle(handleType, handleVar, handleIndex, vector, returnValue)	\
+//	if (handleIndex <= 0 || handleIndex >= (int)vector.size())	\
+//	{															\
+//		agk::PluginError("Invalid " #handleType " handle.");		\
+//		return returnValue;										\
+//	}															\
+//	handleType handleVar = vector[handleIndex]
+//
+//template <typename T>
+//inline int GetActionHandleIndex(T handle, std::vector<T> *vector)
+//{
+//	int index = (int)(std::find(vector->begin(), vector->end(), handle) - vector->begin());
+//	if (index < (int)vector->size())
+//	{
+//		// Handles are 1-based!
+//		return index;
+//	}
+//	vector->push_back(handle);
+//	return (int)vector->size() - 1;
+//}
 
-template <typename T>
-inline int GetActionHandleIndex(T handle, std::vector<T> *vector)
-{
-	int index = (int)(std::find(vector->begin(), vector->end(), handle) - vector->begin());
-	if (index < (int)vector->size())
-	{
-		// Handles are 1-based!
-		return index;
-	}
-	vector->push_back(handle);
-	return (int)vector->size() - 1;
-}
-
-void ClearActionSetHandleList()
-{
-	m_ActionSetHandles.clear();
-	m_DigitalActionHandles.clear();
-	m_AnalogActionHandles.clear();
-	// Handle 0 is always 0.
-	m_ActionSetHandles.push_back(0);
-	m_DigitalActionHandles.push_back(0);
-	m_AnalogActionHandles.push_back(0);
-}
-
+//void ClearActionSetHandleList()
+//{
+//	m_ActionSetHandles.clear();
+//	m_DigitalActionHandles.clear();
+//	m_AnalogActionHandles.clear();
+//	// Handle 0 is always 0.
+//	m_ActionSetHandles.push_back(0);
+//	m_DigitalActionHandles.push_back(0);
+//	m_AnalogActionHandles.push_back(0);
+//}
+//
 /*
 	IP Address Parsing Methods
 */
@@ -207,13 +217,14 @@ void ResetVariables()
 	Callbacks()->ResetSessionVariables();
 	// Clear handles
 	CallResults()->Clear();
-	ClearSteamHandlesList();
-	ClearActionSetHandleList();
+	SteamHandles()->Clear();
+	//ClearSteamHandlesList();
+	//ClearActionSetHandleList();
 	// Input
 	Clear(g_AnalogActionData);
 	Clear(g_DigitalActionData);
 	Clear(g_MotionData);
-	m_InputCount = 0;
+	g_InputCount = 0;
 	// Variables
 	g_AppID = 0;
 	g_SteamInitialized = 0;
@@ -472,7 +483,7 @@ char *GetAppInstallDir(int appID)
 int GetAppOwner()
 {
 	CheckInitialized(false);
-	return GetPluginHandle(SteamApps()->GetAppOwner());
+	return SteamHandles()->GetPluginHandle(SteamApps()->GetAppOwner());
 }
 
 char *GetAvailableGameLanguages()
@@ -504,45 +515,62 @@ int GetDLCCount()
 	return SteamApps()->GetDLCCount();
 }
 
-//TODO no JSON
-char *GetDLCDataJSON()
+int GetDLCDataByIndexAppID(int index)
 {
-	std::string json("[");
-	if (IsSteamInitialized())
+	AppId_t appID;
+	bool available;
+	char name[128];
+	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
 	{
-		for (int index = 0; index < SteamApps()->GetDLCCount(); index++)
-		{
-			if (index > 0)
-			{
-				json += ", ";
-			}
-			plugin::DLCData_t dlc;
-			bool success = SteamApps()->BGetDLCDataByIndex(index, &dlc.m_AppID, &dlc.m_bAvailable, dlc.m_chName, sizeof(dlc.m_chName));
-			if (!success)
-			{
-				dlc.Clear();
-			}
-			//json += ToJSON(dlc);
-		}
+		return appID;
 	}
-	json += "]";
-	return utils::CreateString(json);
+	return 0;
 }
 
-// TODO Split into parts
-char *GetDLCDownloadProgressJSON(int appID)
+int GetDLCDataByIndexAvailable(int index)
 {
-	if (IsSteamInitialized())
+	AppId_t appID;
+	bool available;
+	char name[128];
+	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
 	{
-		plugin::DownloadProgress_t progress;
-		bool downloading = SteamApps()->GetDlcDownloadProgress(appID, &progress.m_unBytesDownloaded, &progress.m_unBytesTotal);
-		if (!downloading)
-		{
-			progress.Clear();
-		}
-		//return utils::CreateString(ToJSON(progress));
+		return available;
 	}
-	return utils::CreateString("{}");
+	return 0;
+}
+
+char *GetDLCDataByIndexName(int index)
+{
+	AppId_t appID;
+	bool available;
+	char name[128];
+	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
+	{
+		return utils::CreateString(name);
+	}
+	return NULL_STRING;
+}
+
+int GetDLCDownloadProgressBytesDownloaded(int appID)
+{
+	uint64 bytesDownloaded;
+	uint64 bytesTotal;
+	if (SteamApps()->GetDlcDownloadProgress(appID, &bytesDownloaded, &bytesTotal))
+	{
+		return (int)bytesDownloaded;
+	}
+	return -1;
+}
+
+int GetDLCDownloadProgressBytesTotal(int appID)
+{
+	uint64 bytesDownloaded;
+	uint64 bytesTotal;
+	if (SteamApps()->GetDlcDownloadProgress(appID, &bytesDownloaded, &bytesTotal))
+	{
+		return (int)bytesTotal;
+	}
+	return -1;
 }
 
 int GetEarliestPurchaseUnixTime(int appID)
@@ -553,25 +581,30 @@ int GetEarliestPurchaseUnixTime(int appID)
 
 //SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 
-// TODO add by index.
+// This is an array of integers.  Returning JSON seems easiest.
 char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {
-	if (IsSteamInitialized())
+	DepotId_t *depots = new DepotId_t[maxDepots];
+	int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
+	std::string json("[");
+	for (int index = 0; index < count; index++)
 	{
-		//DepotId_t *depots = new DepotId_t[maxDepots];
-		//int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
-		//std::string json = ToJSON(depots, count);
-		//delete[] depots;
-		//return utils::CreateString(json);
+		if (index > 0)
+		{
+			json += ", ";
+		}
+		json += std::to_string(depots[index]);
 	}
-	return utils::CreateString("[]");
+	json += "]";
+	delete[] depots;
+	return utils::CreateString(json);
 }
 
 char *GetLaunchCommandLine()
 {
 	CheckInitialized(NULL_STRING);
 	char cmd[2084];
-	int length = SteamApps()->GetLaunchCommandLine(cmd, 2084);
+	int length = SteamApps()->GetLaunchCommandLine(cmd, sizeof(cmd));
 	cmd[length] = 0;
 	return utils::CreateString(cmd);
 }
@@ -662,71 +695,83 @@ void ActivateActionSet(int hInput, int hActionSet)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
-	SteamInput()->ActivateActionSet(m_InputHandles[hInput], actionSetHandle);
+	//ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, );
+	SteamInput()->ActivateActionSet(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hActionSet));
 }
 
 void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
-	SteamInput()->ActivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
+	//ValidateActionSetLayerHandle(hActionSetLayer, );
+	//ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
+	SteamInput()->ActivateActionSetLayer(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hActionSetLayer));
 }
 
 void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
-	SteamInput()->DeactivateActionSetLayer(m_InputHandles[hInput], actionSetLayerHandle);
+	//ValidateActionHandle(InputActionSetHandle_t, actionSetLayerHandle, hActionSetLayer, m_ActionSetHandles, );
+	SteamInput()->DeactivateActionSetLayer(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hActionSetLayer));
 }
 
 void DeactivateAllActionSetLayers(int hInput)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	SteamInput()->DeactivateAllActionSetLayers(m_InputHandles[hInput]);
+	SteamInput()->DeactivateAllActionSetLayers(g_InputHandles[hInput]);
 }
 
-//GetActiveActionSetLayers
-char *GetActiveActionSetLayersJSON(int hInput)
+int GetActiveActionSetLayerCount(int hInput)
 {
-	CheckInitialized(utils::CreateString("[]"));
-	ValidateInputHandle(hInput, utils::CreateString("[]"));
-	std::ostringstream json;
-	json << "[";
-	if (IsSteamInitialized())
-	{
-		// TODO The API document has incorrect information.  Is STEAM_INPUT_MAX_COUNT correct?
-		InputActionSetHandle_t *handlesOut = new InputActionSetHandle_t[STEAM_INPUT_MAX_COUNT];
-		int count = SteamInput()->GetActiveActionSetLayers(m_InputHandles[hInput], handlesOut);
-		for (int index = 0; index < count; index++)
-		{
-			if (index > 0)
-			{
-				json << ",";
-			}
-			json << GetActionHandleIndex(handlesOut[index], &m_ActionSetHandles);
-		}
-		delete[] handlesOut;
-	}
-	json << "]";
-	return utils::CreateString(json);
+	ValidateInputHandle(hInput, 0);
+	g_nInputActionSetLayersCount[hInput] = SteamInput()->GetActiveActionSetLayers(g_InputHandles[hInput], g_hInputActionSetLayers[hInput]);
+	return g_nInputActionSetLayersCount[hInput];
 }
+
+int GetActiveActionSetLayerHandle(int hInput, int index)
+{
+	ValidateInputHandle(hInput, 0);
+	return SteamHandles()->GetPluginHandle(g_hInputActionSetLayers[hInput][index]);
+}
+
+//char *GetActiveActionSetLayersJSON(int hInput)
+//{
+//	CheckInitialized(utils::CreateString("[]"));
+//	ValidateInputHandle(hInput, utils::CreateString("[]"));
+//	std::ostringstream json;
+//	json << "[";
+//	if (IsSteamInitialized())
+//	{
+//		InputActionSetHandle_t handlesOut[STEAM_INPUT_MAX_COUNT];
+//		int count = SteamInput()->GetActiveActionSetLayers(g_InputHandles[hInput], handlesOut);
+//		for (int index = 0; index < count; index++)
+//		{
+//			if (index > 0)
+//			{
+//				json << ",";
+//			}
+//			json << GetActionHandleIndex(handlesOut[index], &m_ActionSetHandles);
+//		}
+//	}
+//	json << "]";
+//	return utils::CreateString(json);
+//}
 
 int GetActionSetHandle(const char *actionSetName)
 {
 	CheckInitialized(0);
-	return GetActionHandleIndex(SteamInput()->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
+	//return GetActionHandleIndex(SteamInput()->GetActionSetHandle(actionSetName), &m_ActionSetHandles);
+	return SteamHandles()->GetPluginHandle(SteamInput()->GetActionSetHandle(actionSetName));
 }
 
 void GetAnalogActionData(int hInput, int hAnalogAction)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	g_AnalogActionData = SteamInput()->GetAnalogActionData(m_InputHandles[hInput], analogActionHandle);
+	//ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
+	g_AnalogActionData = SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction));
 }
 
 int GetAnalogActionDataActive() { return g_AnalogActionData.bActive; }
@@ -737,21 +782,22 @@ float GetAnalogActionDataY() { return g_AnalogActionData.y; }
 int GetAnalogActionHandle(const char *actionName)
 {
 	CheckInitialized(0);
-	return GetActionHandleIndex(SteamInput()->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
+	//return GetActionHandleIndex(SteamInput()->GetAnalogActionHandle(actionName), &m_AnalogActionHandles);
+	return SteamHandles()->GetPluginHandle(SteamInput()->GetAnalogActionHandle(actionName));
 }
 
 //GetAnalogActionOrigins
 char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 {
 	ValidateInputHandle(hInput, utils::CreateString("[]"));
-	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, utils::CreateString("[]"));
-	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, utils::CreateString("[]"));
+	InputActionSetHandle_t actionSetHandle = SteamHandles()->GetSteamHandle(hActionSet);
+	InputAnalogActionHandle_t analogActionHandle = SteamHandles()->GetSteamHandle(hAnalogAction);
 	std::ostringstream json;
 	json << "[";
 	if (IsSteamInitialized())
 	{
-		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
-		int count = SteamInput()->GetAnalogActionOrigins(m_InputHandles[hInput], actionSetHandle, analogActionHandle, origins);
+		EInputActionOrigin origins[STEAM_INPUT_MAX_ORIGINS];
+		int count = SteamInput()->GetAnalogActionOrigins(g_InputHandles[hInput], actionSetHandle, analogActionHandle, origins);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -760,7 +806,6 @@ char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 			}
 			json << origins[index];
 		}
-		delete[] origins;
 	}
 	json << "]";
 	return utils::CreateString(json);
@@ -769,8 +814,8 @@ char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction)
 int GetConnectedControllers()
 {
 	CheckInitialized(0);
-	m_InputCount = SteamInput()->GetConnectedControllers(m_InputHandles);
-	return m_InputCount;
+	g_InputCount = SteamInput()->GetConnectedControllers(g_InputHandles);
+	return g_InputCount;
 }
 
 //GetControllerForGamepadIndex
@@ -779,15 +824,16 @@ int GetCurrentActionSet(int hInput)
 {
 	CheckInitialized(0);
 	ValidateInputHandle(hInput, false);
-	return GetActionHandleIndex(SteamInput()->GetCurrentActionSet(m_InputHandles[hInput]), &m_ActionSetHandles);
+	//return GetActionHandleIndex(SteamInput()->GetCurrentActionSet(g_InputHandles[hInput]), &m_ActionSetHandles);
+	return SteamHandles()->GetPluginHandle(SteamInput()->GetCurrentActionSet(g_InputHandles[hInput]));
 }
 
 void GetDigitalActionData(int hInput, int hDigitalAction)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
-	g_DigitalActionData = SteamInput()->GetDigitalActionData(m_InputHandles[hInput], digitalActionHandle);
+	//ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, );
+	g_DigitalActionData = SteamInput()->GetDigitalActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hDigitalAction));
 }
 
 int GetDigitalActionDataActive() { return g_DigitalActionData.bActive; }
@@ -796,20 +842,23 @@ int GetDigitalActionDataState() { return g_DigitalActionData.bState; }
 int GetDigitalActionHandle(const char *actionName)
 {
 	CheckInitialized(0);
-	return GetActionHandleIndex(SteamInput()->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
+	//return GetActionHandleIndex(SteamInput()->GetDigitalActionHandle(actionName), &m_DigitalActionHandles);
+	return SteamHandles()->GetPluginHandle(SteamInput()->GetDigitalActionHandle(actionName));
 }
 
 char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction)
 {
 	ValidateInputHandle(hInput, utils::CreateString("[]"));
-	ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, utils::CreateString("[]"));
-	ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, utils::CreateString("[]"));
+	InputActionSetHandle_t actionSetHandle = SteamHandles()->GetSteamHandle(hActionSet);
+	InputDigitalActionHandle_t digitalActionHandle = SteamHandles()->GetSteamHandle(hDigitalAction);
+	//ValidateActionHandle(InputActionSetHandle_t, actionSetHandle, hActionSet, m_ActionSetHandles, utils::CreateString("[]"));
+	//ValidateActionHandle(InputDigitalActionHandle_t, digitalActionHandle, hDigitalAction, m_DigitalActionHandles, utils::CreateString("[]"));
 	std::ostringstream json;
 	json << "[";
 	if (IsSteamInitialized())
 	{
-		EInputActionOrigin *origins = new EInputActionOrigin[STEAM_INPUT_MAX_ORIGINS];
-		int count = SteamInput()->GetDigitalActionOrigins(m_InputHandles[hInput], actionSetHandle, digitalActionHandle, origins);
+		EInputActionOrigin origins[STEAM_INPUT_MAX_ORIGINS];
+		int count = SteamInput()->GetDigitalActionOrigins(g_InputHandles[hInput], actionSetHandle, digitalActionHandle, origins);
 		for (int index = 0; index < count; index++)
 		{
 			if (index > 0)
@@ -818,7 +867,6 @@ char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction
 			}
 			json << origins[index];
 		}
-		delete[] origins;
 	}
 	json << "]";
 	return utils::CreateString(json);
@@ -836,14 +884,14 @@ int GetInputTypeForHandle(int hInput)
 {
 	CheckInitialized(0);
 	ValidateInputHandle(hInput, k_ESteamInputType_Unknown);
-	return SteamInput()->GetInputTypeForHandle(m_InputHandles[hInput]);
+	return SteamInput()->GetInputTypeForHandle(g_InputHandles[hInput]);
 }
 
 void GetMotionData(int hInput)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	g_MotionData = SteamInput()->GetMotionData(m_InputHandles[hInput]);
+	g_MotionData = SteamInput()->GetMotionData(g_InputHandles[hInput]);
 }
 
 float GetMotionDataPosAccelX() { return g_MotionData.posAccelX; }
@@ -888,14 +936,14 @@ void SetInputLEDColor(int hInput, int red, int green, int blue)
 	Clamp(red, 0, UINT8_MAX);
 	Clamp(green, 0, UINT8_MAX);
 	Clamp(blue, 0, UINT8_MAX);
-	SteamInput()->SetLEDColor(m_InputHandles[hInput], red, green, blue, k_ESteamInputLEDFlag_SetColor);
+	SteamInput()->SetLEDColor(g_InputHandles[hInput], red, green, blue, k_ESteamInputLEDFlag_SetColor);
 }
 
 void ResetInputLEDColor(int hInput)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	SteamInput()->SetLEDColor(m_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
+	SteamInput()->SetLEDColor(g_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
 }
 
 //ShowAnalogActionOrigins - deprecated
@@ -904,7 +952,7 @@ int ShowBindingPanel(int hInput)
 {
 	CheckInitialized(false);
 	ValidateInputHandle(hInput, false);
-	return SteamInput()->ShowBindingPanel(m_InputHandles[hInput]);
+	return SteamInput()->ShowBindingPanel(g_InputHandles[hInput]);
 }
 
 //ShowDigitalActionOrigins - deprecated
@@ -919,8 +967,9 @@ void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 {
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
-	ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
-	SteamInput()->StopAnalogActionMomentum(m_InputHandles[hInput], analogActionHandle);
+	InputAnalogActionHandle_t analogActionHandle = SteamHandles()->GetSteamHandle(hAnalogAction);
+	//ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
+	SteamInput()->StopAnalogActionMomentum(g_InputHandles[hInput], analogActionHandle);
 }
 
 void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
@@ -928,7 +977,7 @@ void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(duration, 0, USHRT_MAX);
-	SteamInput()->TriggerHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+	SteamInput()->TriggerHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
 }
 
 void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat)
@@ -938,7 +987,7 @@ void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration,
 	Clamp(onDuration, 0, USHRT_MAX);
 	Clamp(offDuration, 0, USHRT_MAX);
 	Clamp(repeat, 0, USHRT_MAX);
-	SteamInput()->TriggerRepeatedHapticPulse(m_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
+	SteamInput()->TriggerRepeatedHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
 }
 
 void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
@@ -947,7 +996,7 @@ void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 	ValidateInputHandle(hInput, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
-	SteamInput()->TriggerVibration(m_InputHandles[hInput], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
+	SteamInput()->TriggerVibration(g_InputHandles[hInput], (unsigned short)leftSpeed, (unsigned short)rightSpeed);
 }
 
 // New for v1.43
@@ -955,7 +1004,7 @@ int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 {
 	ValidateInputHandle(hInput, k_EInputActionOrigin_None);
 	CheckInitialized(k_EInputActionOrigin_None);
-	return SteamInput()->GetActionOriginFromXboxOrigin(m_InputHandles[hInput], (EXboxOrigin)eOrigin);
+	return SteamInput()->GetActionOriginFromXboxOrigin(g_InputHandles[hInput], (EXboxOrigin)eOrigin);
 }
 
 char *GetStringForXboxOrigin(int eOrigin)
@@ -987,7 +1036,7 @@ void ActivateGameOverlay(const char *dialogName)
 void ActivateGameOverlayInviteDialog(int hLobbySteamID)
 {
 	CheckInitialized(NORETURN);
-	SteamFriends()->ActivateGameOverlayInviteDialog(GetSteamHandle(hLobbySteamID));
+	SteamFriends()->ActivateGameOverlayInviteDialog(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
 void ActivateGameOverlayToStore(int appID, int flag)
@@ -999,7 +1048,7 @@ void ActivateGameOverlayToStore(int appID, int flag)
 void ActivateGameOverlayToUser(const char *dialogName, int hSteamID)
 {
 	CheckInitialized(NORETURN);
-	SteamFriends()->ActivateGameOverlayToUser(dialogName, GetSteamHandle(hSteamID));
+	SteamFriends()->ActivateGameOverlayToUser(dialogName, SteamHandles()->GetSteamHandle(hSteamID));
 }
 
 void ActivateGameOverlayToWebPage(const char *url)
@@ -1048,7 +1097,7 @@ char *GetFriendListJSON(int friendFlags)
 			{
 				json += ", ";
 			}
-			json += std::to_string(GetPluginHandle(SteamFriends()->GetFriendByIndex(x, (EFriendFlags)friendFlags)));
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendByIndex(x, (EFriendFlags)friendFlags)));
 		}
 	}
 	json += "]";
@@ -1064,7 +1113,7 @@ char *GetFriendGamePlayedJSON(int hUserSteamID)
 	if (IsSteamInitialized())
 	{
 		FriendGameInfo_t pFriendGameInfo;
-		bool ingame = SteamFriends()->GetFriendGamePlayed(GetSteamHandle(hUserSteamID), &pFriendGameInfo);
+		bool ingame = SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hUserSteamID), &pFriendGameInfo);
 		//return utils::CreateString(ToJSON(ingame, pFriendGameInfo));
 	}
 	return utils::CreateString("{}");
@@ -1076,7 +1125,7 @@ char *GetFriendPersonaName(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
 	// TODO m_PersonaStateChangedEnabled = true;
-	return utils::CreateString(SteamFriends()->GetFriendPersonaName(GetSteamHandle(hUserSteamID)));
+	return utils::CreateString(SteamFriends()->GetFriendPersonaName(SteamHandles()->GetSteamHandle(hUserSteamID)));
 }
 
 //GetFriendPersonaNameHistory
@@ -1085,13 +1134,13 @@ int GetFriendPersonaState(int hUserSteamID)
 {
 	CheckInitialized(-1);
 	// TODO m_PersonaStateChangedEnabled = true;
-	return SteamFriends()->GetFriendPersonaState(GetSteamHandle(hUserSteamID));
+	return SteamFriends()->GetFriendPersonaState(SteamHandles()->GetSteamHandle(hUserSteamID));
 }
 
 int GetFriendRelationship(int hUserSteamID)
 {
 	CheckInitialized(-1);
-	return SteamFriends()->GetFriendRelationship(GetSteamHandle(hUserSteamID));
+	return SteamFriends()->GetFriendRelationship(SteamHandles()->GetSteamHandle(hUserSteamID));
 }
 
 //GetFriendRichPresence
@@ -1152,14 +1201,14 @@ int GetFriendSteamLevel(int hUserSteamID)
 {
 	CheckInitialized(0);
 	// TODO m_PersonaStateChangedEnabled = true;
-	return SteamFriends()->GetFriendSteamLevel(GetSteamHandle(hUserSteamID));
+	return SteamFriends()->GetFriendSteamLevel(SteamHandles()->GetSteamHandle(hUserSteamID));
 }
 
 // NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitialized(0);
-	CSteamID steamID = GetSteamHandle(hUserSteamID);
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	Callbacks()->EnableOnAvatarImageLoadedCallback();
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
@@ -1192,7 +1241,7 @@ char *GetPersonaName()
 char *GetPlayerNickname(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(SteamFriends()->GetPlayerNickname(GetSteamHandle(hUserSteamID)));
+	return utils::CreateString(SteamFriends()->GetPlayerNickname(SteamHandles()->GetSteamHandle(hUserSteamID)));
 }
 
 //GetUserRestrictions
@@ -1200,7 +1249,7 @@ char *GetPlayerNickname(int hUserSteamID)
 int HasFriend(int hUserSteamID, int friendFlags)
 {
 	CheckInitialized(false);
-	return SteamFriends()->HasFriend(GetSteamHandle(hUserSteamID), (EFriendFlags)friendFlags);
+	return SteamFriends()->HasFriend(SteamHandles()->GetSteamHandle(hUserSteamID), (EFriendFlags)friendFlags);
 }
 
 //InviteUserToGame
@@ -1220,7 +1269,7 @@ int HasFriend(int hUserSteamID, int friendFlags)
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 {
 	CheckInitialized(false);
-	return SteamFriends()->RequestUserInformation(GetSteamHandle(hUserSteamID), requireNameOnly != 0);
+	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hUserSteamID), requireNameOnly != 0);
 }
 
 //SendClanChatMessage
@@ -1240,7 +1289,7 @@ int HasAvatarImageLoaded()
 int GetAvatarImageLoadedUser()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(Callbacks()->GetOnAvatarImageLoaded());
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnAvatarImageLoaded());
 }
 
 //ClanOfficerListResponse_t
@@ -1378,7 +1427,7 @@ int CreateLobby(int eLobbyType, int maxMembers)
 int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(false);
-	return SteamMatchmaking()->DeleteLobbyData(GetSteamHandle(hLobbySteamID), key);
+	return SteamMatchmaking()->DeleteLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID), key);
 }
 
 //GetFavoriteGame
@@ -1408,7 +1457,7 @@ int GetFavoriteGameCount()
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(SteamMatchmaking()->GetLobbyData(GetSteamHandle(hLobbySteamID), key));
+	return utils::CreateString(SteamMatchmaking()->GetLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID), key));
 }
 
 //GetLobbyDataByIndex
@@ -1416,7 +1465,7 @@ char *GetLobbyData(int hLobbySteamID, const char *key)
 char *GetLobbyDataJSON(int hLobbySteamID)
 {
 	CheckInitialized(NULL_STRING);
-	CSteamID steamIDLobby = GetSteamHandle(hLobbySteamID);
+	CSteamID steamIDLobby = SteamHandles()->GetSteamHandle(hLobbySteamID);
 	std::string json("[");
 	for (int index = 0; index < SteamMatchmaking()->GetLobbyDataCount(steamIDLobby); index++)
 	{
@@ -1446,7 +1495,7 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 	if (IsSteamInitialized())
 	{
 		plugin::LobbyGameServer_t server;
-		if (SteamMatchmaking()->GetLobbyGameServer(GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
+		if (SteamMatchmaking()->GetLobbyGameServer(SteamHandles()->GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
 		{
 			//return utils::CreateString(ToJSON(server));
 		}
@@ -1457,49 +1506,49 @@ char *GetLobbyGameServerJSON(int hLobbySteamID)
 int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 {
 	CheckInitialized(0);
-	return GetPluginHandle(SteamMatchmaking()->GetLobbyMemberByIndex(GetSteamHandle(hLobbySteamID), index));
+	return SteamHandles()->GetPluginHandle(SteamMatchmaking()->GetLobbyMemberByIndex(SteamHandles()->GetSteamHandle(hLobbySteamID), index));
 }
 
 char *GetLobbyMemberData(int hLobbySteamID, int hUserSteamID, const char *key)
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(SteamMatchmaking()->GetLobbyMemberData(GetSteamHandle(hLobbySteamID), GetSteamHandle(hUserSteamID), key));
+	return utils::CreateString(SteamMatchmaking()->GetLobbyMemberData(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hUserSteamID), key));
 }
 
 int GetLobbyMemberLimit(int hLobbySteamID)
 {
 	CheckInitialized(0);
-	return SteamMatchmaking()->GetLobbyMemberLimit(GetSteamHandle(hLobbySteamID));
+	return SteamMatchmaking()->GetLobbyMemberLimit(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
 int GetLobbyOwner(int hLobbySteamID)
 {
 	CheckInitialized(0);
-	return GetPluginHandle(SteamMatchmaking()->GetLobbyOwner(GetSteamHandle(hLobbySteamID)));
+	return SteamHandles()->GetPluginHandle(SteamMatchmaking()->GetLobbyOwner(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
 int GetNumLobbyMembers(int hLobbySteamID)
 {
 	CheckInitialized(0);
-	return SteamMatchmaking()->GetNumLobbyMembers(GetSteamHandle(hLobbySteamID));
+	return SteamMatchmaking()->GetNumLobbyMembers(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
 int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 {
 	CheckInitialized(false);
-	return SteamMatchmaking()->InviteUserToLobby(GetSteamHandle(hLobbySteamID), GetSteamHandle(hInviteeSteamID));
+	return SteamMatchmaking()->InviteUserToLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hInviteeSteamID));
 }
 
 int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
-	return CallResults()->Add(new CLobbyEnterCallResult(GetSteamHandle(hLobbySteamID)));
+	return CallResults()->Add(new CLobbyEnterCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
 void LeaveLobby(int hLobbySteamID)
 {
 	CheckInitialized(NORETURN);
-	CSteamID steamIDLobby = GetSteamHandle(hLobbySteamID);
+	CSteamID steamIDLobby = SteamHandles()->GetSteamHandle(hLobbySteamID);
 	g_JoinedLobbiesMutex.lock();
 	SteamMatchmaking()->LeaveLobby(steamIDLobby);
 	// Remove from list of joined lobbies.
@@ -1535,7 +1584,7 @@ int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPo
 int RequestLobbyData(int hLobbySteamID)
 {
 	CheckInitialized(false);
-	return SteamMatchmaking()->RequestLobbyData(GetSteamHandle(hLobbySteamID));
+	return SteamMatchmaking()->RequestLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
 int RequestLobbyList()
@@ -1547,19 +1596,19 @@ int RequestLobbyList()
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
 	CheckInitialized(0);
-	return SteamMatchmaking()->SendLobbyChatMsg(GetSteamHandle(hLobbySteamID), msg, (int)strlen(msg) + 1);
+	return SteamMatchmaking()->SendLobbyChatMsg(SteamHandles()->GetSteamHandle(hLobbySteamID), msg, (int)strlen(msg) + 1);
 }
 
 //int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
 //{
 //	CheckInitialized(false);
-//	return Callbacks()->SetLinkedLobby(GetSteamHandle(hLobbySteamID), GetSteamHandle(hLobbyDependentSteamID));
+//	return Callbacks()->SetLinkedLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hLobbyDependentSteamID));
 //}
 
 void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 {
 	CheckInitialized(NORETURN);
-	SteamMatchmaking()->SetLobbyData(GetSteamHandle(hLobbySteamID), key, value);
+	SteamMatchmaking()->SetLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID), key, value);
 }
 
 int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
@@ -1575,38 +1624,38 @@ int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServ
 	{
 		return false;
 	}
-	SteamMatchmaking()->SetLobbyGameServer(GetSteamHandle(hLobbySteamID), ip, gameServerPort, GetSteamHandle(hGameServerSteamID));
+	SteamMatchmaking()->SetLobbyGameServer(SteamHandles()->GetSteamHandle(hLobbySteamID), ip, gameServerPort, SteamHandles()->GetSteamHandle(hGameServerSteamID));
 	return true;
 }
 
 int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable)
 {
 	CheckInitialized(false);
-	return SteamMatchmaking()->SetLobbyJoinable(GetSteamHandle(hLobbySteamID), lobbyJoinable != 0);
+	return SteamMatchmaking()->SetLobbyJoinable(SteamHandles()->GetSteamHandle(hLobbySteamID), lobbyJoinable != 0);
 }
 
 void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
 {
 	CheckInitialized(NORETURN);
-	return SteamMatchmaking()->SetLobbyMemberData(GetSteamHandle(hLobbySteamID), key, value);
+	return SteamMatchmaking()->SetLobbyMemberData(SteamHandles()->GetSteamHandle(hLobbySteamID), key, value);
 }
 
 int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers)
 {
 	CheckInitialized(0);
-	return SteamMatchmaking()->SetLobbyMemberLimit(GetSteamHandle(hLobbySteamID), maxMembers);
+	return SteamMatchmaking()->SetLobbyMemberLimit(SteamHandles()->GetSteamHandle(hLobbySteamID), maxMembers);
 }
 
 int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID)
 {
 	CheckInitialized(0);
-	return SteamMatchmaking()->SetLobbyOwner(GetSteamHandle(hLobbySteamID), GetSteamHandle(hNewOwnerSteamID));
+	return SteamMatchmaking()->SetLobbyOwner(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hNewOwnerSteamID));
 }
 
 int SetLobbyType(int hLobbySteamID, int eLobbyType)
 {
 	CheckInitialized(false);
-	return SteamMatchmaking()->SetLobbyType(GetSteamHandle(hLobbySteamID), (ELobbyType)eLobbyType);
+	return SteamMatchmaking()->SetLobbyType(SteamHandles()->GetSteamHandle(hLobbySteamID), (ELobbyType)eLobbyType);
 }
 
 // Callbacks
@@ -1620,7 +1669,7 @@ int HasLobbyChatMessage()
 int GetLobbyChatMessageUser()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(Callbacks()->GetOnLobbyChatMessage().m_ulSteamIDUser);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatMessage().m_ulSteamIDUser);
 }
 
 char *GetLobbyChatMessageText()
@@ -1638,13 +1687,13 @@ int HasLobbyChatUpdate()
 int GetLobbyChatUpdateLobby()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDLobby);
 }
 
 int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDUserChanged);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDUserChanged);
 }
 
 int GetLobbyChatUpdateUserState()
@@ -1656,7 +1705,7 @@ int GetLobbyChatUpdateUserState()
 int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDMakingChange);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDMakingChange);
 }
 
 int HasLobbyDataUpdateResponse()
@@ -1694,7 +1743,7 @@ int HasGameLobbyJoinRequest()
 int GetGameLobbyJoinRequestedLobby()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(Callbacks()->GetOnGameLobbyJoinRequested().m_steamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnGameLobbyJoinRequested().m_steamIDLobby);
 }
 
 int HasLobbyGameCreated()
@@ -2150,14 +2199,14 @@ int LoggedOn()
 int GetSteamID()
 {
 	CheckInitialized(0);
-	return GetPluginHandle(SteamUser()->GetSteamID());
+	return SteamHandles()->GetPluginHandle(SteamUser()->GetSteamID());
 }
 
 // Not in the API, but grouping this near GetSteamID().
 int IsSteamIDValid(int hSteamID)
 {
 	CheckInitialized(false);
-	CSteamID steamID = GetSteamHandle(hSteamID);
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hSteamID);
 	return steamID.IsValid();
 }
 
@@ -2165,7 +2214,7 @@ int IsSteamIDValid(int hSteamID)
 int GetAccountID(int hUserSteamID)
 {
 	CheckInitialized(0);
-	CSteamID steamID = GetSteamHandle(hUserSteamID);
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
 		return steamID.GetAccountID();
@@ -2177,7 +2226,7 @@ int GetAccountID(int hUserSteamID)
 char *GetSteamID3(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
-	CSteamID steamID = GetSteamHandle(hUserSteamID);
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	if (steamID != k_steamIDNil)
 	{
 		std::string steam3("[");
@@ -2220,7 +2269,7 @@ char *GetSteamID64(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
-	_i64toa(GetSteamHandle(hUserSteamID), id64, 10);
+	_i64toa(SteamHandles()->GetSteamHandle(hUserSteamID), id64, 10);
 	return utils::CreateString(id64);
 }
 
@@ -2229,7 +2278,7 @@ int GetHandleFromSteamID64(const char *steamID64)
 {
 	CheckInitialized(0);
 	uint64 id = _atoi64(steamID64);
-	return GetPluginHandle(CSteamID(id));
+	return SteamHandles()->GetPluginHandle(CSteamID(id));
 }
 
 //GetUserDataFolder
@@ -2270,7 +2319,7 @@ int ClearAchievement(const char *name)
 int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd)
 {
 	CheckInitialized(0);
-	SteamLeaderboard_t leaderboard = GetSteamHandle(hLeaderboard);
+	SteamLeaderboard_t leaderboard = SteamHandles()->GetSteamHandle(hLeaderboard);
 	if (!leaderboard)
 	{
 		agk::PluginError("DownloadLeaderboardEntries: Invalid leaderboard handle.");
@@ -2354,25 +2403,25 @@ char *GetAchievementAPIName(int index)
 int GetLeaderboardDisplayType(int hLeaderboard)
 {
 	CheckInitialized(0);
-	return SteamUserStats()->GetLeaderboardDisplayType(GetSteamHandle(hLeaderboard));
+	return SteamUserStats()->GetLeaderboardDisplayType(SteamHandles()->GetSteamHandle(hLeaderboard));
 }
 
 int GetLeaderboardEntryCount(int hLeaderboard)
 {
 	CheckInitialized(0);
-	return SteamUserStats()->GetLeaderboardEntryCount(GetSteamHandle(hLeaderboard));
+	return SteamUserStats()->GetLeaderboardEntryCount(SteamHandles()->GetSteamHandle(hLeaderboard));
 }
 
 char *GetLeaderboardName(int hLeaderboard)
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(SteamUserStats()->GetLeaderboardName(GetSteamHandle(hLeaderboard)));
+	return utils::CreateString(SteamUserStats()->GetLeaderboardName(SteamHandles()->GetSteamHandle(hLeaderboard)));
 }
 
 int GetLeaderboardSortMethod(int hLeaderboard)
 {
 	CheckInitialized(0);
-	return SteamUserStats()->GetLeaderboardSortMethod(GetSteamHandle(hLeaderboard));
+	return SteamUserStats()->GetLeaderboardSortMethod(SteamHandles()->GetSteamHandle(hLeaderboard));
 }
 
 //GetMostAchievedAchievementInfo
@@ -2474,7 +2523,7 @@ int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLen
 int UploadLeaderboardScore(int hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
 {
 	CheckInitialized(0);
-	SteamLeaderboard_t leaderboard = GetSteamHandle(hLeaderboard);
+	SteamLeaderboard_t leaderboard = SteamHandles()->GetSteamHandle(hLeaderboard);
 	if (!leaderboard)
 	{
 		agk::PluginError("UploadLeaderboardScore: Invalid leaderboard handle.");
@@ -2525,7 +2574,7 @@ int GetOnUserStatsReceivedResult()
 
 int GetOnUserStatsReceivedUser()
 {
-	return GetPluginHandle(Callbacks()->GetOnUserStatsReceived().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnUserStatsReceived().m_steamIDUser);
 }
 
 int StatsInitialized()
@@ -2533,7 +2582,7 @@ int StatsInitialized()
 	return Callbacks()->StatsInitialized();
 }
 
-int HasonUserStatsStored()
+int HasOnUserStatsStored()
 {
 	return Callbacks()->HasOnUserStatsStored();
 }
