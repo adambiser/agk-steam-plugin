@@ -1,65 +1,19 @@
 #include "StructClear.h"
 
-void Clear(DlcInstalled_t &value)
-{
-	value.m_nAppID = 0;
-}
-
-void Clear(PersonaStateChange_t &value)
-{
-	value.m_ulSteamID = 0;
-	value.m_nChangeFlags = 0;
-}
-
 void Clear(CSteamID &value)
 {
 	value = k_steamIDNil;
 }
 
-void Clear(LobbyEnter_t &value)
+void Clear(DlcInstalled_t &value)
 {
-	value.m_bLocked = 0;
-	value.m_EChatRoomEnterResponse = 0;
-	value.m_rgfChatPermissions = 0;
-	value.m_ulSteamIDLobby = 0;
+	value.m_nAppID = 0;
 }
 
 void Clear(GameLobbyJoinRequested_t &value)
 {
 	value.m_steamIDLobby = k_steamIDNil;
 	value.m_steamIDFriend = k_steamIDNil;
-}
-
-void Clear(LobbyGameCreated_t &value)
-{
-	value.m_ulSteamIDGameServer = 0;
-	value.m_ulSteamIDLobby = 0;
-	value.m_unIP = 0;
-	value.m_usPort = 0;
-}
-
-void Clear(LobbyDataUpdate_t &value)
-{
-	value.m_bSuccess = 0;
-	value.m_ulSteamIDLobby = 0;
-	value.m_ulSteamIDMember = 0;
-}
-
-void Clear(LobbyChatUpdate_t &value)
-{
-	value.m_rgfChatMemberStateChange = (EChatMemberStateChange)0;
-	value.m_ulSteamIDLobby = 0;
-	value.m_ulSteamIDMakingChange = 0;
-	value.m_ulSteamIDUserChanged = 0;
-
-}
-
-void Clear(plugin::LobbyChatMsg_t &value)
-{
-	value.m_ulSteamIDLobby = k_steamIDNil;
-	value.m_ulSteamIDUser = k_steamIDNil;
-	value.m_eChatEntryType = 0;
-	value.m_chChatEntry[0] = 0;
 }
 
 void Clear(plugin::GamepadTextInputDismissed_t &value)
@@ -94,4 +48,72 @@ void Clear(InputMotionData_t &value)
 	value.rotVelX = 0;
 	value.rotVelY = 0;
 	value.rotVelZ = 0;
+}
+
+void Clear(plugin::LobbyChatMsg_t &value)
+{
+	value.m_ulSteamIDLobby = k_steamIDNil;
+	value.m_ulSteamIDUser = k_steamIDNil;
+	value.m_eChatEntryType = 0;
+	value.m_chChatEntry[0] = 0;
+}
+
+void Clear(LobbyChatUpdate_t &value)
+{
+	value.m_rgfChatMemberStateChange = (EChatMemberStateChange)0;
+	value.m_ulSteamIDLobby = 0;
+	value.m_ulSteamIDMakingChange = 0;
+	value.m_ulSteamIDUserChanged = 0;
+
+}
+
+void Clear(LobbyDataUpdate_t &value)
+{
+	value.m_bSuccess = 0;
+	value.m_ulSteamIDLobby = 0;
+	value.m_ulSteamIDMember = 0;
+}
+
+void Clear(LobbyEnter_t &value)
+{
+	value.m_bLocked = 0;
+	value.m_EChatRoomEnterResponse = 0;
+	value.m_rgfChatPermissions = 0;
+	value.m_ulSteamIDLobby = 0;
+}
+
+void Clear(LobbyGameCreated_t &value)
+{
+	value.m_ulSteamIDGameServer = 0;
+	value.m_ulSteamIDLobby = 0;
+	value.m_unIP = 0;
+	value.m_usPort = 0;
+}
+
+void Clear(PersonaStateChange_t &value)
+{
+	value.m_ulSteamID = 0;
+	value.m_nChangeFlags = 0;
+}
+
+void Clear(UserAchievementStored_t &value)
+{
+	value.m_bGroupAchievement = 0;
+	value.m_nCurProgress = 0;
+	value.m_nGameID = 0;
+	value.m_nMaxProgress = 0;
+	value.m_rgchAchievementName[0] = 0;
+}
+
+void Clear(UserStatsReceived_t &value)
+{
+	value.m_eResult = (EResult)0;
+	value.m_nGameID = 0;
+	value.m_steamIDUser = k_steamIDNil;
+}
+
+void Clear(UserStatsStored_t &value)
+{
+	value.m_eResult = (EResult)0;
+	value.m_nGameID = 0;
 }

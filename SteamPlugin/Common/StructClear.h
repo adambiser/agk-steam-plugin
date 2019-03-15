@@ -27,18 +27,21 @@ THE SOFTWARE.
 #include "PluginTypes.h"
 #include "steam_api.h"
 
-void Clear(DlcInstalled_t &value);
-void Clear(PersonaStateChange_t &value);
 void Clear(CSteamID &value);
-void Clear(LobbyEnter_t &value);
+void Clear(DlcInstalled_t &value);
 void Clear(GameLobbyJoinRequested_t &value);
-void Clear(LobbyGameCreated_t &value);
-void Clear(LobbyDataUpdate_t &value);
-void Clear(LobbyChatUpdate_t &value);
-void Clear(plugin::LobbyChatMsg_t &value);
 void Clear(plugin::GamepadTextInputDismissed_t &value);
 void Clear(InputAnalogActionData_t &value);
 void Clear(InputDigitalActionData_t &value);
 void Clear(InputMotionData_t &value);
+void Clear(plugin::LobbyChatMsg_t &value);
+void Clear(LobbyChatUpdate_t &value);
+void Clear(LobbyDataUpdate_t &value);
+void Clear(LobbyEnter_t &value);
+void Clear(LobbyGameCreated_t &value);
+void Clear(PersonaStateChange_t &value);
+void Clear(UserAchievementStored_t &value);
+void Clear(UserStatsReceived_t &value);
+void Clear(UserStatsStored_t &value);
 
 #endif // _STRUCTCLEAR_H_

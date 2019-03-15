@@ -143,8 +143,9 @@ Function ProcessCallbacks()
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
 	//
-	select Steam.GetRequestStatsCallbackState()
-		case STATE_DONE
+	if Steam.HasNewUserStatsReceived()
+		AddStatus("HasNewUserStatsReceived.")
+		if Steam.GetNewUserStatsReceivedResult() = EResultOK
 			AddStatus("User stats initialized.")
 			// Enable all stats buttons.
 			for x = 0 to buttonText.length
@@ -152,14 +153,11 @@ Function ProcessCallbacks()
 			next
 			LoadAchievements()
 			RefreshInformation()
-		endcase
-		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-			if not errorReported[ERROR_REQUESTSTATS]
-				errorReported[ERROR_REQUESTSTATS] = 1
-				AddStatus("Error loading user stats.")
-			endif
-		endcase
-	endselect
+		else
+			errorReported[ERROR_REQUESTSTATS] = 1
+			AddStatus("Error loading user stats.")
+		endif
+	endif
 	//
 	// Nothing else can be done until user stats are loaded.
 	//
@@ -169,25 +167,25 @@ Function ProcessCallbacks()
 	//
 	// Process StoreStats/ResetStats callback.
 	//
-	select Steam.GetStoreStatsCallbackState()
-		case STATE_IDLE // Only StoreStats when in this state.
-			if server.needToStoreStats
-				Steam.StoreStats()
-				AddStatus("Storing user stats.")
-			endif
-		endcase
-		case STATE_DONE
-			server.needToStoreStats = 0
-			AddStatus("StatsStored: " + TF(Steam.StatsStored()) + ", AchievementStored: " + TF(Steam.AchievementStored()))
-			RefreshInformation()
-		endcase
-		case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-			if not errorReported[ERROR_STORESTATS]
-				errorReported[ERROR_STORESTATS] = 1
-				AddStatus("Error storing user stats.")
-			endif
-		endcase
-	endselect
+	//~ select Steam.GetStoreStatsCallbackState()
+		//~ case STATE_IDLE // Only StoreStats when in this state.
+			//~ if server.needToStoreStats
+				//~ Steam.StoreStats()
+				//~ AddStatus("Storing user stats.")
+			//~ endif
+		//~ endcase
+		//~ case STATE_DONE
+			//~ server.needToStoreStats = 0
+			//~ AddStatus("StatsStored: " + TF(Steam.StatsStored()) + ", AchievementStored: " + TF(Steam.AchievementStored()))
+			//~ RefreshInformation()
+		//~ endcase
+		//~ case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			//~ if not errorReported[ERROR_STORESTATS]
+				//~ errorReported[ERROR_STORESTATS] = 1
+				//~ AddStatus("Error storing user stats.")
+			//~ endif
+		//~ endcase
+	//~ endselect
 	//
 	// Process achievement icon loading.
 	//

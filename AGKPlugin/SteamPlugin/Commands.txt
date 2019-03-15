@@ -1,38 +1,37 @@
 #CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64
 #
-# General methods.
+# Additional Methods
 #
-Init,I,0,Init,0,0,0,0,Init
-Shutdown,0,0,Shutdown,0,0,0,0,Shutdown
-SteamInitialized,I,0,SteamInitialized,0,0,0,0,SteamInitialized
-RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,RestartAppIfNecessary
-GetAppID,I,0,GetAppID,0,0,0,0,GetAppID
-GetAppName,S,I,GetAppName,0,0,0,0,GetAppName
-IsSteamIDValid,I,I,IsSteamIDValid,0,0,0,0,IsSteamIDValid
-GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,GetHandleFromSteamID64
-RunCallbacks,0,0,RunCallbacks,0,0,0,0,RunCallbacks
 GetCommandLineArgsJSON,S,0,GetCommandLineArgsJSON,0,0,0,0,GetCommandLineArgsJSON
 GetSteamPath,S,0,GetSteamPath,0,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,IsSteamEmulated
 SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
-# Call Result methods
+# Call Result Methods
 #
 DeleteCallResult,0,I,DeleteCallResult,0,0,0,0,DeleteCallResult
-GetCallResultState,I,I,GetCallResultState,0,0,0,0,GetCallResultState
 GetCallResultCode,I,I,GetCallResultCode,0,0,0,0,GetCallResultCode
-#GetCallResultJSON,S,I,GetCallResultJSON,0,0,0,0,GetCallResultJSON
 #
-# App/DLC methods
+# steam_api.h
 #
-GetDLCCount,I,0,GetDLCCount,0,0,0,0,GetDLCCount
-GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
+Init,I,0,Init,0,0,0,0,Init
+IsSteamInitialized,I,0,IsSteamInitialized,0,0,0,0,IsSteamInitialized
+RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,RestartAppIfNecessary
+RunCallbacks,0,0,RunCallbacks,0,0,0,0,RunCallbacks
+Shutdown,0,0,Shutdown,0,0,0,0,Shutdown
+#
+# steam_gameserver.h
+#
+#
+# ISteamApps
+#
 IsAppInstalled,I,I,IsAppInstalled,0,0,0,0,IsAppInstalled
 IsCybercafe,I,0,IsCybercafe,0,0,0,0,IsCybercafe
 IsDLCInstalled,I,I,IsDLCInstalled,0,0,0,0,IsDLCInstalled
 IsLowViolence,I,0,IsLowViolence,0,0,0,0,IsLowViolence
 IsSubscribed,I,0,IsSubscribed,0,0,0,0,IsSubscribed
 IsSubscribedApp,I,I,IsSubscribedApp,0,0,0,0,IsSubscribedApp
+IsSubscribedFromFamilySharing,I,0,IsSubscribedFromFamilySharing,0,0,0,0,IsSubscribedFromFamilySharing
 IsSubscribedFromFreeWeekend,I,0,IsSubscribedFromFreeWeekend,0,0,0,0,IsSubscribedFromFreeWeekend
 IsVACBanned,I,0,IsVACBanned,0,0,0,0,IsVACBanned
 GetAppBuildID,I,0,GetAppBuildID,0,0,0,0,GetAppBuildID
@@ -41,194 +40,182 @@ GetAppOwner,I,0,GetAppOwner,0,0,0,0,GetAppOwner
 GetAvailableGameLanguages,S,0,GetAvailableGameLanguages,0,0,0,0,GetAvailableGameLanguages
 GetCurrentBetaName,S,0,GetCurrentBetaName,0,0,0,0,GetCurrentBetaName
 GetCurrentGameLanguage,S,0,GetCurrentGameLanguage,0,0,0,0,GetCurrentGameLanguage
+GetDLCCount,I,0,GetDLCCount,0,0,0,0,GetDLCCount
+GetDLCDataJSON,S,0,GetDLCDataJSON,0,0,0,0,GetDLCDataJSON
 GetDLCDownloadProgressJSON,S,I,GetDLCDownloadProgressJSON,0,0,0,0,GetDLCDownloadProgressJSON
 GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,GetEarliestPurchaseUnixTime
 # GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
 GetInstalledDepotsJSON,S,II,GetInstalledDepotsJSON,0,0,0,0,GetInstalledDepotsJSON
-GetLaunchQueryParam,S,S,GetLaunchQueryParam,0,0,0,0,GetLaunchQueryParam
-HasNewLaunchQueryParameters,I,0,HasNewLaunchQueryParameters,0,0,0,0,HasNewLaunchQueryParameters
 GetLaunchCommandLine,S,0,GetLaunchCommandLine,0,0,0,0,GetLaunchCommandLine
-HasNewDLCInstalled,I,0,HasNewDLCInstalled,0,0,0,0,HasNewDLCInstalled
-GetNewDLCInstalled,I,0,GetNewDLCInstalled,0,0,0,0,GetNewDLCInstalled
+GetLaunchQueryParam,S,S,GetLaunchQueryParam,0,0,0,0,GetLaunchQueryParam
 InstallDLC,0,I,InstallDLC,0,0,0,0,InstallDLC
 MarkContentCorrupt,I,I,MarkContentCorrupt,0,0,0,0,MarkContentCorrupt
 UninstallDLC,0,I,UninstallDLC,0,0,0,0,UninstallDLC
+# Callbacks
+HasNewDLCInstalled,I,0,HasNewDLCInstalled,0,0,0,0,HasNewDLCInstalled
+GetNewDLCInstalled,I,0,GetNewDLCInstalled,0,0,0,0,GetNewDLCInstalled
+HasNewLaunchQueryParameters,I,0,HasNewLaunchQueryParameters,0,0,0,0,HasNewLaunchQueryParameters
 #
-# Overlay methods
+# ISteamAppsList
 #
-IsGameOverlayActive,I,0,IsGameOverlayActive,0,0,0,0,IsGameOverlayActive
+GetAppName,S,I,GetAppName,0,0,0,0,GetAppName
+#
+# ISteamAppTicket
+#
+#
+# ISteamClient
+#
+#
+# ISteamController/ISteamInput
+#
+ActivateActionSet,0,II,ActivateActionSet,0,0,0,0,ActivateActionSet
+ActivateActionSetLayer,0,II,ActivateActionSetLayer,0,0,0,0,ActivateActionSetLayer
+DeactivateActionSetLayer,0,II,DeactivateActionSetLayer,0,0,0,0,DeactivateActionSetLayer
+DeactivateAllActionSetLayers,0,I,DeactivateAllActionSetLayers,0,0,0,0,DeactivateAllActionSetLayers
+GetActiveActionSetLayersJSON,S,I,GetActiveActionSetLayersJSON,0,0,0,0,GetActiveActionSetLayersJSON
+GetActionSetHandle,I,S,GetActionSetHandle,0,0,0,0,GetActionSetHandle
+GetAnalogActionData,0,II,GetAnalogActionData,0,0,0,0,GetAnalogActionData
+GetAnalogActionDataActive,I,0,GetAnalogActionDataActive,0,0,0,0,GetAnalogActionDataActive
+GetAnalogActionDataMode,I,0,GetAnalogActionDataMode,0,0,0,0,GetAnalogActionDataMode
+GetAnalogActionDataX,F,0,GetAnalogActionDataX,0,0,0,0,GetAnalogActionDataX
+GetAnalogActionDataY,F,0,GetAnalogActionDataY,0,0,0,0,GetAnalogActionDataY
+GetAnalogActionHandle,I,S,GetAnalogActionHandle,0,0,0,0,GetAnalogActionHandle
+GetAnalogActionOriginsJSON,S,III,GetAnalogActionOriginsJSON,0,0,0,0,GetAnalogActionOriginsJSON
+GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,GetConnectedControllers
+#GetControllerForGamepadIndex
+GetCurrentActionSet,I,I,GetCurrentActionSet,0,0,0,0,GetCurrentActionSet
+GetDigitalActionData,0,II,GetDigitalActionData,0,0,0,0,GetDigitalActionData
+GetDigitalActionDataActive,I,0,GetDigitalActionDataActive,0,0,0,0,GetDigitalActionDataActive
+GetDigitalActionDataState,I,0,GetDigitalActionDataState,0,0,0,0,GetDigitalActionDataState
+GetDigitalActionHandle,I,S,GetDigitalActionHandle,0,0,0,0,GetDigitalActionHandle
+GetDigitalActionOriginsJSON,S,III,GetDigitalActionOriginsJSON,0,0,0,0,GetDigitalActionOriginsJSON
+#GetGamepadIndexForController
+GetGlyphForActionOrigin,S,I,GetGlyphForActionOrigin,0,0,0,0,GetGlyphForActionOrigin
+GetInputTypeForHandle,I,I,GetInputTypeForHandle,0,0,0,0,GetInputTypeForHandle
+GetMotionData,0,I,GetMotionData,0,0,0,0,GetMotionData
+GetMotionDataPosAccelX,F,0,GetMotionDataPosAccelX,0,0,0,0,GetMotionDataPosAccelX
+GetMotionDataPosAccelY,F,0,GetMotionDataPosAccelY,0,0,0,0,GetMotionDataPosAccelY
+GetMotionDataPosAccelZ,F,0,GetMotionDataPosAccelZ,0,0,0,0,GetMotionDataPosAccelZ
+GetMotionDataRotQuatW,F,0,GetMotionDataRotQuatW,0,0,0,0,GetMotionDataRotQuatW
+GetMotionDataRotQuatX,F,0,GetMotionDataRotQuatX,0,0,0,0,GetMotionDataRotQuatX
+GetMotionDataRotQuatY,F,0,GetMotionDataRotQuatY,0,0,0,0,GetMotionDataRotQuatY
+GetMotionDataRotQuatZ,F,0,GetMotionDataRotQuatZ,0,0,0,0,GetMotionDataRotQuatZ
+GetMotionDataRotVelX,F,0,GetMotionDataRotVelX,0,0,0,0,GetMotionDataRotVelX
+GetMotionDataRotVelY,F,0,GetMotionDataRotVelY,0,0,0,0,GetMotionDataRotVelY
+GetMotionDataRotVelZ,F,0,GetMotionDataRotVelZ,0,0,0,0,GetMotionDataRotVelZ
+GetStringForActionOrigin,S,I,GetStringForActionOrigin,0,0,0,0,GetStringForActionOrigin
+InitSteamInput,I,0,InitSteamInput,0,0,0,0,InitSteamInput
+RunFrame,0,0,RunFrame,0,0,0,0,RunFrame
+SetInputLEDColor,0,IIII,SetInputLEDColor,0,0,0,0,SetInputLEDColor
+ResetInputLEDColor,0,I,ResetInputLEDColor,0,0,0,0,ResetInputLEDColor
+ShowBindingPanel,I,I,ShowBindingPanel,0,0,0,0,ShowBindingPanel
+ShutdownSteamInput,I,0,ShutdownSteamInput,0,0,0,0,ShutdownSteamInput
+StopAnalogActionMomentum,0,II,StopAnalogActionMomentum,0,0,0,0,StopAnalogActionMomentum
+TriggerInputHapticPulse,0,III,TriggerInputHapticPulse,0,0,0,0,TriggerInputHapticPulse
+TriggerInputRepeatedHapticPulse,0,IIIII,TriggerInputRepeatedHapticPulse,0,0,0,0,TriggerInputRepeatedHapticPulse
+TriggerInputVibration,0,III,TriggerInputVibration,0,0,0,0,TriggerInputVibration
+# New for SDK v1.43
+GetActionOriginFromXboxOrigin,I,II,GetActionOriginFromXboxOrigin,0,0,0,0,GetActionOriginFromXboxOrigin
+GetStringForXboxOrigin,S,I,GetStringForXboxOrigin,0,0,0,0,GetStringForXboxOrigin
+GetGlyphForXboxOrigin,S,I,GetGlyphForXboxOrigin,0,0,0,0,GetGlyphForXboxOrigin
+TranslateActionOrigin,I,II,TranslateActionOrigin,0,0,0,0,TranslateActionOrigin
+#
+# ISteamFriends
+#
 ActivateGameOverlay,0,S,ActivateGameOverlay,0,0,0,0,ActivateGameOverlay
 ActivateGameOverlayInviteDialog,0,I,ActivateGameOverlayInviteDialog,0,0,0,0,ActivateGameOverlayInviteDialog
 ActivateGameOverlayToStore,0,II,ActivateGameOverlayToStore,0,0,0,0,ActivateGameOverlayToStore
 ActivateGameOverlayToUser,0,SI,ActivateGameOverlayToUser,0,0,0,0,ActivateGameOverlayToUser
 ActivateGameOverlayToWebPage,0,S,ActivateGameOverlayToWebPage,0,0,0,0,ActivateGameOverlayToWebPage
 ActivateGameOverlayToWebPageModal,0,S,ActivateGameOverlayToWebPageModal,0,0,0,0,ActivateGameOverlayToWebPageModal
-#
-# User/Friend methods
-#
-LoggedOn,I,0,LoggedOn,0,0,0,0,LoggedOn
-GetPersonaName,S,0,GetPersonaName,0,0,0,0,GetPersonaName
-GetSteamID,I,0,GetSteamID,0,0,0,0,GetSteamID
-GetAccountID,I,I,GetAccountID,0,0,0,0,GetAccountID
-GetSteamID3,S,I,GetSteamID3,0,0,0,0,GetSteamID3
-GetSteamID64,S,I,GetSteamID64,0,0,0,0,GetSteamID64
-HasPersonaStateChange,I,0,HasPersonaStateChange,0,0,0,0,HasPersonaStateChange
-GetPersonaStateChangeJSON,S,0,GetPersonaStateChangeJSON,0,0,0,0,GetPersonaStateChangeJSON
-RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,RequestUserInformation
-HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,HasAvatarImageLoaded
-GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,GetAvatarImageLoadedUser
-GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,GetFriendAvatar
 GetFriendListJSON,S,I,GetFriendListJSON,0,0,0,0,GetFriendListJSON
 GetFriendGamePlayedJSON,S,I,GetFriendGamePlayedJSON,0,0,0,0,GetFriendGamePlayedJSON
 GetFriendPersonaName,S,I,GetFriendPersonaName,0,0,0,0,GetFriendPersonaName
 GetFriendPersonaState,I,I,GetFriendPersonaState,0,0,0,0,GetFriendPersonaState
 GetFriendRelationship,I,I,GetFriendRelationship,0,0,0,0,GetFriendRelationship
-GetFriendSteamLevel,I,I,GetFriendSteamLevel,0,0,0,0,GetFriendSteamLevel
-GetPlayerNickname,S,I,GetPlayerNickname,0,0,0,0,GetPlayerNickname
-HasFriend,I,II,HasFriend,0,0,0,0,HasFriend
-#
-# Friends group methods
-#
 GetFriendsGroupCount,I,0,GetFriendsGroupCount,0,0,0,0,GetFriendsGroupCount
 GetFriendsGroupIDByIndex,I,I,GetFriendsGroupIDByIndex,0,0,0,0,GetFriendsGroupIDByIndex
 GetFriendsGroupMembersCount,I,I,GetFriendsGroupMembersCount,0,0,0,0,GetFriendsGroupMembersCount
 GetFriendsGroupMembersListJSON,S,I,GetFriendsGroupMembersListJSON,0,0,0,0,GetFriendsGroupMembersListJSON
 GetFriendsGroupName,S,I,GetFriendsGroupName,0,0,0,0,GetFriendsGroupName
+GetFriendSteamLevel,I,I,GetFriendSteamLevel,0,0,0,0,GetFriendSteamLevel
+GetFriendAvatar,I,II,GetFriendAvatar,0,0,0,0,GetFriendAvatar
+GetPersonaName,S,0,GetPersonaName,0,0,0,0,GetPersonaName
+GetPlayerNickname,S,I,GetPlayerNickname,0,0,0,0,GetPlayerNickname
+HasFriend,I,II,HasFriend,0,0,0,0,HasFriend
+RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,RequestUserInformation
+# Callbacks
+HasAvatarImageLoaded,I,0,HasAvatarImageLoaded,0,0,0,0,HasAvatarImageLoaded
+GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,GetAvatarImageLoadedUser
+IsGameOverlayActive,I,0,IsGameOverlayActive,0,0,0,0,IsGameOverlayActive
+HasPersonaStateChange,I,0,HasPersonaStateChange,0,0,0,0,HasPersonaStateChange
+GetPersonaStateChangeJSON,S,0,GetPersonaStateChangeJSON,0,0,0,0,GetPersonaStateChangeJSON
 #
-# Image methods
+# ISteamGameCoordinator
+# ISteamGameServer
+# ISteamGameServerStats
+# ISteamHTMLSurface
+# ISteamHTTP
+# ISteamInventory
 #
-LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,LoadImageFromHandle
-LoadImageFromHandle,0,II,LoadImageIDFromHandle,0,0,0,0,LoadImageIDFromHandle
 #
-# General user stats methods.
+# ISteamMatchmaking
 #
-RequestStats,I,0,RequestStats,0,0,0,0,RequestStats
-GetRequestStatsCallbackState,I,0,GetRequestStatsCallbackState,0,0,0,0,GetRequestStatsCallbackState
-StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
-StoreStats,I,0,StoreStats,0,0,0,0,StoreStats
-ResetAllStats,I,I,ResetAllStats,0,0,0,0,ResetAllStats
-GetStoreStatsCallbackState,I,0,GetStoreStatsCallbackState,0,0,0,0,GetStoreStatsCallbackState
-StatsStored,I,0,StatsStored,0,0,0,0,StatsStored
-AchievementStored,I,0,AchievementStored,0,0,0,0,AchievementStored
-#
-# Achievements methods.
-#
-GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,GetNumAchievements
-GetAchievementAPIName,S,I,GetAchievementAPIName,0,0,0,0,GetAchievementAPIName
-GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,GetAchievementDisplayName
-GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,GetAchievementDisplayDesc
-GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,GetAchievementDisplayHidden
-GetAchievementIcon,I,S,GetAchievementIcon,0,0,0,0,GetAchievementIcon
-GetAchievement,I,S,GetAchievement,0,0,0,0,GetAchievement
-GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,GetAchievementUnlockTime
-SetAchievement,I,S,SetAchievement,0,0,0,0,SetAchievement
-IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,IndicateAchievementProgress
-ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
-#
-# User stats methods.
-#
-GetStatInt,I,S,GetStatInt,0,0,0,0,GetStatInt
-GetStatFloat,F,S,GetStatFloat,0,0,0,0,GetStatFloat
-SetStatInt,I,SI,SetStatInt,0,0,0,0,SetStatInt
-SetStatFloat,I,SF,SetStatFloat,0,0,0,0,SetStatFloat
-UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
-#
-# Leaderboard methods: Find
-#
-FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
-GetLeaderboardHandle,I,I,GetLeaderboardHandle,0,0,0,0,GetLeaderboardHandle
-#
-# Leaderboard methods: Information
-#
-GetLeaderboardName,S,I,GetLeaderboardName,0,0,0,0,GetLeaderboardName
-GetLeaderboardEntryCount,I,I,GetLeaderboardEntryCount,0,0,0,0,GetLeaderboardEntryCount
-GetLeaderboardDisplayType,I,I,GetLeaderboardDisplayType,0,0,0,0,GetLeaderboardDisplayType
-GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,GetLeaderboardSortMethod
-#
-# Leaderboard methods: Upload
-#
-UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
-UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
-#
-# Leaderboard methods: Download
-#
-DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
-#
-# Lobby methods: List
-#
+AddFavoriteGame,I,ISIII,AddFavoriteGame,0,0,0,0,AddFavoriteGame
 AddRequestLobbyListDistanceFilter,0,I,AddRequestLobbyListDistanceFilter,0,0,0,0,AddRequestLobbyListDistanceFilter
 AddRequestLobbyListFilterSlotsAvailable,0,I,AddRequestLobbyListFilterSlotsAvailable,0,0,0,0,AddRequestLobbyListFilterSlotsAvailable
 AddRequestLobbyListNearValueFilter,0,SI,AddRequestLobbyListNearValueFilter,0,0,0,0,AddRequestLobbyListNearValueFilter
 AddRequestLobbyListNumericalFilter,0,SII,AddRequestLobbyListNumericalFilter,0,0,0,0,AddRequestLobbyListNumericalFilter
 AddRequestLobbyListResultCountFilter,0,I,AddRequestLobbyListResultCountFilter,0,0,0,0,AddRequestLobbyListResultCountFilter
 AddRequestLobbyListStringFilter,0,SSI,AddRequestLobbyListStringFilter,0,0,0,0,AddRequestLobbyListStringFilter
-RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
-#
-# Lobby methods: Create, join, and leave
-#
 CreateLobby,I,II,CreateLobby,0,0,0,0,CreateLobby
-SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,SetLobbyJoinable
-SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
-JoinLobby,I,I,JoinLobby,0,0,0,0,JoinLobby
-HasLobbyEnterResponse,I,0,HasLobbyEnterResponse,0,0,0,0,HasLobbyEnterResponse
-GetLobbyEnterResponseJSON,S,0,GetLobbyEnterResponseJSON,0,0,0,0,GetLobbyEnterResponseJSON
-InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,InviteUserToLobby
-HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,HasGameLobbyJoinRequest
-GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,GetGameLobbyJoinRequestedLobby
-LeaveLobby,0,I,LeaveLobby,0,0,0,0,LeaveLobby
-#
-# Lobby methods: Game server
-#
-GetLobbyGameServerJSON,S,I,GetLobbyGameServerJSON,0,0,0,0,GetLobbyGameServerJSON
-SetLobbyGameServer,I,ISII,SetLobbyGameServer,0,0,0,0,SetLobbyGameServer
-HasLobbyGameCreated,I,0,HasLobbyGameCreated,0,0,0,0,HasLobbyGameCreated
-GetLobbyGameCreatedJSON,S,0,GetLobbyGameCreatedJSON,0,0,0,0,GetLobbyGameCreatedJSON
-#
-# Lobby methods: Data
-#
+DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,DeleteLobbyData
+GetFavoriteGameJSON,S,I,GetFavoriteGameJSON,0,0,0,0,GetFavoriteGameJSON
+GetFavoriteGameCount,I,0,GetFavoriteGameCount,0,0,0,0,GetFavoriteGameCount
 GetLobbyData,S,IS,GetLobbyData,0,0,0,0,GetLobbyData
 GetLobbyDataJSON,S,I,GetLobbyDataJSON,0,0,0,0,GetLobbyDataJSON
-SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,SetLobbyData
-DeleteLobbyData,I,IS,DeleteLobbyData,0,0,0,0,DeleteLobbyData
-RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,RequestLobbyData
-HasLobbyDataUpdateResponse,I,0,HasLobbyDataUpdateResponse,0,0,0,0,HasLobbyDataUpdateResponse
-GetLobbyDataUpdateResponseJSON,S,0,GetLobbyDataUpdateResponseJSON,0,0,0,0,GetLobbyDataUpdateResponseJSON
-GetLobbyMemberData,S,IIS,GetLobbyMemberData,0,0,0,0,GetLobbyMemberData
-SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,SetLobbyMemberData
-#
-# Lobby methods: Members and status
-#
-GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,GetLobbyOwner
-SetLobbyOwner,I,II,SetLobbyOwner,0,0,0,0,SetLobbyOwner
-GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,GetLobbyMemberLimit
-SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0,SetLobbyMemberLimit
-GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,GetNumLobbyMembers
+GetLobbyGameServerJSON,S,I,GetLobbyGameServerJSON,0,0,0,0,GetLobbyGameServerJSON
 GetLobbyMemberByIndex,I,II,GetLobbyMemberByIndex,0,0,0,0,GetLobbyMemberByIndex
+GetLobbyMemberData,S,IIS,GetLobbyMemberData,0,0,0,0,GetLobbyMemberData
+GetLobbyMemberLimit,I,I,GetLobbyMemberLimit,0,0,0,0,GetLobbyMemberLimit
+GetLobbyOwner,I,I,GetLobbyOwner,0,0,0,0,GetLobbyOwner
+GetNumLobbyMembers,I,I,GetNumLobbyMembers,0,0,0,0,GetNumLobbyMembers
+InviteUserToLobby,I,II,InviteUserToLobby,0,0,0,0,InviteUserToLobby
+JoinLobby,I,I,JoinLobby,0,0,0,0,JoinLobby
+LeaveLobby,0,I,LeaveLobby,0,0,0,0,LeaveLobby
+RemoveFavoriteGame,I,ISIII,RemoveFavoriteGame,0,0,0,0,RemoveFavoriteGame
+RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,RequestLobbyData
+RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
+SendLobbyChatMessage,I,IS,SendLobbyChatMessage,0,0,0,0,SendLobbyChatMessage
+SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,SetLobbyData
+SetLobbyGameServer,I,ISII,SetLobbyGameServer,0,0,0,0,SetLobbyGameServer
+SetLobbyJoinable,I,II,SetLobbyJoinable,0,0,0,0,SetLobbyJoinable
+SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,SetLobbyMemberData
+SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0,SetLobbyMemberLimit
+SetLobbyOwner,I,II,SetLobbyOwner,0,0,0,0,SetLobbyOwner
+SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
+# Callbacks
+HasLobbyChatMessage,I,0,HasLobbyChatMessage,0,0,0,0,HasLobbyChatMessage
+GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,GetLobbyChatMessageUser
+GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,GetLobbyChatMessageText
 HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,HasLobbyChatUpdate
 GetLobbyChatUpdateLobby,I,0,GetLobbyChatUpdateLobby,0,0,0,0,GetLobbyChatUpdateLobby
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,GetLobbyChatUpdateUserChanged
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,GetLobbyChatUpdateUserState
 GetLobbyChatUpdateUserMakingChange,I,0,GetLobbyChatUpdateUserMakingChange,0,0,0,0,GetLobbyChatUpdateUserMakingChange
+HasLobbyDataUpdateResponse,I,0,HasLobbyDataUpdateResponse,0,0,0,0,HasLobbyDataUpdateResponse
+GetLobbyDataUpdateResponseJSON,S,0,GetLobbyDataUpdateResponseJSON,0,0,0,0,GetLobbyDataUpdateResponseJSON
+HasLobbyEnterResponse,I,0,HasLobbyEnterResponse,0,0,0,0,HasLobbyEnterResponse
+GetLobbyEnterResponseJSON,S,0,GetLobbyEnterResponseJSON,0,0,0,0,GetLobbyEnterResponseJSON
+GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,GetGameLobbyJoinRequestedLobby
+HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,HasGameLobbyJoinRequest
+HasLobbyGameCreated,I,0,HasLobbyGameCreated,0,0,0,0,HasLobbyGameCreated
+GetLobbyGameCreatedJSON,S,0,GetLobbyGameCreatedJSON,0,0,0,0,GetLobbyGameCreatedJSON
 #
-# Lobby methods: Chat messages
+# ISteamMatchmakingServers
 #
-HasLobbyChatMessage,I,0,HasLobbyChatMessage,0,0,0,0,HasLobbyChatMessage
-GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,GetLobbyChatMessageUser
-GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,GetLobbyChatMessageText
-SendLobbyChatMessage,I,IS,SendLobbyChatMessage,0,0,0,0,SendLobbyChatMessage
 #
-# Lobby methods: Favorite games
-#
-AddFavoriteGame,I,ISIII,AddFavoriteGame,0,0,0,0,AddFavoriteGame
-GetFavoriteGameCount,I,0,GetFavoriteGameCount,0,0,0,0,GetFavoriteGameCount
-GetFavoriteGameJSON,S,I,GetFavoriteGameJSON,0,0,0,0,GetFavoriteGameJSON
-RemoveFavoriteGame,I,ISIII,RemoveFavoriteGame,0,0,0,0,RemoveFavoriteGame
-#
-# Game server
-#
-#GetPublicIP,S,0,GetPublicIP,0,0,0,0,0
-#
-# Music methods
+# ISteamMusic
 #
 IsMusicEnabled,I,0,IsMusicEnabled,0,0,0,0,IsMusicEnabled
 IsMusicPlaying,I,0,IsMusicPlaying,0,0,0,0,IsMusicPlaying
@@ -242,45 +229,14 @@ SetMusicVolume,0,F,SetMusicVolume,0,0,0,0,SetMusicVolume
 HasMusicPlaybackStatusChanged,I,0,HasMusicPlaybackStatusChanged,0,0,0,0,HasMusicPlaybackStatusChanged
 HasMusicVolumeChanged,I,0,HasMusicVolumeChanged,0,0,0,0,HasMusicVolumeChanged
 #
-# Util methods
+# ISteamMusicRemote
+# ISteamNetworking
+# ISteamNetworkingSockets
+# ISteamNetworkingUtils
+# ISteamParties
 #
-GetCurrentBatteryPower,I,0,GetCurrentBatteryPower,0,0,0,0,GetCurrentBatteryPower
-GetIPCCallCount,I,0,GetIPCCallCount,0,0,0,0,GetIPCCallCount
-GetIPCountry,S,0,GetIPCountry,0,0,0,0,GetIPCountry
-GetSecondsSinceAppActive,I,0,GetSecondsSinceAppActive,0,0,0,0,GetSecondsSinceAppActive
-GetSecondsSinceComputerActive,I,0,GetSecondsSinceComputerActive,0,0,0,0,GetSecondsSinceComputerActive
-GetServerRealTime,I,0,GetServerRealTime,0,0,0,0,GetServerRealTime
-GetSteamUILanguage,S,0,GetSteamUILanguage,0,0,0,0,GetSteamUILanguage
-IsOverlayEnabled,I,0,IsOverlayEnabled,0,0,0,0,IsOverlayEnabled
-SetOverlayNotificationInset,0,II,SetOverlayNotificationInset,0,0,0,0,SetOverlayNotificationInset
-SetOverlayNotificationPosition,0,I,SetOverlayNotificationPosition,0,0,0,0,SetOverlayNotificationPosition
-HasIPCountryChanged,I,0,HasIPCountryChanged,0,0,0,0,HasIPCountryChanged
-HasLowBatteryWarning,I,0,HasLowBatteryWarning,0,0,0,0,HasLowBatteryWarning
-GetMinutesBatteryLeft,I,0,GetMinutesBatteryLeft,0,0,0,0,GetMinutesBatteryLeft
-IsSteamShuttingDown,I,0,IsSteamShuttingDown,0,0,0,0,IsSteamShuttingDown
-SetWarningMessageHook,0,0,SetWarningMessageHook,0,0,0,0,SetWarningMessageHook
 #
-# Big Picture methods
-#
-IsSteamInBigPictureMode,I,0,IsSteamInBigPictureMode,0,0,0,0,IsSteamInBigPictureMode
-ShowGamepadTextInput,I,IISIS,ShowGamepadTextInput,0,0,0,0,ShowGamepadTextInput
-HasGamepadTextInputDismissedInfo,I,0,HasGamepadTextInputDismissedInfo,0,0,0,0,HasGamepadTextInputDismissedInfo
-GetGamepadTextInputDismissedInfoJSON,S,0,GetGamepadTextInputDismissedInfoJSON,0,0,0,0,GetGamepadTextInputDismissedInfoJSON
-#
-# VR methods
-#
-IsSteamRunningInVR,I,0,IsSteamRunningInVR,0,0,0,0,IsSteamRunningInVR
-StartVRDashboard,0,0,StartVRDashboard,0,0,0,0,StartVRDashboard
-SetVRHeadsetStreamingEnabled,0,I,SetVRHeadsetStreamingEnabled,0,0,0,0,SetVRHeadsetStreamingEnabled
-IsVRHeadsetStreamingEnabled,I,0,IsVRHeadsetStreamingEnabled,0,0,0,0,IsVRHeadsetStreamingEnabled
-#
-# Cloud methods: Information
-#
-IsCloudEnabledForAccount,I,0,IsCloudEnabledForAccount,0,0,0,0,IsCloudEnabledForAccount
-IsCloudEnabledForApp,I,0,IsCloudEnabledForApp,0,0,0,0,IsCloudEnabledForApp
-SetCloudEnabledForApp,0,I,SetCloudEnabledForApp,0,0,0,0,SetCloudEnabledForApp
-#
-# Cloud methods: Files
+# ISteamRemoteStorage
 #
 CloudFileDelete,I,S,CloudFileDelete,0,0,0,0,CloudFileDelete
 CloudFileExists,I,S,CloudFileExists,0,0,0,0,CloudFileExists
@@ -293,6 +249,7 @@ GetCloudFileReadAsyncMemblock,I,I,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloud
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,CloudFileWrite
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,CloudFileWriteAsync
 GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetCloudFileWriteAsyncFileName
+GetCachedUGCCount,I,0,GetCachedUGCCount,0,0,0,0,GetCachedUGCCount
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
 GetCloudFileListJSON,S,0,GetCloudFileListJSON,0,0,0,0,GetCloudFileListJSON
@@ -302,84 +259,92 @@ GetCloudQuotaAvailable,I,0,GetCloudQuotaAvailable,0,0,0,0,GetCloudQuotaAvailable
 GetCloudQuotaTotal,I,0,GetCloudQuotaTotal,0,0,0,0,GetCloudQuotaTotal
 GetCloudQuotaJSON,S,0,GetCloudQuotaJSON,0,0,0,0,GetCloudQuotaJSON
 GetCloudFileSyncPlatforms,I,S,GetCloudFileSyncPlatforms,0,0,0,0,GetCloudFileSyncPlatforms
+IsCloudEnabledForAccount,I,0,IsCloudEnabledForAccount,0,0,0,0,IsCloudEnabledForAccount
+IsCloudEnabledForApp,I,0,IsCloudEnabledForApp,0,0,0,0,IsCloudEnabledForApp
+SetCloudEnabledForApp,0,I,SetCloudEnabledForApp,0,0,0,0,SetCloudEnabledForApp
 SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,SetCloudFileSyncPlatforms
 #
-# User-Generated Content
+# ISteamScreenshots
+# ISteamUGC
+# ISteamUnifiedMessages
 #
-#SteamAPICall_t CloudFileShare(const char *pchFile);
-#bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
-#bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
-#UGCFileWriteStreamHandle_t CloudFileWriteStreamOpen(const char *pchFile);
-#bool CloudFileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
-#GetCachedUGCCount,I,0,GetCachedUGCCount,0,0,0,0,0
-#UGCHandle_t GetCachedUGCHandle(int32 iCachedContent);
-#bool GetUGCDetails(UGCHandle_t hContent, AppId_t *pnAppID, char **ppchName, int32 *pnFileSizeInBytes, CSteamID *pSteamIDOwner);
-#bool GetUGCDownloadProgress(UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected);
-#SteamAPICall_t UGCDownload(UGCHandle_t hContent, uint32 unPriority);
-#SteamAPICall_t UGCDownloadToLocation(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority);
-#int32 UGCRead(UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction);
 #
-# Input
+# ISteamUser
 #
-InitSteamInput,I,0,InitSteamInput,0,0,0,0,InitSteamInput
-ShutdownSteamInput,I,0,ShutdownSteamInput,0,0,0,0,ShutdownSteamInput
-GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,GetConnectedControllers
-GetInputTypeForHandle,I,I,GetInputTypeForHandle,0,0,0,0,GetInputTypeForHandle
-#GetInputForGamepadIndex
-#GetGamepadIndexForController
-RunFrame,0,0,RunFrame,0,0,0,0,RunFrame
-ShowBindingPanel,I,I,ShowBindingPanel,0,0,0,0,ShowBindingPanel
+LoggedOn,I,0,LoggedOn,0,0,0,0,LoggedOn
+GetSteamID,I,0,GetSteamID,0,0,0,0,GetSteamID
+IsSteamIDValid,I,I,IsSteamIDValid,0,0,0,0,IsSteamIDValid
+GetAccountID,I,I,GetAccountID,0,0,0,0,GetAccountID
+GetSteamID3,S,I,GetSteamID3,0,0,0,0,GetSteamID3
+GetSteamID64,S,I,GetSteamID64,0,0,0,0,GetSteamID64
+GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,GetHandleFromSteamID64
 #
-# Input Action Sets and Layers
+# ISteamUserStats
 #
-ActivateActionSet,0,II,ActivateActionSet,0,0,0,0,ActivateActionSet
-GetActionSetHandle,I,S,GetActionSetHandle,0,0,0,0,GetActionSetHandle
-GetCurrentActionSet,I,I,GetCurrentActionSet,0,0,0,0,GetCurrentActionSet
-ActivateActionSetLayer,0,II,ActivateActionSetLayer,0,0,0,0,ActivateActionSetLayer
-DeactivateActionSetLayer,0,II,DeactivateActionSetLayer,0,0,0,0,DeactivateActionSetLayer
-DeactivateAllActionSetLayers,0,I,DeactivateAllActionSetLayers,0,0,0,0,DeactivateAllActionSetLayers
-GetActiveActionSetLayersJSON,S,I,GetActiveActionSetLayersJSON,0,0,0,0,GetActiveActionSetLayersJSON
+ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
+DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
+FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
+GetAchievement,I,S,GetAchievement,0,0,0,0,GetAchievement
+GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,GetAchievementUnlockTime
+GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,GetAchievementDisplayName
+GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,GetAchievementDisplayDesc
+GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,GetAchievementDisplayHidden
+GetAchievementIcon,I,S,GetAchievementIcon,0,0,0,0,GetAchievementIcon
+GetAchievementAPIName,S,I,GetAchievementAPIName,0,0,0,0,GetAchievementAPIName
+GetLeaderboardDisplayType,I,I,GetLeaderboardDisplayType,0,0,0,0,GetLeaderboardDisplayType
+GetLeaderboardEntryCount,I,I,GetLeaderboardEntryCount,0,0,0,0,GetLeaderboardEntryCount
+GetLeaderboardName,S,I,GetLeaderboardName,0,0,0,0,GetLeaderboardName
+GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,GetLeaderboardSortMethod
+#TODO GetLeaderboardHandle,I,I,GetLeaderboardHandle,0,0,0,0,GetLeaderboardHandle
+GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,GetNumAchievements
+GetStatInt,I,S,GetStatInt,0,0,0,0,GetStatInt
+GetStatFloat,F,S,GetStatFloat,0,0,0,0,GetStatFloat
+IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,IndicateAchievementProgress
+RequestStats,I,0,RequestStats,0,0,0,0,RequestStats
+ResetAllStats,I,I,ResetAllStats,0,0,0,0,ResetAllStats
+SetAchievement,I,S,SetAchievement,0,0,0,0,SetAchievement
+SetStatInt,I,SI,SetStatInt,0,0,0,0,SetStatInt
+SetStatFloat,I,SF,SetStatFloat,0,0,0,0,SetStatFloat
+StoreStats,I,0,StoreStats,0,0,0,0,StoreStats
+UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
+UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
+UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
+# Callbacks
+HasNewUserAchievementStored,I,0,HasNewUserAchievementStored,0,0,0,0,HasNewUserAchievementStored
+HasNewUserStatsReceived,I,0,HasNewUserStatsReceived,0,0,0,0
+GetNewUserStatsReceivedGameID,I,0,GetNewUserStatsReceivedGameID,0,0,0,0,GetNewUserStatsReceivedGameID
+GetNewUserStatsReceivedResult,I,0,GetNewUserStatsReceivedResult,0,0,0,0,GetNewUserStatsReceivedResult
+GetNewUserStatsReceivedUser,I,0,GetNewUserStatsReceivedUser,0,0,0,0,GetNewUserStatsReceivedUser
+StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
+HasNewUserAchievementStored,I,0,HasNewUserAchievementStored,0,0,0,0,HasNewUserAchievementStored
+HasNewUserStatsStored,I,0,HasNewUserStatsStored,0,0,0,0,HasNewUserStatsStored
 #
-# Input Actions and Motion
+# ISteamUtils
 #
-GetAnalogActionData,0,II,GetAnalogActionData,0,0,0,0,GetAnalogActionData
-GetAnalogActionDataActive,I,0,GetAnalogActionDataActive,0,0,0,0,GetAnalogActionDataActive
-GetAnalogActionDataMode,I,0,GetAnalogActionDataMode,0,0,0,0,GetAnalogActionDataMode
-GetAnalogActionDataX,F,0,GetAnalogActionDataX,0,0,0,0,GetAnalogActionDataX
-GetAnalogActionDataY,F,0,GetAnalogActionDataY,0,0,0,0,GetAnalogActionDataY
-GetAnalogActionHandle,I,S,GetAnalogActionHandle,0,0,0,0,GetAnalogActionHandle
-StopAnalogActionMomentum,0,II,StopAnalogActionMomentum,0,0,0,0,StopAnalogActionMomentum
-GetDigitalActionData,0,II,GetDigitalActionData,0,0,0,0,GetDigitalActionData
-GetDigitalActionDataActive,I,0,GetDigitalActionDataActive,0,0,0,0,GetDigitalActionDataActive
-GetDigitalActionDataState,I,0,GetDigitalActionDataState,0,0,0,0,GetDigitalActionDataState
-GetDigitalActionHandle,I,S,GetDigitalActionHandle,0,0,0,0,GetDigitalActionHandle
-GetMotionData,0,I,GetMotionData,0,0,0,0,GetMotionData
-GetMotionDataPosAccelX,F,0,GetMotionDataPosAccelX,0,0,0,0,GetMotionDataPosAccelX
-GetMotionDataPosAccelY,F,0,GetMotionDataPosAccelY,0,0,0,0,GetMotionDataPosAccelY
-GetMotionDataPosAccelZ,F,0,GetMotionDataPosAccelZ,0,0,0,0,GetMotionDataPosAccelZ
-GetMotionDataRotQuatW,F,0,GetMotionDataRotQuatW,0,0,0,0,GetMotionDataRotQuatW
-GetMotionDataRotQuatX,F,0,GetMotionDataRotQuatX,0,0,0,0,GetMotionDataRotQuatX
-GetMotionDataRotQuatY,F,0,GetMotionDataRotQuatY,0,0,0,0,GetMotionDataRotQuatY
-GetMotionDataRotQuatZ,F,0,GetMotionDataRotQuatZ,0,0,0,0,GetMotionDataRotQuatZ
-GetMotionDataRotVelX,F,0,GetMotionDataRotVelX,0,0,0,0,GetMotionDataRotVelX
-GetMotionDataRotVelY,F,0,GetMotionDataRotVelY,0,0,0,0,GetMotionDataRotVelY
-GetMotionDataRotVelZ,F,0,GetMotionDataRotVelZ,0,0,0,0,GetMotionDataRotVelZ
-#
-# Input Action Origins
-#
-GetAnalogActionOriginsJSON,S,III,GetAnalogActionOriginsJSON,0,0,0,0,GetAnalogActionOriginsJSON
-GetDigitalActionOriginsJSON,S,III,GetDigitalActionOriginsJSON,0,0,0,0,GetDigitalActionOriginsJSON
-GetGlyphForActionOrigin,S,I,GetGlyphForActionOrigin,0,0,0,0,GetGlyphForActionOrigin
-GetStringForActionOrigin,S,I,GetStringForActionOrigin,0,0,0,0,GetStringForActionOrigin
-GetActionOriginFromXboxOrigin,I,II,GetActionOriginFromXboxOrigin,0,0,0,0,GetActionOriginFromXboxOrigin
-GetStringForXboxOrigin,S,I,GetStringForXboxOrigin,0,0,0,0,GetStringForXboxOrigin
-GetGlyphForXboxOrigin,S,I,GetGlyphForXboxOrigin,0,0,0,0,GetGlyphForXboxOrigin
-TranslateActionOrigin,I,II,TranslateActionOrigin,0,0,0,0,TranslateActionOrigin
-#
-# Input Effects
-#
-SetInputLEDColor,0,IIII,SetInputLEDColor,0,0,0,0,SetInputLEDColor
-ResetInputLEDColor,0,I,ResetInputLEDColor,0,0,0,0,ResetInputLEDColor
-TriggerInputHapticPulse,0,III,TriggerInputHapticPulse,0,0,0,0,TriggerInputHapticPulse
-TriggerInputRepeatedHapticPulse,0,IIIII,TriggerInputRepeatedHapticPulse,0,0,0,0,TriggerInputRepeatedHapticPulse
-TriggerInputVibration,0,III,TriggerInputVibration,0,0,0,0,TriggerInputVibration
+GetAppID,I,0,GetAppID,0,0,0,0,GetAppID
+GetCurrentBatteryPower,I,0,GetCurrentBatteryPower,0,0,0,0,GetCurrentBatteryPower
+LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,LoadImageFromHandle
+LoadImageFromHandle,0,II,LoadImageIDFromHandle,0,0,0,0,LoadImageIDFromHandle
+GetIPCCallCount,I,0,GetIPCCallCount,0,0,0,0,GetIPCCallCount
+GetIPCountry,S,0,GetIPCountry,0,0,0,0,GetIPCountry
+GetSecondsSinceAppActive,I,0,GetSecondsSinceAppActive,0,0,0,0,GetSecondsSinceAppActive
+GetSecondsSinceComputerActive,I,0,GetSecondsSinceComputerActive,0,0,0,0,GetSecondsSinceComputerActive
+GetServerRealTime,I,0,GetServerRealTime,0,0,0,0,GetServerRealTime
+GetSteamUILanguage,S,0,GetSteamUILanguage,0,0,0,0,GetSteamUILanguage
+IsOverlayEnabled,I,0,IsOverlayEnabled,0,0,0,0,IsOverlayEnabled
+IsSteamInBigPictureMode,I,0,IsSteamInBigPictureMode,0,0,0,0,IsSteamInBigPictureMode
+IsSteamRunningInVR,I,0,IsSteamRunningInVR,0,0,0,0,IsSteamRunningInVR
+IsVRHeadsetStreamingEnabled,I,0,IsVRHeadsetStreamingEnabled,0,0,0,0,IsVRHeadsetStreamingEnabled
+SetOverlayNotificationInset,0,II,SetOverlayNotificationInset,0,0,0,0,SetOverlayNotificationInset
+SetOverlayNotificationPosition,0,I,SetOverlayNotificationPosition,0,0,0,0,SetOverlayNotificationPosition
+SetVRHeadsetStreamingEnabled,0,I,SetVRHeadsetStreamingEnabled,0,0,0,0,SetVRHeadsetStreamingEnabled
+SetWarningMessageHook,0,0,SetWarningMessageHook,0,0,0,0,SetWarningMessageHook
+ShowGamepadTextInput,I,IISIS,ShowGamepadTextInput,0,0,0,0,ShowGamepadTextInput
+StartVRDashboard,0,0,StartVRDashboard,0,0,0,0,StartVRDashboard
+# Callbacks
+HasGamepadTextInputDismissedInfo,I,0,HasGamepadTextInputDismissedInfo,0,0,0,0,HasGamepadTextInputDismissedInfo
+GetGamepadTextInputDismissedInfoJSON,S,0,GetGamepadTextInputDismissedInfoJSON,0,0,0,0,GetGamepadTextInputDismissedInfoJSON
+HasIPCountryChanged,I,0,HasIPCountryChanged,0,0,0,0,HasIPCountryChanged
+HasLowBatteryWarning,I,0,HasLowBatteryWarning,0,0,0,0,HasLowBatteryWarning
+GetMinutesBatteryLeft,I,0,GetMinutesBatteryLeft,0,0,0,0,GetMinutesBatteryLeft
+IsSteamShuttingDown,I,0,IsSteamShuttingDown,0,0,0,0,IsSteamShuttingDown
