@@ -32,13 +32,6 @@ THE SOFTWARE.
 namespace plugin
 {
 
-	struct LobbyGameServer_t
-	{
-		uint32 m_unGameServerIP;		// IP of the game server (if any)
-		uint16 m_unGameServerPort;		// The port of the game server (if any)
-		CSteamID m_ulSteamIDGameServer;	// The game server.
-	};
-
 	struct DLCData_t
 	{
 		AppId_t m_AppID;
@@ -67,15 +60,15 @@ namespace plugin
 		}
 	};
 
-	struct FavoriteGame_t
-	{
-		AppId_t m_AppID;
-		uint32 m_nIP;
-		uint16 m_nConnPort;
-		uint16 m_nQueryPort;
-		uint32 m_unFlags;
-		uint32 m_rTime32LastPlayedOnServer;
-	};
+	//struct FavoriteGame_t
+	//{
+	//	AppId_t m_AppID;
+	//	uint32 m_nIP;
+	//	uint16 m_nConnPort;
+	//	uint16 m_nQueryPort;
+	//	uint32 m_unFlags;
+	//	uint32 m_rTime32LastPlayedOnServer;
+	//};
 
 #define MAX_GAMEPAD_TEXT_INPUT_LENGTH	512
 

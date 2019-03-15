@@ -1014,8 +1014,8 @@ EndType
 */
 //extern "C" DLL_EXPORT char *GetFriendGamePlayedJSON(int hUserSteamID);
 extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hUserSteamID);
-extern "C" DLL_EXPORT char *GetFriendGamePlayedGameIP(int hUserSteamID);
-extern "C" DLL_EXPORT int GetFriendGamePlayedGamePort(int hUserSteamID);
+extern "C" DLL_EXPORT char *GetFriendGamePlayedIP(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendGamePlayedConnectionPort(int hUserSteamID);
 extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hUserSteamID);
 extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hUserSteamID);
 
@@ -1371,7 +1371,13 @@ EndType
 ```
 @api ISteamMatchmaking#GetFavoriteGame
 */
-extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
+//extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
+extern "C" DLL_EXPORT int GetFavoriteGameAppID(int index);
+extern "C" DLL_EXPORT char *GetFavoriteGameIP(int index);
+extern "C" DLL_EXPORT int GetFavoriteGameConnectionPort(int index);
+extern "C" DLL_EXPORT int GetFavoriteGameQueryPort(int index);
+extern "C" DLL_EXPORT int GetFavoriteGameFlags(int index);
+extern "C" DLL_EXPORT int GetFavoriteGameUnixTimeLastPlayedOnServer(int index);
 
 /*
 @desc Gets the number of favorite and recent game servers the user has stored locally.
@@ -1417,7 +1423,10 @@ EndType
 ```
 @api ISteamMatchmaking#GetLobbyGameServer
 */
-extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
+//extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
+extern "C" DLL_EXPORT char *GetLobbyGameServerIP(int hLobbySteamID);
+extern "C" DLL_EXPORT int GetLobbyGameServerPort(int hLobbySteamID);
+extern "C" DLL_EXPORT int GetLobbyGameServerSteamID(int hLobbySteamID);
 
 /*
 @desc Gets the Steam ID handle of the lobby member at the given index.
@@ -1685,7 +1694,9 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 */
 extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse();
 
-extern "C" DLL_EXPORT char *GetLobbyDataUpdateResponseJSON();
+extern "C" DLL_EXPORT int GetLobbyDataUpdateLobby();
+extern "C" DLL_EXPORT int GetLobbyDataUpdateMember();
+extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess();
 
 /*
 @desc Indicates whether the OnLobbyEnter callback has accumulated data to process.
@@ -1704,7 +1715,11 @@ A result code as outlined at [LobbyEnter_t](https://partner.steamgames.com/doc/a
 @return A lobby Steam ID handle or 0 if the LobbyEnter_t call result failed.
 @api ISteamMatchmaking#LobbyEnter_t
 */
-extern "C" DLL_EXPORT char *GetLobbyEnterResponseJSON();
+//extern "C" DLL_EXPORT char *GetLobbyEnterJSON();
+extern "C" DLL_EXPORT int GetLobbyEnterChatPermissions();
+extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse();
+extern "C" DLL_EXPORT int GetLobbyEnterLobby();
+extern "C" DLL_EXPORT int GetLobbyEnterLocked();
 
 /*
 @desc Gets whether the user has accepted a request to join a game lobby.
@@ -1740,7 +1755,11 @@ EndType
 ```
 @api ISteamMatchmaking#GetLobbyGameCreated
 */
-extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
+//extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
+extern "C" DLL_EXPORT int GetLobbyGameCreatedGameServer();
+extern "C" DLL_EXPORT int GetLobbyGameCreatedLobby();
+extern "C" DLL_EXPORT char *GetLobbyGameCreatedIP();
+extern "C" DLL_EXPORT int GetLobbyGameCreatedPort();
 #pragma endregion
 
 #pragma region ISteamMatchmakingServers
@@ -2076,7 +2095,7 @@ EndType
 ```
 @api ISteamRemoteStorage#GetQuota
 */
-extern "C" DLL_EXPORT char *GetCloudQuotaJSON();
+//extern "C" DLL_EXPORT char *GetCloudQuotaJSON();
 
 /*
 @desc Obtains the platforms that the specified file will syncronize to.

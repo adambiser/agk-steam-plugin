@@ -1134,7 +1134,7 @@ int GetFriendGamePlayedGameAppID(int hUserSteamID)
 	return 0;
 }
 
-char *GetFriendGamePlayedGameIP(int hUserSteamID)
+char *GetFriendGamePlayedIP(int hUserSteamID)
 {
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hUserSteamID), &pFriendGameInfo))
@@ -1144,7 +1144,7 @@ char *GetFriendGamePlayedGameIP(int hUserSteamID)
 	return NULL_STRING;
 }
 
-int GetFriendGamePlayedGamePort(int hUserSteamID)
+int GetFriendGamePlayedConnectionPort(int hUserSteamID)
 {
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hUserSteamID), &pFriendGameInfo))
@@ -1500,17 +1500,94 @@ int DeleteLobbyData(int hLobbySteamID, const char *key)
 
 //GetFavoriteGame
 // Leave this as by-index since AddFavoriteGame appears to return an index.
-char *GetFavoriteGameJSON(int index)
+int GetFavoriteGameAppID(int index)
 {
-	if (IsSteamInitialized())
+	AppId_t nAppID;
+	uint32 nIP;
+	uint16 nConnPort;
+	uint16 nQueryPort;
+	uint32 nFlags;
+	uint32 rTime32LastPlayedOnServer;
+	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
 	{
-		plugin::FavoriteGame_t info;
-		if (SteamMatchmaking()->GetFavoriteGame(index, &info.m_AppID, &info.m_nIP, &info.m_nConnPort, &info.m_nQueryPort, &info.m_unFlags, &info.m_rTime32LastPlayedOnServer))
-		{
-			//return utils::CreateString(ToJSON(info));
-		}
+		return nAppID;
 	}
-	return utils::CreateString("{}");
+	return 0;
+}
+
+char *GetFavoriteGameIP(int index)
+{
+	AppId_t nAppID;
+	uint32 nIP;
+	uint16 nConnPort;
+	uint16 nQueryPort;
+	uint32 nFlags;
+	uint32 rTime32LastPlayedOnServer;
+	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
+	{
+		return utils::CreateString(utils::ToIPString(nIP));
+	}
+	return NULL_STRING;
+}
+
+int GetFavoriteGameConnectionPort(int index)
+{
+	AppId_t nAppID;
+	uint32 nIP;
+	uint16 nConnPort;
+	uint16 nQueryPort;
+	uint32 nFlags;
+	uint32 rTime32LastPlayedOnServer;
+	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
+	{
+		return nConnPort;
+	}
+	return 0;
+}
+
+int GetFavoriteGameQueryPort(int index)
+{
+	AppId_t nAppID;
+	uint32 nIP;
+	uint16 nConnPort;
+	uint16 nQueryPort;
+	uint32 nFlags;
+	uint32 rTime32LastPlayedOnServer;
+	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
+	{
+		return nQueryPort;
+	}
+	return 0;
+}
+
+int GetFavoriteGameFlags(int index)
+{
+	AppId_t nAppID;
+	uint32 nIP;
+	uint16 nConnPort;
+	uint16 nQueryPort;
+	uint32 nFlags;
+	uint32 rTime32LastPlayedOnServer;
+	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
+	{
+		return nFlags;
+	}
+	return 0;
+}
+
+int GetFavoriteGameUnixTimeLastPlayedOnServer(int index)
+{
+	AppId_t nAppID;
+	uint32 nIP;
+	uint16 nConnPort;
+	uint16 nQueryPort;
+	uint32 nFlags;
+	uint32 rTime32LastPlayedOnServer;
+	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
+	{
+		return nFlags;
+	}
+	return 0;
 }
 
 int GetFavoriteGameCount()
@@ -1563,18 +1640,40 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 	return utils::CreateString(json);
 }
 
-//GetLobbyGameServer
-char *GetLobbyGameServerJSON(int hLobbySteamID)
+char *GetLobbyGameServerIP(int hLobbySteamID)
 {
-	if (IsSteamInitialized())
+	uint32 nIP;
+	uint16 nPort;
+	CSteamID ulSteamID;
+	if (SteamMatchmaking()->GetLobbyGameServer(SteamHandles()->GetSteamHandle(hLobbySteamID), &nIP, &nPort, &ulSteamID))
 	{
-		plugin::LobbyGameServer_t server;
-		if (SteamMatchmaking()->GetLobbyGameServer(SteamHandles()->GetSteamHandle(hLobbySteamID), &server.m_unGameServerIP, &server.m_unGameServerPort, &server.m_ulSteamIDGameServer))
-		{
-			//return utils::CreateString(ToJSON(server));
-		}
+		return utils::CreateString(utils::ToIPString(nIP));
 	}
-	return utils::CreateString("{}");
+	return NULL_STRING;
+}
+
+int GetLobbyGameServerPort(int hLobbySteamID)
+{
+	uint32 nIP;
+	uint16 nPort;
+	CSteamID ulSteamID;
+	if (SteamMatchmaking()->GetLobbyGameServer(SteamHandles()->GetSteamHandle(hLobbySteamID), &nIP, &nPort, &ulSteamID))
+	{
+		return nPort;
+	}
+	return 0;
+}
+
+int GetLobbyGameServerSteamID(int hLobbySteamID)
+{
+	uint32 nIP;
+	uint16 nPort;
+	CSteamID ulSteamID;
+	if (SteamMatchmaking()->GetLobbyGameServer(SteamHandles()->GetSteamHandle(hLobbySteamID), &nIP, &nPort, &ulSteamID))
+	{
+		return SteamHandles()->GetPluginHandle(ulSteamID);
+	}
+	return 0;
 }
 
 int GetLobbyMemberByIndex(int hLobbySteamID, int index)
@@ -1739,7 +1838,6 @@ int HasLobbyChatMessageResponse()
 	return Callbacks()->HasLobbyChatMessageResponse();
 }
 
-// TODO JSON
 int GetLobbyChatMessageUser()
 {
 	CheckInitialized(0);
@@ -1788,11 +1886,19 @@ int HasLobbyDataUpdateResponse()
 	return Callbacks()->HasLobbyDataUpdateResponse();
 }
 
-char *GetLobbyDataUpdateResponseJSON()
+int GetLobbyDataUpdateLobby()
 {
-	CheckInitialized(NULL_STRING);
-	//return utils::CreateString(ToJSON(Callbacks()->GetLobbyDataUpdate()));
-	return utils::CreateString("{}");
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyDataUpdate().m_ulSteamIDLobby);
+}
+
+int GetLobbyDataUpdateMember()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyDataUpdate().m_ulSteamIDMember);
+}
+
+int GetLobbyDataUpdateSuccess()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyDataUpdate().m_bSuccess);
 }
 
 int HasLobbyEnterResponse()
@@ -1801,38 +1907,59 @@ int HasLobbyEnterResponse()
 	return Callbacks()->HasLobbyEnterResponse();
 }
 
-char *GetLobbyEnterResponseJSON()
+int GetLobbyEnterChatPermissions()
 {
-	CheckInitialized(NULL_STRING);
-	// Must be the same as in CLobbyEnterCallResult.
-	return utils::CreateString("{}"); // ToJSON(Callbacks()->GetLobbyEnter()));
+	return Callbacks()->GetLobbyEnter().m_rgfChatPermissions;
+}
+
+int GetLobbyEnterChatRoomEnterResponse()
+{
+	return Callbacks()->GetLobbyEnter().m_EChatRoomEnterResponse;
+}
+
+int GetLobbyEnterLobby()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyEnter().m_ulSteamIDLobby);
+}
+
+int GetLobbyEnterLocked()
+{
+	return Callbacks()->GetLobbyEnter().m_bLocked;
 }
 
 int HasGameLobbyJoinRequestedResponse()
 {
-	CheckInitialized(0);
 	return Callbacks()->HasGameLobbyJoinRequestedResponse();
 }
 
 int GetGameLobbyJoinRequestedLobby()
 {
-	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(Callbacks()->GetGameLobbyJoinRequested().m_steamIDLobby);
 }
 
 int HasLobbyGameCreatedResponse()
 {
-	CheckInitialized(false);
 	return Callbacks()->HasLobbyGameCreatedResponse();
 }
 
-char *GetLobbyGameCreatedJSON()
+int GetLobbyGameCreatedGameServer()
 {
-	if (IsSteamInitialized())
-	{
-		//return utils::CreateString(ToJSON(Callbacks()->GetLobbyGameCreated()));
-	}
-	return utils::CreateString("{}");
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyGameCreated().m_ulSteamIDGameServer);
+}
+
+int GetLobbyGameCreatedLobby()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyGameCreated().m_ulSteamIDLobby);
+}
+
+char *GetLobbyGameCreatedIP()
+{
+	return utils::CreateString(utils::ToIPString(Callbacks()->GetLobbyGameCreated().m_unIP));
+}
+
+int GetLobbyGameCreatedPort()
+{
+	return Callbacks()->GetLobbyGameCreated().m_usPort;
 }
 #pragma endregion
 
@@ -2142,24 +2269,6 @@ int GetCloudQuotaTotal()
 		return (int)pnTotalBytes;
 	}
 	return 0;
-}
-
-char *GetCloudQuotaJSON()
-{
-	std::ostringstream json;
-	json << "{";
-	if (IsSteamInitialized())
-	{
-		uint64 pnTotalBytes;
-		uint64 puAvailableBytes;
-		if (SteamRemoteStorage()->GetQuota(&pnTotalBytes, &puAvailableBytes))
-		{
-			json << "\"Available\": " << puAvailableBytes << ", ";
-			json << "\"Total\": " << pnTotalBytes;
-		}
-	}
-	json << "}";
-	return utils::CreateString(json);
 }
 
 int GetCloudFileSyncPlatforms(const char *filename)

@@ -239,7 +239,6 @@ Function ProcessCallbacks()
 		result = Steam.GetCallResultCode(server.lobbyListCallResult)
 		if result
 			AddStatus("RequestLobbyList call result code: " + str(result))
-			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.lobbyListCallResult))
 			if result = EResultOk
 				server.lobbies.fromjson(Steam.GetCallResultJSON(server.lobbyListCallResult))
 				for x = 0 to server.lobbies.length
@@ -250,7 +249,7 @@ Function ProcessCallbacks()
 				next
 				HighlightLobbyIndex()
 			else
-				AddStatus("Error getting lobby match list: " + str(result))
+				AddStatus("Error getting lobby match list.")
 			endif
 			// Done with the call result.  Delete it.
 			Steam.DeleteCallResult(server.lobbyListCallResult)
@@ -262,12 +261,11 @@ Function ProcessCallbacks()
 		result = Steam.GetCallResultCode(server.createLobbyCallResult)
 		if result
 			AddStatus("CreateLobby call result code: " + str(result))
-			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.createLobbyCallResult))
 			if result = EResultOk
-				//~ createdLobby.fromjson(Steam.GetCallResultJSON(server.createLobbyCallResult))
+				createdLobby.fromjson(Steam.GetCallResultJSON(server.createLobbyCallResult))
 				AddStatus("Lobby created.  Handle: " + str(createdLobby.SteamIDLobby))
 			else
-				AddStatus("Error creating lobby: " + str(result))
+				AddStatus("Error creating lobby.")
 			endif
 			// Done with the call result.  Delete it.
 			Steam.DeleteCallResult(server.createLobbyCallResult)
@@ -281,12 +279,11 @@ Function ProcessCallbacks()
 		result = Steam.GetCallResultCode(server.joinLobbyCallResult)
 		if result
 			AddStatus("JoinLobby call result code: " + str(result))
-			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.joinLobbyCallResult))
 			if result = EResultOk
-				//~ joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
+				joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
 				AddStatus("Lobby joined.  Handle: " + str(joinedLobby.SteamIDLobby))
 			else
-				AddStatus("Error joining lobby: " + str(result))
+				AddStatus("Error joining lobby.")
 			endif
 			// Done with the call result.  Delete it.
 			Steam.DeleteCallResult(server.joinLobbyCallResult)
@@ -296,9 +293,9 @@ Function ProcessCallbacks()
 	// Check the general JoinLobby callback.
 	while Steam.HasLobbyEnterResponse()
 		joinedLobby.fromjson(Steam.GetLobbyEnterResponseJSON())
-		if joinedLobby.ChatRoomEnterResponse = EChatRoomEnterResponseSuccess
+		if Steam.GetLobbyEnterResponseChatRoomEnterResponse() = EChatRoomEnterResponseSuccess
 			// Store the joined lobby handle.
-			server.hLobby = joinedLobby.SteamIDLobby
+			server.hLobby = Steam.GetLobbyEnterLobby()
 			AddStatus("Joined lobby. Handle: " + str(server.hLobby))
 			SetChatRoomVisible(1)
 			RefreshMemberList()
@@ -306,21 +303,22 @@ Function ProcessCallbacks()
 			if server.isLobbyOwner
 				Steam.SetLobbyData(server.hLobby, "name", "agk")
 			endif
-			AddStatus("GameServer: " + Steam.GetLobbyGameServerJSON(server.hLobby))
+			AddStatus("GameServer: IP = " + Steam.GetLobbyGameServerIP(server.hLobby) + ", Port = " + str(Steam.GetLobbyGameServerPort(server.hLobby)) + ", SteamID = " + str(Steam.GetLobbyGameServerSteamID(server.hLobby)))
 		else
-			AddStatus("Failed to join lobby.  Response = " + str(joinedLobby.ChatRoomEnterResponse))
+			AddStatus("Failed to join lobby.  Response = " + str(Steam.GetLobbyEnterResponseChatRoomEnterResponse()))
 		endif
 	endwhile
-	lobbyDataUpdate as LobbyDataUpdate_t
+	hMember as integer
 	while Steam.HasLobbyDataUpdateResponse()
-		lobbyDataUpdate.fromjson(Steam.GetLobbyDataUpdateResponseJSON())
-		AddStatus("Lobby data updated.  JSON: " + Steam.GetLobbyDataUpdateResponseJSON())
+		AddStatus("Lobby data updated.")
 		// When hMember matches hLobby, the lobby data updated,
 		//   otherwise hMember is a member and that member's data updated.
-		if lobbyDataUpdate.SteamIDLobby = lobbyDataUpdate.SteamIDMember
-			AddStatus("Lobby data: " + Steam.GetLobbyDataJson(server.hLobby))
+		hLobby = Steam.GetLobbyDataUpdateLobby()
+		hMember = Steam.GetLobbyDataUpdateMember()
+		if lobby = hMember
+			AddStatus("Lobby data: " + Steam.GetLobbyDataJson(hLobby))
 		else
-			AddStatus("Member " + Steam.GetFriendPersonaName(lobbyDataUpdate.SteamIDMember) + " member_data: '" + Steam.GetLobbyMemberData(lobbyDataUpdate.SteamIDLobby, lobbyDataUpdate.SteamIDMember, "member_data") + "'")
+			AddStatus("Member " + Steam.GetFriendPersonaName(hMember) + " member_data: '" + Steam.GetLobbyMemberData(hLobby, hMember, "member_data") + "'")
 		endif
 	endwhile
 	// Show any new chat messages.
@@ -356,7 +354,7 @@ Function ProcessCallbacks()
 		RefreshMemberList()
 	endwhile
 	// Process game server creation.
-	if Steam.HasLobbyGameCreated()
+	if Steam.HasLobbyGameCreatedResponse()
 		gameserver.fromJSON(Steam.GetLobbyGameCreatedJSON())
 		AddStatus("Game server created: " + Steam.GetLobbyGameCreatedJSON())
 		if gameserver.IP <> "0.0.0.0"
@@ -364,7 +362,7 @@ Function ProcessCallbacks()
 		endif
 	endif
 	// Process lobby invitations
-	if Steam.HasGameLobbyJoinRequest()
+	if Steam.HasGameLobbyJoinRequestedResponse()
 		server.lobbyIndex = -1
 		hLobby = Steam.GetGameLobbyJoinRequestedLobby()
 		AddStatus("Received invitation to join lobby " + str(hLobby))

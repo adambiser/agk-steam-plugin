@@ -30,7 +30,7 @@ global cloudFiles as CloudFileInfo_t[]
 AddStatus(Steam.GetSteamID3(Steam.GetSteamID()))
 AddStatus("Cloud enabled for app: " + TF(Steam.IsCloudEnabledForApp()))
 AddStatus("Cloud enabled for account: " + TF(Steam.IsCloudEnabledForAccount()))
-AddStatus("Quota: " + Steam.GetCloudQuotaJSON())
+AddStatus("Quota: Available: " + str(Steam.GetCloudQuotaAvailable()) + ", Total: " + str(Steam.GetCloudQuotaTotal()))
 AddStatus("Files in cloud: " + str(Steam.GetCloudFileCount()))
 AddStatus("File 0 = " + Steam.GetCloudFileName(0))
 AddStatus(TEST_FILE_NAME + " exists: " + TF(Steam.CloudFileExists(TEST_FILE_NAME)))
@@ -177,27 +177,26 @@ global errorReported as integer[1]
 Function ProcessCallbacks()
 	index as integer
 	filename as string
+	result as integer
 	for index = asyncWriteCallResults.length to 0 step -1
-		select Steam.GetCallResultState(asyncWriteCallResults[index])
-			case STATE_DONE
+		result = Steam.GetCallResultCode(asyncWriteCallResults[index])
+		if result
+			if result = EResultOK
 				filename = Steam.GetCloudFileWriteAsyncFileName(asyncWriteCallResults[index])
 				AddStatus("Finished async write for " + filename)
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncWriteCallResults[index])
-				asyncWriteCallResults.remove(index)
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			else
 				filename = Steam.GetCloudFileWriteAsyncFileName(asyncWriteCallResults[index])
-				AddStatus("ERROR: FileWriteAsync: " + filename)
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncWriteCallResults[index])
-				asyncWriteCallResults.remove(index)
-			endcase
-		endselect
+				AddStatus("ERROR: FileWriteAsync: " + filename + ", result = " + str(result))
+			endif
+			// We're done with the CallResult.  Delete it.
+			Steam.DeleteCallResult(asyncWriteCallResults[index])
+			asyncWriteCallResults.remove(index)
+		endif
 	next
 	for index = asyncReadCallResults.length to 0 step -1
-		select Steam.GetCallResultState(asyncReadCallResults[index])
-			case STATE_DONE
+		result = Steam.GetCallResultCode(asyncReadCallResults[index])
+		if result
+			if result = EResultOK
 				filename = Steam.GetCloudFileReadAsyncFileName(asyncReadCallResults[index])
 				AddStatus("Finished async read for " + filename)
 				memblock as integer
@@ -208,18 +207,14 @@ Function ProcessCallbacks()
 				else
 					AddStatus("File does not exist!") 
 				endif
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncReadCallResults[index])
-				asyncReadCallResults.remove(index)
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			else
 				filename = Steam.GetCloudFileReadAsyncFileName(asyncReadCallResults[index])
 				AddStatus("ERROR: FileReadAsync: " + filename)
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncReadCallResults[index])
-				asyncReadCallResults.remove(index)
-			endcase
-		endselect
+			endif
+			// We're done with the CallResult.  Delete it.
+			Steam.DeleteCallResult(asyncReadCallResults[index])
+			asyncReadCallResults.remove(index)
+		endif
 	next
 EndFunction
 
