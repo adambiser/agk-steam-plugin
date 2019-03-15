@@ -68,7 +68,7 @@ EndFunction
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
-	if Steam.HasGamepadTextInputDismissedInfo()
+	if Steam.HasGamepadTextInputDismissedResponse()
 		info as GamepadTextInputDismissed_t
 		info.fromJSON(Steam.GetGamepadTextInputDismissedInfoJSON())
 		if info.Submitted

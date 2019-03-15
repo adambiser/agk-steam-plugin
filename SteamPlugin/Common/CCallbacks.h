@@ -40,10 +40,10 @@ enum EAvatarSize
 };
 
 #define _CALLBACK_LIST_MAIN(func, callback_type, list_type)		\
-	STEAM_CALLBACK_MANUAL(CCallbacks, func, callback_type, m_Callback##func);\
+	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
 public:														\
 	void Enable##func##Callback();							\
-	bool Has##func##();										\
+	bool Has##func##Response();								\
 	list_type Get##func##();								\
 private:													\
 	bool m_b##func##Enabled;								\
@@ -59,9 +59,9 @@ private:													\
 #define CALLBACK_LIST(func, ...)			_CALLBACK_LIST_SELECT( ( __VA_ARGS__, 3, 2 ), ( func, __VA_ARGS__ ) )
 
 #define CALLBACK_BOOL(func, callback_type)		\
-	STEAM_CALLBACK(CCallbacks, func, callback_type);\
+	STEAM_CALLBACK(CCallbacks, On##func, callback_type);\
 public:											\
-	bool Has##func##();							\
+	bool Has##func##Response();					\
 private:										\
 	bool m_b##func
 
@@ -74,11 +74,11 @@ public:
 	void ResetSessionVariables();
 #pragma region ISteamApps
 private:
-	CALLBACK_LIST(OnDlcInstalled, DlcInstalled_t);	// InstallDLC
+	CALLBACK_LIST(DlcInstalled, DlcInstalled_t);	// InstallDLC
 	//CALLBACK_LIST(CCallbacks, OnFileDetailsResult, FileDetailsResult_t, m_CallbackFileDetailsResult);	// GetFileDetails
-	CALLBACK_BOOL(OnNewUrlLaunchParameters, NewUrlLaunchParameters_t);
+	CALLBACK_BOOL(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 	// Removed SDK v1.43
-	//CALLBACK_BOOL(OnNewLaunchQueryParameters, NewLaunchQueryParameters_t);
+	//CALLBACK_BOOL(NewLaunchQueryParameters, NewLaunchQueryParameters_t);
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -95,7 +95,7 @@ private:
 
 #pragma region ISteamFriends
 private:
-	CALLBACK_LIST(OnAvatarImageLoaded, AvatarImageLoaded_t, CSteamID); // GetFriendAvatar
+	CALLBACK_LIST(AvatarImageLoaded, AvatarImageLoaded_t, CSteamID); // GetFriendAvatar
 	// ClanOfficerListResponse_t - RequestClanOfficerList
 	// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
 	// FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
@@ -106,13 +106,13 @@ private:
 	// GameConnectedChatLeave_t - LeaveClanChatRoom
 	// GameConnectedClanChatMsg_t - JoinClanChatRoom
 	// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
-	CALLBACK_LIST(OnGameLobbyJoinRequested, GameLobbyJoinRequested_t);
+	CALLBACK_LIST(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t);// , m_CallbackGameOverlayActivated);
 	bool m_IsGameOverlayActive;
 	// GameRichPresenceJoinRequested_t - InviteUserToGame
 	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
 	// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
-	CALLBACK_LIST(OnPersonaStateChange, PersonaStateChange_t); // RequestUserInformation
+	CALLBACK_LIST(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
 public:
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
@@ -145,12 +145,12 @@ public:
 #pragma region ISteamMatchmaking
 private:
 	// FavoritesListChanged_t - fires when server favorites list changes.
-	CALLBACK_LIST(OnLobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
-	CALLBACK_LIST(OnLobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
+	CALLBACK_LIST(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
+	CALLBACK_LIST(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 	// LobbyCreated_t - Call result
-	CALLBACK_LIST(OnLobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
-	CALLBACK_LIST(OnLobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
-	CALLBACK_LIST(OnLobbyGameCreated, LobbyGameCreated_t); // While in a lobby
+	CALLBACK_LIST(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
+	CALLBACK_LIST(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
+	CALLBACK_LIST(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
 	// LobbyInvite_t - when invited by someone.
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
@@ -162,8 +162,8 @@ private:
 
 #pragma region ISteamMusic
 private:
-	CALLBACK_BOOL(OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-	CALLBACK_BOOL(OnVolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
+	CALLBACK_BOOL(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+	CALLBACK_BOOL(VolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -253,10 +253,10 @@ private:
 	//PS3TrophiesInstalled_t - ignore
 	STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t);// , m_CallbackUserAchievementIconFetched);
 	std::map<std::string, int> m_AchievementIconsMap;
-	CALLBACK_LIST(OnUserAchievementStored, UserAchievementStored_t);
-	CALLBACK_LIST(OnUserStatsReceived, UserStatsReceived_t);
+	CALLBACK_LIST(UserAchievementStored, UserAchievementStored_t);
+	CALLBACK_LIST(UserStatsReceived, UserStatsReceived_t);
 	bool m_StatsInitialized;
-	CALLBACK_LIST(OnUserStatsStored, UserStatsStored_t);
+	CALLBACK_LIST(UserStatsStored, UserStatsStored_t);
 	//UserStatsUnloaded_t - RequestUserStats again
 public:
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
@@ -267,12 +267,12 @@ public:
 #pragma region ISteamUtils
 private:
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
-	CALLBACK_LIST(OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, plugin::GamepadTextInputDismissed_t);
-	CALLBACK_BOOL(OnIPCountryChanged, IPCountry_t);
-	CALLBACK_BOOL(OnLowBatteryPower, LowBatteryPower_t);
+	CALLBACK_LIST(GamepadTextInputDismissed, GamepadTextInputDismissed_t, plugin::GamepadTextInputDismissed_t);
+	CALLBACK_BOOL(IPCountryChanged, IPCountry_t);
+	CALLBACK_BOOL(LowBatteryPower, LowBatteryPower_t);
 	uint8 m_nMinutesBatteryLeft;
 	//SteamAPICallCompleted_t - not needed
-	CALLBACK_BOOL(OnSteamShutdown, SteamShutdown_t);
+	CALLBACK_BOOL(SteamShutdown, SteamShutdown_t);
 public:
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
 #pragma endregion

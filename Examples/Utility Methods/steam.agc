@@ -69,10 +69,10 @@ EndFunction
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
-	if Steam.HasIPCountryChanged()
+	if Steam.HasIPCountryChangedResponse()
 		AddStatus("IP Country Changed: " + Steam.GetIPCountry())
 	endif
-	if Steam.HasLowBatteryWarning()
+	if Steam.HasLowBatteryWarningResponse()
 		AddStatus("Low battery warning!  " + str(Steam.GetMinutesBatteryLeft()) + " minute(s) remaining.")
 	endif
 	if Steam.IsSteamShuttingDown()

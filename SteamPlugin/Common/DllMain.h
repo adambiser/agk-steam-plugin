@@ -111,7 +111,7 @@ extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult);
 /*
 @desc
 Initializes the Steam API.  This method should be called before attempting to do anything else with this plugin.
-This also calls RequestStats() internally so calling code does not need to do so. The result of the RequestStats call has no effect on the return value.
+This also calls RequestCurrentStats() internally so calling code does not need to do so. The result of the RequestCurrentStats call has no effect on the return value.
 @return 1 when Steam API initialization succeeds; otherwise 0.
 @api steam_api#SteamAPI_Init
 */
@@ -342,7 +342,7 @@ extern "C" DLL_EXPORT char *GetLaunchCommandLine();
 extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key);
 
 /*
-@desc HasOnDLCInstalled will report true when a DLC has finished installing.
+@desc HasDLCInstalled will report true when a DLC has finished installing.
 @param appID The App ID of the DLC you want to install.
 @api ISteamApps#InstallDLC
 */
@@ -372,16 +372,16 @@ extern "C" DLL_EXPORT void UninstallDLC(int appID);
 @return 1 when a DLC has finished installing; otherwise 0.
 @api ISteamApps#DlcInstalled_t
 */
-extern "C" DLL_EXPORT int HasOnDLCInstalled();
+extern "C" DLL_EXPORT int HasDLCInstalledResponse();
 
 /*
 @desc Gets the App ID of the newly installed DLC.
 
-_HasOnDLCInstalled must be called prior to this method._
+_HasDLCInstalled must be called prior to this method._
 @return An App ID.
 @api ISteamApps#DlcInstalled_t
 */
-extern "C" DLL_EXPORT int GetOnDLCInstalled();
+extern "C" DLL_EXPORT int GetDLCInstalledAppID();
 
 /*
 @desc Posted after the user executes a steam url with query parameters while running.
@@ -389,7 +389,7 @@ Once a post has been reported, this method returns 0 until another post arrives.
 @return 1 when the user executes a steam url with query parameters while running; otherwise 0.
 @api ISteamApps#NewLaunchQueryParameters_t
 */
-extern "C" DLL_EXPORT int HasOnNewUrlLaunchParameters();
+extern "C" DLL_EXPORT int HasNewUrlLaunchParametersResponse();
 #pragma endregion
 
 #pragma region ISteamAppsList
@@ -1185,7 +1185,7 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hUserSteamID, int requireNa
 @return 1 when there is data stored; otherwise 0.
 @api ISteamFriends#AvatarImageLoaded_t
 */
-extern "C" DLL_EXPORT int HasOnAvatarImageLoaded();
+extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse();
 
 /*
 @desc Returns a handle for m_steamID stored from the AvatarImageLoaded_t callback.
@@ -1195,7 +1195,7 @@ _HasAvatarImageLoaded must be called prior to this method._
 @return The SteamID handle of the user whose avatar loaded.
 @api ISteamFriends#AvatarImageLoaded_t
 */
-extern "C" DLL_EXPORT int GetOnAvatarImageLoadedUser();
+extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 
 //ClanOfficerListResponse_t
 //DownloadClanActivityCountsResult_t
@@ -1225,7 +1225,7 @@ extern "C" DLL_EXPORT int IsGameOverlayActive();
 @return 1 when there is data stored; otherwise 0.
 @api ISteamFriends#PersonaStateChange_t
 */
-extern "C" DLL_EXPORT int HasOnPersonaStateChange();
+extern "C" DLL_EXPORT int HasPersonaStateChangeResponse();
 
 /*
 @desc Returns a JSON object for the PersonaStateChange_t callback data.
@@ -1235,8 +1235,8 @@ _HasPersonaStateChanged must be called prior to this method._
 @api ISteamFriends#PersonaStateChange_t
 */
 //extern "C" DLL_EXPORT char *GetPersonaStateChangeJSON();
-extern "C" DLL_EXPORT int GetOnPersonaStateChangeFlags();
-extern "C" DLL_EXPORT int GetOnPersonaStateChangeSteamID();
+extern "C" DLL_EXPORT int GetPersonaStateChangeFlags();
+extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID();
 
 //SetPersonaNameResponse_t
 #pragma endregion
@@ -1614,7 +1614,7 @@ Indicates whether the LobbyChatMsg_t callback has stored data.
 @return 1 when there is data stored; otherwise 0.
 @api ISteamMatchmaking#LobbyChatMsg_t
 */
-extern "C" DLL_EXPORT int HasLobbyChatMessage();
+extern "C" DLL_EXPORT int HasLobbyChatMessageResponse();
 
 /*
 @desc Gets the Steam ID handle of the user who sent this message.
@@ -1640,7 +1640,7 @@ A lobby chat room state has changed, this is usually sent when a user has joined
 @return 1 when there is data stored; otherwise 0.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
-extern "C" DLL_EXPORT int HasLobbyChatUpdate();
+extern "C" DLL_EXPORT int HasLobbyChatUpdateResponse();
 
 /*
 @desc The lobby in which the chat update occured.
@@ -1711,7 +1711,7 @@ extern "C" DLL_EXPORT char *GetLobbyEnterResponseJSON();
 @return 1 when the user has accepted a request to join a game lobby; otherwise 0.
 @api ISteamFriends#GameLobbyJoinRequested_t
 */
-extern "C" DLL_EXPORT int HasGameLobbyJoinRequest();
+extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse();
 
 /*
 @desc Gets the lobby Steam ID handle to which the user was invited.
@@ -1724,7 +1724,7 @@ extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby();
 @return 1 when a lobby game was created; otherwise 0.
 @api ISteamMatchmaking#LobbyGameCreated_t
 */
-extern "C" DLL_EXPORT int HasLobbyGameCreated();
+extern "C" DLL_EXPORT int HasLobbyGameCreatedResponse();
 
 /*
 @desc Returns a JSON description of the newly-created lobby game.
@@ -1814,14 +1814,14 @@ extern "C" DLL_EXPORT void SetMusicVolume(float volume);
 @return 1 when a change has occurred; otherwise 0.
 @api ISteamMusic#PlaybackStatusHasChanged_t
 */
-extern "C" DLL_EXPORT int HasMusicPlaybackStatusChanged();
+extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse();
 
 /*
 @desc Notifies the caller that the music volume has changed since the last call.
 @return 1 when a change has occurred; otherwise 0.
 @api ISteamMusic#VolumeHasChanged_t
 */
-extern "C" DLL_EXPORT int HasMusicVolumeChanged();
+extern "C" DLL_EXPORT int HasMusicVolumeChangedResponse();
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -2489,7 +2489,7 @@ _This command is called within Init so AGK code will likely never need to call t
 @return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
 @api ISteamUserStats#RequestUserStats
 */
-extern "C" DLL_EXPORT int RequestStats();
+extern "C" DLL_EXPORT int RequestCurrentStats();
 
 //RequestGlobalAchievementPercentages
 //RequestGlobalStats
@@ -2588,15 +2588,15 @@ extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, in
 StatsStored will also indicate success when this happens.
 @return 1 when achievements have been stored online; otherwise 0.
 */
-extern "C" DLL_EXPORT int HasOnUserAchievementStored();
+extern "C" DLL_EXPORT int HasUserAchievementStoredResponse();
 
-extern "C" DLL_EXPORT int HasOnUserStatsReceived();
-extern "C" DLL_EXPORT int GetOnUserStatsReceivedGameID();
-extern "C" DLL_EXPORT int GetOnUserStatsReceivedResult();
-extern "C" DLL_EXPORT int GetOnUserStatsReceivedUser();
+extern "C" DLL_EXPORT int HasUserStatsReceivedResponse();
+extern "C" DLL_EXPORT int GetUserStatsReceivedGameAppID();
+extern "C" DLL_EXPORT int GetUserStatsReceivedResult();
+extern "C" DLL_EXPORT int GetUserStatsReceivedUser();
 
 /*
-@desc Checks to see whether user stats have been initialized after a RequestStats call.
+@desc Checks to see whether user stats have been initialized after a RequestCurrentStats call.
 @return 1 when users stats are initialized; otherwise 0.
 */
 extern "C" DLL_EXPORT int StatsInitialized();
@@ -2605,7 +2605,7 @@ extern "C" DLL_EXPORT int StatsInitialized();
 @desc Checks to see whether user stats have been stored online.
 @return 1 when users stats have been stored online; otherwise 0.
 */
-extern "C" DLL_EXPORT int HasOnUserStatsStored();
+extern "C" DLL_EXPORT int HasUserStatsStoredResponse();
 #pragma endregion
 
 #pragma region ISteamUtils
@@ -2797,7 +2797,7 @@ extern "C" DLL_EXPORT void StartVRDashboard();
 @return 1 when the big picture gamepad text input has closed; otherwise 0.
 @api ISteamUtils#GamepadTextInputDismissed_t
 */
-extern "C" DLL_EXPORT int HasGamepadTextInputDismissedInfo();
+extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse();
 
 /*
 @desc Gets the result of big picture gamepad text input.
@@ -2819,7 +2819,7 @@ extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
 @return 1 when the country has changed; otherwise 0.
 @api ISteamUtils#IPCountry_t
 */
-extern "C" DLL_EXPORT int HasIPCountryChanged();
+extern "C" DLL_EXPORT int HasIPCountryChangedResponse();
 
 /*
 @desc Tests when running on a laptop and there is less than 10 minutes of battery.  Fires every minute afterwards.
@@ -2827,7 +2827,7 @@ This method returns 1 once per warning.  It is not reported as an on going effec
 @return 1 when there is a low battery warning; otherwise 0.
 @api ISteamUtils#LowBatteryPower_t
 */
-extern "C" DLL_EXPORT int HasLowBatteryWarning();
+extern "C" DLL_EXPORT int HasLowBatteryWarningResponse();
 
 /*
 @desc HasLowBatteryWarning should be checked before calling this method.

@@ -324,11 +324,11 @@ Function ProcessCallbacks()
 		endif
 	endwhile
 	// Show any new chat messages.
-	while Steam.HasLobbyChatMessage()
+	while Steam.HasLobbyChatMessageResponse()
 		AddChatLine(CHAT_COLOR, Steam.GetFriendPersonaName(Steam.GetLobbyChatMessageUser()) + ": " + Steam.GetLobbyChatMessageText())
 	endwhile
 	// Process any new lobby updates.
-	while Steam.HasLobbyChatUpdate()
+	while Steam.HasLobbyChatUpdateResponse()
 		text as string
 		text = Steam.GetFriendPersonaName(Steam.GetLobbyChatUpdateUserChanged())
 		select Steam.GetLobbyChatUpdateUserState()

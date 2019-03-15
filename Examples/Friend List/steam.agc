@@ -96,9 +96,9 @@ Function ProcessCallbacks()
 	hSteamID as integer
 	flags as integer
 	index as integer
-	while Steam.HasOnPersonaStateChange()
-		hSteamID = Steam.GetOnPersonaStateChangeSteamID()
-		flags = Steam.GetOnPersonaStateChangeFlags()
+	while Steam.HasPersonaStateChangeResponse()
+		hSteamID = Steam.GetPersonaStateChangeSteamID()
+		flags = Steam.GetPersonaStateChangeFlags()
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
 		index = GetFriendSteamIDIndex(hSteamID)
 		if index >= 0
@@ -113,8 +113,8 @@ Function ProcessCallbacks()
 			AddStatus(server.groupFriends[newIndex].name + " moved from index " + str(index) + " to index " + str(newIndex))
 		endif
 	endwhile
-	while Steam.HasOnAvatarImageLoaded()
-		hSteamID = Steam.GetOnAvatarImageLoadedUser()
+	while Steam.HasAvatarImageLoadedResponse()
+		hSteamID = Steam.GetAvatarImageLoadedUser()
 		AddStatus("Avatar loaded for " + Steam.GetFriendPersonaName(hSteamID))
 		// Load the new avatar.
 		index = GetFriendSteamIDIndex(hSteamID)

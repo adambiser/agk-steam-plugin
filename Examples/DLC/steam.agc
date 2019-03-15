@@ -136,7 +136,7 @@ EndFunction
 //
 Function ProcessCallbacks()
 	x as integer
-	If Steam.HasOnNewUrlLaunchParameters() // Reports when a steam://run/ command is called while running.
+	If Steam.HasNewUrlLaunchParametersResponse() // Reports when a steam://run/ command is called while running.
 		AddStatus("HasNewLaunchQueryParameters.  param1 = " + Steam.GetLaunchQueryParam("param1"))
 		AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
 	endif
@@ -149,9 +149,9 @@ Function ProcessCallbacks()
 		//~ endif
 	//~ next
 	// Check for newly installed DLCs.
-	while Steam.HasOnDLCInstalled()
+	while Steam.HasDLCInstalledResponse()
 		appID as integer
-		appID = Steam.GetOnDLCInstalled()
+		appID = Steam.GetDLCInstalledAppID()
 		AddStatus("DLC " + str(appID) + " has finished downloading.")
 		UpdateProgressBar(dlcDownloadBar, 0, 0, "Done")
 		for x = 0 to dlcsToDownload.length

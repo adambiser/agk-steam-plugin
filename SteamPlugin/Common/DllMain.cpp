@@ -350,7 +350,7 @@ int Init()
 	{
 		g_AppID = SteamUtils()->GetAppID();
 		utils::Log("AppID: " + std::to_string(g_AppID));
-		RequestStats();
+		RequestCurrentStats();
 		return true;
 	}
 	agk::Log("Failed to initialize Steam API.");
@@ -605,10 +605,10 @@ char *GetLaunchQueryParam(const char *key)
 	return utils::CreateString(SteamApps()->GetLaunchQueryParam(key));
 }
 
-void InstallDLC(int appID) // Check HasOnDLCInstalled, GetOnDLCInstalled
+void InstallDLC(int appID) // Check HasDLCInstalled, GetDLCInstalled
 {
 	CheckInitialized(NORETURN);
-	Callbacks()->EnableOnDlcInstalledCallback();
+	Callbacks()->EnableDlcInstalledCallback();
 	SteamApps()->InstallDLC(appID);
 }
 
@@ -628,22 +628,22 @@ void UninstallDLC(int appID)
 }
 
 // Callbacks
-int HasOnDLCInstalled()
+int HasDLCInstalledResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnDlcInstalled();
+	return Callbacks()->HasDlcInstalledResponse();
 }
 
-int GetOnDLCInstalled()
+int GetDLCInstalledAppID()
 {
 	CheckInitialized(0);
-	return Callbacks()->GetOnDlcInstalled().m_nAppID;
+	return Callbacks()->GetDlcInstalled().m_nAppID;
 }
 
-int HasOnNewUrlLaunchParameters()
+int HasNewUrlLaunchParametersResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnNewUrlLaunchParameters();
+	return Callbacks()->HasNewUrlLaunchParametersResponse();
 }
 #pragma endregion
 
@@ -1272,7 +1272,7 @@ int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitialized(0);
 	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
-	Callbacks()->EnableOnAvatarImageLoadedCallback();
+	Callbacks()->EnableAvatarImageLoadedCallback();
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
 	switch ((EAvatarSize)size)
@@ -1343,16 +1343,16 @@ int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 //SetRichPresence
 
 //Callbacks
-int HasOnAvatarImageLoaded()
+int HasAvatarImageLoadedResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnAvatarImageLoaded();
+	return Callbacks()->HasAvatarImageLoadedResponse();
 }
 
-int GetOnAvatarImageLoadedUser()
+int GetAvatarImageLoadedUser()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnAvatarImageLoaded());
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetAvatarImageLoaded());
 }
 
 //ClanOfficerListResponse_t
@@ -1377,22 +1377,22 @@ int IsGameOverlayActive()
 //GameServerChangeRequested_t
 //JoinClanChatRoomCompletionResult_t
 
-int HasOnPersonaStateChange()
+int HasPersonaStateChangeResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnPersonaStateChange();
+	return Callbacks()->HasPersonaStateChangeResponse();
 }
 
-int GetOnPersonaStateChangeFlags()
+int GetPersonaStateChangeFlags()
 {
 	CheckInitialized(0);
-	return Callbacks()->GetOnPersonaStateChange().m_nChangeFlags;
+	return Callbacks()->GetPersonaStateChange().m_nChangeFlags;
 }
 
-int GetOnPersonaStateChangeSteamID()
+int GetPersonaStateChangeSteamID()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnPersonaStateChange().m_ulSteamID);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetPersonaStateChange().m_ulSteamID);
 }
 
 //SetPersonaNameResponse_t
@@ -1733,59 +1733,59 @@ int SetLobbyType(int hLobbySteamID, int eLobbyType)
 }
 
 // Callbacks
-int HasLobbyChatMessage()
+int HasLobbyChatMessageResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnLobbyChatMessage();
+	return Callbacks()->HasLobbyChatMessageResponse();
 }
 
 // TODO JSON
 int GetLobbyChatMessageUser()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatMessage().m_ulSteamIDUser);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_ulSteamIDUser);
 }
 
 char *GetLobbyChatMessageText()
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(Callbacks()->GetOnLobbyChatMessage().m_chChatEntry);
+	return utils::CreateString(Callbacks()->GetLobbyChatMessage().m_chChatEntry);
 }
 
-int HasLobbyChatUpdate()
+int HasLobbyChatUpdateResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnLobbyChatUpdate();
+	return Callbacks()->HasLobbyChatUpdateResponse();
 }
 
 int GetLobbyChatUpdateLobby()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatUpdate().m_ulSteamIDLobby);
 }
 
 int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDUserChanged);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatUpdate().m_ulSteamIDUserChanged);
 }
 
 int GetLobbyChatUpdateUserState()
 {
 	CheckInitialized(0);
-	return Callbacks()->GetOnLobbyChatUpdate().m_rgfChatMemberStateChange;
+	return Callbacks()->GetLobbyChatUpdate().m_rgfChatMemberStateChange;
 }
 
 int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnLobbyChatUpdate().m_ulSteamIDMakingChange);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatUpdate().m_ulSteamIDMakingChange);
 }
 
 int HasLobbyDataUpdateResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnLobbyDataUpdate();
+	return Callbacks()->HasLobbyDataUpdateResponse();
 }
 
 char *GetLobbyDataUpdateResponseJSON()
@@ -1798,7 +1798,7 @@ char *GetLobbyDataUpdateResponseJSON()
 int HasLobbyEnterResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnLobbyEnter();
+	return Callbacks()->HasLobbyEnterResponse();
 }
 
 char *GetLobbyEnterResponseJSON()
@@ -1808,22 +1808,22 @@ char *GetLobbyEnterResponseJSON()
 	return utils::CreateString("{}"); // ToJSON(Callbacks()->GetLobbyEnter()));
 }
 
-int HasGameLobbyJoinRequest()
+int HasGameLobbyJoinRequestedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasOnGameLobbyJoinRequested();
+	return Callbacks()->HasGameLobbyJoinRequestedResponse();
 }
 
 int GetGameLobbyJoinRequestedLobby()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnGameLobbyJoinRequested().m_steamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetGameLobbyJoinRequested().m_steamIDLobby);
 }
 
-int HasLobbyGameCreated()
+int HasLobbyGameCreatedResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnLobbyGameCreated();
+	return Callbacks()->HasLobbyGameCreatedResponse();
 }
 
 char *GetLobbyGameCreatedJSON()
@@ -1896,16 +1896,16 @@ void SetMusicVolume(float volume)
 }
 
 //Callbacks
-int HasMusicPlaybackStatusChanged()
+int HasMusicPlaybackStatusChangedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasOnPlaybackStatusHasChanged();
+	return Callbacks()->HasPlaybackStatusHasChangedResponse();
 }
 
-int HasMusicVolumeChanged()
+int HasMusicVolumeChangedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasOnVolumeHasChanged();
+	return Callbacks()->HasVolumeHasChangedResponse();
 }
 #pragma endregion
 
@@ -2545,10 +2545,10 @@ int IndicateAchievementProgress(const char *name, int curProgress, int maxProgre
 
 //InstallPS3Trophies
 
-int RequestStats()
+int RequestCurrentStats()
 {
 	CheckInitialized(false);
-	Callbacks()->EnableOnUserStatsReceivedCallback();
+	Callbacks()->EnableUserStatsReceivedCallback();
 	return SteamUserStats()->RequestCurrentStats();
 }
 
@@ -2626,29 +2626,29 @@ int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 //NumberOfCurrentPlayers_t - GetNumberOfCurrentPlayers
 //PS3TrophiesInstalled_t - ignore
 
-int HasOnUserAchievementStored()
+int HasUserAchievementStoredResponse()
 {
-	return Callbacks()->HasOnUserAchievementStored();
+	return Callbacks()->HasUserAchievementStoredResponse();
 }
 
-int HasOnUserStatsReceived()
+int HasUserStatsReceivedResponse()
 {
-	return Callbacks()->HasOnUserStatsReceived();
+	return Callbacks()->HasUserStatsReceivedResponse();
 }
 
-int GetOnUserStatsReceivedGameID()
+int GetUserStatsReceivedGameAppID()
 {
-	return (int)Callbacks()->GetOnUserStatsReceived().m_nGameID;
+	return ((CGameID)(int)Callbacks()->GetUserStatsReceived().m_nGameID).AppID();
 }
 
-int GetOnUserStatsReceivedResult()
+int GetUserStatsReceivedResult()
 {
-	return (int)Callbacks()->GetOnUserStatsReceived().m_eResult;
+	return (int)Callbacks()->GetUserStatsReceived().m_eResult;
 }
 
-int GetOnUserStatsReceivedUser()
+int GetUserStatsReceivedUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetOnUserStatsReceived().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetUserStatsReceived().m_steamIDUser);
 }
 
 int StatsInitialized()
@@ -2656,9 +2656,9 @@ int StatsInitialized()
 	return Callbacks()->StatsInitialized();
 }
 
-int HasOnUserStatsStored()
+int HasUserStatsStoredResponse()
 {
-	return Callbacks()->HasOnUserStatsStored();
+	return Callbacks()->HasUserStatsStoredResponse();
 }
 #pragma endregion
 
@@ -2860,12 +2860,13 @@ void StartVRDashboard()
 //Callbacks
 //CheckFileSignature_t
 
-int HasGamepadTextInputDismissedInfo()
+int HasGamepadTextInputDismissedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasOnGamepadTextInputDismissed();
+	return Callbacks()->HasGamepadTextInputDismissedResponse();
 }
 
+// TODO
 char *GetGamepadTextInputDismissedInfoJSON()
 {
 	if (IsSteamInitialized())
@@ -2875,16 +2876,16 @@ char *GetGamepadTextInputDismissedInfoJSON()
 	return utils::CreateString("{}");
 }
 
-int HasIPCountryChanged()
+int HasIPCountryChangedResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnIPCountryChanged();
+	return Callbacks()->HasIPCountryChangedResponse();
 }
 
-int HasLowBatteryWarning()
+int HasLowBatteryWarningResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnLowBatteryPower();
+	return Callbacks()->HasLowBatteryPowerResponse();
 }
 
 int GetMinutesBatteryLeft()
@@ -2898,7 +2899,7 @@ int GetMinutesBatteryLeft()
 int IsSteamShuttingDown()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasOnSteamShutdown();
+	return Callbacks()->HasSteamShutdownResponse();
 }
 
 #pragma endregion

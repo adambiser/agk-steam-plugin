@@ -55,9 +55,9 @@ InstallDLC,0,I,InstallDLC,0,0,0,0,InstallDLC
 MarkContentCorrupt,I,I,MarkContentCorrupt,0,0,0,0,MarkContentCorrupt
 UninstallDLC,0,I,UninstallDLC,0,0,0,0,UninstallDLC
 # Callbacks
-HasOnDLCInstalled,I,0,HasOnDLCInstalled,0,0,0,0,HasOnDLCInstalled
-GetOnDLCInstalled,I,0,GetOnDLCInstalled,0,0,0,0,GetOnDLCInstalled
-HasOnNewUrlLaunchParameters,I,0,HasOnNewUrlLaunchParameters,0,0,0,0,HasOnNewUrlLaunchParameters
+HasDLCInstalledResponse,I,0,HasDLCInstalledResponse,0,0,0,0,HasDLCInstalledResponse
+GetDLCInstalledAppID,I,0,GetDLCInstalledAppID,0,0,0,0,GetDLCInstalledAppID
+HasNewUrlLaunchParametersResponse,I,0,HasNewUrlLaunchParametersResponse,0,0,0,0,HasNewUrlLaunchParametersResponse
 #
 # ISteamAppsList
 #
@@ -153,12 +153,12 @@ GetPlayerNickname,S,I,GetPlayerNickname,0,0,0,0,GetPlayerNickname
 HasFriend,I,II,HasFriend,0,0,0,0,HasFriend
 RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,RequestUserInformation
 # Callbacks
-HasOnAvatarImageLoaded,I,0,HasOnAvatarImageLoaded,0,0,0,0,HasOnAvatarImageLoaded
-GetOnAvatarImageLoadedUser,I,0,GetOnAvatarImageLoadedUser,0,0,0,0,GetOnAvatarImageLoadedUser
+HasAvatarImageLoadedResponse,I,0,HasAvatarImageLoadedResponse,0,0,0,0,HasAvatarImageLoadedResponse
+GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,GetAvatarImageLoadedUser
 IsGameOverlayActive,I,0,IsGameOverlayActive,0,0,0,0,IsGameOverlayActive
-HasOnPersonaStateChange,I,0,HasOnPersonaStateChange,0,0,0,0,HasOnPersonaStateChange
-GetOnPersonaStateChangeFlags,I,0,GetOnPersonaStateChangeFlags,0,0,0,0,GetOnPersonaStateChangeFlags
-GetOnPersonaStateChangeSteamID,I,0,GetOnPersonaStateChangeSteamID,0,0,0,0,GetOnPersonaStateChangeSteamID
+HasPersonaStateChangeResponse,I,0,HasPersonaStateChangeResponse,0,0,0,0,HasPersonaStateChangeResponse
+GetPersonaStateChangeFlags,I,0,GetPersonaStateChangeFlags,0,0,0,0,GetPersonaStateChangeFlags
+GetPersonaStateChangeSteamID,I,0,GetPersonaStateChangeSteamID,0,0,0,0,GetPersonaStateChangeSteamID
 #
 # ISteamGameCoordinator
 # ISteamGameServer
@@ -204,10 +204,10 @@ SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0,SetLobbyMemberLimit
 SetLobbyOwner,I,II,SetLobbyOwner,0,0,0,0,SetLobbyOwner
 SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
 # Callbacks
-HasLobbyChatMessage,I,0,HasLobbyChatMessage,0,0,0,0,HasLobbyChatMessage
+HasLobbyChatMessageResponse,I,0,HasLobbyChatMessageResponse,0,0,0,0,HasLobbyChatMessageResponse
 GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,GetLobbyChatMessageUser
 GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,GetLobbyChatMessageText
-HasLobbyChatUpdate,I,0,HasLobbyChatUpdate,0,0,0,0,HasLobbyChatUpdate
+HasLobbyChatUpdateResponse,I,0,HasLobbyChatUpdateResponse,0,0,0,0,HasLobbyChatUpdateResponse
 GetLobbyChatUpdateLobby,I,0,GetLobbyChatUpdateLobby,0,0,0,0,GetLobbyChatUpdateLobby
 GetLobbyChatUpdateUserChanged,I,0,GetLobbyChatUpdateUserChanged,0,0,0,0,GetLobbyChatUpdateUserChanged
 GetLobbyChatUpdateUserState,I,0,GetLobbyChatUpdateUserState,0,0,0,0,GetLobbyChatUpdateUserState
@@ -217,8 +217,8 @@ GetLobbyDataUpdateResponseJSON,S,0,GetLobbyDataUpdateResponseJSON,0,0,0,0,GetLob
 HasLobbyEnterResponse,I,0,HasLobbyEnterResponse,0,0,0,0,HasLobbyEnterResponse
 GetLobbyEnterResponseJSON,S,0,GetLobbyEnterResponseJSON,0,0,0,0,GetLobbyEnterResponseJSON
 GetGameLobbyJoinRequestedLobby,I,0,GetGameLobbyJoinRequestedLobby,0,0,0,0,GetGameLobbyJoinRequestedLobby
-HasGameLobbyJoinRequest,I,0,HasGameLobbyJoinRequest,0,0,0,0,HasGameLobbyJoinRequest
-HasLobbyGameCreated,I,0,HasLobbyGameCreated,0,0,0,0,HasLobbyGameCreated
+HasGameLobbyJoinRequestedResponse,I,0,HasGameLobbyJoinRequestedResponse,0,0,0,0,HasGameLobbyJoinRequestedResponse
+HasLobbyGameCreatedResponse,I,0,HasLobbyGameCreatedResponse,0,0,0,0,HasLobbyGameCreatedResponse
 GetLobbyGameCreatedJSON,S,0,GetLobbyGameCreatedJSON,0,0,0,0,GetLobbyGameCreatedJSON
 #
 # ISteamMatchmakingServers
@@ -235,8 +235,8 @@ PlayMusic,0,0,PlayMusic,0,0,0,0,PlayMusic
 PlayNextSong,0,0,PlayNextSong,0,0,0,0,PlayNextSong
 PlayPreviousSong,0,0,PlayPreviousSong,0,0,0,0,PlayPreviousSong
 SetMusicVolume,0,F,SetMusicVolume,0,0,0,0,SetMusicVolume
-HasMusicPlaybackStatusChanged,I,0,HasMusicPlaybackStatusChanged,0,0,0,0,HasMusicPlaybackStatusChanged
-HasMusicVolumeChanged,I,0,HasMusicVolumeChanged,0,0,0,0,HasMusicVolumeChanged
+HasMusicPlaybackStatusChangedResponse,I,0,HasMusicPlaybackStatusChangedResponse,0,0,0,0,HasMusicPlaybackStatusChangedResponse
+HasMusicVolumeChangedResponse,I,0,HasMusicVolumeChangedResponse,0,0,0,0,HasMusicVolumeChangedResponse
 #
 # ISteamMusicRemote
 # ISteamNetworking
@@ -309,7 +309,7 @@ GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,GetNumAchievements
 GetStatInt,I,S,GetStatInt,0,0,0,0,GetStatInt
 GetStatFloat,F,S,GetStatFloat,0,0,0,0,GetStatFloat
 IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,IndicateAchievementProgress
-RequestStats,I,0,RequestStats,0,0,0,0,RequestStats
+RequestCurrentStats,I,0,RequestCurrentStats,0,0,0,0,RequestCurrentStats
 ResetAllStats,I,I,ResetAllStats,0,0,0,0,ResetAllStats
 SetAchievement,I,S,SetAchievement,0,0,0,0,SetAchievement
 SetStatInt,I,SI,SetStatInt,0,0,0,0,SetStatInt
@@ -319,14 +319,14 @@ UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
 # Callbacks
-HasOnUserAchievementStored,I,0,HasOnUserAchievementStored,0,0,0,0,HasOnUserAchievementStored
-HasOnUserStatsReceived,I,0,HasOnUserStatsReceived,0,0,0,0,HasOnUserStatsReceived
-GetOnUserStatsReceivedGameID,I,0,GetOnUserStatsReceivedGameID,0,0,0,0,GetOnUserStatsReceivedGameID
-GetOnUserStatsReceivedResult,I,0,GetOnUserStatsReceivedResult,0,0,0,0,GetOnUserStatsReceivedResult
-GetOnUserStatsReceivedUser,I,0,GetOnUserStatsReceivedUser,0,0,0,0,GetOnUserStatsReceivedUser
+HasUserAchievementStoredResponse,I,0,HasUserAchievementStoredResponse,0,0,0,0,HasUserAchievementStoredResponse
+HasUserStatsReceivedResponse,I,0,HasUserStatsReceivedResponse,0,0,0,0,HasUserStatsReceivedResponse
+GetUserStatsReceivedGameAppID,I,0,GetUserStatsReceivedGameAppID,0,0,0,0,GetUserStatsReceivedGameAppID
+GetUserStatsReceivedResult,I,0,GetUserStatsReceivedResult,0,0,0,0,GetUserStatsReceivedResult
+GetUserStatsReceivedUser,I,0,GetUserStatsReceivedUser,0,0,0,0,GetUserStatsReceivedUser
 StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
-HasOnUserAchievementStored,I,0,HasOnUserAchievementStored,0,0,0,0,HasOnUserAchievementStored
-HasOnUserStatsStored,I,0,HasOnUserStatsStored,0,0,0,0,HasOnUserStatsStored
+HasUserAchievementStoredResponse,I,0,HasUserAchievementStoredResponse,0,0,0,0,HasUserAchievementStoredResponse
+HasUserStatsStoredResponse,I,0,HasUserStatsStoredResponse,0,0,0,0,HasUserStatsStoredResponse
 #
 # ISteamUtils
 #
@@ -351,9 +351,9 @@ SetWarningMessageHook,0,0,SetWarningMessageHook,0,0,0,0,SetWarningMessageHook
 ShowGamepadTextInput,I,IISIS,ShowGamepadTextInput,0,0,0,0,ShowGamepadTextInput
 StartVRDashboard,0,0,StartVRDashboard,0,0,0,0,StartVRDashboard
 # Callbacks
-HasGamepadTextInputDismissedInfo,I,0,HasGamepadTextInputDismissedInfo,0,0,0,0,HasGamepadTextInputDismissedInfo
+HasGamepadTextInputDismissedResponse,I,0,HasGamepadTextInputDismissedResponse,0,0,0,0,HasGamepadTextInputDismissedResponse
 GetGamepadTextInputDismissedInfoJSON,S,0,GetGamepadTextInputDismissedInfoJSON,0,0,0,0,GetGamepadTextInputDismissedInfoJSON
-HasIPCountryChanged,I,0,HasIPCountryChanged,0,0,0,0,HasIPCountryChanged
-HasLowBatteryWarning,I,0,HasLowBatteryWarning,0,0,0,0,HasLowBatteryWarning
+HasIPCountryChangedResponse,I,0,HasIPCountryChangedResponse,0,0,0,0,HasIPCountryChangedResponse
+HasLowBatteryWarningResponse,I,0,HasLowBatteryWarningResponse,0,0,0,0,HasLowBatteryWarningResponse
 GetMinutesBatteryLeft,I,0,GetMinutesBatteryLeft,0,0,0,0,GetMinutesBatteryLeft
 IsSteamShuttingDown,I,0,IsSteamShuttingDown,0,0,0,0,IsSteamShuttingDown

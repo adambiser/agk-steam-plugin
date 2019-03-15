@@ -143,9 +143,9 @@ Function ProcessCallbacks()
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
 	//
-	if Steam.HasOnUserStatsReceived()
+	if Steam.HasUserStatsReceivedResponse()
 		AddStatus("HasNewUserStatsReceived.")
-		if Steam.GetOnUserStatsReceivedResult() = EResultOK
+		if Steam.GetUserStatsReceivedResult() = EResultOK
 			AddStatus("User stats initialized.")
 			// Enable all stats buttons.
 			for x = 0 to buttonText.length
