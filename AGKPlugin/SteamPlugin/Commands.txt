@@ -52,9 +52,9 @@ InstallDLC,0,I,InstallDLC,0,0,0,0,InstallDLC
 MarkContentCorrupt,I,I,MarkContentCorrupt,0,0,0,0,MarkContentCorrupt
 UninstallDLC,0,I,UninstallDLC,0,0,0,0,UninstallDLC
 # Callbacks
-HasNewDLCInstalled,I,0,HasNewDLCInstalled,0,0,0,0,HasNewDLCInstalled
-GetNewDLCInstalled,I,0,GetNewDLCInstalled,0,0,0,0,GetNewDLCInstalled
-HasNewLaunchQueryParameters,I,0,HasNewLaunchQueryParameters,0,0,0,0,HasNewLaunchQueryParameters
+HasOnDLCInstalled,I,0,HasOnDLCInstalled,0,0,0,0,HasOnDLCInstalled
+GetOnDLCInstalled,I,0,GetOnDLCInstalled,0,0,0,0,GetOnDLCInstalled
+HasOnNewLaunchQueryParameters,I,0,HasOnNewLaunchQueryParameters,0,0,0,0,HasOnNewLaunchQueryParameters
 #
 # ISteamAppsList
 #
@@ -310,14 +310,14 @@ UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
 # Callbacks
-HasNewUserAchievementStored,I,0,HasNewUserAchievementStored,0,0,0,0,HasNewUserAchievementStored
-HasNewUserStatsReceived,I,0,HasNewUserStatsReceived,0,0,0,0
-GetNewUserStatsReceivedGameID,I,0,GetNewUserStatsReceivedGameID,0,0,0,0,GetNewUserStatsReceivedGameID
-GetNewUserStatsReceivedResult,I,0,GetNewUserStatsReceivedResult,0,0,0,0,GetNewUserStatsReceivedResult
-GetNewUserStatsReceivedUser,I,0,GetNewUserStatsReceivedUser,0,0,0,0,GetNewUserStatsReceivedUser
+HasOnUserAchievementStored,I,0,HasOnUserAchievementStored,0,0,0,0,HasOnUserAchievementStored
+HasOnUserStatsReceived,I,0,HasOnUserStatsReceived,0,0,0,0,HasOnUserStatsReceived
+GetOnUserStatsReceivedGameID,I,0,GetOnUserStatsReceivedGameID,0,0,0,0,GetOnUserStatsReceivedGameID
+GetOnUserStatsReceivedResult,I,0,GetOnUserStatsReceivedResult,0,0,0,0,GetOnUserStatsReceivedResult
+GetOnUserStatsReceivedUser,I,0,GetOnUserStatsReceivedUser,0,0,0,0,GetOnUserStatsReceivedUser
 StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
-HasNewUserAchievementStored,I,0,HasNewUserAchievementStored,0,0,0,0,HasNewUserAchievementStored
-HasNewUserStatsStored,I,0,HasNewUserStatsStored,0,0,0,0,HasNewUserStatsStored
+HasOnUserAchievementStored,I,0,HasOnUserAchievementStored,0,0,0,0,HasOnUserAchievementStored
+HasOnUserStatsStored,I,0,HasOnUserStatsStored,0,0,0,0,HasOnUserStatsStored
 #
 # ISteamUtils
 #
