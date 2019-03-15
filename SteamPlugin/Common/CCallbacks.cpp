@@ -98,16 +98,7 @@ CCallbacks *Callbacks()
 	return callbacks;
 }
 
-CCallbacks::CCallbacks() //:
-	// All STEAM_CALLBACK and CALLBACK_BOOL go here.
-	//m_CallbackOnNewUrlLaunchParameters(this, &CCallbacks::OnNewUrlLaunchParameters),
-	//m_CallbackGameOverlayActivated(this, &CCallbacks::OnGameOverlayActivated),
-	//m_CallbackOnPlaybackStatusHasChanged(this, &CCallbacks::OnPlaybackStatusHasChanged),
-	//m_CallbackOnVolumeHasChanged(this, &CCallbacks::OnVolumeHasChanged),
-	//m_CallbackUserAchievementIconFetched(this, &CCallbacks::OnUserAchievementIconFetched)//,
-	//m_CallbackOnIPCountryChanged(this, &CCallbacks::OnIPCountryChanged),
-	//m_CallbackOnLowBatteryPower(this, &CCallbacks::OnLowBatteryPower),
-	//m_CallbackOnSteamShutdown(this, &CCallbacks::OnSteamShutdown)
+CCallbacks::CCallbacks()
 {
 	ResetSessionVariables();
 }
@@ -177,14 +168,14 @@ void CCallbacks::ResetSessionVariables()
 	CLEAR_CALLBACK_LIST(OnGamepadTextInputDismissed);
 	CLEAR_CALLBACK_BOOL(OnIPCountryChanged);
 	CLEAR_CALLBACK_BOOL(OnLowBatteryPower);
-	m_nMinutesBatteryLeft = 255;
+	m_nMinutesBatteryLeft = 0;
 	CLEAR_CALLBACK_BOOL(OnSteamShutdown);
 }
 
 #pragma region ISteamApps
 void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 {
-	utils::Log("Callback: OnDlcInstalled: AppID = " + std::to_string(pParam->m_nAppID));
+	utils::Log("Callback: OnDlcInstalled.  AppID = " + std::to_string(pParam->m_nAppID));
 	STORE_CALLBACK_RESULT(OnDlcInstalled, *pParam);
 }
 
@@ -235,7 +226,7 @@ CALLBACK_LIST_METHODS(OnGameLobbyJoinRequested, GameLobbyJoinRequested_t);
 
 void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
-	agk::Log("Callback: OnGameOverlayActivated");
+	utils::Log("Callback: OnGameOverlayActivated.  Active = " + std::to_string(pParam->m_bActive));
 	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
@@ -290,7 +281,8 @@ void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
 	agk::Log("Callback: OnLobbyChatMessage");
 	plugin::LobbyChatMsg_t info(*pParam);
-	SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.m_chChatEntry, MAX_CHAT_MESSAGE_LENGTH, NULL);
+	int length = SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.m_chChatEntry, MAX_CHAT_MESSAGE_LENGTH, NULL);
+	info.m_chChatEntry[length] = 0;
 	STORE_CALLBACK_RESULT(OnLobbyChatMessage, info);
 }
 
@@ -306,7 +298,7 @@ CALLBACK_LIST_METHODS(OnLobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 
 void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 {
-	utils::Log("Callback OnLobbyDataUpdate: " + std::string((pParam->m_bSuccess) ? "Succeeded" : "Failed"));
+	utils::Log("Callback OnLobbyDataUpdate.  Success: " + std::to_string(pParam->m_bSuccess));
 	STORE_CALLBACK_RESULT(OnLobbyDataUpdate, *pParam);
 }
 
@@ -315,7 +307,7 @@ CALLBACK_LIST_METHODS(OnLobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
 // Fires from CreateLobby and JoinLobby.
 void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 {
-	utils::Log("Callback: OnLobbyEnter");
+	agk::Log("Callback: OnLobbyEnter");
 	STORE_CALLBACK_RESULT(OnLobbyEnter, *pParam);
 	g_JoinedLobbiesMutex.lock();
 	g_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
@@ -326,7 +318,7 @@ CALLBACK_LIST_METHODS(OnLobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, al
 
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
-	utils::Log("Callback: OnLobbyGameCreated: " + std::to_string(pParam->m_ulSteamIDLobby));
+	agk::Log("Callback: OnLobbyGameCreated");
 	STORE_CALLBACK_RESULT(OnLobbyGameCreated, *pParam);
 }
 
@@ -454,7 +446,7 @@ void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == g_AppID)
 	{
-		agk::Log("Callback: OnAchievementStored");
+		agk::Log("Callback: OnUserAchievementStored");
 		STORE_CALLBACK_RESULT(OnUserAchievementStored, *pCallback);
 	}
 }
@@ -486,7 +478,7 @@ void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == g_AppID)
 	{
-		utils::Log("Callback: OnUserStatsStored " + std::string((pCallback->m_eResult == k_EResultOK) ? "Succeeded." : "Failed.  Result = " + std::to_string(pCallback->m_eResult)));
+		utils::Log("Callback: OnUserStatsStored. Result = " + std::to_string(pCallback->m_eResult));
 		STORE_CALLBACK_RESULT(OnUserStatsStored, *pCallback);
 	}
 }
@@ -497,7 +489,7 @@ CALLBACK_LIST_METHODS(OnUserStatsStored, UserStatsStored_t);
 #pragma region ISteamUtils
 void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
 {
-	agk::Log("Callback: Gamepad Text Input Dismissed");
+	utils::Log("Callback: OnGamepadTextInputDismissed.  Submitted = " + std::to_string(pCallback->m_bSubmitted));
 	plugin::GamepadTextInputDismissed_t info(*pCallback);
 	if (info.m_bSubmitted)
 	{
@@ -505,7 +497,7 @@ void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallb
 		if (!SteamUtils()->GetEnteredGamepadTextInput(info.m_chSubmittedText, length))
 		{
 			// This should only ever happen if there's a length mismatch.
-			agk::PluginError("GetEnteredGamepadTextInput failed.");
+			agk::PluginError("OnGamepadTextInputDismissed: GetEnteredGamepadTextInput failed.");
 		}
 	}
 	STORE_CALLBACK_RESULT(OnGamepadTextInputDismissed, info);
@@ -519,10 +511,11 @@ CALLBACK_BOOL_METHODS(OnIPCountryChanged, IPCountry_t);
 
 void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
 {
-	agk::Log("Callback: Low Battery Power Warning");
+	agk::Log("Callback: OnLowBatteryPower");
 	m_bOnLowBatteryPower = true;
 	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
 }
+
 bool CCallbacks::HasOnLowBatteryPower()
 {
 	if (m_bOnLowBatteryPower)
@@ -530,6 +523,7 @@ bool CCallbacks::HasOnLowBatteryPower()
 		m_bOnLowBatteryPower = false;
 		return true;
 	}
+	m_nMinutesBatteryLeft = 0;
 	return false;
 }
 
