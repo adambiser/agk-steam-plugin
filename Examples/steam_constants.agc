@@ -217,7 +217,6 @@ EndType
 // Obtainable from: GetFriendGamePlayedJSON
 // Modified from Steamworks SDK.
 Type FriendGameInfo_t
-	InGame as integer 	// Boolean
 	GameAppID as integer	// The game ID that the friend is playing.
 	GameIP as string	// The IP of the server the friend is playing on.
 	GamePort as integer	// The port of the server the friend is playing on.

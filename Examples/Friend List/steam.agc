@@ -96,11 +96,9 @@ Function ProcessCallbacks()
 	hSteamID as integer
 	flags as integer
 	index as integer
-	while Steam.HasPersonaStateChange()
-		change as PersonaStateChange_t
-		change.fromjson(Steam.GetPersonaStateChangeJSON())
-		hSteamID = change.SteamID
-		flags = change.ChangeFlags
+	while Steam.HasOnPersonaStateChange()
+		hSteamID = Steam.GetOnPersonaStateChangeSteamID()
+		flags = Steam.GetOnPersonaStateChangeFlags()
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
 		index = GetFriendSteamIDIndex(hSteamID)
 		if index >= 0
@@ -115,8 +113,8 @@ Function ProcessCallbacks()
 			AddStatus(server.groupFriends[newIndex].name + " moved from index " + str(index) + " to index " + str(newIndex))
 		endif
 	endwhile
-	while Steam.HasAvatarImageLoaded()
-		hSteamID = Steam.GetAvatarImageLoadedUser()
+	while Steam.HasOnAvatarImageLoaded()
+		hSteamID = Steam.GetOnAvatarImageLoadedUser()
 		AddStatus("Avatar loaded for " + Steam.GetFriendPersonaName(hSteamID))
 		// Load the new avatar.
 		index = GetFriendSteamIDIndex(hSteamID)
@@ -224,6 +222,7 @@ Function SelectFriendGroup(index as integer)
 	server.selectedGroup = index
 	friendListJSON as string
 	// Index 0 in this app is a hard-coded "All friends" list.
+	groupFriendIDs as integer[]
 	if index = 0
 		friendListJSON = Steam.GetFriendListJSON(EFriendFlagImmediate)
 	else
@@ -231,7 +230,6 @@ Function SelectFriendGroup(index as integer)
 		friendListJSON = Steam.GetFriendsGroupMembersListJSON(Steam.GetFriendsGroupIDByIndex(index - 1))
 	endif
 	server.groupFriends.length = -1
-	groupFriendIDs as integer[]
 	groupFriendIDs.fromJSON(friendListJSON)
 	x as integer
 	for x = 0 to groupFriendIDs.length
@@ -250,7 +248,11 @@ Function GetFriendInfo(hSteamID as integer)
 	info.name = Steam.GetFriendPersonaName(hSteamID)
 	info.state = Steam.GetFriendPersonaState(hSteamID)
 	//~ info.level = Steam.GetFriendSteamLevel(hSteamID)
-	info.gameinfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamID))
+	info.gameinfo.GameAppID = Steam.GetFriendGamePlayedGameAppID(hSteamID)
+	info.gameinfo.GameIP = Steam.GetFriendGamePlayedGameIP(hSteamID)
+	info.gameinfo.GamePort = Steam.GetFriendGamePlayedGamePort(hSteamID)
+	info.gameinfo.QueryPort = Steam.GetFriendGamePlayedQueryPort(hSteamID)
+	info.gameinfo.SteamIDLobby = Steam.GetFriendGamePlayedLobby(hSteamID)
 	info.avatarImageID = CreateImageColor(0, 0, 0, 0)
 	info.avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
 	if info.avatarHandle > 0
@@ -296,7 +298,7 @@ EndFunction
 //
 Function GetFriendInfoSortGroup(info as FriendInfo)
 	if info.state <> EPersonaStateOffline
-		if info.gameinfo.InGame
+		if info.gameinfo.GameAppID
 			ExitFunction 0 // ingame group
 		else
 			ExitFunction 1 // online group
@@ -346,13 +348,14 @@ Function UpdateFriendStatus(hSteamID as integer)
 		if info.state = EPersonaStateOffline
 			SetTextColor(ui.friendNameIDs[uiindex], OFFLINE_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], OFFLINE_COLOR)
-		elseif info.gameinfo.InGame
+		elseif info.gameinfo.GameAppID
 			SetTextColor(ui.friendNameIDs[uiindex], INGAME_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], INGAME_COLOR)
 			// Note: GetAppName is a restricted interface that can only be used by approved apps.
 			// Space War (480) is one such approved app.
 			appname as string
 			appname = Steam.GetAppName(info.gameinfo.GameAppID)
+			// Note: appname will be blank if the name hasn't cached yet.  It will be "Not found" when not found.
 			if len(appname)
 				text = text + " [In-Game: " + appname + "]"
 			else

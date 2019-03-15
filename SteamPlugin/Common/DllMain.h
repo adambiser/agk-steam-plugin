@@ -480,7 +480,7 @@ extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName);
 @param hAnalogAction The handle of the analog action you want to query.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT void GetAnalogActionData(int hInput, int hAnalogAction);
+//extern "C" DLL_EXPORT void GetAnalogActionData(int hInput, int hAnalogAction);
 
 /*
 @desc Returns the current availability to be bound in the active action set of the analog game action read by the last GetAnalogActionData call.
@@ -491,7 +491,7 @@ GetAnalogActionData MUST be called in order to populate the value returned by th
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 
 */
-extern "C" DLL_EXPORT int GetAnalogActionDataActive();
+extern "C" DLL_EXPORT int GetAnalogActionDataActive(int hInput, int hAnalogAction);
 
 /*
 @desc Returns the type of data coming from this action as read by the last GetAnalogActionData call
@@ -501,7 +501,7 @@ GetAnalogActionData MUST be called in order to populate the value returned by th
 @return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT int GetAnalogActionDataMode();
+extern "C" DLL_EXPORT int GetAnalogActionDataMode(int hInput, int hAnalogAction);
 
 /*
 @desc Returns the current state of this action on the horizontal axis read by the last GetAnalogActionData call
@@ -511,7 +511,7 @@ GetAnalogActionData MUST be called in order to populate the value returned by th
 @return The current state of this action on the horizontal axis.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT float GetAnalogActionDataX();
+extern "C" DLL_EXPORT float GetAnalogActionDataX(int hInput, int hAnalogAction);
 
 /*
 @desc Returns the current state of this action on the vertical axis read by the last GetAnalogActionData call
@@ -521,7 +521,7 @@ GetAnalogActionData MUST be called in order to populate the value returned by th
 @return The current state of this action on the vertical axis.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT float GetAnalogActionDataY();
+extern "C" DLL_EXPORT float GetAnalogActionDataY(int hInput, int hAnalogAction);
 
 /*
 @desc Get the handle of the specified Analog action.
@@ -543,7 +543,9 @@ Use this to display the appropriate on-screen prompt for the action.
 @return The number of origins supplied in originsOut.
 @api ISteamController#GetAnalogActionOrigins
 */
-extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction);
+//extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction);
+extern "C" DLL_EXPORT int GetAnalogActionOriginCount(int hInput, int hActionSet, int hAnalogAction);
+extern "C" DLL_EXPORT int GetAnalogActionOriginValue(int hInput, int hActionSet, int hAnalogAction, int index);
 
 /*
 @desc Enumerates currently connected controllers.
@@ -576,7 +578,7 @@ extern "C" DLL_EXPORT int GetCurrentActionSet(int hInput);
 @param hDigitalAction The handle of the digital action you want to query.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT void GetDigitalActionData(int hInput, int hDigitalAction);
+//extern "C" DLL_EXPORT void GetDigitalActionData(int hInput, int hDigitalAction);
 
 /*
 @desc Returns the current availability to be bound in the active action set of the digital game action read by the last GetDigitalActionData call.
@@ -586,7 +588,7 @@ GetDigitalActionData MUST be called in order to populate the value returned by t
 @return Whether or not this action is currently available to be bound in the active action set.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT int GetDigitalActionDataActive();
+extern "C" DLL_EXPORT int GetDigitalActionDataActive(int hInput, int hDigitalAction);
 
 /*
 @desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
@@ -596,7 +598,7 @@ GetDigitalActionData MUST be called in order to populate the value returned by t
 @return The current state of this action; 1 if the action is currently pressed, otherwise 0.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT int GetDigitalActionDataState();
+extern "C" DLL_EXPORT int GetDigitalActionDataState(int hInput, int hDigitalAction);
 
 /*
 @desc Get the handle of the specified digital action.
@@ -618,7 +620,9 @@ Use this to display the appropriate on-screen prompt for the action.
 @return A JSON integer array of the action origins.
 @api ISteamController#GetDigitalActionOrigins
 */
-extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction);
+//extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction);
+extern "C" DLL_EXPORT int GetDigitalActionOriginCount(int hInput, int hActionSet, int hDigitalAction);
+extern "C" DLL_EXPORT int GetDigitalActionOriginValue(int hInput, int hActionSet, int hDigitalAction, int index);
 
 /*
 @desc Returns the associated gamepad index for the specified input, if emulating a gamepad.
@@ -652,7 +656,7 @@ GetMotionDataPosRotVelX, GetMotionDataPosRotVelY, and GetMotionDataPosRotVelZ.
 @param hInput The handle of the input you want to get motion data for.
 @api ISteamController#GetMotionData, ISteamController#ControllerMotionData_t
 */
-extern "C" DLL_EXPORT void GetMotionData(int hInput);
+//extern "C" DLL_EXPORT void GetMotionData(int hInput);
 
 /*
 @desc Returns the positional acceleration, x axis of the controller motion data read by the last GetMotionData call.
@@ -662,7 +666,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Positional acceleration, x axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataPosAccelX();
+extern "C" DLL_EXPORT float GetMotionDataPosAccelX(int hInput);
 
 /*
 @desc Returns the positional acceleration, y axis of the input motion data read by the last GetMotionData call.
@@ -672,7 +676,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Positional acceleration, y axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataPosAccelY();
+extern "C" DLL_EXPORT float GetMotionDataPosAccelY(int hInput);
 
 /*
 @desc Returns the positional acceleration, z axis of the input motion data read by the last GetMotionData call.
@@ -682,7 +686,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Positional acceleration, z axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataPosAccelZ();
+extern "C" DLL_EXPORT float GetMotionDataPosAccelZ(int hInput);
 
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), w axis of the input motion data read by the last GetMotionData call.
@@ -692,7 +696,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Sensor-fused absolute rotation (will drift in heading), w axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatW();
+extern "C" DLL_EXPORT float GetMotionDataRotQuatW(int hInput);
 
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), x axis of the input motion data read by the last GetMotionData call.
@@ -702,7 +706,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Sensor-fused absolute rotation (will drift in heading), x axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatX();
+extern "C" DLL_EXPORT float GetMotionDataRotQuatX(int hInput);
 
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), y axis of the input motion data read by the last GetMotionData call.
@@ -712,7 +716,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Sensor-fused absolute rotation (will drift in heading), y axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatY();
+extern "C" DLL_EXPORT float GetMotionDataRotQuatY(int hInput);
 
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), z axis of the input motion data read by the last GetMotionData call.
@@ -722,7 +726,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Sensor-fused absolute rotation (will drift in heading), z axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatZ();
+extern "C" DLL_EXPORT float GetMotionDataRotQuatZ(int hInput);
 
 /*
 @desc Returns the angular velocity, x axis of the input motion data read by the last GetMotionData call.
@@ -732,7 +736,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Angular velocity, x axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotVelX();
+extern "C" DLL_EXPORT float GetMotionDataRotVelX(int hInput);
 
 /*
 @desc Returns the angular velocity, y axis of the input motion data read by the last GetMotionData call.
@@ -742,7 +746,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Angular velocity, y axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotVelY();
+extern "C" DLL_EXPORT float GetMotionDataRotVelY(int hInput);
 
 /*
 @desc Returns the angular velocity, z axis of the input motion data read by the last GetMotionData call.
@@ -752,7 +756,7 @@ GetMotionData MUST be called in order to populate the value returned by this met
 @return Angular velocity, z axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotVelZ();
+extern "C" DLL_EXPORT float GetMotionDataRotVelZ(int hInput);
 
 /*
 @desc Returns a localized string (from Steam's language setting) for the specified origin.
@@ -976,7 +980,8 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url);
 //GetFriendByIndex
 //GetFriendCoplayGame
 //GetFriendCoplayTime
-//GetFriendCount
+
+extern "C" DLL_EXPORT int GetFriendCount(int friendFlags);
 
 /*
 @desc Returns an integer array as JSON that combines the GetFriendCount and GetFriendByIndex calls.
@@ -1007,7 +1012,12 @@ EndType
 ```
 @api ISteamFriends#GetFriendGamePlayed
 */
-extern "C" DLL_EXPORT char *GetFriendGamePlayedJSON(int hUserSteamID);
+//extern "C" DLL_EXPORT char *GetFriendGamePlayedJSON(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hUserSteamID);
+extern "C" DLL_EXPORT char *GetFriendGamePlayedGameIP(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendGamePlayedGamePort(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hUserSteamID);
+extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hUserSteamID);
 
 //GetFriendMessage
 
@@ -1175,7 +1185,7 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hUserSteamID, int requireNa
 @return 1 when there is data stored; otherwise 0.
 @api ISteamFriends#AvatarImageLoaded_t
 */
-extern "C" DLL_EXPORT int HasAvatarImageLoaded();
+extern "C" DLL_EXPORT int HasOnAvatarImageLoaded();
 
 /*
 @desc Returns a handle for m_steamID stored from the AvatarImageLoaded_t callback.
@@ -1185,7 +1195,7 @@ _HasAvatarImageLoaded must be called prior to this method._
 @return The SteamID handle of the user whose avatar loaded.
 @api ISteamFriends#AvatarImageLoaded_t
 */
-extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
+extern "C" DLL_EXPORT int GetOnAvatarImageLoadedUser();
 
 //ClanOfficerListResponse_t
 //DownloadClanActivityCountsResult_t
@@ -1215,7 +1225,7 @@ extern "C" DLL_EXPORT int IsGameOverlayActive();
 @return 1 when there is data stored; otherwise 0.
 @api ISteamFriends#PersonaStateChange_t
 */
-extern "C" DLL_EXPORT int HasPersonaStateChange();
+extern "C" DLL_EXPORT int HasOnPersonaStateChange();
 
 /*
 @desc Returns a JSON object for the PersonaStateChange_t callback data.
@@ -1224,7 +1234,9 @@ _HasPersonaStateChanged must be called prior to this method._
 @return The SteamID handle of the user whose persona state changed
 @api ISteamFriends#PersonaStateChange_t
 */
-extern "C" DLL_EXPORT char *GetPersonaStateChangeJSON();
+//extern "C" DLL_EXPORT char *GetPersonaStateChangeJSON();
+extern "C" DLL_EXPORT int GetOnPersonaStateChangeFlags();
+extern "C" DLL_EXPORT int GetOnPersonaStateChangeSteamID();
 
 //SetPersonaNameResponse_t
 #pragma endregion

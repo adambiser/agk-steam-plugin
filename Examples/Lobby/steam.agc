@@ -77,13 +77,15 @@ friends as integer[]
 friends.fromjson(Steam.GetFriendListJSON(EFriendFlagImmediate))
 index as integer
 for index = 0 to friends.length
-	friendGameInfo as FriendGameInfo_t
+	//~ friendGameInfo as FriendGameInfo_t
 	hSteamIDFriend as integer
 	hSteamIDFriend = friends[index]
-	friendGameInfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamIDFriend))
-	if friendGameInfo.InGame 
-		if Steam.IsSteamIDValid(friendGameInfo.SteamIDLobby)
-			AddStatus(Steam.GetFriendPersonaName(hSteamIDFriend) + " is in lobby handle " + str(friendGameInfo.SteamIDLobby))
+	//~ friendGameInfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamIDFriend))
+	if Steam.GetFriendGamePlayedGameAppID(hSteamIDFriend)
+		hSteamIDLobby as integer
+		hSteamIDLobby = Steam.GetFriendGamePlayedLobby(hSteamIDFriend)
+		if Steam.IsSteamIDValid(hSteamIDLobby)
+			AddStatus(Steam.GetFriendPersonaName(hSteamIDFriend) + " is in lobby handle " + str(hSteamIDLobby))
 		// friendGameInfo.m_steamIDLobby is a valid lobby, you can join it or use RequestLobbyData() get it's metadata
 		else
 			AddStatus(Steam.GetFriendPersonaName(hSteamIDFriend) + " is in-game, but not in a lobby.")
@@ -239,13 +241,13 @@ Function ProcessCallbacks()
 			AddStatus("RequestLobbyList call result code: " + str(result))
 			//~ AddStatus("JSON: " + Steam.GetCallResultJSON(server.lobbyListCallResult))
 			if result = EResultOk
-				//~ server.lobbies.fromjson(Steam.GetCallResultJSON(server.lobbyListCallResult))
-				//~ for x = 0 to server.lobbies.length
-					//~ hLobby = server.lobbies[x]
-					//~ name as string
-					//~ name = "Lobby " + str(x) + " (" + str(Steam.GetNumLobbyMembers(hLobby)) + "/" + str(Steam.GetLobbyMemberLimit(hLobby)) + ")"
-					//~ AddLineToScrollableTextArea(lobbyList, name)
-				//~ next
+				server.lobbies.fromjson(Steam.GetCallResultJSON(server.lobbyListCallResult))
+				for x = 0 to server.lobbies.length
+					hLobby = server.lobbies[x]
+					name as string
+					name = "Lobby " + str(x) + " (" + str(Steam.GetNumLobbyMembers(hLobby)) + "/" + str(Steam.GetLobbyMemberLimit(hLobby)) + ")"
+					AddLineToScrollableTextArea(lobbyList, name)
+				next
 				HighlightLobbyIndex()
 			else
 				AddStatus("Error getting lobby match list: " + str(result))
