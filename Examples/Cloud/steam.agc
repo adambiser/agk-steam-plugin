@@ -42,8 +42,12 @@ if Steam.CloudFileExists(TEST_FILE_NAME)
 endif
 //~ AddStatus("GetCachedUGCCount: " + str(Steam.GetCachedUGCCount()))
 
-
-cloudFiles.fromJSON(Steam.GetCloudFileListJSON())
+for x = 0 to Steam.GetCloudFileCount() - 1
+	file as CloudFileInfo_t
+	file.Name = Steam.GetCloudFileName(x)
+	file.Size = Steam.GetCloudFileSize(x)
+	cloudFiles.insert(file)
+next
 AddStatus("Files: " + cloudFiles.toJSON())
 
 

@@ -2035,6 +2035,7 @@ The name of the file at the given index.  An empty string if the file doesn't ex
 */
 extern "C" DLL_EXPORT char *GetCloudFileName(int index);
 
+extern "C" DLL_EXPORT int GetCloudFileSizeByIndex(int index);
 /*
 @desc Gets the name and size of all local files synchronized by Steam Cloud.
 @return
@@ -2047,7 +2048,7 @@ EndType
 ```
 @api ISteamRemoteStorage#GetFileCount, ISteamRemoteStorage#GetFileNameAndSize
 */
-extern "C" DLL_EXPORT char *GetCloudFileListJSON();
+//extern "C" DLL_EXPORT char *GetCloudFileListJSON();
 
 /*
 @desc Gets the specified files size in bytes.
@@ -2831,7 +2832,9 @@ EndType
 ```
 @api ISteamUtils#GamepadTextInputDismissed_t
 */
-extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
+//extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
+extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted();
+extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText();
 
 /*
 @desc Reports when the country of the user has changed.  Use GetIPCountry to get the new value.

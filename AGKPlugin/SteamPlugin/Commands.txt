@@ -276,7 +276,7 @@ GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetClo
 GetCachedUGCCount,I,0,GetCachedUGCCount,0,0,0,0,GetCachedUGCCount
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
-GetCloudFileListJSON,S,0,GetCloudFileListJSON,0,0,0,0,GetCloudFileListJSON
+GetCloudFileSize,I,I,GetCloudFileSizeByIndex,0,0,0,0,GetCloudFileSizeByIndex
 GetCloudFileSize,I,S,GetCloudFileSize,0,0,0,0,GetCloudFileSize
 GetCloudFileTimestamp,I,S,GetCloudFileTimestamp,0,0,0,0,GetCloudFileTimestamp
 GetCloudQuotaAvailable,I,0,GetCloudQuotaAvailable,0,0,0,0,GetCloudQuotaAvailable
@@ -366,7 +366,8 @@ ShowGamepadTextInput,I,IISIS,ShowGamepadTextInput,0,0,0,0,ShowGamepadTextInput
 StartVRDashboard,0,0,StartVRDashboard,0,0,0,0,StartVRDashboard
 # Callbacks
 HasGamepadTextInputDismissedResponse,I,0,HasGamepadTextInputDismissedResponse,0,0,0,0,HasGamepadTextInputDismissedResponse
-GetGamepadTextInputDismissedInfoJSON,S,0,GetGamepadTextInputDismissedInfoJSON,0,0,0,0,GetGamepadTextInputDismissedInfoJSON
+GetGamepadTextInputDismissedSubmitted,I,0,GetGamepadTextInputDismissedSubmitted,0,0,0,0,GetGamepadTextInputDismissedSubmitted
+GetGamepadTextInputDismissedSubmittedText,S,0,GetGamepadTextInputDismissedSubmittedText,0,0,0,0,GetGamepadTextInputDismissedSubmittedText
 HasIPCountryChangedResponse,I,0,HasIPCountryChangedResponse,0,0,0,0,HasIPCountryChangedResponse
 HasLowBatteryWarningResponse,I,0,HasLowBatteryWarningResponse,0,0,0,0,HasLowBatteryWarningResponse
 GetMinutesBatteryLeft,I,0,GetMinutesBatteryLeft,0,0,0,0,GetMinutesBatteryLeft

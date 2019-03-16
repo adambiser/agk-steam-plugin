@@ -2190,7 +2190,6 @@ int GetCloudFileCount()
 //GetFileListFromServer
 
 //GetFileNameAndSize
-// Leave the by-index since this is pretty simple.
 char *GetCloudFileName(int index)
 {
 	CheckInitialized(NULL_STRING);
@@ -2198,35 +2197,15 @@ char *GetCloudFileName(int index)
 	return utils::CreateString(SteamRemoteStorage()->GetFileNameAndSize(index, &pnFileSizeInBytes));
 }
 
-char *GetCloudFileListJSON()
+int GetCloudFileSizeByIndex(int index)
 {
-	std::string json("[");
-	//if (IsSteamInitialized())
-	//{
-	//	for (int index = 0; index < SteamRemoteStorage()->GetFileCount(); index++)
-	//	{
-	//		if (index > 0)
-	//		{
-	//			json += ", ";
-	//		}
-	//		json += "{";
-	//		int32 pnFileSizeInBytes;
-	//		const char *name = SteamRemoteStorage()->GetFileNameAndSize(index, &pnFileSizeInBytes);
-	//		if (name)
-	//		{
-	//			json += "\"Name\": \"" + EscapeJSON(name) + "\", "
-	//				"\"Size\": " + std::to_string(pnFileSizeInBytes);
-	//		}
-	//		else
-	//		{
-	//			json += "\"Name\": \"?\", "
-	//				"\"Size\": 0";
-	//		}
-	//		json += "}";
-	//	}
-	//}
-	json += "]";
-	return utils::CreateString(json);
+	CheckInitialized(0);
+	int32 pnFileSizeInBytes;
+	if (SteamRemoteStorage()->GetFileNameAndSize(index, &pnFileSizeInBytes))
+	{
+		return pnFileSizeInBytes;
+	}
+	return 0;
 }
 
 int GetCloudFileSize(const char *filename)
@@ -2975,14 +2954,17 @@ int HasGamepadTextInputDismissedResponse()
 	return Callbacks()->HasGamepadTextInputDismissedResponse();
 }
 
-// TODO
-char *GetGamepadTextInputDismissedInfoJSON()
+bool m_bSubmitted;
+char m_chSubmittedText[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
+
+int GetGamepadTextInputDismissedSubmitted()
 {
-	if (IsSteamInitialized())
-	{
-		//return utils::CreateString(ToJSON(Callbacks()->GetGamepadTextInputDismissed()));
-	}
-	return utils::CreateString("{}");
+	return Callbacks()->GetGamepadTextInputDismissed().m_bSubmitted;
+}
+
+char *GetGamepadTextInputDismissedSubmittedText()
+{
+	return utils::CreateString(Callbacks()->GetGamepadTextInputDismissed().m_chSubmittedText);
 }
 
 int HasIPCountryChangedResponse()

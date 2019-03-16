@@ -274,13 +274,11 @@ Function ProcessCallbacks()
 	endif
 	// Check the JoinLobby CallResult and report results.
 	// This demo uses HasLobbyEnterResponse since it will report for both CreateLobby and JoinLobby calls.
-	joinedLobby as LobbyEnter_t
 	if server.joinLobbyCallResult
 		result = Steam.GetCallResultCode(server.joinLobbyCallResult)
 		if result
 			AddStatus("JoinLobby call result code: " + str(result))
 			if result = EResultOk
-				joinedLobby.fromjson(Steam.GetCallResultJSON(server.joinLobbyCallResult))
 				AddStatus("Lobby joined.  Handle: " + str(joinedLobby.SteamIDLobby))
 			else
 				AddStatus("Error joining lobby.")
@@ -292,7 +290,6 @@ Function ProcessCallbacks()
 	endif
 	// Check the general JoinLobby callback.
 	while Steam.HasLobbyEnterResponse()
-		joinedLobby.fromjson(Steam.GetLobbyEnterResponseJSON())
 		if Steam.GetLobbyEnterResponseChatRoomEnterResponse() = EChatRoomEnterResponseSuccess
 			// Store the joined lobby handle.
 			server.hLobby = Steam.GetLobbyEnterLobby()
