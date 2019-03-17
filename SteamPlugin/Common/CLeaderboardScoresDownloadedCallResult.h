@@ -47,9 +47,34 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
-	int GetLeaderboardEntryCount();
-	bool IsValidIndex(int index);
-	LeaderboardEntry_t GetLeaderboardEntry(int index);
+	int GetLeaderboardEntryCount()
+	{
+		return (int)m_Entries.size();
+	}
+	bool IsValidIndex(int index)
+	{
+		return (index >= 0) && (index < (int)m_Entries.size());
+	}
+	uint64 GetLeaderboardEntryUser(int index)
+	{
+		return m_Entries[index].m_steamIDUser.ConvertToUint64();
+	}
+	int GetLeaderboardEntryGlobalRank(int index)
+	{
+		return m_Entries[index].m_nGlobalRank;
+	}
+	int GetLeaderboardEntryScore(int index)
+	{
+		return m_Entries[index].m_nScore;
+	}
+	int GetLeaderboardEntryDetails(int index)
+	{
+		return m_Entries[index].m_cDetails;
+	}
+	uint64 GetLeaderboardEntryUGCHandle(int index)
+	{
+		return m_Entries[index].m_hUGC;
+	}
 protected:
 	void Call();
 private:

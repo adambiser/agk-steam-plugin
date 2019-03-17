@@ -50,6 +50,30 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedSuccess()
+	{
+		return m_LeaderboardScoreUploaded.m_bSuccess;
+	}
+	uint64 CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedHandle()
+	{
+		return m_LeaderboardScoreUploaded.m_hSteamLeaderboard;
+	}
+	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScore()
+	{
+		return m_LeaderboardScoreUploaded.m_nScore;
+	}
+	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScoreChanged()
+	{
+		return m_LeaderboardScoreUploaded.m_bScoreChanged;
+	}
+	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankNew()
+	{
+		return m_LeaderboardScoreUploaded.m_nGlobalRankNew;
+	}
+	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankPrevious()
+	{
+		return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious;
+	}
 protected:
 	void Call();
 private:

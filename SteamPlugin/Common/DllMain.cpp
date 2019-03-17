@@ -94,42 +94,63 @@ inline bool InRange(int value, int min, int max)
 		return returnValue;							\
 	}
 
-// Use to make simple CallResult methods.
-#define _CALLRESULT_BASE(return_type, func_name, callresult_type, wrapped_value, defaultvalue)	\
-	return_type func_name(int hCallResult)											\
-	{																				\
-		if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))	\
-		{																			\
-			return wrapped_value;													\
-		}																			\
-		return defaultvalue;														\
+template <typename CR>
+int GetCallResultValue(int hCallResult, int(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return (callResult->*function)();
 	}
-#define _CALLRESULT_INDEX_BASE(return_type, func_name, callresult_type, wrapped_value, defaultvalue)	\
-	return_type func_name(int hCallResult, int index)								\
-	{																				\
-		if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))	\
-		{																			\
-			if (callResult->IsValidIndex(index))									\
-			{																		\
-				return wrapped_value;												\
-			}																		\
-			agk::PluginError(#func_name ": Index out of range.");					\
-		}																			\
-		return defaultvalue;														\
+	return 0;
+}
+
+template <typename CR>
+int GetCallResultValue(int hCallResult, int index, int(CR::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return (callResult->*function)(index);
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
 	}
+	return 0;
+}
 
-#define CALLRESULT_INT(func_name, callresult_type, value) \
-	_CALLRESULT_BASE(int, func_name, callresult_type, callResult->value, 0)
-#define CALLRESULT_STEAMID(func_name, callresult_type, value) \
-	_CALLRESULT_BASE(int, func_name, callresult_type, SteamHandles()->GetPluginHandle(callResult->value), 0)
-#define CALLRESULT_STRING(func_name, callresult_type, value) \
-	_CALLRESULT_BASE(char *, func_name, callresult_type, utils::CreateString(callResult->value), NULL_STRING)
+template <typename CR>
+int GetCallResultValue(int hCallResult, uint64(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
 
-#define CALLRESULT_INDEX_INT(func_name, callresult_type, value) \
-	_CALLRESULT_INDEX_BASE(int, func_name, callresult_type, callResult->value, 0)
-#define CALLRESULT_INDEX_STEAMID(func_name, callresult_type, value) \
-	_CALLRESULT_INDEX_BASE(int, func_name, callresult_type, SteamHandles()->GetPluginHandle(callResult->value), 0)
+template <typename CR>
+int GetCallResultValue(int hCallResult, int index, uint64(CR::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return SteamHandles()->GetPluginHandle((callResult->*function)(index));
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
 
+template <typename CR>
+char *GetCallResultValue(int hCallResult, std::string (CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
 
 void ResetVariables()
 {
@@ -1419,7 +1440,10 @@ int CreateLobby(int eLobbyType, int maxMembers)
 	return CallResults()->Add(new CLobbyCreatedCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
-CALLRESULT_STEAMID(GetCreateLobbyHandle, CLobbyCreatedCallResult, GetLobbyCreated().m_ulSteamIDLobby);
+int GetCreateLobbyHandle(int hCallResult)
+{
+	return GetCallResultValue<CLobbyCreatedCallResult>(hCallResult, &CLobbyCreatedCallResult::GetLobbyCreatedHandle);
+}
 
 int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
@@ -1647,13 +1671,25 @@ int JoinLobby(int hLobbySteamID)
 	return CallResults()->Add(new CLobbyEnterCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
-CALLRESULT_INT(GetJoinLobbyChatPermissions, CLobbyEnterCallResult, GetLobbyEnter().m_rgfChatPermissions);
+int GetJoinLobbyChatPermissions(int hCallResult)
+{
+	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatPermissions);
+}
 
-CALLRESULT_INT(GetJoinLobbyChatRoomEnterResponse, CLobbyEnterCallResult, GetLobbyEnter().m_EChatRoomEnterResponse);
+int GetJoinLobbyChatRoomEnterResponse(int hCallResult)
+{
+	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatRoomEnterResponse);
+}
 
-CALLRESULT_STEAMID(GetJoinLobbyHandle, CLobbyEnterCallResult, GetLobbyEnter().m_ulSteamIDLobby);
+int GetJoinLobbyHandle(int hCallResult)
+{
+	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterHandle);
+}
 
-CALLRESULT_INT(GetJoinLobbyLocked, CLobbyEnterCallResult, GetLobbyEnter().m_bLocked);
+int GetJoinLobbyLocked(int hCallResult)
+{
+	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterLocked);
+}
 
 void LeaveLobby(int hLobbySteamID)
 {
@@ -1703,9 +1739,15 @@ int RequestLobbyList()
 	return CallResults()->Add(new CLobbyMatchListCallResult());
 }
 
-CALLRESULT_INT(GetRequestLobbyListMatchCount, CLobbyMatchListCallResult, GetLobbyCount());
+int GetRequestLobbyListCount(int hCallResult)
+{
+	return GetCallResultValue<CLobbyMatchListCallResult>(hCallResult, &CLobbyMatchListCallResult::GetLobbyCount);
+}
 
-CALLRESULT_INDEX_STEAMID(GetRequestLobbyListMatchHandle, CLobbyMatchListCallResult, GetLobby(index));
+int GetRequestLobbyListHandle(int hCallResult, int index)
+{
+	return GetCallResultValue<CLobbyMatchListCallResult>(hCallResult, index, &CLobbyMatchListCallResult::GetLobby, __FUNCTION__);
+}
 
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
@@ -2059,21 +2101,12 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 
 char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
-	if (CFileReadAsyncCallResult *callResult = CallResults()->Get<CFileReadAsyncCallResult>(hCallResult))
-	{
-		return utils::CreateString(callResult->GetFileName());
-	}
-	return NULL_STRING;
+	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetFileName);
 }
 
 int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
-	CheckInitialized(0);
-	if (CFileReadAsyncCallResult *callResult = CallResults()->Get<CFileReadAsyncCallResult>(hCallResult))
-	{
-		return callResult->GetMemblockID();
-	}
-	return 0;
+	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
 
 //FileShare
@@ -2100,12 +2133,7 @@ int CloudFileWriteAsync(const char *filename, int memblockID)
 
 char *GetCloudFileWriteAsyncFileName(int hCallResult)
 {
-	CheckInitialized(NULL_STRING);
-	if (CFileWriteAsyncCallResult *callResult = CallResults()->Get<CFileWriteAsyncCallResult>(hCallResult))
-	{
-		return utils::CreateString(callResult->GetFileName());
-	}
-	return NULL_STRING;
+	return GetCallResultValue<CFileWriteAsyncCallResult>(hCallResult, &CFileWriteAsyncCallResult::GetFileName);
 }
 
 //FileWriteStreamCancel
@@ -2432,19 +2460,37 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 
 //DownloadLeaderboardEntriesForUsers
 
-CALLRESULT_INT(GetDownloadLeaderboardEntryCount, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntryCount());
+int GetDownloadLeaderboardEntryCount(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryCount);
+}
 
-CALLRESULT_INDEX_STEAMID(GetDownloadLeaderboardEntryUser, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_steamIDUser);
+int GetDownloadLeaderboardEntryUser(int hCallResult, int index)
+{
+	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUser, __FUNCTION__);
+}
 
-CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryGlobalRank, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nGlobalRank);
+int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index)
+{
+	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryGlobalRank, __FUNCTION__);
+}
 
-CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryScore, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nScore);
+int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
+{
+	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryScore, __FUNCTION__);
+}
 
 // TODO Implement entry details?
-//CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryDetails, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_cDetails);
+//int GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
+//{
+//	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryDetails, __FUNCTION__);
+//}
 
 // TODO UGC
-//CALLRESULT_INDEX_STEAMID(GetDownloadLeaderboardEntryUGC, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_hUGC);
+//int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
+//{
+//	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
+//}
 
 int FindLeaderboard(const char *leaderboardName)
 {
@@ -2454,9 +2500,15 @@ int FindLeaderboard(const char *leaderboardName)
 
 //FindOrCreateLeaderboard
 
-CALLRESULT_INT(GetFindLeaderboardFound, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_bLeaderboardFound);
+int GetFindLeaderboardFound(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardFindCallResult>(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultFound);
+}
 
-CALLRESULT_STEAMID(GetFindLeaderboardHandle, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_hSteamLeaderboard);
+int GetFindLeaderboardHandle(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardFindCallResult>(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultHandle);
+}
 
 int GetAchievement(const char *name)
 {
@@ -2660,6 +2712,36 @@ int UploadLeaderboardScore(int hLeaderboard, int score)
 int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 {
 	return UploadLeaderboardScore(hLeaderboard, k_ELeaderboardUploadScoreMethodForceUpdate, score);
+}
+
+int GetUploadLeaderboardScoreSuccess(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedSuccess);
+}
+
+int GetUploadLeaderboardScoreHandle(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedHandle);
+}
+
+int GetUploadLeaderboardScoreValue(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScore);
+}
+
+int GetUploadLeaderboardScoreChanged(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScoreChanged);
+}
+
+int GetUploadLeaderboardScoreRankNew(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankNew);
+}
+
+int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankPrevious);
 }
 
 //Callbacks

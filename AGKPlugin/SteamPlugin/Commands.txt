@@ -202,6 +202,8 @@ LeaveLobby,0,I,LeaveLobby,0,0,0,0,LeaveLobby
 RemoveFavoriteGame,I,ISIII,RemoveFavoriteGame,0,0,0,0,RemoveFavoriteGame
 RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,RequestLobbyData
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
+GetRequestLobbyListCount,I,I,GetRequestLobbyListCount,0,0,0,0,GetRequestLobbyListCount
+GetRequestLobbyListHandle,I,II,GetRequestLobbyListHandle,0,0,0,0,GetRequestLobbyListHandle
 SendLobbyChatMessage,I,IS,SendLobbyChatMessage,0,0,0,0,SendLobbyChatMessage
 SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,SetLobbyData
 SetLobbyGameServer,I,ISII,SetLobbyGameServer,0,0,0,0,SetLobbyGameServer
@@ -307,8 +309,8 @@ GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,GetHandleFromSteamID64
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
-GetLeaderboardFindResultFound,I,I,GetLeaderboardFindResultFound,0,0,0,0,GetLeaderboardFindResultFound
-GetLeaderboardFindResultHandle,I,I,GetLeaderboardFindResultHandle,0,0,0,0,GetLeaderboardFindResultHandle
+GetFindLeaderboardFound,I,I,GetFindLeaderboardFound,0,0,0,0,GetFindLeaderboardFound
+GetFindLeaderboardHandle,I,I,GetFindLeaderboardHandle,0,0,0,0,GetFindLeaderboardHandle
 GetAchievement,I,S,GetAchievement,0,0,0,0,GetAchievement
 GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,GetAchievementUnlockTime
 GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,GetAchievementDisplayName

@@ -1521,6 +1521,8 @@ extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID);
 @api ISteamMatchmaking#RequestLobbyList, ISteamMatchmaking#LobbyMatchList_t
 */
 extern "C" DLL_EXPORT int RequestLobbyList();
+extern "C" DLL_EXPORT int GetRequestLobbyListCount(int hCallResult);
+extern "C" DLL_EXPORT int GetRequestLobbyListHandle(int hCallResult, int index);
 
 /*
 @desc Broadcasts a chat message to the all of the users in the lobby.
@@ -2352,8 +2354,8 @@ extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 
 //FindOrCreateLeaderboard
 
-extern "C" DLL_EXPORT int GetLeaderboardFindResultFound(int hCallResult);
-extern "C" DLL_EXPORT int GetLeaderboardFindResultHandle(int hCallResult);
+extern "C" DLL_EXPORT int GetFindLeaderboardFound(int hCallResult);
+extern "C" DLL_EXPORT int GetFindLeaderboardHandle(int hCallResult);
 
 /*
 @desc Gets whether the user has achieved this achievement.

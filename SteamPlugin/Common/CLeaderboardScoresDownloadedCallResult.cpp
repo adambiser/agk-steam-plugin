@@ -52,32 +52,6 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 	}
 }
 
-int CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryCount()
-{
-	return (int)m_Entries.size();
-}
-
-bool CLeaderboardScoresDownloadedCallResult::IsValidIndex(int index)
-{
-	return (index >= 0) && (index < (int)m_Entries.size());
-}
-
-LeaderboardEntry_t CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntry(int index)
-{
-	//if (index < 0 || index >= (int)m_Entries.size())
-	//{
-	//	agk::PluginError("")
-	//	LeaderboardEntry_t blank;
-	//	blank.m_cDetails = 0;
-	//	blank.m_hUGC = 0;
-	//	blank.m_nGlobalRank = 0;
-	//	blank.m_nScore = 0;
-	//	blank.m_steamIDUser = k_steamIDNil;
-	//	return blank;
-	//}
-	return m_Entries[index];
-}
-
 void CLeaderboardScoresDownloadedCallResult::Call()
 {
 	m_hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(m_hLeaderboard, m_eLeaderboardDataRequest, m_nRangeStart, m_nRangeEnd);

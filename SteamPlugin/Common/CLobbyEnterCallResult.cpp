@@ -37,11 +37,6 @@ void CLobbyEnterCallResult::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
 	}
 }
 
-LobbyEnter_t CLobbyEnterCallResult::GetLobbyEnter()
-{
-	return m_LobbyEnter;
-}
-
 void CLobbyEnterCallResult::Call()
 {
 	m_hSteamAPICall = SteamMatchmaking()->JoinLobby(m_steamIDLobby);

@@ -37,11 +37,6 @@ void CLeaderboardFindCallResult::OnFindLeaderboard(LeaderboardFindResult_t *pCal
 	}
 }
 
-LeaderboardFindResult_t CLeaderboardFindCallResult::GetLeaderboardFindResult()
-{
-	return m_LeaderboardFindResult;
-}
-
 void CLeaderboardFindCallResult::Call()
 {
 	m_hSteamAPICall = SteamUserStats()->FindLeaderboard(m_LeaderboardName.c_str());

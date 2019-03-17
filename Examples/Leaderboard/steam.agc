@@ -222,7 +222,7 @@ Function ProcessCallbacks()
 				if result = EResultOK
 					//~ foundLeaderboard as LeaderboardFindResult_t
 					//~ foundLeaderboard.fromjson(Steam.GetCallResultJSON(leaderboardInfo[x].callResult))
-					leaderboardInfo[x].handle = Steam.GetLeaderboardFindResultHandle(leaderboardInfo[x].callResult)
+					leaderboardInfo[x].handle = Steam.GetFindLeaderboardHandle(leaderboardInfo[x].callResult)
 					// If the leaderboard is not found, the handle is 0.
 					if leaderboardInfo[x].handle <> 0
 						// Refresh some information if the currently-viewed leaderboard has loaded.

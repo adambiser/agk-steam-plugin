@@ -45,7 +45,10 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
-	LobbyCreated_t GetLobbyCreated();
+	uint64 GetLobbyCreatedHandle()
+	{
+		return m_LobbyCreated.m_ulSteamIDLobby;
+	}
 protected:
 	void Call();
 private:

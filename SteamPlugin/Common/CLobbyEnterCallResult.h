@@ -44,7 +44,22 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
-	LobbyEnter_t GetLobbyEnter();
+	uint64 GetLobbyEnterHandle()
+	{
+		return m_LobbyEnter.m_ulSteamIDLobby;
+	}
+	int GetLobbyEnterChatPermissions()
+	{
+		return (int)m_LobbyEnter.m_rgfChatPermissions;
+	}
+	int GetLobbyEnterLocked()
+	{
+		return (int)m_LobbyEnter.m_bLocked;
+	}
+	int GetLobbyEnterChatRoomEnterResponse()
+	{
+		return (int)m_LobbyEnter.m_EChatRoomEnterResponse;
+	}
 protected:
 	void Call();
 private:

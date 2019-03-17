@@ -41,7 +41,14 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
-	LeaderboardFindResult_t GetLeaderboardFindResult();
+	int GetLeaderboardFindResultFound()
+	{
+		return m_LeaderboardFindResult.m_bLeaderboardFound;
+	}
+	SteamLeaderboard_t GetLeaderboardFindResultHandle()
+	{
+		return m_LeaderboardFindResult.m_hSteamLeaderboard;
+	}
 protected:
 	void Call();
 private:

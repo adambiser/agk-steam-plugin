@@ -38,9 +38,18 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
-	int GetLobbyCount();
-	bool IsValidIndex(int index);
-	CSteamID GetLobby(int index);
+	int GetLobbyCount()
+	{
+		return (int)m_Lobbies.size();
+	}
+	bool IsValidIndex(int index)
+	{
+		return index >= 0 && index < (int)m_Lobbies.size();
+	}
+	uint64 GetLobby(int index)
+	{
+		return m_Lobbies[index].ConvertToUint64();
+	}
 protected:
 	void Call();
 private:
