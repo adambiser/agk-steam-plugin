@@ -47,6 +47,9 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	int GetLeaderboardEntryCount();
+	bool IsValidIndex(int index);
+	LeaderboardEntry_t GetLeaderboardEntry(int index);
 protected:
 	void Call();
 private:

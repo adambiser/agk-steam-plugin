@@ -218,29 +218,29 @@ Function ProcessCallbacks()
 		if leaderboardInfo[x].callResult
 			result = Steam.GetCallResultCode(leaderboardInfo[x].callResult)
 			if result
-				//~ AddStatus(Steam.GetCallResultJSON(leaderboardInfo[x].callResult))
-				//~ if result = EResultOK
+				AddStatus("Find Leaderboard result = " + str(result))
+				if result = EResultOK
 					//~ foundLeaderboard as LeaderboardFindResult_t
 					//~ foundLeaderboard.fromjson(Steam.GetCallResultJSON(leaderboardInfo[x].callResult))
-					//~ leaderboardInfo[x].handle = foundLeaderboard.SteamLeaderboard
-					//~ // If the leaderboard is not found, the handle is 0.
-					//~ if leaderboardInfo[x].handle <> 0
-						//~ // Refresh some information if the currently-viewed leaderboard has loaded.
-						//~ if x = server.currentLeaderboard
-							//~ RefreshLeaderboardInfo()
-							//~ DownloadUserRank()
-						//~ endif
-						//~ AddStatus("Leaderboard '" + leaderboardInfo[x].name + "' handle: " + str(leaderboardInfo[x].handle))
-						//~ AddStatus("Leaderboard entry count: " + str(Steam.GetLeaderboardEntryCount(leaderboardInfo[x].handle)))
-						//~ AddStatus("Leaderboard display type: " + str(Steam.GetLeaderboardDisplayType(leaderboardInfo[x].handle)))
-						//~ AddStatus("Leaderboard sort: " + str(Steam.GetLeaderboardSortMethod(leaderboardInfo[x].handle)))
-					//~ else
-						//~ // Technically the CallResult will go to STATE_SERVER_ERROR when the handle is 0.
-						//~ AddStatus("GetLeaderboardHandle error!")
-					//~ endif
-				//~ else
-					//~ AddStatus("ERROR: FindLeaderboard.")
-				//~ endif
+					leaderboardInfo[x].handle = Steam.GetLeaderboardFindResultHandle(leaderboardInfo[x].callResult)
+					// If the leaderboard is not found, the handle is 0.
+					if leaderboardInfo[x].handle <> 0
+						// Refresh some information if the currently-viewed leaderboard has loaded.
+						if x = server.currentLeaderboard
+							RefreshLeaderboardInfo()
+							DownloadUserRank()
+						endif
+						AddStatus("Leaderboard '" + leaderboardInfo[x].name + "' handle: " + str(leaderboardInfo[x].handle))
+						AddStatus("Leaderboard entry count: " + str(Steam.GetLeaderboardEntryCount(leaderboardInfo[x].handle)))
+						AddStatus("Leaderboard display type: " + str(Steam.GetLeaderboardDisplayType(leaderboardInfo[x].handle)))
+						AddStatus("Leaderboard sort: " + str(Steam.GetLeaderboardSortMethod(leaderboardInfo[x].handle)))
+					else
+						// Technically the CallResult will go to STATE_SERVER_ERROR when the handle is 0.
+						AddStatus("GetLeaderboardHandle error!")
+					endif
+				else
+					AddStatus("ERROR: FindLeaderboard.")
+				endif
 				// We're done with the CallResult.  Delete it.
 				Steam.DeleteCallResult(leaderboardInfo[x].callResult)
 				leaderboardInfo[x].callResult = 0

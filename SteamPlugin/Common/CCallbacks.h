@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "DllMain.h"
+#include "PluginTypes.h"
 #include <steam_api.h>
 #include "Utils.h"
 #include <list>
@@ -32,12 +33,7 @@ THE SOFTWARE.
 #include <mutex>
 #include <vector>
 
-enum EAvatarSize
-{
-	Small = 0,
-	Medium = 1,
-	Large = 2
-};
+// TODO get rid of the "Enabled" function for callbacks.  Leave them on always.
 
 #define _CALLBACK_LIST_MAIN(func, callback_type, list_type)		\
 	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\

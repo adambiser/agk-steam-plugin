@@ -41,6 +41,7 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	LeaderboardFindResult_t GetLeaderboardFindResult();
 protected:
 	void Call();
 private:

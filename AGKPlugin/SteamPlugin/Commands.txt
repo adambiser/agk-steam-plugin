@@ -307,6 +307,8 @@ GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,GetHandleFromSteamID64
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
+GetLeaderboardFindResultFound,I,I,GetLeaderboardFindResultFound,0,0,0,0,GetLeaderboardFindResultFound
+GetLeaderboardFindResultHandle,I,I,GetLeaderboardFindResultHandle,0,0,0,0,GetLeaderboardFindResultHandle
 GetAchievement,I,S,GetAchievement,0,0,0,0,GetAchievement
 GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,GetAchievementUnlockTime
 GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,GetAchievementDisplayName
