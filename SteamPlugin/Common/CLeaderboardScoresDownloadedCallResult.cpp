@@ -59,7 +59,7 @@ int CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryCount()
 
 bool CLeaderboardScoresDownloadedCallResult::IsValidIndex(int index)
 {
-	return (index >= 0) && (index < (int)m_Entries.size())
+	return (index >= 0) && (index < (int)m_Entries.size());
 }
 
 LeaderboardEntry_t CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntry(int index)

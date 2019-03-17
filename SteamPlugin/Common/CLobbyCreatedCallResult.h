@@ -45,6 +45,7 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	LobbyCreated_t GetLobbyCreated();
 protected:
 	void Call();
 private:

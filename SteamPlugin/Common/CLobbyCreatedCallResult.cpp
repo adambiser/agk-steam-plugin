@@ -46,6 +46,11 @@ void CLobbyCreatedCallResult::OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFai
 	}
 }
 
+LobbyCreated_t CLobbyCreatedCallResult::GetLobbyCreated()
+{
+	return m_LobbyCreated;
+}
+
 void CLobbyCreatedCallResult::Call()
 {
 	m_hSteamAPICall = SteamMatchmaking()->CreateLobby(m_eLobbyType, m_cMaxMembers);

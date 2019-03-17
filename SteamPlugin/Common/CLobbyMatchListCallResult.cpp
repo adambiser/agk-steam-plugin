@@ -40,6 +40,21 @@ void CLobbyMatchListCallResult::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchLi
 	}
 }
 
+int CLobbyMatchListCallResult::GetLobbyCount()
+{
+	return (int)m_Lobbies.size();
+}
+
+bool CLobbyMatchListCallResult::IsValidIndex(int index)
+{
+	return index >= 0 && index < (int)m_Lobbies.size();
+}
+
+CSteamID CLobbyMatchListCallResult::GetLobby(int index)
+{
+	return m_Lobbies[index];
+}
+
 void CLobbyMatchListCallResult::Call()
 {
 	m_hSteamAPICall = SteamMatchmaking()->RequestLobbyList();

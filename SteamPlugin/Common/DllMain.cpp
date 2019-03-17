@@ -1419,6 +1419,8 @@ int CreateLobby(int eLobbyType, int maxMembers)
 	return CallResults()->Add(new CLobbyCreatedCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
+CALLRESULT_STEAMID(GetCreateLobbyHandle, CLobbyCreatedCallResult, GetLobbyCreated().m_ulSteamIDLobby);
+
 int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(false);
@@ -1645,6 +1647,14 @@ int JoinLobby(int hLobbySteamID)
 	return CallResults()->Add(new CLobbyEnterCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
+CALLRESULT_INT(GetJoinLobbyChatPermissions, CLobbyEnterCallResult, GetLobbyEnter().m_rgfChatPermissions);
+
+CALLRESULT_INT(GetJoinLobbyChatRoomEnterResponse, CLobbyEnterCallResult, GetLobbyEnter().m_EChatRoomEnterResponse);
+
+CALLRESULT_STEAMID(GetJoinLobbyHandle, CLobbyEnterCallResult, GetLobbyEnter().m_ulSteamIDLobby);
+
+CALLRESULT_INT(GetJoinLobbyLocked, CLobbyEnterCallResult, GetLobbyEnter().m_bLocked);
+
 void LeaveLobby(int hLobbySteamID)
 {
 	CheckInitialized(NORETURN);
@@ -1692,6 +1702,10 @@ int RequestLobbyList()
 	CheckInitialized(0);
 	return CallResults()->Add(new CLobbyMatchListCallResult());
 }
+
+CALLRESULT_INT(GetRequestLobbyListMatchCount, CLobbyMatchListCallResult, GetLobbyCount());
+
+CALLRESULT_INDEX_STEAMID(GetRequestLobbyListMatchHandle, CLobbyMatchListCallResult, GetLobby(index));
 
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
@@ -2420,74 +2434,17 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 
 CALLRESULT_INT(GetDownloadLeaderboardEntryCount, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntryCount());
 
-//CALLRESULT_INDEX_STEAMID(GetDownloadLeaderboardEntryUser, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_steamIDUser);
-//
-//CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryGlobalRank, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nGlobalRank);
-//
-//CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryGlobalRank, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nGlobalRank);
+CALLRESULT_INDEX_STEAMID(GetDownloadLeaderboardEntryUser, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_steamIDUser);
 
-int GetDownloadLeaderboardEntryUser(int hCallResult, int index)
-{
-	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		if (callResult->IsValidIndex(index))
-		{
-			return SteamHandles()->GetPluginHandle(callResult->GetLeaderboardEntry(index).m_steamIDUser);
-		}
-		agk::PluginError("GetDownloadLeaderboardEntryUser" ": Index out of range.");
-	}
-	return 0;
-}
+CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryGlobalRank, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nGlobalRank);
 
-int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index)
-{
-	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		if (InRange(index, 0, callResult->GetLeaderboardEntryCount() - 1))
-		{
-			return callResult->GetLeaderboardEntry(index).m_nGlobalRank;
-		}
-	}
-	return 0;
-}
-
-int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
-{
-	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-	{
-		if (InRange(index, 0, callResult->GetLeaderboardEntryCount() - 1))
-		{
-			return callResult->GetLeaderboardEntry(index).m_nScore;
-		}
-	}
-	return 0;
-}
+CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryScore, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nScore);
 
 // TODO Implement entry details?
-//int GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
-//{
-//	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-//	{
-//		if (IN_RANGE(index, 0, callResult->GetLeaderboardEntryCount() - 1))
-//		{
-//			return callResult->GetLeaderboardEntry(index).m_cDetails;
-//		}
-//	}
-//	return 0;
-//}
+//CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryDetails, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_cDetails);
 
 // TODO UGC
-//int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
-//{
-//	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
-//	{
-//		if (IN_RANGE(index, 0, callResult->GetLeaderboardEntryCount() - 1))
-//		{
-//			return SteamHandles()->GetPluginHandle(callResult->GetLeaderboardEntry(index).m_hUGC);
-//		}
-//	}
-//	return 0;
-//}
+//CALLRESULT_INDEX_STEAMID(GetDownloadLeaderboardEntryUGC, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_hUGC);
 
 int FindLeaderboard(const char *leaderboardName)
 {
@@ -2497,9 +2454,9 @@ int FindLeaderboard(const char *leaderboardName)
 
 //FindOrCreateLeaderboard
 
-CALLRESULT_INT(GetLeaderboardFindResultFound, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_bLeaderboardFound);
+CALLRESULT_INT(GetFindLeaderboardFound, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_bLeaderboardFound);
 
-CALLRESULT_STEAMID(GetLeaderboardFindResultHandle, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_hSteamLeaderboard);
+CALLRESULT_STEAMID(GetFindLeaderboardHandle, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_hSteamLeaderboard);
 
 int GetAchievement(const char *name)
 {

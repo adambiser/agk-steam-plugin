@@ -44,6 +44,7 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	LobbyEnter_t GetLobbyEnter();
 protected:
 	void Call();
 private:

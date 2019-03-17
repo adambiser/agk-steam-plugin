@@ -38,6 +38,9 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	int GetLobbyCount();
+	bool IsValidIndex(int index);
+	CSteamID GetLobby(int index);
 protected:
 	void Call();
 private:
