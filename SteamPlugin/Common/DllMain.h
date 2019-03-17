@@ -33,7 +33,6 @@ THE SOFTWARE.
 #endif
 #endif
 #include "steam_api.h"
-#include "PluginTypes.h"
 #include <mutex>
 #include <vector>
 
@@ -41,11 +40,11 @@ THE SOFTWARE.
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
 
-//int GetPluginHandle(uint64 handle);
-//int GetPluginHandle(CSteamID steamID);
+#define AVATAR_SMALL	0 // 32x32
+#define AVATAR_MEDIUM	1 // 64x64
+#define AVATAR_LARGE	2 // 128x128
 
 extern uint64 g_AppID;
-extern bool g_SteamInitialized;
 extern std::mutex g_JoinedLobbiesMutex;
 extern std::vector<CSteamID> g_JoinedLobbies;
 
@@ -2352,6 +2351,9 @@ FindLeaderboard
 extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 
 //FindOrCreateLeaderboard
+
+extern "C" DLL_EXPORT int GetLeaderboardFindResultFound(int hCallResult);
+extern "C" DLL_EXPORT int GetLeaderboardFindResultHandle(int hCallResult);
 
 /*
 @desc Gets whether the user has achieved this achievement.

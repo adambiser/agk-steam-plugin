@@ -47,19 +47,14 @@ THE SOFTWARE.
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
 
-#define MEMBLOCK_IMAGE_HEADER_LENGTH	12
-
 // GLOBALS!
+// Move into Callbacks().
 uint64 g_AppID = 0;
-bool g_SteamInitialized = false;
-//InputActionSetHandle_t g_hActionSetLayers[STEAM_INPUT_MAX_COUNT];
-//int g_nActionSetLayersCount;
-InputAnalogActionData_t g_AnalogActionData;
-InputDigitalActionData_t g_DigitalActionData;
-uint8 g_nMinutesBatteryLeft = 255;
+bool g_SteamInitialized;
 std::mutex g_JoinedLobbiesMutex;
 std::vector<CSteamID> g_JoinedLobbies; // Keep track so we don't leave any left open when closing.
-
+int g_InputCount = 0;
+InputHandle_t g_InputHandles[STEAM_INPUT_MAX_COUNT];
 
 /*
 Check to see if the SteamPlugin has been initialized.
@@ -85,51 +80,10 @@ If it has not been, return a default value.
 		value = max;			\
 	}
 
-///*
-//	CSteamID Handle Methods
-//*/
-//std::vector <uint64> m_SteamHandles;
-//
-//uint64 SteamHandles()->GetSteamHandle(int handle) // from plugin handle.
-//{
-//	// Handles are 1-based!
-//	if (handle >= 0 && handle < (int)m_SteamHandles.size())
-//	{
-//		return m_SteamHandles[handle];
-//	}
-//	agk::PluginError("Invalid CSteamID handle.");
-//	return 0;
-//}
-//
-//int SteamHandles()->GetPluginHandle(uint64 handle)
-//{
-//	int index = (int)(std::find(m_SteamHandles.begin(), m_SteamHandles.end(), handle) - m_SteamHandles.begin());
-//	if (index < (int)m_SteamHandles.size())
-//	{
-//		// Handles are 1-based!
-//		return index;
-//	}
-//	m_SteamHandles.push_back(handle);
-//	return (int)m_SteamHandles.size() - 1;
-//}
-//
-//int SteamHandles()->GetPluginHandle(CSteamID steamID)
-//{
-//	return SteamHandles()->GetPluginHandle(steamID.ConvertToUint64());
-//}
-//
-//void ClearSteamHandlesList()
-//{
-//	m_SteamHandles.clear();
-//	// Handle 0 is always k_steamIDNil.
-//	m_SteamHandles.push_back(k_steamIDNil.ConvertToUint64());
-//}
-
-/*
-	InputHandle_t Handle Methods
-*/
-int g_InputCount = 0;
-InputHandle_t g_InputHandles[STEAM_INPUT_MAX_COUNT];
+inline bool InRange(int value, int min, int max)
+{
+	return (min <= value && value <= max);
+}
 
 // Handles are 1-based!
 #define ValidateInputHandle(index, returnValue)		\
@@ -140,61 +94,43 @@ InputHandle_t g_InputHandles[STEAM_INPUT_MAX_COUNT];
 		return returnValue;							\
 	}
 
-/*
-Input Handles
-*/
-//std::vector <InputActionSetHandle_t> m_ActionSetHandles;
-//std::vector <InputDigitalActionHandle_t> m_DigitalActionHandles;
-//std::vector <InputAnalogActionHandle_t> m_AnalogActionHandles;
+// Use to make simple CallResult methods.
+#define _CALLRESULT_BASE(return_type, func_name, callresult_type, wrapped_value, defaultvalue)	\
+	return_type func_name(int hCallResult)											\
+	{																				\
+		if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))	\
+		{																			\
+			return wrapped_value;													\
+		}																			\
+		return defaultvalue;														\
+	}
+#define _CALLRESULT_INDEX_BASE(return_type, func_name, callresult_type, wrapped_value, defaultvalue)	\
+	return_type func_name(int hCallResult, int index)								\
+	{																				\
+		if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))	\
+		{																			\
+			if (callResult->IsValidIndex(index))									\
+			{																		\
+				return wrapped_value;												\
+			}																		\
+			agk::PluginError(#func_name ": Index out of range.");					\
+		}																			\
+		return defaultvalue;														\
+	}
 
-//template <typename T>
-//inline T GetActionHandle(int handle, std::vector<T> *vector)
-//{
-//	// Handles are 1-based!
-//	if (handle >= 0 && handle < (int)vector->size())
-//	{
-//		return (*vector)[handle];
-//	}
-//	agk::PluginError("Invalid handle.");
-//	return 0;
-//}
+#define CALLRESULT_INT(func_name, callresult_type, value) \
+	_CALLRESULT_BASE(int, func_name, callresult_type, callResult->value, 0)
+#define CALLRESULT_STEAMID(func_name, callresult_type, value) \
+	_CALLRESULT_BASE(int, func_name, callresult_type, SteamHandles()->GetPluginHandle(callResult->value), 0)
+#define CALLRESULT_STRING(func_name, callresult_type, value) \
+	_CALLRESULT_BASE(char *, func_name, callresult_type, utils::CreateString(callResult->value), NULL_STRING)
 
-//#define ValidateActionHandle(handleType, handleVar, handleIndex, vector, returnValue)	\
-//	if (handleIndex <= 0 || handleIndex >= (int)vector.size())	\
-//	{															\
-//		agk::PluginError("Invalid " #handleType " handle.");		\
-//		return returnValue;										\
-//	}															\
-//	handleType handleVar = vector[handleIndex]
-//
-//template <typename T>
-//inline int GetActionHandleIndex(T handle, std::vector<T> *vector)
-//{
-//	int index = (int)(std::find(vector->begin(), vector->end(), handle) - vector->begin());
-//	if (index < (int)vector->size())
-//	{
-//		// Handles are 1-based!
-//		return index;
-//	}
-//	vector->push_back(handle);
-//	return (int)vector->size() - 1;
-//}
+#define CALLRESULT_INDEX_INT(func_name, callresult_type, value) \
+	_CALLRESULT_INDEX_BASE(int, func_name, callresult_type, callResult->value, 0)
+#define CALLRESULT_INDEX_STEAMID(func_name, callresult_type, value) \
+	_CALLRESULT_INDEX_BASE(int, func_name, callresult_type, SteamHandles()->GetPluginHandle(callResult->value), 0)
 
-//void ClearActionSetHandleList()
-//{
-//	m_ActionSetHandles.clear();
-//	m_DigitalActionHandles.clear();
-//	m_AnalogActionHandles.clear();
-//	// Handle 0 is always 0.
-//	m_ActionSetHandles.push_back(0);
-//	m_DigitalActionHandles.push_back(0);
-//	m_AnalogActionHandles.push_back(0);
-//}
-//
-/*
-	IP Address Parsing Methods
-*/
-//#define ConvertIPToString(ip) ((ip >> 24) & 0xff) << "." << ((ip >> 16) & 0xff) << "." << ((ip >> 8) & 0xff) << "." << ((ip >> 0) & 0xff)
+
 void ResetVariables()
 {
 	// Disconnect from any lobbies.
@@ -209,16 +145,9 @@ void ResetVariables()
 	// Clear handles
 	CallResults()->Clear();
 	SteamHandles()->Clear();
-	//ClearSteamHandlesList();
-	//ClearActionSetHandleList();
-	// Input
-	Clear(g_AnalogActionData);
-	Clear(g_DigitalActionData);
-	g_InputCount = 0;
 	// Variables
 	g_AppID = 0;
-	g_SteamInitialized = 0;
-	g_JoinedLobbies.clear();
+	g_InputCount = 0;
 	g_SteamInitialized = false;
 }
 
@@ -381,8 +310,6 @@ void Shutdown()
 {
 	ResetVariables();
 	SteamAPI_Shutdown();
-	//delete Steam;
-	//Steam = NULL;
 }
 
 // TODO S_API void S_CALLTYPE SteamAPI_WriteMiniDump( uint32 uStructuredExceptionCode, void* pvExceptionInfo, uint32 uBuildID );
@@ -1275,15 +1202,15 @@ int GetFriendAvatar(int hUserSteamID, int size)
 	Callbacks()->EnableAvatarImageLoadedCallback();
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
-	switch ((EAvatarSize)size)
+	switch (size)
 	{
-	case Small:
+	case AVATAR_SMALL:
 		hImage = SteamFriends()->GetSmallFriendAvatar(steamID);
 		break;
-	case Medium:
+	case AVATAR_MEDIUM:
 		hImage = SteamFriends()->GetMediumFriendAvatar(steamID);
 		break;
-	case Large:
+	case AVATAR_LARGE:
 		hImage = SteamFriends()->GetLargeFriendAvatar(steamID);
 		break;
 	default:
@@ -2118,7 +2045,6 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 
 char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
-	CheckInitialized(NULL_STRING);
 	if (CFileReadAsyncCallResult *callResult = CallResults()->Get<CFileReadAsyncCallResult>(hCallResult))
 	{
 		return utils::CreateString(callResult->GetFileName());
@@ -2492,6 +2418,77 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 
 //DownloadLeaderboardEntriesForUsers
 
+CALLRESULT_INT(GetDownloadLeaderboardEntryCount, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntryCount());
+
+//CALLRESULT_INDEX_STEAMID(GetDownloadLeaderboardEntryUser, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_steamIDUser);
+//
+//CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryGlobalRank, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nGlobalRank);
+//
+//CALLRESULT_INDEX_INT(GetDownloadLeaderboardEntryGlobalRank, CLeaderboardScoresDownloadedCallResult, GetLeaderboardEntry(index).m_nGlobalRank);
+
+int GetDownloadLeaderboardEntryUser(int hCallResult, int index)
+{
+	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return SteamHandles()->GetPluginHandle(callResult->GetLeaderboardEntry(index).m_steamIDUser);
+		}
+		agk::PluginError("GetDownloadLeaderboardEntryUser" ": Index out of range.");
+	}
+	return 0;
+}
+
+int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index)
+{
+	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+	{
+		if (InRange(index, 0, callResult->GetLeaderboardEntryCount() - 1))
+		{
+			return callResult->GetLeaderboardEntry(index).m_nGlobalRank;
+		}
+	}
+	return 0;
+}
+
+int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
+{
+	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+	{
+		if (InRange(index, 0, callResult->GetLeaderboardEntryCount() - 1))
+		{
+			return callResult->GetLeaderboardEntry(index).m_nScore;
+		}
+	}
+	return 0;
+}
+
+// TODO Implement entry details?
+//int GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
+//{
+//	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+//	{
+//		if (IN_RANGE(index, 0, callResult->GetLeaderboardEntryCount() - 1))
+//		{
+//			return callResult->GetLeaderboardEntry(index).m_cDetails;
+//		}
+//	}
+//	return 0;
+//}
+
+// TODO UGC
+//int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
+//{
+//	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+//	{
+//		if (IN_RANGE(index, 0, callResult->GetLeaderboardEntryCount() - 1))
+//		{
+//			return SteamHandles()->GetPluginHandle(callResult->GetLeaderboardEntry(index).m_hUGC);
+//		}
+//	}
+//	return 0;
+//}
+
 int FindLeaderboard(const char *leaderboardName)
 {
 	CheckInitialized(false);
@@ -2499,6 +2496,10 @@ int FindLeaderboard(const char *leaderboardName)
 }
 
 //FindOrCreateLeaderboard
+
+CALLRESULT_INT(GetLeaderboardFindResultFound, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_bLeaderboardFound);
+
+CALLRESULT_STEAMID(GetLeaderboardFindResultHandle, CLeaderboardFindCallResult, GetLeaderboardFindResult().m_hSteamLeaderboard);
 
 int GetAchievement(const char *name)
 {
@@ -2772,6 +2773,8 @@ int GetCurrentBatteryPower()
 
 //GetEnteredGamepadTextInput - used in callback
 //GetEnteredGamepadTextLength - used in callback
+
+#define MEMBLOCK_IMAGE_HEADER_LENGTH	12
 
 int LoadImageFromHandle(int imageID, int hImage)
 {
