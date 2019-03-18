@@ -49,11 +49,12 @@ extern std::mutex g_JoinedLobbiesMutex;
 extern std::vector<CSteamID> g_JoinedLobbies;
 
 #pragma region Additional Methods
-/* @page Additional Methods */
+/* @page Additional Methods
+
+These commands are not part of the Steamworks SDK but are included as a convenience.
+*/
 /*
 @desc Returns the command line arguments.
-
-_Note: This command is not part of the Steam API, but is included as a convenience._
 @return The command line arguments as a JSON string of an array of strings.
 */
 extern "C" DLL_EXPORT char *GetCommandLineArgsJSON();
@@ -62,16 +63,13 @@ extern "C" DLL_EXPORT char *GetCommandLineArgsJSON();
 @desc Returns the path of the folder containing the Steam client EXE as found in the registry
 by reading the value of SteamPath in HKEY_CURRENT_USER\Software\Valve\Steam.
 The path may contain slashes instead of backslashes and the trailing slash may or may not be included.
-
-_Note: This command is not part of the Steam API, but is included as a convenience._
-@return The Steam path.
+@return The path at which the Steam client is installed.
 */
 extern "C" DLL_EXPORT char *GetSteamPath();
 
 /*
-@desc Attempts to detect when Steam is being emulated.  Emulation is sometimes used with pirated games, but it can also be used for valid reasons.
-
-_Note: This command is not part of the Steam API, but is included as a convenience._
+@desc Attempts to detect when Steam is being emulated.
+Emulation is sometimes used with pirated games, but it can also be used for valid reasons.
 @return 1 when Steam emulation is detected, otherwise 0.
 */
 extern "C" DLL_EXPORT int IsSteamEmulated();
@@ -79,8 +77,7 @@ extern "C" DLL_EXPORT int IsSteamEmulated();
 #undef SetFileAttributes
 /*
 @desc Sets the attributes of a file.
-This is only included to help with development because the AppGameKit IDE deletes Steam files
-in the project folder when the interpreter exits.
+This is only included to help with development because the AppGameKit IDE deletes Steam files in the project folder when the interpreter exits.
 @param filename The name of the file whose attributes are to be set.
 @param attributes The file attributes to set for the file.
 @return 1 if successful; otherwise, 0.
@@ -89,9 +86,14 @@ extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes
 #pragma endregion
 
 #pragma region CallResult Methods
-/* @page CallResult Methods */
+/* @page CallResult Methods
+
+Some Steamworks methods are asynchronous commands that return call result handles.
+
+Use GetCallResultCode to check the status of a call result and DeleteCallResult once the call result has been processed.
+*/
 /*
-@desc Deletes a [call result](Callbacks-and-Call-Results#call-results) and frees any associated memory for the call result.
+@desc Deletes a [call result](Callbacks-and-Call-Results#call-results) and its data.
 @param hCallResult The call result handle to delete.
 */
 extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
@@ -100,7 +102,7 @@ extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult);
 @desc Returns the result code of the given [call result](Callbacks-and-Call-Results#call-results).
 @param hCallResult The call result handle to check.
 @return An EResult code.
-@api link to EResult
+@api steam_api#EResult
 */
 extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult);
 #pragma endregion
@@ -117,7 +119,7 @@ This also calls RequestCurrentStats() internally so calling code does not need t
 extern "C" DLL_EXPORT int Init();
 
 /*
-@desc Gets whether the Steam API is currently initialized.
+@desc Returns whether the Steam API is currently initialized.
 @return 1 when the Steam API is initialized; otherwise 0.
 */
 extern "C" DLL_EXPORT int IsSteamInitialized();
@@ -131,6 +133,7 @@ Tests to see if the game has been started through the Steam Client.  Effectively
 @return
 1 when a new instance of the game has been started by Steam Client and this instance should close as soon as possible;
 otherwise 0 when the game is already running from the Steam Client.
+
 0 will also be reported if the steam_appid.txt file exists.
 @api steam_api#SteamAPI_RestartAppIfNecessary
 */
@@ -276,37 +279,42 @@ extern "C" DLL_EXPORT char *GetCurrentGameLanguage();
 extern "C" DLL_EXPORT int GetDLCCount();
 
 /*
-@desc Gets DLC metadata of all DLCs for this app.
-@return A JSON string of an array of DLC information. (See steam_constants.agc)
-```
-Type DLCData_t
-AppID as integer	// If 0, the DLC is hidden.
-Available as integer	// Boolean: If 1, the user owns the DLC.
-Name as string
-EndType
-```
+@desc Returns the App ID of a DLC by index.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return The AppID if the index is valid; otherwise 0.
 @api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
 */
-//extern "C" DLL_EXPORT char *GetDLCDataJSON();
 extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index);
+
+/*
+@desc Returns whether the DLC at the given index is available.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return 1 if available; otherwise 0.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
 extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index);
+
+/*
+@desc Returns the name of the DLC at the given index.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return The DLC name if the index is valid; otherwise and empty string.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
 extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index);
 
 /*
-@desc Gets the download progress for DLC.
+@desc Gets the bytes downloaded of the download progress for DLC.
 @param appID The App ID of the DLC to monitor.
 @return A JSON string of the download progress.
-```
-Type DownloadProgress_t
-AppID as integer			// If 0, the DLC is not currently downloading.
-BytesDownloaded as integer
-BytesTotal as integer
-EndType
-```
 @api ISteamApps#GetDlcDownloadProgress
 */
-//extern "C" DLL_EXPORT char *GetDLCDownloadProgressJSON(int appID);
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesDownloaded(int appID);
+/*
+@desc Gets the bytes total of the download progress for DLC.
+@param appID The App ID of the DLC to monitor.
+@return A JSON string of the download progress.
+@api ISteamApps#GetDlcDownloadProgress
+*/
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesTotal(int appID);
 
 /*
@@ -341,7 +349,7 @@ extern "C" DLL_EXPORT char *GetLaunchCommandLine();
 extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key);
 
 /*
-@desc HasDLCInstalled will report true when a DLC has finished installing.
+@desc Install a DLC.  HasDLCInstalledResponse will report true when a DLC has finished installing.
 @param appID The App ID of the DLC you want to install.
 @api ISteamApps#InstallDLC
 */
@@ -352,6 +360,7 @@ extern "C" DLL_EXPORT void InstallDLC(int appID);
 
 If you detect the game is out-of-date (for example, by having the client detect a version mismatch with a server),
 you can call use MarkContentCorrupt to force a verify, show a message to the user, and then quit.
+@param missingFilesOnly Only scan for missing files, don't verify the checksum of each file.
 @return A boolean as 0 or 1.  Steam API doesn't indicate what this means.
 @api ISteamApps#MarkContentCorrupt
 */
@@ -368,15 +377,15 @@ extern "C" DLL_EXPORT void UninstallDLC(int appID);
 
 /*
 @desc Triggered after the current user gains ownership of DLC and that DLC is installed.
-@return 1 when a DLC has finished installing; otherwise 0.
+@callback-type list
+@callback-getters	GetDLCInstalledAppID
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamApps#DlcInstalled_t
 */
 extern "C" DLL_EXPORT int HasDLCInstalledResponse();
 
 /*
-@desc Gets the App ID of the newly installed DLC.
-
-_HasDLCInstalled must be called prior to this method._
+@desc Returns the App ID for the current LobbyGameCreated_t callback response.
 @return An App ID.
 @api ISteamApps#DlcInstalled_t
 */
@@ -385,6 +394,7 @@ extern "C" DLL_EXPORT int GetDLCInstalledAppID();
 /*
 @desc Posted after the user executes a steam url with query parameters while running.
 Once a post has been reported, this method returns 0 until another post arrives.
+@callback-type bool
 @return 1 when the user executes a steam url with query parameters while running; otherwise 0.
 @api ISteamApps#NewLaunchQueryParameters_t
 */
@@ -395,7 +405,6 @@ extern "C" DLL_EXPORT int HasNewUrlLaunchParametersResponse();
 /* @page ISteamAppsList
 This is a restricted interface that can only be used by approved apps.
 */
-// Restricted interface.
 /*
 @desc Returns the app name for the given appid.
 @param appID The AppID to get the name for.
@@ -458,11 +467,18 @@ extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput);
 /*
 @desc Gets the active action set layers for the given input.
 @param hInput The handle of the input you want to get active action set layers for.
-@return A JSON integer array of active action set layers.
+@return The number of active action set layers.
 @api ISteamController#GetActiveActionSetLayers
 */
-//extern "C" DLL_EXPORT char *GetActiveActionSetLayersJSON(int hInput);
 extern "C" DLL_EXPORT int GetActiveActionSetLayerCount(int hInput);
+
+/*
+@desc Gets the handle for an active action set layer for the given input by index.
+@param hInput The handle of the input you want to get active action set layers for.
+@param index The index to get.
+@return The active action set layer handle.
+@api ISteamController#GetActiveActionSetLayers
+*/
 extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index);
 
 /*
@@ -474,49 +490,36 @@ extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index);
 extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName);
 
 /*
-@desc Reads and stores the current state of the supplied analog game action so that it can be returned by GetAnalogActionDataActive, GetAnalogActionDataMode, GetAnalogActionDataX, and GetAnalogActionDataY.
+@desc Returns whether or not this action is currently available to be bound in the active action set.
 @param hInput The handle of the input you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
+@return 1 if available; otherwise 0.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
-*/
-//extern "C" DLL_EXPORT void GetAnalogActionData(int hInput, int hAnalogAction);
-
-/*
-@desc Returns the current availability to be bound in the active action set of the analog game action read by the last GetAnalogActionData call.
-
-**NOTE:**
-GetAnalogActionData MUST be called in order to populate the value returned by this method.
-@return Whether or not this action is currently available to be bound in the active action set.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
-
 */
 extern "C" DLL_EXPORT int GetAnalogActionDataActive(int hInput, int hAnalogAction);
 
 /*
-@desc Returns the type of data coming from this action as read by the last GetAnalogActionData call
-
-**NOTE:**
-GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@desc Returns the type of data coming from this action.
+@param hInput The handle of the input you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
 @return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t, ISteamController#EControllerSourceMode
 */
 extern "C" DLL_EXPORT int GetAnalogActionDataMode(int hInput, int hAnalogAction);
 
 /*
-@desc Returns the current state of this action on the horizontal axis read by the last GetAnalogActionData call
-
-**NOTE:**
-GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@desc Returns the current state of this action on the horizontal axis.
+@param hInput The handle of the input you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
 @return The current state of this action on the horizontal axis.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
 extern "C" DLL_EXPORT float GetAnalogActionDataX(int hInput, int hAnalogAction);
 
 /*
-@desc Returns the current state of this action on the vertical axis read by the last GetAnalogActionData call
-
-**NOTE:**
-GetAnalogActionData MUST be called in order to populate the value returned by this method.
+@desc Returns the current state of this action on the vertical axis.
+@param hInput The handle of the input you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
 @return The current state of this action on the vertical axis.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
@@ -534,16 +537,24 @@ In other words, if you use an action called "up" in two different action sets, t
 extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName);
 
 /*
-@desc Get the origin(s) for an analog action within an action set by filling originsOut with EInputActionOrigin handles.
+@desc Get the number of origins for an analog action within an action set.
+@param hInput The handle of the input you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hAnalogAction The handle of the analog action you want to query.
+@return The number of origins.
+@api ISteamController#GetAnalogActionOrigins
+*/
+extern "C" DLL_EXPORT int GetAnalogActionOriginCount(int hInput, int hActionSet, int hAnalogAction);
+/*
+@desc Get the origin for an analog action within an action set by index.
 Use this to display the appropriate on-screen prompt for the action.
 @param hInput The handle of the input you want to query.
 @param hActionSet The handle of the action set you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
-@return The number of origins supplied in originsOut.
-@api ISteamController#GetAnalogActionOrigins
+@param index The index of the origin.
+@return The origin.
+@api ISteamController#GetAnalogActionOrigins, ISteamController#EControllerActionOrigin
 */
-//extern "C" DLL_EXPORT char *GetAnalogActionOriginsJSON(int hInput, int hActionSet, int hAnalogAction);
-extern "C" DLL_EXPORT int GetAnalogActionOriginCount(int hInput, int hActionSet, int hAnalogAction);
 extern "C" DLL_EXPORT int GetAnalogActionOriginValue(int hInput, int hActionSet, int hAnalogAction, int index);
 
 /*
@@ -572,28 +583,18 @@ extern "C" DLL_EXPORT int GetConnectedControllers();
 extern "C" DLL_EXPORT int GetCurrentActionSet(int hInput);
 
 /*
-@desc Reads and stores the current state of the supplied digital game action so that it can be returned by GetDigitalActionDataActive and GetDigitalActionDataState.
+@desc Returns whether or not this action is currently available to be bound in the active action set.
 @param hInput The handle of the input you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
-*/
-//extern "C" DLL_EXPORT void GetDigitalActionData(int hInput, int hDigitalAction);
-
-/*
-@desc Returns the current availability to be bound in the active action set of the digital game action read by the last GetDigitalActionData call.
-
-**NOTE:**
-GetDigitalActionData MUST be called in order to populate the value returned by this method.
-@return Whether or not this action is currently available to be bound in the active action set.
+@return 1 if this action is currently available; otherwise 0.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT int GetDigitalActionDataActive(int hInput, int hDigitalAction);
 
 /*
 @desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
-
-**NOTE:**
-GetDigitalActionData MUST be called in order to populate the value returned by this method.
+@param hInput The handle of the input you want to query.
+@param hDigitalAction The handle of the digital action you want to query.
 @return The current state of this action; 1 if the action is currently pressed, otherwise 0.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
@@ -611,16 +612,26 @@ In other words, if you use an action called "up" in two different action sets, t
 extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName);
 
 /*
-@desc Get a JSON integer array the origin(s) for a digital action within an action set.
-Use this to display the appropriate on-screen prompt for the action.
+@desc Get the number of origins for a digital action within an action set.
 @param hInput The handle of the input you want to query.
 @param hActionSet The handle of the action set you want to query.
 @param hDigitalAction The handle of the digital aciton you want to query.
 @return A JSON integer array of the action origins.
 @api ISteamController#GetDigitalActionOrigins
+ISteamController#EControllerActionOrigin
 */
-//extern "C" DLL_EXPORT char *GetDigitalActionOriginsJSON(int hInput, int hActionSet, int hDigitalAction);
 extern "C" DLL_EXPORT int GetDigitalActionOriginCount(int hInput, int hActionSet, int hDigitalAction);
+
+/*
+@desc Get the origin for a digital action within an action set by index.
+Use this to display the appropriate on-screen prompt for the action.
+@param hInput The handle of the input you want to query.
+@param hActionSet The handle of the action set you want to query.
+@param hDigitalAction The handle of the digital aciton you want to query.
+@param index The index of the origin.
+@return A JSON integer array of the action origins.
+@api ISteamController#GetDigitalActionOrigins, ISteamController#EControllerActionOrigin
+*/
 extern "C" DLL_EXPORT int GetDigitalActionOriginValue(int hInput, int hActionSet, int hDigitalAction, int index);
 
 /*
@@ -634,8 +645,9 @@ extern "C" DLL_EXPORT int GetDigitalActionOriginValue(int hInput, int hActionSet
 /*
 @desc Get a local path to art for on-screen glyph for a particular origin.
 @param eOrigin The origin you want to get the glyph for.
+@param-api eOrigin ISteamController#EControllerActionOrigin
 @return The path to the png file for the glyph.
-@api ISteamController#GetGlyphForActionOrigin, ISteamController#EControllerActionOrigin
+@api ISteamController#GetGlyphForActionOrigin
 */
 extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
 
@@ -648,49 +660,32 @@ extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
 extern "C" DLL_EXPORT int GetInputTypeForHandle(int hInput);
 
 /*
-@desc Reads and stores the raw motion data for the specified input so that it can be returned by
-GetMotionDataPosAccelX, GetMotionDataPosAccelY, GetMotionDataPosAccelZ,
-GetMotionDataPosRotQuatW, GetMotionDataPosRotQuatX, GetMotionDataPosRotQuatY, GetMotionDataPosRotQuatZ,
-GetMotionDataPosRotVelX, GetMotionDataPosRotVelY, and GetMotionDataPosRotVelZ.
+@desc Reads the raw motion data for the specified input and returns the positional acceleration, x axis.
 @param hInput The handle of the input you want to get motion data for.
-@api ISteamController#GetMotionData, ISteamController#ControllerMotionData_t
-*/
-//extern "C" DLL_EXPORT void GetMotionData(int hInput);
-
-/*
-@desc Returns the positional acceleration, x axis of the controller motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
 @return Positional acceleration, x axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelX(int hInput);
 
 /*
-@desc Returns the positional acceleration, y axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the positional acceleration, y axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Positional acceleration, y axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelY(int hInput);
 
 /*
-@desc Returns the positional acceleration, z axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the positional acceleration, z axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Positional acceleration, z axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelZ(int hInput);
 
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), w axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
+@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), w axis.
+@param hInput The handle of the input you want to get motion data for.
 GetMotionData MUST be called in order to populate the value returned by this method.
 @return Sensor-fused absolute rotation (will drift in heading), w axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
@@ -698,60 +693,48 @@ GetMotionData MUST be called in order to populate the value returned by this met
 extern "C" DLL_EXPORT float GetMotionDataRotQuatW(int hInput);
 
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), x axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), x axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Sensor-fused absolute rotation (will drift in heading), x axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatX(int hInput);
 
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), y axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), y axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Sensor-fused absolute rotation (will drift in heading), y axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatY(int hInput);
 
 /*
-@desc Returns the sensor-fused absolute rotation (will drift in heading), z axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), z axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Sensor-fused absolute rotation (will drift in heading), z axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatZ(int hInput);
 
 /*
-@desc Returns the angular velocity, x axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the angular velocity, x axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Angular velocity, x axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelX(int hInput);
 
 /*
-@desc Returns the angular velocity, y axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the angular velocity, y axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Angular velocity, y axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelY(int hInput);
 
 /*
-@desc Returns the angular velocity, z axis of the input motion data read by the last GetMotionData call.
-
-**NOTE:**
-GetMotionData MUST be called in order to populate the value returned by this method.
+@desc Reads the raw motion data for the specified input and returns the angular velocity, z axis.
+@param hInput The handle of the input you want to get motion data for.
 @return Angular velocity, z axis.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
@@ -975,6 +958,13 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url);
 //GetFriendCoplayGame
 //GetFriendCoplayTime
 
+/*
+@desc Gets the number of users the client knows about who meet a specified criteria.
+@param friendFlags A combined union (binary "or") of one or more EFriendFlags.
+@param-api friendFlags ISteamFriends#EFriendFlags
+@return The number of friends matching the given criteria.
+@api ISteamFriends#GetFriendCount
+*/
 extern "C" DLL_EXPORT int GetFriendCount(int friendFlags);
 
 /*
@@ -982,35 +972,51 @@ extern "C" DLL_EXPORT int GetFriendCount(int friendFlags);
 @param friendFlags A combined union (binary "or") of EFriendFlags.
 @param-api friendFlags ISteamFriends#EFriendFlags
 @return An integer array of Steam ID handles as a JSON string.
-@api ISteamFriends#GetFriendByIndex
+@api ISteamFriends#GetFriendCount, ISteamFriends#GetFriendByIndex
 */
 extern "C" DLL_EXPORT char *GetFriendListJSON(int friendFlags);
 
 //GetFriendCountFromSource
 //GetFriendFromSourceByIndex
-//GetFriendGamePlayed
 
 /*
-@desc Checks if the specified friend is in a game, and gets info about the game if they are.
+@desc Returns the game App ID that the friend is playing.
 @param hUserSteamID A user Steam ID handle.
-@return A string representation of the FriendGameInfo_t data as a type JSON.
-```
-Type FriendGameInfo_t
-InGame as integer // boolean
-GameAppID as integer
-GameIP as integer
-GamePort as integer
-QueryPort as integer
-SteamIDLobby as integer // CSteamID handle
-EndType
-```
-@api ISteamFriends#GetFriendGamePlayed
+@return The game App ID if the friend is playing a game; otherwise 0.
+@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
 */
-//extern "C" DLL_EXPORT char *GetFriendGamePlayedJSON(int hUserSteamID);
 extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hUserSteamID);
+
+/*
+@desc Returns the IP of the server the friend is playing on.
+@param hUserSteamID A user Steam ID handle.
+@return The IP address if the friend is playing a game; otherwise an empty string.
+@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+*/
 extern "C" DLL_EXPORT char *GetFriendGamePlayedIP(int hUserSteamID);
+
+/*
+@desc Returns the game port of the server the friend is playing on.
+@param hUserSteamID A user Steam ID handle.
+@return The game port if the friend is playing a game; otherwise 0.
+@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+*/
 extern "C" DLL_EXPORT int GetFriendGamePlayedConnectionPort(int hUserSteamID);
+
+/*
+@desc Returns the query port of the server the friend is playing on.
+@param hUserSteamID A user Steam ID handle.
+@return The query port if the friend is playing a game; otherwise 0.
+@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+*/
 extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hUserSteamID);
+
+/*
+@desc Returns the Steam ID handle of lobby the friend is in.
+@param hUserSteamID A user Steam ID handle.
+@return A Steam ID lobby handle if the friend is in a lobby; otherwise 0.
+@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+*/
 extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hUserSteamID);
 
 //GetFriendMessage
@@ -1175,17 +1181,17 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hUserSteamID, int requireNa
 
 //Callbacks
 /*
-@desc Indicates whether the AvatarImageLoaded_t [callback](Callbacks-and-Call-Results#callbacks) has stored data.
-@return 1 when there is data stored; otherwise 0.
+@desc Triggered when an avatar is loaded if you have tried requesting it when it was unavailable.
+@callback-type list
+@callback-getters	GetAvatarImageLoadedUser
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamFriends#AvatarImageLoaded_t
 */
 extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse();
 
 /*
-@desc Returns a handle for m_steamID stored from the AvatarImageLoaded_t callback.
+@desc Returns the Steam ID handle for current AvatarImageLoaded_t callback response.
 Call GetFriendAvatar with the returned user handle to get the image handle
-
-_HasAvatarImageLoaded must be called prior to this method._
 @return The SteamID handle of the user whose avatar loaded.
 @api ISteamFriends#AvatarImageLoaded_t
 */
@@ -1201,7 +1207,23 @@ extern "C" DLL_EXPORT int GetAvatarImageLoadedUser();
 //GameConnectedChatLeave_t
 //GameConnectedClanChatMsg_t
 //GameConnectedFriendChatMsg_t
-//GameLobbyJoinRequested_t
+
+/*
+@desc Triggered when the user tries to join a lobby from their friends list or from an invite.
+The game client should attempt to connect to specified lobby when this is received.
+If the game isn't running yet then the game will be automatically launched with the command line parameter +connect_lobby <64-bit lobby Steam ID> instead.
+@callback-type list
+@callback-getters GetGameLobbyJoinRequestedLobby
+@return 1 when the callback has more responses to process; otherwise 0.
+@api ISteamFriends#GameLobbyJoinRequested_t
+*/
+extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse();
+
+/*
+@desc Gets the lobby to which the user was invited for the current GameLobbyJoinRequested_t callback response.
+@return A lobby Steam ID handle or 0.
+*/
+extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby();
 
 /*
 @desc Gets whether the Steam Overlay has been activated or deactivated.
@@ -1215,21 +1237,26 @@ extern "C" DLL_EXPORT int IsGameOverlayActive();
 //JoinClanChatRoomCompletionResult_t
 
 /*
-@desc Indicates whether the PersonaStateChange_t [[callback|Callbacks-and-Call-Results#callbacks]] has stored data.
-@return 1 when there is data stored; otherwise 0.
+@desc Triggered whenever a friend's status changes.
+@callback-type list
+@callback-getters	GetPersonaStateChangeFlags, GetPersonaStateChangeSteamID
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamFriends#PersonaStateChange_t
 */
 extern "C" DLL_EXPORT int HasPersonaStateChangeResponse();
 
 /*
-@desc Returns a JSON object for the PersonaStateChange_t callback data.
+@desc Returns the bit-wise union of EPersonaChange values for the current PersonaStateChange_t callback response.
+@return The EPersonaChange values of the user whose persona state changed.
+@api ISteamFriends#PersonaStateChange_t, ISteamFriends#EPersonaChange
+*/
+extern "C" DLL_EXPORT int GetPersonaStateChangeFlags();
 
-_HasPersonaStateChanged must be called prior to this method._
-@return The SteamID handle of the user whose persona state changed
+/*
+@desc Returns the SteamID handle of the user whose persona state changed for the current PersonaStateChange_t callback response.
+@return The SteamID handle of the user whose persona state changed.
 @api ISteamFriends#PersonaStateChange_t
 */
-//extern "C" DLL_EXPORT char *GetPersonaStateChangeJSON();
-extern "C" DLL_EXPORT int GetPersonaStateChangeFlags();
 extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID();
 
 //SetPersonaNameResponse_t
@@ -1333,10 +1360,19 @@ extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatc
 @param eLobbyType The type and visibility of this lobby. This can be changed later via SetLobbyType.
 @param-api eLobbyType ISteamMatchmaking#ELobbyType
 @param maxMembers The maximum number of players that can join this lobby. This can not be above 250.
+@callback-type callresult
+@callback-getters GetCreateLobbyHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamMatchmaking#CreateLobby
 */
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
+
+/*
+@desc Returns the lobby handle for the CreateLobby call.
+@param hCallResult A CreateLobby call result handle.
+@return A lobby SteamID handle or 0 if the call failed.
+@api ISteamMatchmaking#CreateLobby, ISteamMatchmaking#LobbyCreated_t
+*/
 extern "C" DLL_EXPORT int GetCreateLobbyHandle(int hCallResult);
 
 /*
@@ -1351,27 +1387,63 @@ _This can only be set by the owner of the lobby._
 extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, const char *key);
 
 /*
-@desc Gets the details of the favorite game server by index.
-@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount
-@return Returns a JSON string of the game server information that parses to the following type.
-```
-Type FavoriteGameInfo_t
-AppID as integer
-IPv4 as string
-ConnectPort as integer
-QueryPort as integer
-Flags as integer
-TimeLastPlayedOnServer as integer
-EndType
-```
+@desc Returns the App ID of the favorite game server by index.
+
+_Note: You must call GetFavoriteGameCount before calling this._
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
+@return An App ID.
 @api ISteamMatchmaking#GetFavoriteGame
 */
-//extern "C" DLL_EXPORT char *GetFavoriteGameJSON(int index);
 extern "C" DLL_EXPORT int GetFavoriteGameAppID(int index);
+
+/*
+@desc Returns the IP address of the favorite game server by index.
+
+_Note: You must call GetFavoriteGameCount before calling this._
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
+@return An IP address.
+@api ISteamMatchmaking#GetFavoriteGame
+*/
 extern "C" DLL_EXPORT char *GetFavoriteGameIP(int index);
+
+/*
+@desc Returns the port used to connect to the favorite game server by index.
+
+_Note: You must call GetFavoriteGameCount before calling this._
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
+@return A port number.
+@api ISteamMatchmaking#GetFavoriteGame
+*/
 extern "C" DLL_EXPORT int GetFavoriteGameConnectionPort(int index);
+
+/*
+@desc Returns the port used to query the favorite game server by index.
+
+_Note: You must call GetFavoriteGameCount before calling this._
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
+@return A port number.
+@api ISteamMatchmaking#GetFavoriteGame
+*/
 extern "C" DLL_EXPORT int GetFavoriteGameQueryPort(int index);
+
+/*
+@desc Returns the list the favorite game server is on by index.
+
+_Note: You must call GetFavoriteGameCount before calling this._
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
+@return 0 = FavoriteFlagNone, 1 = FavoriteFlagFavorite, or 2 = FavoriteFlagHistory
+@api ISteamMatchmaking#GetFavoriteGame
+*/
 extern "C" DLL_EXPORT int GetFavoriteGameFlags(int index);
+
+/*
+@desc Returns the time the server was last added to the favorites list by index.
+
+_Note: You must call GetFavoriteGameCount before calling this._
+@param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
+@return Time in Unix epoch format.
+@api ISteamMatchmaking#GetFavoriteGame
+*/
 extern "C" DLL_EXPORT int GetFavoriteGameUnixTimeLastPlayedOnServer(int index);
 
 /*
@@ -1405,22 +1477,27 @@ EndType
 extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID);
 
 /*
-@desc Gets the details of a game server set in a lobby.
+@desc Gets the IP address of a game server set in a lobby.
 @param hLobbySteamID The Steam ID of the lobby to get the game server information from.
-@return A JSON string that parses to the following type.
-```
-Type GameServerInfo_t // aka LobbyGameCreated_t
-hLobby as integer
-IP as string
-Port as integer
-hGameServer as integer
-EndType
-```
+@return The IP address for the lobby game server.
 @api ISteamMatchmaking#GetLobbyGameServer
 */
-//extern "C" DLL_EXPORT char *GetLobbyGameServerJSON(int hLobbySteamID);
 extern "C" DLL_EXPORT char *GetLobbyGameServerIP(int hLobbySteamID);
+
+/*
+@desc Gets the connection port of a game server set in a lobby.
+@param hLobbySteamID The Steam ID of the lobby to get the game server information from.
+@return The connection port for the lobby game server.
+@api ISteamMatchmaking#GetLobbyGameServer
+*/
 extern "C" DLL_EXPORT int GetLobbyGameServerPort(int hLobbySteamID);
+
+/*
+@desc Gets the Steam ID handle of a game server set in a lobby.
+@param hLobbySteamID The Steam ID of the lobby to get the game server information from.
+@return The Steam ID handle for the lobby game server.
+@api ISteamMatchmaking#GetLobbyGameServer
+*/
 extern "C" DLL_EXPORT int GetLobbyGameServerSteamID(int hLobbySteamID);
 
 /*
@@ -1478,13 +1555,39 @@ extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteam
 /*
 @desc Joins an existing lobby.
 @param hLobbySteamID The Steam ID handle of the lobby
+@callback-type callresult
+@callback-getters GetJoinLobbyChatRoomEnterResponse, GetJoinLobbyHandle, GetJoinLobbyLocked
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamMatchmaking#JoinLobby
 */
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
-extern "C" DLL_EXPORT int GetJoinLobbyChatPermissions(int hCallResult);
+
+// Unused - always 0.
+//extern "C" DLL_EXPORT int GetJoinLobbyChatPermissions(int hCallResult);
+
+/*
+@desc Returns the EChatRoomEnterResponse for the JoinLobby call.
+@param hCallResult A JoinLobby call result handle.
+@return An EChatRoomEnterResponse value.
+@return-api steam_api#EChatRoomEnterResponse
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetJoinLobbyChatRoomEnterResponse(int hCallResult);
+
+/*
+@desc Returns the lobby Steam ID handle for the JoinLobby call.
+@param hCallResult A JoinLobby call result handle.
+@return The lobby Steam ID handle.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetJoinLobbyHandle(int hCallResult);
+
+/*
+@desc Returns whether the lobby is locked for the JoinLobby call.
+@param hCallResult A JoinLobby call result handle.
+@return 1 if only invited users can join the lobby; otherwise 0.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetJoinLobbyLocked(int hCallResult);
 
 /*
@@ -1516,12 +1619,29 @@ extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, const char *ip, int conn
 extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID);
 
 /*
-@desc Get a filtered list of relevant lobbies.
+@desc Request a filtered list of relevant lobbies.
+@callback-type callresult
+@callback-getters GetRequestLobbyListCount, GetRequestLobbyListHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamMatchmaking#RequestLobbyList, ISteamMatchmaking#LobbyMatchList_t
+@api ISteamMatchmaking#RequestLobbyList
 */
 extern "C" DLL_EXPORT int RequestLobbyList();
+
+/*
+@desc Gets the number of lobbies returned by the RequestLobbyList call.
+@param hCallResult A RequestLobbyList call result handle.
+@return The list count.
+@api ISteamMatchmaking#LobbyMatchList_t
+*/
 extern "C" DLL_EXPORT int GetRequestLobbyListCount(int hCallResult);
+
+/*
+@desc Gets the lobby Steam ID handle returned by the RequestLobbyList call by index.
+@param hCallResult A RequestLobbyList call result handle.
+@param index The lobby index.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyMatchList_t
+*/
 extern "C" DLL_EXPORT int GetRequestLobbyListHandle(int hCallResult, int index);
 
 /*
@@ -1619,147 +1739,167 @@ extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType);
 
 // Callbacks
 /*
-@desc A chat message for this lobby has been received.
-Indicates whether the LobbyChatMsg_t callback has stored data.
-@return 1 when there is data stored; otherwise 0.
+@desc Triggered when a chat message for this lobby has been received.
+@callback-type list
+@callback-getters	GetLobbyChatMessageUser, GetLobbyChatMessageText
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int HasLobbyChatMessageResponse();
 
 /*
-@desc Gets the Steam ID handle of the user who sent this message.
-
-_HasLobbyChatMessage must be called prior to this method._
+@desc Gets the Steam ID handle of the user for the current LobbyChatMsg_t callback response.
 @return A Steam ID handle.
 @api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
 
 /*
-@desc Gets the chat message that was sent.
-
-_HasLobbyChatMessage must be called prior to this method._
+@desc Gets the chat message for the current LobbyChatMsg_t callback response.
 @return The contents of the chat message.
 @api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText();
 
 /*
-@desc Indicates whether the LobbyChatUpdate_t callback has stored data.
-A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
-@return 1 when there is data stored; otherwise 0.
+@desc Triggered when a lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
+@callback-type list
+@callback-getters GetLobbyChatUpdateLobby, GetLobbyChatUpdateUserChanged, GetLobbyChatUpdateUserState, GetLobbyChatUpdateUserMakingChange
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int HasLobbyChatUpdateResponse();
 
 /*
-@desc The lobby in which the chat update occured.
-
-_HasLobbyChatUpdate must be called prior to this method._
+@desc The lobby for the current LobbyChatUpdate_t callback response.
 @return A Steam ID handle.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateLobby();
 
 /*
-@desc The user whose status in the lobby has changed.
-
-_HasLobbyChatUpdate must be called prior to this method._
+@desc The user whose status in the lobby has changed for the current LobbyChatUpdate_t callback response.
 @return A Steam ID handle.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged();
 
 /*
-@desc The new user state for the user whose status changed.
-
-_HasLobbyChatUpdate must be called prior to this method._
-@return [EChatMemberStateChange bit data](https://partner.steamgames.com/doc/api/ISteamMatchmaking#EChatMemberStateChange)
+@desc The new user state for the user whose status changed for the current LobbyChatUpdate_t callback response.
+@return EChatMemberStateChange bit data
+@return-api ISteamMatchmaking#EChatMemberStateChange
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState();
 
 /*
-@desc Chat member who made the change.
-
-_HasLobbyChatUpdate must be called prior to this method._
+@desc Chat member who made the change for the current LobbyChatUpdate_t callback response.
 @return A Steam ID handle.
 @api ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange();
 
 /*
-@desc Indicates whether the LobbyDataUpdate_t callback has stored lobby data update notifications.
-@return 1 when lobby data has updated; otherwise 0.
+@desc Triggered when the lobby metadata has changed.
+@callback-type list
+@callback-getters GetLobbyDataUpdateLobby, GetLobbyDataUpdateMember, GetLobbyDataUpdateSuccess
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse();
 
+/*
+@desc Returns the lobby whose metadata has changed for the current LobbyDataUpdate_t callback response.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyDataUpdateLobby();
+
+/*
+@desc Returns the handle of the member whose metadata has changed for the current LobbyDataUpdate_t callback response.
+If this value is a user in the lobby, then use GetLobbyMemberData to access per-user details; 
+otherwise, if GetLobbyDataUpdateMember == GetLobbyDataUpdateLobby, use GetLobbyData to access the lobby metadata.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyDataUpdateMember();
+/*
+@desc Returns the success of the lobby data update for the current LobbyDataUpdate_t callback response.
+@return 1 if the lobby data was successfully changed, otherwise 0.
+@api ISteamMatchmaking#LobbyDataUpdate_t
+*/
 extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess();
 
 /*
-@desc Indicates whether the OnLobbyEnter callback has accumulated data to process.
-@return 1 when the callback has data; otherwise 0.
+@desc Recieved upon attempting to enter a lobby. Lobby metadata is available to use immediately after receiving this.
+@callback-type list
+@callback-getters GetLobbyEnterChatRoomEnterResponse, GetLobbyEnterLobby, GetLobbyEnterLocked
+@return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int HasLobbyEnterResponse();
 
+// Unused - always 0.
+//extern "C" DLL_EXPORT int GetLobbyEnterChatPermissions();
+
 /*
-@desc Gets current LobbyEnter_t information returned by the OnLobbyEnter callback as JSON data.
-
-_HasLobbyEnterResponse must be called prior to this method._
-
-JSON:
-A result code as outlined at [LobbyEnter_t](https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t).
-@return A lobby Steam ID handle or 0 if the LobbyEnter_t call result failed.
+@desc Gets EChatRoomEnterResponse for the current LobbyEnter_t callback response.
+@return An EChatRoomEnterResponse value.
+@return-api steam_api#EChatRoomEnterResponse
 @api ISteamMatchmaking#LobbyEnter_t
 */
-//extern "C" DLL_EXPORT char *GetLobbyEnterJSON();
-extern "C" DLL_EXPORT int GetLobbyEnterChatPermissions();
 extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse();
+
+/*
+@desc Returns the lobby for the current LobbyEnter_t callback response.
+@return The lobby Steam ID handle.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetLobbyEnterLobby();
+
+/*
+@desc Returns the locked value for the current LobbyEnter_t callback response.
+@return 1 if only invited users can join the lobby; otherwise 0.
+@api ISteamMatchmaking#LobbyEnter_t
+*/
 extern "C" DLL_EXPORT int GetLobbyEnterLocked();
 
 /*
-@desc Gets whether the user has accepted a request to join a game lobby.
-@return 1 when the user has accepted a request to join a game lobby; otherwise 0.
-@api ISteamFriends#GameLobbyJoinRequested_t
-*/
-extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse();
-
-/*
-@desc Gets the lobby Steam ID handle to which the user was invited.
-@return A lobby Steam ID handle or 0.
-*/
-extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby();
-
-/*
 @desc Indicates that a lobby game was created since the last call.
+_This can only be read once per lobby game creation!_
+@callback-type list
+@callback-getters GetLobbyGameCreatedGameServer, GetLobbyGameCreatedLobby, GetLobbyGameCreatedIP, GetLobbyGameCreatedPort
 @return 1 when a lobby game was created; otherwise 0.
 @api ISteamMatchmaking#LobbyGameCreated_t
 */
 extern "C" DLL_EXPORT int HasLobbyGameCreatedResponse();
 
 /*
-@desc Returns a JSON description of the newly-created lobby game.
-_This can only be read once per lobby game creation!_
-@return A JSON string that parses to the following type.
-```
-Type LobbyGameCreated_t
-hLobby as integer
-IP as string
-Port as integer
-hGameServer as integer
-EndType
-```
-@api ISteamMatchmaking#GetLobbyGameCreated
+@desc Returns the current game server Steam ID handle for the LobbyGameCreated_t callback.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyGameCreated_t
 */
-//extern "C" DLL_EXPORT char *GetLobbyGameCreatedJSON();
 extern "C" DLL_EXPORT int GetLobbyGameCreatedGameServer();
+
+/*
+@desc Returns the Steam ID handle of the lobby that set the game server for the current LobbyGameCreated_t callback response.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyGameCreated_t
+*/
 extern "C" DLL_EXPORT int GetLobbyGameCreatedLobby();
+
+/*
+@desc Returns the IP address of the game server for the current LobbyGameCreated_t callback response.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyGameCreated_t
+*/
 extern "C" DLL_EXPORT char *GetLobbyGameCreatedIP();
+
+/*
+@desc Returns the connection port of the game server for the current LobbyGameCreated_t callback response.
+@return A Steam ID handle.
+@api ISteamMatchmaking#LobbyGameCreated_t
+*/
 extern "C" DLL_EXPORT int GetLobbyGameCreatedPort();
 #pragma endregion
 
@@ -1831,6 +1971,7 @@ extern "C" DLL_EXPORT void SetMusicVolume(float volume);
 // Callbacks
 /*
 @desc Notifies the caller that the music playback status has changed since the last call.
+@callback-type bool
 @return 1 when a change has occurred; otherwise 0.
 @api ISteamMusic#PlaybackStatusHasChanged_t
 */
@@ -1838,6 +1979,7 @@ extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse();
 
 /*
 @desc Notifies the caller that the music volume has changed since the last call.
+@callback-type bool
 @return 1 when a change has occurred; otherwise 0.
 @api ISteamMusic#VolumeHasChanged_t
 */
@@ -1915,8 +2057,7 @@ Once a file has been deleted or forgotten, calling FileWrite will resynchronize 
 extern "C" DLL_EXPORT int CloudFileForget(const char *filename);
 
 /*
-@desc
-Checks if a specific file is persisted in the steam cloud.
+@desc Checks if a specific file is persisted in the steam cloud.
 @param filename The name of the file.
 @return
 1 if the file exists and the file is persisted in the Steam Cloud.
@@ -1926,8 +2067,7 @@ Checks if a specific file is persisted in the steam cloud.
 extern "C" DLL_EXPORT int CloudFilePersisted(const char *filename);
 
 /*
-@desc
-Opens a binary file, reads the contents of the file into a memblock, and then closes the file.
+@desc Opens a binary file, reads the contents of the file into a memblock, and then closes the file.
 
 **NOTE:** This is a synchronous call and as such is a will block your calling thread on the disk IO, and will also block the SteamAPI,
 which can cause other threads in your application to block. To avoid "hitching" due to a busy disk on the client machine using FileReadAsync,
@@ -1944,28 +2084,28 @@ extern "C" DLL_EXPORT int CloudFileRead(const char *filename);
 @desc Starts an asynchronous read from a file.
 
 The offset and amount to read should be valid for the size of the file, as indicated by GetCloudFileSize.
-
-Check GetCloudFileReadAsyncCallbackState to see when the callback completes.
 @param filename The name of the file to read from.
 @param offset The offset in bytes into the file where the read will start from. 0 if you're reading the whole file in one chunk.
 @param length The amount of bytes to read starting from the offset. -1 to read the entire file.
+@callback-type callresult
+@callback-getters GetCloudFileReadAsyncFileName, GetCloudFileReadAsyncMemblock
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, int length);
 
 /*
-@desc Returns the file name of the CloudFileReadAsync call result operation.
-@param hCallResult A CloudFileReadAsync [call result handle](Callbacks-and-Call-Results#call-results).
+@desc Returns the file name for the CloudFileReadAsync call.
+@param hCallResult A CloudFileReadAsync call result handle.
 @return The file name.
 */
 extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult);
 
 /*
-@desc Returns the memblock of the data returned by the CloudFileReadAsync callback operation.
+@desc Returns the memblock of the data returned by the CloudFileReadAsync call.
 
 A call result will delete its memblock in DeleteCallResult() so calling code does not need to do so.
-@param hCallResult A CloudFileReadAsync [call result handle](Callbacks-and-Call-Results#call-results).
+@param hCallResult A CloudFileReadAsync call result handle.
 @return A memblock ID.
 */
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(int hCallResult);
@@ -1997,17 +2137,17 @@ extern "C" DLL_EXPORT int CloudFileWrite(const char *filename, int memblockID);
 @desc Creates a new file and asynchronously writes the raw byte data to the Steam Cloud, and then closes the file. If the target file already exists, it is overwritten.
 
 The data in memblock is copied and the memblock can be deleted immediately after calling this method.
-
-Check GetCloudFileWriteAsyncCallbackState to see when the callback completes.
 @param filename The name of the file to write to.
 @param memblockID The memblock containing the data to write to the file.
+@callback-type callresult
+@callback-getters GetCloudFileWriteAsyncFileName
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamRemoteStorage#FileWriteAsync, ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
 */
 extern "C" DLL_EXPORT int CloudFileWriteAsync(const char *filename, int memblockID);
 
 /*
-@desc Returns the file name of the CloudFileWriteAsync call result operation.
+@desc Returns the file name for the CloudFileWriteAsync call.
 @param hCallResult A CloudFileReadAsync [call result handle](Callbacks-and-Call-Results#call-results).
 @return The file name.
 */
@@ -2030,29 +2170,22 @@ extern "C" DLL_EXPORT int GetCloudFileCount();
 /*
 @desc Gets the file name at the given index
 @param index The index of the file, this should be between 0 and GetFileCount.
-@return
-The name of the file at the given index.  An empty string if the file doesn't exist.
+@return The name of the file at the given index.  An empty string if the file doesn't exist.
 @api ISteamRemoteStorage#GetFileCount, ISteamRemoteStorage#GetFileNameAndSize
 */
 extern "C" DLL_EXPORT char *GetCloudFileName(int index);
 
-extern "C" DLL_EXPORT int GetCloudFileSizeByIndex(int index);
 /*
-@desc Gets the name and size of all local files synchronized by Steam Cloud.
-@return
-A JSON string with the file information. (See steam_constants.agc)
-```
-Type CloudFileInfo_t
-Name as string		// The file name.
-Size as integer		// The size of the file.
-EndType
-```
+@desc Gets the file size at the given index
+@param index The index of the file, this should be between 0 and GetFileCount.
+@return The name of the file at the given index.  An empty string if the file doesn't exist.
 @api ISteamRemoteStorage#GetFileCount, ISteamRemoteStorage#GetFileNameAndSize
+@plugin-name GetCloudFileSize
 */
-//extern "C" DLL_EXPORT char *GetCloudFileListJSON();
+extern "C" DLL_EXPORT int GetCloudFileSizeByIndex(int index);
 
 /*
-@desc Gets the specified files size in bytes.
+@desc Gets the specified file's size in bytes.
 @param filename 	The name of the file.
 @return The size of the file in bytes. Returns 0 if the file does not exist.
 @api ISteamRemoteStorage#GetFileSize
@@ -2060,8 +2193,7 @@ EndType
 extern "C" DLL_EXPORT int GetCloudFileSize(const char *filename);
 
 /*
-@desc
-Gets the specified file's last modified timestamp in Unix epoch format (seconds since Jan 1st 1970).
+@desc Gets the specified file's last modified timestamp in Unix epoch format (seconds since Jan 1st 1970).
 @param filename The name of the file.
 @return The last modified timestamp in Unix epoch format.
 @api ISteamRemoteStorage#GetFileTimestamp
@@ -2084,20 +2216,6 @@ extern "C" DLL_EXPORT int GetCloudQuotaAvailable();
 @api ISteamRemoteStorage#GetQuota
 */
 extern "C" DLL_EXPORT int GetCloudQuotaTotal();
-
-/*
-@desc Gets the number of bytes available, and total on the user's Steam Cloud storage.
-@return
-A JSON string with the quote information. (See steam_constants.agc)
-```
-Type CloudQuota_t
-Available as integer	// The number of bytes available.
-Total as integer		// Total amount of bytes the user has access to.
-EndType
-```
-@api ISteamRemoteStorage#GetQuota
-*/
-//extern "C" DLL_EXPORT char *GetCloudQuotaJSON();
 
 /*
 @desc Obtains the platforms that the specified file will syncronize to.
@@ -2336,6 +2454,8 @@ extern "C" DLL_EXPORT int ClearAchievement(const char *name);
 @param-api eLeaderboardDataRequest ISteamUserStats#ELeaderboardDataRequest
 @param rangeStart The index to start downloading entries relative to eLeaderboardDataRequest.
 @param rangeEnd The last index to retrieve entries for relative to eLeaderboardDataRequest.
+@callback-type callresult
+@callback-getters GetDownloadLeaderboardHandle, GetDownloadLeaderboardEntryCount, GetDownloadLeaderboardEntryUser, GetDownloadLeaderboardEntryGlobalRank, GetDownloadLeaderboardEntryScore
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#DownloadLeaderboardEntries
 */
@@ -2343,13 +2463,50 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 
 //DownloadLeaderboardEntriesForUsers
 
+/*
+@desc Returns the handle to the leaderboard for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@return A Steam ID handle.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
+extern "C" DLL_EXPORT int GetDownloadLeaderboardHandle(int hCallResult);
+
+/*
+@desc Returns the entry count for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@return The number of entries.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult);
+
+/*
+@desc Returns the handle of the user of an entry for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@param index The entry index.
+@return A Steam ID handle.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int index);
+
+/*
+@desc Returns the global rank of an entry for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@param index The entry index.
+@return A Steam ID handle.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index);
+
+/*
+@desc Returns the score of an entry for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@param index The entry index.
+@return An integer
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int index);
 
 /*
-FindLeaderboard
 @desc Sends a request to find the handle for a leaderboard.
 @param leaderboardName The name of the leaderboard to find.
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
@@ -2359,7 +2516,20 @@ extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 
 //FindOrCreateLeaderboard
 
+/*
+@desc Returns whether the leaderboard was found for the FindLeaderboard call.
+@param hCallResult A FindLeaderboard call result handle.
+@return 1 if found; otherwise 0.
+@api ISteamUserStats#LeaderboardFindResult_t
+*/
 extern "C" DLL_EXPORT int GetFindLeaderboardFound(int hCallResult);
+
+/*
+@desc Returns the found leaderboard for the FindLeaderboard call.
+@param hCallResult A FindLeaderboard call result handle.
+@return A Steam ID handle.
+@api ISteamUserStats#LeaderboardFindResult_t
+*/
 extern "C" DLL_EXPORT int GetFindLeaderboardHandle(int hCallResult);
 
 /*
@@ -2502,6 +2672,7 @@ ie: Every 25 wins out of 100.
 @param name The 'API Name' of the achievement.
 @param curProgress The current progress.
 @param maxProgress The progress required to unlock the achievement.
+@callbacks HasUserAchievementStoredResponse
 @return 1 when the call succeeds; otherwise 0.
 @api ISteamUserStats#IndicateAchievementProgress
 */
@@ -2565,13 +2736,18 @@ extern "C" DLL_EXPORT int SetStatFloat(const char *name, float value);
 //SetUserStatsData
 
 /*
-@desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
-
-Stores user stats online.
+@desc Stores user stats online.
+@callbacks HasUserAchievementStoredResponse, HasUserStatsReceivedResponse
 @return 1 when sending the request to store user stats succeeds; otherwise 0.
 @api ISteamUserStats#StoreStats
 */
 extern "C" DLL_EXPORT int StoreStats();
+/*
+@desc Returns whether stats are currently being stored.
+@return 1 while stats are being stored; otherwise 0.
+@api ISteamUserStats#StoreStats
+*/
+extern "C" DLL_EXPORT int IsStoringStats();
 
 /*
 @desc Updates an AVGRATE stat with new values.  The value of these fields can be read with GetStatFloat.
@@ -2601,11 +2777,52 @@ extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
 
+/*
+@desc Returns the success of the UploadLeaderboardScore call.
+@param hCallResult A UploadLeaderboardScore call result.
+@return 1 on success; otherwise 0.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreSuccess(int hCallResult);
+
+/*
+@desc Returns the leaderboard handle of the UploadLeaderboardScore call.
+@param hCallResult A UploadLeaderboardScore call result.
+@return A Steam ID handle.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreHandle(int hCallResult);
+
+/*
+@desc Returns the score of the UploadLeaderboardScore call.
+@param hCallResult A UploadLeaderboardScore call result.
+@return An integer.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreValue(int hCallResult);
+
+/*
+@desc Returns whether the score on the leaderboard changed for the UploadLeaderboardScore call.
+@param hCallResult A UploadLeaderboardScore call result.
+@return 1 if the score on the leaderboard changed; otherwise 0.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreChanged(int hCallResult);
+
+/*
+@desc Returns the new rank of the user on the leaderboard for the UploadLeaderboardScore call.
+@param hCallResult A UploadLeaderboardScore call result.
+@return The user's new rank.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankNew(int hCallResult);
+
+/*
+@desc Returns the previous rank of the user on the leaderboard of the UploadLeaderboardScore call.
+@param hCallResult A UploadLeaderboardScore call result.
+@return The user's previous rank or 0 if the user had no previous rank.
+@api ISteamUserStats#LeaderboardScoreUploaded_t
+*/
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult);
 
 //Callbacks
@@ -2620,15 +2837,62 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
 //PS3TrophiesInstalled_t - ignore
 
 /*
-@desc Checks to see whether achievements have been stored online.
-StatsStored will also indicate success when this happens.
+@desc Triggered by request to store the achievements on the server, or an "indicate progress" call.
+@callback-type list
+@callback-getters GetUserAchievementStoredName, GetUserAchievementStoredCurrentProgress, GetUserAchievementStoredMaxProgress
 @return 1 when achievements have been stored online; otherwise 0.
+@api ISteamUserStats#UserAchievementStored_t
 */
 extern "C" DLL_EXPORT int HasUserAchievementStoredResponse();
 
+// Unused
+//extern "C" DLL_EXPORT int GetUserAchievementStoredIsGroup();
+
+/*
+@desc Returns the name of the achievement for the current UserAchievementStored_t callback response.
+@return The achievement name.
+@api ISteamUserStats#UserAchievementStored_t
+*/
+extern "C" DLL_EXPORT char *GetUserAchievementStoredName();
+
+/*
+@desc Returns the current progress of the achievement for the current UserAchievementStored_t callback response.
+@return An integer.
+@api ISteamUserStats#UserAchievementStored_t
+*/
+extern "C" DLL_EXPORT int GetUserAchievementStoredCurrentProgress();
+
+/*
+@desc Returns the maximum progress of the achievement for the current UserAchievementStored_t callback response.
+@return An integer.
+@api ISteamUserStats#UserAchievementStored_t
+*/
+extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress();
+
+/*
+@desc Triggered when the latest stats and achievements for a specific user (including the local user) have been received from the server.
+@return 1 when the callback has more responses to process; otherwise 0.
+@callback-type list
+@callback-getters GetUserStatsReceivedResult, GetUserStatsReceivedUser
+@api ISteamUserStats#UserStatsReceived_t
+*/
 extern "C" DLL_EXPORT int HasUserStatsReceivedResponse();
-extern "C" DLL_EXPORT int GetUserStatsReceivedGameAppID();
+
+// This plugin only reports for the current app id.
+//extern "C" DLL_EXPORT int GetUserStatsReceivedGameAppID();
+
+/*
+@desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
+@return 1 when the call is successful; otherwise 0.
+@api ISteamUserStats#UserStatsReceived_t
+*/
 extern "C" DLL_EXPORT int GetUserStatsReceivedResult();
+
+/*
+@desc Returns the user whose stats were retrieved for the current UserStatsReceived_t callback response.
+@return 1 when the call is successful; otherwise 0.
+@api ISteamUserStats#UserStatsReceived_t
+*/
 extern "C" DLL_EXPORT int GetUserStatsReceivedUser();
 
 /*
@@ -2638,10 +2902,20 @@ extern "C" DLL_EXPORT int GetUserStatsReceivedUser();
 extern "C" DLL_EXPORT int StatsInitialized();
 
 /*
-@desc Checks to see whether user stats have been stored online.
+@desc Triggered by a request to store the user stats.
+@callback-type list
+@callback-getters GetUserStatsStoredResult
 @return 1 when users stats have been stored online; otherwise 0.
+@api ISteamUserStats#UserStatsStored_t
 */
 extern "C" DLL_EXPORT int HasUserStatsStoredResponse();
+
+/*
+@desc Returns whether the call was successful for the current UserStatsStored_t callback response.
+@return 1 when the call is successful; otherwise 0.
+@api ISteamUserStats#UserStatsStored_t
+*/
+extern "C" DLL_EXPORT int GetUserStatsStoredResult();
 #pragma endregion
 
 #pragma region ISteamUtils
@@ -2830,31 +3104,31 @@ extern "C" DLL_EXPORT void StartVRDashboard();
 //CheckFileSignature_t
 
 /*
-@desc Returns 1 when the big picture gamepad text input has been closed.
+@desc Triggered when the big picture gamepad text input has been closed.
+@callback-type list
+@callback-getters GetGamepadTextInputDismissedSubmitted, GetGamepadTextInputDismissedSubmittedText
 @return 1 when the big picture gamepad text input has closed; otherwise 0.
 @api ISteamUtils#GamepadTextInputDismissed_t
 */
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse();
 
 /*
-@desc Gets the result of big picture gamepad text input.
-
-_HasGamepadTextInputDismissedInfo should be checked prior to calling this method._
-@return A JSON string with this structure.  (See steam_constants.agc)
-```
-Type GamepadTextInputDismissedInfo_t
-Submitted as integer	// 1 when the user submitted text. 0 when the user cancels.
-Text as string
-EndType
-```
+@desc Gets whether the user has entered and accepted text for the current GamepadTextInputDismissed_t call.
+@return 1 if user entered and accepted text; otherwise 0.
 @api ISteamUtils#GamepadTextInputDismissed_t
 */
-//extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedInfoJSON();
 extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted();
+
+/*
+@desc Gets the text for the current GamepadTextInputDismissed_t call.
+@return A string.
+@api ISteamUtils#GamepadTextInputDismissed_t
+*/
 extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText();
 
 /*
 @desc Reports when the country of the user has changed.  Use GetIPCountry to get the new value.
+@callback-type bool
 @return 1 when the country has changed; otherwise 0.
 @api ISteamUtils#IPCountry_t
 */
@@ -2863,6 +3137,8 @@ extern "C" DLL_EXPORT int HasIPCountryChangedResponse();
 /*
 @desc Tests when running on a laptop and there is less than 10 minutes of battery.  Fires every minute afterwards.
 This method returns 1 once per warning.  It is not reported as an on going effect.
+@callback-type bool
+@callback-getters GetMinutesBatteryLeft
 @return 1 when there is a low battery warning; otherwise 0.
 @api ISteamUtils#LowBatteryPower_t
 */
@@ -2881,6 +3157,7 @@ extern "C" DLL_EXPORT int GetMinutesBatteryLeft();
 
 /*
 @desc Called when Steam wants to shutdown.
+@callback-type bool
 @return 1 when Steam is shutting down; otherwise 0.
 @api ISteamUtils#SteamShutdown_t
 */

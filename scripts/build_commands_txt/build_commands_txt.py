@@ -1,5 +1,7 @@
 import re
 
+WIKI_PATH = "../../../agk-steam-plugin.wiki/"
+
 
 class ExportedMethodLoader:
     CPP_TO_TIER1_VAR_TYPES = {
@@ -16,8 +18,9 @@ class ExportedMethodLoader:
             lines = ''.join(f.readlines())
         self.pages = self._get_page_tags(lines)
         methods = self._get_methods(lines)
+        self.method_count = len(methods)
+        self._validate_callback_tags(methods)
         self._assign_methods_to_pages(self.pages, methods)
-        print(self.pages)
 
     @classmethod
     def _get_tier_1_var_type(cls, cpp_var_type):
@@ -86,23 +89,26 @@ class ExportedMethodLoader:
         def process_return_tag(tag_text):
             method['return_desc'] = tag_text
 
+        def process_return_api_tag(tag_text):
+            method['return_api'] = tag_text
+
         def process_param_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
+            if not tag_text:
+                print('{} has an empty description for parameter: {}'.format(method['name'], param_name))
             index = get_param_index(method['params'], param_name)
             if index is None:
                 print('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
-            elif not tag_text:
-                print('{} has an empty description for parameter: {}'.format(method['name'], param_name))
             else:
                 method['params'][index]['desc'] = tag_text
 
         def process_param_api_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
+            if not tag_text:
+                print('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
             index = get_param_index(method['params'], param_name)
             if index is None:
                 print('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
-            elif not tag_text:
-                print('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
             else:
                 method['params'][index]['api'] = tag_text
 
@@ -112,6 +118,19 @@ class ExportedMethodLoader:
         def process_plugin_name_tag(tag_text):
             method['plugin_name'] = tag_text
 
+        def process_callback_type_tag(tag_text):
+            if tag_text not in ['list', 'bool', 'callresult']:
+                print("{} has an unknown callback type: {}".format(method['name'], tag_text))
+            else:
+                method['callback-type'] = tag_text
+
+        def process_callback_getters_tag(tag_text):
+            method['callback-getters'] = [name.strip() for name in tag_text.split(',')]
+
+        def process_callbacks_tag(tag_text):
+            # callbacks that fire as a result of the current method.
+            method['callbacks'] = [name.strip() for name in tag_text.split(',')]
+
         method_apis = []
         for tag in re.finditer(r'@(?P<name>[-a-z_0-9]+)\s+(?P<text>(?:(?!@).)*)', comment, re.DOTALL | re.MULTILINE):
             tag_name = tag['name']
@@ -120,18 +139,27 @@ class ExportedMethodLoader:
                 process_function(tag['text'].strip())
             else:
                 print('{} has an unknown tag: {}'.format(method['name'], tag_name))
-            # # elif tag_name == 'page':
-            # #     # Rather than spend time finding a way to do things such that page tags don't get captured here,
-            # #     # just ignore them when found.
-            # #     pass
         # Final validation checks
-        if not method['desc']:
+        if 'desc' not in method:
             print("{} has no description.".format(method['name']))
         if bool(method['return_type']) != bool('return_desc' in method):
             print("{} has a return type without a return description.".format(method['name']))
         for param in method['params']:
             if 'desc' not in param:
                 print("{} has a parameter without a description: {}".format(method['name'], param['name']))
+
+    @classmethod
+    def _validate_callback_tags(cls, methods):
+        for method in methods:
+            if 'callback-getters' in method:
+                if 'callback-type' not in method:
+                    print('{} does not have a callback type.'.format(method['name']))
+                for getter in method['callback-getters']:
+                    method_index = next((i for i, m in enumerate(methods) if m["name"] == getter), None)
+                    if method_index is None:
+                        print('{} has an unknown callback getter method: {}'.format(method['name'], getter))
+                    else:
+                        methods[method_index]['callback-parent'] = method['name']
 
     @classmethod
     def _assign_methods_to_pages(cls, pages, methods):
@@ -150,7 +178,7 @@ class ExportedMethodLoader:
         }
         with open(out_file, 'w') as f:
             f.write('#CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64\n')
-            for page in self.pages:
+            for page in [p for p in self.pages if p['methods']]:
                 f.write('#\n')
                 f.write('# {0}\n'.format(page['name']))
                 f.write('#\n')
@@ -173,5 +201,5 @@ class ExportedMethodLoader:
 
 
 loader = ExportedMethodLoader('../../SteamPlugin/Common/DllMain.h')
-# ../../AGKPlugin/SteamPlugin/
-loader.write_commands_txt('Commands.txt')
+loader.write_commands_txt('../../AGKPlugin/SteamPlugin/Commands.txt')
+print("Method count: {}".format(loader.method_count))

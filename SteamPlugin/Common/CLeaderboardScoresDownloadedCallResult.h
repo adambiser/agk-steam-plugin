@@ -47,6 +47,10 @@ public:
 	{
 		m_CallResult.Cancel();
 	}
+	uint64 GetLeaderboardID()
+	{
+		return m_Downloaded.m_hSteamLeaderboard;
+	}
 	int GetLeaderboardEntryCount()
 	{
 		return (int)m_Entries.size();
@@ -84,6 +88,7 @@ private:
 	ELeaderboardDataRequest m_eLeaderboardDataRequest;
 	int m_nRangeStart;
 	int m_nRangeEnd;
+	LeaderboardScoresDownloaded_t m_Downloaded;
 	std::vector<LeaderboardEntry_t> m_Entries;
 };
 

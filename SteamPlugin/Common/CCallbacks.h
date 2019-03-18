@@ -33,8 +33,6 @@ THE SOFTWARE.
 #include <mutex>
 #include <vector>
 
-// TODO get rid of the "Enabled" function for callbacks.  Leave them on always.
-
 #define _CALLBACK_LIST_MAIN(func, callback_type, list_type)		\
 	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
 public:														\

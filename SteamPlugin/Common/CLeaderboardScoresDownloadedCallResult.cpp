@@ -27,6 +27,7 @@ void CLeaderboardScoresDownloadedCallResult::OnDownloadScore(LeaderboardScoresDo
 	if (!bIOFailure)
 	{
 		utils::Log(GetName() + ": Succeeded.");
+		m_Downloaded = *pCallResult;
 		for (int index = 0; index < pCallResult->m_cEntryCount; index++)
 		{
 			// TODO Add Details support.

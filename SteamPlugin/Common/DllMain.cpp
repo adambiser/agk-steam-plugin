@@ -51,6 +51,7 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 // Move into Callbacks().
 uint64 g_AppID = 0;
 bool g_SteamInitialized;
+bool g_StoringStats;
 std::mutex g_JoinedLobbiesMutex;
 std::vector<CSteamID> g_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 int g_InputCount = 0;
@@ -170,6 +171,7 @@ void ResetVariables()
 	g_AppID = 0;
 	g_InputCount = 0;
 	g_SteamInitialized = false;
+	g_StoringStats = false;
 }
 
 #pragma region Additional Methods
@@ -1026,8 +1028,8 @@ void ActivateGameOverlayToWebPageModal(const char *url)
 
 //ClearRichPresence
 //CloseClanChatWindowInSteam
-//DownloadClanActivityCounts
-//EnumerateFollowingList
+//DownloadClanActivityCounts - DownloadClanActivityCountsResult_t
+//EnumerateFollowingList - FriendsEnumerateFollowingList_t
 //GetChatMemberByIndex
 //GetClanActivityCounts
 //GetClanByIndex
@@ -1041,7 +1043,7 @@ void ActivateGameOverlayToWebPageModal(const char *url)
 //GetClanTag
 //GetCoplayFriend
 //GetCoplayFriendCount
-//GetFollowerCount
+//GetFollowerCount - FriendsGetFollowerCount_t
 //GetFriendByIndex - see GetFriendListJSON
 //GetFriendCoplayGame
 //GetFriendCoplayTime
@@ -1218,8 +1220,8 @@ int GetFriendSteamLevel(int hUserSteamID)
 int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitialized(0);
-	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	Callbacks()->EnableAvatarImageLoadedCallback();
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
 	switch (size)
@@ -1262,30 +1264,31 @@ int HasFriend(int hUserSteamID, int friendFlags)
 	return SteamFriends()->HasFriend(SteamHandles()->GetSteamHandle(hUserSteamID), (EFriendFlags)friendFlags);
 }
 
-//InviteUserToGame
+//InviteUserToGame - GameRichPresenceJoinRequested_t
 //IsClanChatAdmin
 //IsClanPublic
 //IsClanOfficialGameGroup
 //IsClanChatWindowOpenInSteam
-//IsFollowing
+//IsFollowing - FriendsIsFollowing_t
 //IsUserInSource
-//JoinClanChatRoom
-//LeaveClanChatRoom
+//JoinClanChatRoom - GameConnectedChatJoin_t, GameConnectedClanChatMsg_t, JoinClanChatRoomCompletionResult_t, GameConnectedChatLeave_t
+//LeaveClanChatRoom - GameConnectedChatLeave_t
 //OpenClanChatWindowInSteam
 //ReplyToFriendMessage
-//RequestClanOfficerList
-//RequestFriendRichPresence
+//RequestClanOfficerList - ClanOfficerListResponse_t
+//RequestFriendRichPresence - FriendRichPresenceUpdate_t
 
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 {
 	CheckInitialized(false);
+	Callbacks()->EnablePersonaStateChangeCallback();
 	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hUserSteamID), requireNameOnly != 0);
 }
 
 //SendClanChatMessage
 //SetInGameVoiceSpeaking
-//SetListenForFriendsMessages
-//SetPersonaName
+//SetListenForFriendsMessages - GameConnectedFriendChatMsg_t
+//SetPersonaName - SetPersonaNameResponse_t
 //SetPlayedWith
 //SetRichPresence
 
@@ -1312,7 +1315,7 @@ int GetAvatarImageLoadedUser()
 //GameConnectedChatLeave_t
 //GameConnectedClanChatMsg_t
 //GameConnectedFriendChatMsg_t
-//GameLobbyJoinRequested_t
+//GameLobbyJoinRequested_t - always fires
 
 int IsGameOverlayActive()
 {
@@ -1321,7 +1324,7 @@ int IsGameOverlayActive()
 }
 
 //GameRichPresenceJoinRequested_t
-//GameServerChangeRequested_t
+//GameServerChangeRequested_t - always fires
 //JoinClanChatRoomCompletionResult_t
 
 int HasPersonaStateChangeResponse()
@@ -1436,6 +1439,8 @@ void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueTo
 int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitialized(0);
+	Callbacks()->EnableLobbyDataUpdateCallback();
+	Callbacks()->EnableLobbyEnterCallback();
 	return CallResults()->Add(new CLobbyCreatedCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
@@ -1667,13 +1672,16 @@ int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
+	Callbacks()->EnableLobbyDataUpdateCallback();
+	Callbacks()->EnableLobbyEnterCallback();
 	return CallResults()->Add(new CLobbyEnterCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
-int GetJoinLobbyChatPermissions(int hCallResult)
-{
-	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatPermissions);
-}
+// Unused - always 0
+//int GetJoinLobbyChatPermissions(int hCallResult)
+//{
+//	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatPermissions);
+//}
 
 int GetJoinLobbyChatRoomEnterResponse(int hCallResult)
 {
@@ -1889,10 +1897,11 @@ int HasLobbyEnterResponse()
 	return Callbacks()->HasLobbyEnterResponse();
 }
 
-int GetLobbyEnterChatPermissions()
-{
-	return Callbacks()->GetLobbyEnter().m_rgfChatPermissions;
-}
+// Unused - always 0
+//int GetLobbyEnterChatPermissions()
+//{
+//	return Callbacks()->GetLobbyEnter().m_rgfChatPermissions;
+//}
 
 int GetLobbyEnterChatRoomEnterResponse()
 {
@@ -2443,6 +2452,7 @@ int GetHandleFromSteamID64(const char *steamID64)
 int ClearAchievement(const char *name)
 {
 	CheckInitialized(false);
+	Callbacks()->EnableUserAchievementStoredCallback();
 	return SteamUserStats()->ClearAchievement(name);
 }
 
@@ -2459,6 +2469,11 @@ int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, in
 }
 
 //DownloadLeaderboardEntriesForUsers
+
+int GetDownloadLeaderboardHandle(int hCallResult)
+{
+	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardID);
+}
 
 int GetDownloadLeaderboardEntryCount(int hCallResult)
 {
@@ -2657,12 +2672,15 @@ int RequestCurrentStats()
 int ResetAllStats(int achievementsToo)
 {
 	CheckInitialized(false);
+	Callbacks()->EnableUserAchievementStoredCallback();
+	Callbacks()->EnableUserStatsStoredCallback();
 	return SteamUserStats()->ResetAllStats(achievementsToo != 0);
 }
 
 int SetAchievement(const char *name)
 {
 	CheckInitialized(false);
+	Callbacks()->EnableUserAchievementStoredCallback();
 	return SteamUserStats()->SetAchievement(name);
 }
 
@@ -2683,7 +2701,18 @@ int SetStatFloat(const char *name, float value)
 int StoreStats()
 {
 	CheckInitialized(false);
+	if (g_StoringStats)
+	{
+		return false;
+	}
+	g_StoringStats = true;
+	Callbacks()->EnableUserStatsStoredCallback();
 	return SteamUserStats()->StoreStats();
+}
+
+int IsStoringStats()
+{
+	return (int)g_StoringStats;
 }
 
 int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLength)
@@ -2759,15 +2788,37 @@ int HasUserAchievementStoredResponse()
 	return Callbacks()->HasUserAchievementStoredResponse();
 }
 
+// Unused
+//int GetUserAchievementStoredIsGroup()
+//{
+//	return Callbacks()->GetUserAchievementStored().m_bGroupAchievement;
+//}
+
+char *GetUserAchievementStoredName()
+{
+	return utils::CreateString(Callbacks()->GetUserAchievementStored().m_rgchAchievementName);
+}
+
+int GetUserAchievementStoredCurrentProgress()
+{
+	return (int)Callbacks()->GetUserAchievementStored().m_nCurProgress;
+}
+
+int GetUserAchievementStoredMaxProgress()
+{
+	return (int)Callbacks()->GetUserAchievementStored().m_nMaxProgress;
+}
+
 int HasUserStatsReceivedResponse()
 {
 	return Callbacks()->HasUserStatsReceivedResponse();
 }
 
-int GetUserStatsReceivedGameAppID()
-{
-	return ((CGameID)(int)Callbacks()->GetUserStatsReceived().m_nGameID).AppID();
-}
+// This plugin only reports for the current app id.
+//int GetUserStatsReceivedGameAppID()
+//{
+//	return ((CGameID)(int)Callbacks()->GetUserStatsReceived().m_nGameID).AppID();
+//}
 
 int GetUserStatsReceivedResult()
 {
@@ -2786,7 +2837,17 @@ int StatsInitialized()
 
 int HasUserStatsStoredResponse()
 {
-	return Callbacks()->HasUserStatsStoredResponse();
+	if (Callbacks()->HasUserStatsStoredResponse())
+	{
+		g_StoringStats = false;
+		return true;
+	}
+	return false;
+}
+
+int GetUserStatsStoredResult()
+{
+	return (int)Callbacks()->GetUserStatsStored().m_eResult;
 }
 #pragma endregion
 
