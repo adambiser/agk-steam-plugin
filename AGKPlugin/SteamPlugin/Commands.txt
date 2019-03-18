@@ -343,7 +343,6 @@ GetUserStatsReceivedGameAppID,I,0,GetUserStatsReceivedGameAppID,0,0,0,0,GetUserS
 GetUserStatsReceivedResult,I,0,GetUserStatsReceivedResult,0,0,0,0,GetUserStatsReceivedResult
 GetUserStatsReceivedUser,I,0,GetUserStatsReceivedUser,0,0,0,0,GetUserStatsReceivedUser
 StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
-HasUserAchievementStoredResponse,I,0,HasUserAchievementStoredResponse,0,0,0,0,HasUserAchievementStoredResponse
 HasUserStatsStoredResponse,I,0,HasUserStatsStoredResponse,0,0,0,0,HasUserStatsStoredResponse
 #
 # ISteamUtils

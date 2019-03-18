@@ -413,7 +413,7 @@ extern "C" DLL_EXPORT char *GetAppName(int appID);
 // TODO?
 #pragma endregion
 
-#pragma region ISteamController
+#pragma region ISteamController/ISteamInput
 /* @page ISteamInput
 See the [Steam Input](https://partner.steamgames.com/doc/features/steam_input) documentation for more information.
 [Steam Controller](https://partner.steamgames.com/doc/features/steam_controller) has been deprecated.
@@ -763,7 +763,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotVelZ(int hInput);
 @return The localized string for the specified origin.
 @api ISteamController#GetStringForActionOrigin, ISteamController#EControllerActionOrigin
 */
-extern "C" DLL_EXPORT char * GetStringForActionOrigin(int eOrigin);
+extern "C" DLL_EXPORT char *GetStringForActionOrigin(int eOrigin);
 
 /*
 @desc Must be called when starting use of the ISteamInput interface.
@@ -895,11 +895,6 @@ extern "C" DLL_EXPORT char *GetGlyphForXboxOrigin(int eOrigin);
 
 /*
 @desc Convert an origin to another controller type.
-For inputs not present on the other controller type this will return k_EInputActionOrigin_None.
-
-When a new input type is added you will be able to pass in k_ESteamInputType_Unknown amd the closest
-origin that your version of the SDK regonized will be returned
-ex: if a Playstation 5 controller was released, this method would return Playstation 4 origins.
 @param eDestinationInputType The input type to convert from.
 @param-api eDestinationInputType ISteamInput#ESteamInputType
 @param eSourceOrigin The action origin to convert from.
@@ -1342,6 +1337,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatc
 @api ISteamMatchmaking#CreateLobby
 */
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers);
+extern "C" DLL_EXPORT int GetCreateLobbyHandle(int hCallResult);
 
 /*
 @desc Removes a metadata key from the lobby.
@@ -1486,6 +1482,10 @@ extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteam
 @api ISteamMatchmaking#JoinLobby
 */
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID);
+extern "C" DLL_EXPORT int GetJoinLobbyChatPermissions(int hCallResult);
+extern "C" DLL_EXPORT int GetJoinLobbyChatRoomEnterResponse(int hCallResult);
+extern "C" DLL_EXPORT int GetJoinLobbyHandle(int hCallResult);
+extern "C" DLL_EXPORT int GetJoinLobbyLocked(int hCallResult);
 
 /*
 @desc Leave a lobby that the user is currently in; this will take effect immediately on the client side, other users in the lobby will be notified by a LobbyChatUpdate_t callback.
@@ -2343,6 +2343,11 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 
 //DownloadLeaderboardEntriesForUsers
 
+extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult);
+extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int index);
+extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index);
+extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int index);
+
 /*
 FindLeaderboard
 @desc Sends a request to find the handle for a leaderboard.
@@ -2596,6 +2601,13 @@ extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score);
 
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreSuccess(int hCallResult);
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreHandle(int hCallResult);
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreValue(int hCallResult);
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreChanged(int hCallResult);
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankNew(int hCallResult);
+extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult);
+
 //Callbacks
 
 //GlobalAchievementPercentagesReady_t - RequestGlobalAchievementPercentages
@@ -2672,6 +2684,7 @@ extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage);
 @param imageID The image ID into which to load the image.
 @param hImage The handle to the image that will be obtained.
 @api SteamUtils#GetImageSize, SteamUtils#GetImageRGBA
+@plugin-name LoadImageFromHandle
 */
 extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage);
 

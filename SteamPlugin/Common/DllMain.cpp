@@ -627,7 +627,7 @@ char *GetAppName(int appID)
 //TODO? void SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction ); - this is also in SteamUtils!
 #pragma endregion
 
-#pragma region ISteamController
+#pragma region ISteamController/ISteamInput
 // As of v1.43 - Use ISteamInput instead of ISteamController.
 void ActivateActionSet(int hInput, int hActionSet)
 {
@@ -1018,7 +1018,6 @@ void ActivateGameOverlayToWebPage(const char *url)
 	SteamFriends()->ActivateGameOverlayToWebPage(url, k_EActivateGameOverlayToWebPageMode_Default);
 }
 
-// TODO Merge?
 void ActivateGameOverlayToWebPageModal(const char *url)
 {
 	CheckInitialized(NORETURN);
@@ -2070,6 +2069,7 @@ int CloudFileForget(const char *filename)
 }
 
 //FilePersist - deprecated
+
 int CloudFilePersisted(const char *filename)
 {
 	CheckInitialized(false);
@@ -2641,7 +2641,7 @@ int IndicateAchievementProgress(const char *name, int curProgress, int maxProgre
 	return SteamUserStats()->IndicateAchievementProgress(name, curProgress, maxProgress);
 }
 
-//InstallPS3Trophies
+//InstallPS3Trophies - ignore
 
 int RequestCurrentStats()
 {
@@ -2995,9 +2995,6 @@ int HasGamepadTextInputDismissedResponse()
 	CheckInitialized(0);
 	return Callbacks()->HasGamepadTextInputDismissedResponse();
 }
-
-bool m_bSubmitted;
-char m_chSubmittedText[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
 
 int GetGamepadTextInputDismissedSubmitted()
 {
