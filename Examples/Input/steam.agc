@@ -101,13 +101,13 @@ Function CheckInput()
 		next
 		for x = 0 to analogActionHandles.length
 			// Must call GetAnalogActionData before checking GetAnalogActionDataX or GetAnalogActionDataY!
-			if Steam.GetAnalogActionData(HINPUT, analogActionHandles[x])
+			Steam.GetAnalogActionData(HINPUT, analogActionHandles[x])
 				if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
 					AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
 				endif
 			//~ else
 				//~ AddStatus(analogActionNames[x] + " is inactive.")
-			endif
+			//~ endif
 		next
 		// Check for motion data.  Have to call GetMotionData for our input handle to load the data in the plugin for retrieval.
 		Steam.GetMotionData(HINPUT)
@@ -132,13 +132,12 @@ Function CheckInput()
 		SetButtonEnabled(HAPTIC_BUTTON, controllerCount > 0)
 		for x = 1 to controllerCount
 			AddStatus("Input type " + str(x) + ": " + GetInputTypeName(Steam.GetInputTypeForHandle(x)))
+			AddStatus("Input action set " + str(x) + ": " + str(Steam.GetCurrentActionSet(x)))
 		next
 		if controllerCount > 0
-			Steam.ActivateActionSet(HINPUT, ActionSetHandles.shipControls)
-			AddStatus("Input action set " + str(HINPUT) + ": " + str(Steam.GetCurrentActionSet(HINPUT)))
 			origins as integer[]
-			for x = 0 to Steam.GetDigitalActionOriginCount(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[0]) - 1
-				origins.insert(Steam.GetDigitalActionOriginValue(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[0], x))
+			for x = 0 to Steam.GetDigitalActionOriginCount(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[SHOW_ACTION_NAME_INDEX]) - 1
+				origins.insert(Steam.GetDigitalActionOriginValue(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[SHOW_ACTION_NAME_INDEX], x))
 			next x
 			AddStatus(digitalActionNames[SHOW_ACTION_NAME_INDEX] + " origins: " + origins.tojson())
 			for x = 0 to origins.length
@@ -146,6 +145,7 @@ Function CheckInput()
 				glyphPath as String
 				glyphPath = Steam.GetGlyphForActionOrigin(origins[x])
 				AddStatus("Glyph path " + str(x) +": " + glyphPath)
+				// Display the first origin glyph.
 				if x = 0
 					SetSpriteImage(buttonSprite, LoadImage("raw:" + glyphPath))
 				endif
