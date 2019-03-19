@@ -76,6 +76,8 @@ do
 	endif
 loop
 
+global speedTestDone as integer
+
 //
 // Check and handle input.
 //
@@ -88,6 +90,25 @@ Function CheckInput()
 		Steam.ActivateActionSet(HINPUT, ActionSetHandles.shipControls)
 		// Space War has an action set layer, but I don't know its name.  Pretending menu_controls is an action set layer for now.
 		Steam.ActivateActionSetLayer(HINPUT, ActionSetHandles.menuControls) // Hit DETECT again to see this layer activated.
+		// Speed test
+		//~ if not speedTestDone
+			//~ ResetTimer()
+			//~ for x = 1 to 100000
+				//~ Steam.GetMotionData(HINPUT)
+				//~ Steam.GetMotionDataPosAccelX()
+				//~ Steam.GetMotionDataPosAccelY()
+				//~ Steam.GetMotionDataPosAccelZ()
+				//~ Steam.GetMotionDataRotQuatW()
+				//~ Steam.GetMotionDataRotQuatX()
+				//~ Steam.GetMotionDataRotQuatY()
+				//~ Steam.GetMotionDataRotQuatZ()
+				//~ Steam.GetMotionDataRotVelX()
+				//~ Steam.GetMotionDataRotVelY()
+				//~ Steam.GetMotionDataRotVelZ()
+			//~ next
+			//~ AddStatus("Speed Test: " + str(Timer()))
+			//~ speedTestDone = 1
+		//~ endif
 		for x = 0 to digitalActionHandles.length
 			// Must call GetDigitalActionData before checking GetDigitalActionDataState and/or GetDigitalActionDataActive!
 			// Note that this only indicates the current state.  You'd have to keep track of these values if you want to know when pressed or released.
@@ -101,13 +122,13 @@ Function CheckInput()
 		next
 		for x = 0 to analogActionHandles.length
 			// Must call GetAnalogActionData before checking GetAnalogActionDataX or GetAnalogActionDataY!
-			Steam.GetAnalogActionData(HINPUT, analogActionHandles[x])
+			if Steam.GetAnalogActionData(HINPUT, analogActionHandles[x])
 				if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
 					AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
 				endif
 			//~ else
 				//~ AddStatus(analogActionNames[x] + " is inactive.")
-			//~ endif
+			endif
 		next
 		// Check for motion data.  Have to call GetMotionData for our input handle to load the data in the plugin for retrieval.
 		Steam.GetMotionData(HINPUT)

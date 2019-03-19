@@ -609,11 +609,20 @@ int HasNewUrlLaunchParametersResponse()
 char *GetAppName(int appID)
 {
 	char name[256];
-	if (SteamAppList()->GetAppName(appID, name, sizeof(name)) >= 0)
+	int length = SteamAppList()->GetAppName(appID, name, sizeof(name));
+	// Length of 0 means there is no app of that id.
+	if (length == 0)
 	{
+		return utils::CreateString("Not found");
+	}
+	// Length > 0 means the name was found.
+	if (length > 0)
+	{
+		name[length] = 0;
 		return utils::CreateString(name);
 	}
-	return utils::CreateString("Not found");
+	// Length < 0 means the name needs to be cached.
+	return agk::CreateString(0);
 }
 #pragma endregion
 

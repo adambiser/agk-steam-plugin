@@ -32,21 +32,21 @@ Type KeyValuePair_t
 	Value as string
 EndType
 
-// DLC information
-// Associated Functions: GetDLCDataJSON
-Type DLCData_t
-	AppID as integer	// If 0, the DLC is hidden.
-	Available as integer	// Boolean: If 1, the user owns the DLC.
-	Name as string
-EndType
-
-// DLC download progress
-// Associated Functions: GetDLCDownloadProgressJSON.
-Type DownloadProgress_t
-	AppID as integer	// If 0, the DLC is not currently downloading.
-	BytesDownloaded as integer
-	BytesTotal as integer
-EndType
+//~ // DLC information
+//~ // Associated Functions: GetDLCDataJSON
+//~ Type DLCData_t
+	//~ AppID as integer	// If 0, the DLC is hidden.
+	//~ Available as integer	// Boolean: If 1, the user owns the DLC.
+	//~ Name as string
+//~ EndType
+//~ 
+//~ // DLC download progress
+//~ // Associated Functions: GetDLCDownloadProgressJSON.
+//~ Type DownloadProgress_t
+	//~ AppID as integer	// If 0, the DLC is not currently downloading.
+	//~ BytesDownloaded as integer
+	//~ BytesTotal as integer
+//~ EndType
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamApps
@@ -57,20 +57,20 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Triggered after the current user gains ownership of DLC and that DLC is installed.
-// Associated Functions: InstallDLC
-Type DlcInstalled_t
-	AppID as integer	// App ID of the DLC that was installed.
-EndType
-
-// Called after requesting the details of a specific file.
-// Associated Functions: GetFileDetails
-Type FileDetailsResult_t
-	Result as integer	// EResult. Was the call successful?
-	FileSize as integer	// The original file size in bytes.
-	FileSHA as integer[]	// The original file SHA1 hash.
-	Flags as integer
-EndType
+//~ // Triggered after the current user gains ownership of DLC and that DLC is installed.
+//~ // Associated Functions: InstallDLC
+//~ Type DlcInstalled_t
+	//~ AppID as integer	// App ID of the DLC that was installed.
+//~ EndType
+//~ 
+//~ // Called after requesting the details of a specific file.
+//~ // Associated Functions: GetFileDetails
+//~ Type FileDetailsResult_t
+	//~ Result as integer	// EResult. Was the call successful?
+	//~ FileSize as integer	// The original file size in bytes.
+	//~ FileSHA as integer[]	// The original file SHA1 hash.
+	//~ Flags as integer
+//~ EndType
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamFriends
@@ -81,154 +81,154 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Called when a large avatar is loaded if you have tried requesting it when it was unavailable.
-// Associated Functions: GetLargeFriendAvatar
-Type AvatarImageLoaded_t
-	SteamID as integer	// The Steam ID that the avatar has been loaded for.
-	Image as integer	// The Steam image handle of the now loaded image.
-	Wide as integer	// Width of the loaded image.
-	Tall as integer	// Height of the loaded image.
-EndType
-
-// Marks the return of a request officer list call.
-// Associated Functions: RequestClanOfficerList
-Type ClanOfficerListResponse_t
-	SteamIDClan as integer	// The Steam group that we just got the officer list for.
-	Officers as integer	// The number of officers in the group.
-	Success as integer	// Was the call successful?
-EndType
-
-// Called when a Steam group activity has received.
-// Associated Functions: DownloadClanActivityCounts
-Type DownloadClanActivityCountsResult_t
-	Success as integer	// Was the call successful?
-EndType
-
-// Called when Rich Presence data has been updated for a user, this can happen automatically when friends in the same game update their rich presence, or after a call to RequestFriendRichPresence.
-// Associated Functions: RequestFriendRichPresence
-Type FriendRichPresenceUpdate_t
-	SteamIDFriend as integer	// The Steam ID of the user who's rich presence has changed.
-	AppID as integer	// The App ID of the game.
-EndType
-
-// Returns the result of EnumerateFollowingList.
-// Associated Functions: EnumerateFollowingList
-Type FriendsEnumerateFollowingList_t
-	Result as integer	// EResult. The result of the operation.
-	SteamID as integer[]	// The list of users that we are following.
-	ResultsReturned as integer	// The number of results returned in m_rgSteamID.
-	TotalResultCount as integer	// The total number of people we are following.
-EndType
-
-// Returns the result of GetFollowerCount.
-// Associated Functions: GetFollowerCount
-Type FriendsGetFollowerCount_t
-	Result as integer	// EResult. The result of the operation.
-	SteamID as integer	// The Steam ID of the user we requested the follower count for.
-	Count as integer	// The number of followers the user has.
-EndType
-
-// Returns the result of IsFollowing.
-// Associated Functions: IsFollowing
-Type FriendsIsFollowing_t
-	Result as integer	// EResult. The result of the operation.
-	SteamID as integer	// The Steam ID that was checked.
-	IsFollowing as integer	// Are we following the user?
-EndType
-
-// Called when a user has joined a Steam group chat that the we are in.
-// Associated Functions: JoinClanChatRoom
-Type GameConnectedChatJoin_t
-	SteamIDClanChat as integer	// The Steam ID of the chat that a user has joined.
-	SteamIDUser as integer	// The Steam ID of the user that has joined the chat.
-EndType
-
-// Called when a user has left a Steam group chat that the we are in.
-// Associated Functions: LeaveClanChatRoom
-Type GameConnectedChatLeave_t
-	SteamIDClanChat as integer	// The Steam ID of the chat that a user has left.
-	SteamIDUser as integer	// The Steam ID of the user that has left the chat.
-	Kicked as integer	// Was the user kicked by an officer (true), or not (false)?
-	Dropped as integer	// Was the users connection to Steam dropped (true), or did they leave via other means (false)?
-EndType
-
-// Called when a chat message has been received in a Steam group chat that we are in.
-// Associated Functions: JoinClanChatRoom
-Type GameConnectedClanChatMsg_t
-	SteamIDClanChat as integer	// The Steam ID of the chat that the message was received in.
-	SteamIDUser as integer	// The Steam ID of the user that sent the message.
-	MessageID as integer	// The index of the message to get the actual data from with GetClanChatMessage.
-EndType
-
-// Called when chat message has been received from a friend.
-// Associated Functions: SetListenForFriendsMessages
-Type GameConnectedFriendChatMsg_t
-	SteamIDUser as integer	// The Steam ID of the friend that sent the message.
-	MessageID as integer	// The index of the message to get the actual data from with GetFriendMessage.
-EndType
-
-// Called when the user tries to join a lobby from their friends list or from an invite.
-Type GameLobbyJoinRequested_t
-	SteamIDLobby as integer	// The Steam ID of the lobby to connect to.
-	SteamIDFriend as integer	// The friend they joined through.
-EndType
-
-// Posted when the Steam Overlay activates or deactivates.
-Type GameOverlayActivated_t
-	Active as integer	// 1 if it's just been activated, otherwise 0.
-EndType
-
-// Called when the user tries to join a game from their friends list or after a user accepts an invite by a friend with InviteUserToGame.
-// Associated Functions: InviteUserToGame
-Type GameRichPresenceJoinRequested_t
-	SteamIDFriend as integer	// The friend they joined through.
-	Connect as string	// The value associated with the "connect" Rich Presence key.
-EndType
-
-// Called when the user tries to join a different game server from their friends list.
-Type GameServerChangeRequested_t
-	Server as string	// Server address.
-	Password as string	// Server password, if any.
-EndType
-
-// Posted when the user has attempted to join a Steam group chat via JoinClanChatRoom
-// Associated Functions: JoinClanChatRoom
-Type JoinClanChatRoomCompletionResult_t
-	SteamIDClanChat as integer	// The Steam ID of the chat that the user has joined.
-	ChatRoomEnterResponse as integer	// EChatRoomEnterResponse. The result of the operation.
-EndType
-
-// Called whenever a friends' status changes.
-// Associated Functions: RequestUserInformation
-Type PersonaStateChange_t
-	SteamID as integer	// Steam ID of the user who changed.
-	ChangeFlags as integer	// A bit-wise union of EPersonaChange values.
-EndType
-
-// Reports the result of an attempt to change the current user's persona name.
-// Associated Functions: SetPersonaName
-Type SetPersonaNameResponse_t
-	Success as integer	// true if name change completed successfully.
-	LocalSuccess as integer	// true if name change was retained locally.
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-// Information about the game a friend is playing.
-// Obtainable from: GetFriendGamePlayedJSON
-// Modified from Steamworks SDK.
-Type FriendGameInfo_t
-	GameAppID as integer	// The game ID that the friend is playing.
-	GameIP as string	// The IP of the server the friend is playing on.
-	GamePort as integer	// The port of the server the friend is playing on.
-	QueryPort as integer	// The query port of the server the friend is playing on.
-	SteamIDLobby as integer	// The Steam ID of the lobby the friend is in.
-EndType
-
-// Information about user sessions.
-Type FriendSessionStateInfo_t
-	OnlineSessionInstances as integer
-	PublishedToFriendsSessionInstance as integer
-EndType
+//~ // Called when a large avatar is loaded if you have tried requesting it when it was unavailable.
+//~ // Associated Functions: GetLargeFriendAvatar
+//~ Type AvatarImageLoaded_t
+	//~ SteamID as integer	// The Steam ID that the avatar has been loaded for.
+	//~ Image as integer	// The Steam image handle of the now loaded image.
+	//~ Wide as integer	// Width of the loaded image.
+	//~ Tall as integer	// Height of the loaded image.
+//~ EndType
+//~ 
+//~ // Marks the return of a request officer list call.
+//~ // Associated Functions: RequestClanOfficerList
+//~ Type ClanOfficerListResponse_t
+	//~ SteamIDClan as integer	// The Steam group that we just got the officer list for.
+	//~ Officers as integer	// The number of officers in the group.
+	//~ Success as integer	// Was the call successful?
+//~ EndType
+//~ 
+//~ // Called when a Steam group activity has received.
+//~ // Associated Functions: DownloadClanActivityCounts
+//~ Type DownloadClanActivityCountsResult_t
+	//~ Success as integer	// Was the call successful?
+//~ EndType
+//~ 
+//~ // Called when Rich Presence data has been updated for a user, this can happen automatically when friends in the same game update their rich presence, or after a call to RequestFriendRichPresence.
+//~ // Associated Functions: RequestFriendRichPresence
+//~ Type FriendRichPresenceUpdate_t
+	//~ SteamIDFriend as integer	// The Steam ID of the user who's rich presence has changed.
+	//~ AppID as integer	// The App ID of the game.
+//~ EndType
+//~ 
+//~ // Returns the result of EnumerateFollowingList.
+//~ // Associated Functions: EnumerateFollowingList
+//~ Type FriendsEnumerateFollowingList_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ SteamID as integer[]	// The list of users that we are following.
+	//~ ResultsReturned as integer	// The number of results returned in m_rgSteamID.
+	//~ TotalResultCount as integer	// The total number of people we are following.
+//~ EndType
+//~ 
+//~ // Returns the result of GetFollowerCount.
+//~ // Associated Functions: GetFollowerCount
+//~ Type FriendsGetFollowerCount_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ SteamID as integer	// The Steam ID of the user we requested the follower count for.
+	//~ Count as integer	// The number of followers the user has.
+//~ EndType
+//~ 
+//~ // Returns the result of IsFollowing.
+//~ // Associated Functions: IsFollowing
+//~ Type FriendsIsFollowing_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ SteamID as integer	// The Steam ID that was checked.
+	//~ IsFollowing as integer	// Are we following the user?
+//~ EndType
+//~ 
+//~ // Called when a user has joined a Steam group chat that the we are in.
+//~ // Associated Functions: JoinClanChatRoom
+//~ Type GameConnectedChatJoin_t
+	//~ SteamIDClanChat as integer	// The Steam ID of the chat that a user has joined.
+	//~ SteamIDUser as integer	// The Steam ID of the user that has joined the chat.
+//~ EndType
+//~ 
+//~ // Called when a user has left a Steam group chat that the we are in.
+//~ // Associated Functions: LeaveClanChatRoom
+//~ Type GameConnectedChatLeave_t
+	//~ SteamIDClanChat as integer	// The Steam ID of the chat that a user has left.
+	//~ SteamIDUser as integer	// The Steam ID of the user that has left the chat.
+	//~ Kicked as integer	// Was the user kicked by an officer (true), or not (false)?
+	//~ Dropped as integer	// Was the users connection to Steam dropped (true), or did they leave via other means (false)?
+//~ EndType
+//~ 
+//~ // Called when a chat message has been received in a Steam group chat that we are in.
+//~ // Associated Functions: JoinClanChatRoom
+//~ Type GameConnectedClanChatMsg_t
+	//~ SteamIDClanChat as integer	// The Steam ID of the chat that the message was received in.
+	//~ SteamIDUser as integer	// The Steam ID of the user that sent the message.
+	//~ MessageID as integer	// The index of the message to get the actual data from with GetClanChatMessage.
+//~ EndType
+//~ 
+//~ // Called when chat message has been received from a friend.
+//~ // Associated Functions: SetListenForFriendsMessages
+//~ Type GameConnectedFriendChatMsg_t
+	//~ SteamIDUser as integer	// The Steam ID of the friend that sent the message.
+	//~ MessageID as integer	// The index of the message to get the actual data from with GetFriendMessage.
+//~ EndType
+//~ 
+//~ // Called when the user tries to join a lobby from their friends list or from an invite.
+//~ Type GameLobbyJoinRequested_t
+	//~ SteamIDLobby as integer	// The Steam ID of the lobby to connect to.
+	//~ SteamIDFriend as integer	// The friend they joined through.
+//~ EndType
+//~ 
+//~ // Posted when the Steam Overlay activates or deactivates.
+//~ Type GameOverlayActivated_t
+	//~ Active as integer	// 1 if it's just been activated, otherwise 0.
+//~ EndType
+//~ 
+//~ // Called when the user tries to join a game from their friends list or after a user accepts an invite by a friend with InviteUserToGame.
+//~ // Associated Functions: InviteUserToGame
+//~ Type GameRichPresenceJoinRequested_t
+	//~ SteamIDFriend as integer	// The friend they joined through.
+	//~ Connect as string	// The value associated with the "connect" Rich Presence key.
+//~ EndType
+//~ 
+//~ // Called when the user tries to join a different game server from their friends list.
+//~ Type GameServerChangeRequested_t
+	//~ Server as string	// Server address.
+	//~ Password as string	// Server password, if any.
+//~ EndType
+//~ 
+//~ // Posted when the user has attempted to join a Steam group chat via JoinClanChatRoom
+//~ // Associated Functions: JoinClanChatRoom
+//~ Type JoinClanChatRoomCompletionResult_t
+	//~ SteamIDClanChat as integer	// The Steam ID of the chat that the user has joined.
+	//~ ChatRoomEnterResponse as integer	// EChatRoomEnterResponse. The result of the operation.
+//~ EndType
+//~ 
+//~ // Called whenever a friends' status changes.
+//~ // Associated Functions: RequestUserInformation
+//~ Type PersonaStateChange_t
+	//~ SteamID as integer	// Steam ID of the user who changed.
+	//~ ChangeFlags as integer	// A bit-wise union of EPersonaChange values.
+//~ EndType
+//~ 
+//~ // Reports the result of an attempt to change the current user's persona name.
+//~ // Associated Functions: SetPersonaName
+//~ Type SetPersonaNameResponse_t
+	//~ Success as integer	// true if name change completed successfully.
+	//~ LocalSuccess as integer	// true if name change was retained locally.
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ // Information about the game a friend is playing.
+//~ // Obtainable from: GetFriendGamePlayedJSON
+//~ // Modified from Steamworks SDK.
+//~ Type FriendGameInfo_t
+	//~ GameAppID as integer	// The game ID that the friend is playing.
+	//~ GameIP as string	// The IP of the server the friend is playing on.
+	//~ GamePort as integer	// The port of the server the friend is playing on.
+	//~ QueryPort as integer	// The query port of the server the friend is playing on.
+	//~ SteamIDLobby as integer	// The Steam ID of the lobby the friend is in.
+//~ EndType
+//~ 
+//~ // Information about user sessions.
+//~ Type FriendSessionStateInfo_t
+	//~ OnlineSessionInstances as integer
+	//~ PublishedToFriendsSessionInstance as integer
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -315,54 +315,54 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Sent when the game server attempted to be associated with a Steam Group.
-// Associated Functions: AssociateWithClan
-Type AssociateWithClanResult_t
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-// Sent when the game server is checking if the new player is a good fit for the server based on the frenemy system.
-// Associated Functions: ComputeNewPlayerCompatibility
-Type ComputeNewPlayerCompatibilityResult_t
-	Result as integer	// EResult. The result of the operation.
-	PlayersThatDontLikeCandidate as integer	// The number of current players that don't like playing with the specified player.
-	PlayersThatCandidateDoesntLike as integer	// The number of players on the server that the specified player doesn't like playing with.
-	ClanPlayersThatDontLikeCandidate as integer	// The number of players in the associated Steam group that don't like playing with the player.
-	SteamIDCandidate as integer	// The Steam ID of the specified player.
-EndType
-
-// A client has been approved to connect to this game server.
-Type GSClientApprove_t
-	SteamID as integer	// The Steam ID of the user that is wanting to connect.
-	OwnerSteamID as integer	// The Steam ID that owns the game, this will be different from m_SteamID if the game is being borrowed via Steam Family Sharing.
-EndType
-
-// Called when a user has been denied to connection to this game server.
-Type GSClientDeny_t
-	SteamID as integer	// The Steam ID of the user that attempted to connect.
-	DenyReason as integer	// EDenyReason. The reason the player was denied.
-	OptionalText as string	// An optional text message explaining the deny reason.
-EndType
-
-// Called when we have recieved the group status of a user.
-// Associated Functions: RequestUserGroupStatus
-Type GSClientGroupStatus_t
-	SteamIDUser as integer	// The user whose group status we queried.
-	SteamIDGroup as integer	// The group that we queried.
-	Member as integer	// Is the user a member of the group (true) or not (false)?
-	Officer as integer	// Is the user an officer in the group (true) or not (false)?
-EndType
-
-// Called when the game server should kick the user.
-Type GSClientKick_t
-	SteamID as integer	// The Steam ID of the player that should be kicked.
-	DenyReason as integer	// EDenyReason. The reason the player is being kicked.
-EndType
-
-// Received when the game server requests to be displayed as secure (VAC protected)
-Type GSPolicyResponse_t
-	Secure as integer	// Is the server now set to secure (true) or unsecure (false)?.
-EndType
+//~ // Sent when the game server attempted to be associated with a Steam Group.
+//~ // Associated Functions: AssociateWithClan
+//~ Type AssociateWithClanResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ // Sent when the game server is checking if the new player is a good fit for the server based on the frenemy system.
+//~ // Associated Functions: ComputeNewPlayerCompatibility
+//~ Type ComputeNewPlayerCompatibilityResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PlayersThatDontLikeCandidate as integer	// The number of current players that don't like playing with the specified player.
+	//~ PlayersThatCandidateDoesntLike as integer	// The number of players on the server that the specified player doesn't like playing with.
+	//~ ClanPlayersThatDontLikeCandidate as integer	// The number of players in the associated Steam group that don't like playing with the player.
+	//~ SteamIDCandidate as integer	// The Steam ID of the specified player.
+//~ EndType
+//~ 
+//~ // A client has been approved to connect to this game server.
+//~ Type GSClientApprove_t
+	//~ SteamID as integer	// The Steam ID of the user that is wanting to connect.
+	//~ OwnerSteamID as integer	// The Steam ID that owns the game, this will be different from m_SteamID if the game is being borrowed via Steam Family Sharing.
+//~ EndType
+//~ 
+//~ // Called when a user has been denied to connection to this game server.
+//~ Type GSClientDeny_t
+	//~ SteamID as integer	// The Steam ID of the user that attempted to connect.
+	//~ DenyReason as integer	// EDenyReason. The reason the player was denied.
+	//~ OptionalText as string	// An optional text message explaining the deny reason.
+//~ EndType
+//~ 
+//~ // Called when we have recieved the group status of a user.
+//~ // Associated Functions: RequestUserGroupStatus
+//~ Type GSClientGroupStatus_t
+	//~ SteamIDUser as integer	// The user whose group status we queried.
+	//~ SteamIDGroup as integer	// The group that we queried.
+	//~ Member as integer	// Is the user a member of the group (true) or not (false)?
+	//~ Officer as integer	// Is the user an officer in the group (true) or not (false)?
+//~ EndType
+//~ 
+//~ // Called when the game server should kick the user.
+//~ Type GSClientKick_t
+	//~ SteamID as integer	// The Steam ID of the player that should be kicked.
+	//~ DenyReason as integer	// EDenyReason. The reason the player is being kicked.
+//~ EndType
+//~ 
+//~ // Received when the game server requests to be displayed as secure (VAC protected)
+//~ Type GSPolicyResponse_t
+	//~ Secure as integer	// Is the server now set to secure (true) or unsecure (false)?.
+//~ EndType
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamGameServerStats
@@ -373,24 +373,24 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Result when getting the latests stats and achievements for a user from the server.
-// Associated Functions: RequestUserStats
-Type GSStatsReceived_t
-	Result as integer	// EResult. Returns whether the call was successful or not.
-	SteamIDUser as integer	// The user whose stats were retrieved.
-EndType
-
-// Result of a request to store the user stats.
-// Associated Functions: StoreUserStats
-Type GSStatsStored_t
-	Result as integer	// EResult. Returns whether the call was successful or not.
-	SteamIDUser as integer	// The user for whom the stats were stored
-EndType
-
-// Callback indicating that a user's stats have been unloaded.
-Type GSStatsUnloaded_t
-	SteamIDUser as integer	// User whose stats have been unloaded.
-EndType
+//~ // Result when getting the latests stats and achievements for a user from the server.
+//~ // Associated Functions: RequestUserStats
+//~ Type GSStatsReceived_t
+	//~ Result as integer	// EResult. Returns whether the call was successful or not.
+	//~ SteamIDUser as integer	// The user whose stats were retrieved.
+//~ EndType
+//~ 
+//~ // Result of a request to store the user stats.
+//~ // Associated Functions: StoreUserStats
+//~ Type GSStatsStored_t
+	//~ Result as integer	// EResult. Returns whether the call was successful or not.
+	//~ SteamIDUser as integer	// The user for whom the stats were stored
+//~ EndType
+//~ 
+//~ // Callback indicating that a user's stats have been unloaded.
+//~ Type GSStatsUnloaded_t
+	//~ SteamIDUser as integer	// User whose stats have been unloaded.
+//~ EndType
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamHTMLSurface
@@ -401,177 +401,177 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// A new browser was created and is ready for use.
-// Associated Functions: CreateBrowser
-Type HTML_BrowserReady_t
-	BrowserHandle as integer	// This is the handle to the browser that was just created, which you can use with future calls to ISteamHTMLSurface.
-EndType
-
-// Called when page history status has changed the ability to go backwards and forward.
-Type HTML_CanGoBackAndForward_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	CanGoBack as integer	// Returns whether you can navigate backwards.
-	CanGoForward as integer	// Returns whether you can navigate forward.
-EndType
-
-// Called when the current page in a browser gets a new title.
-Type HTML_ChangedTitle_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	Title as string	// The new title of the page.
-EndType
-
-// Called when the browser has been requested to close due to user interaction; usually because of a javascript
-Type HTML_CloseBrowser_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-EndType
-
-// Called when a browser surface has received a file open dialog from a
-Type HTML_FileOpenDialog_t
-	BrowserHandle as integer	// The handle of the surface that is navigating.
-	Title as string	// The name of the dialog.
-	InitialFile as string	// The filename that the page wants you to set by default.
-EndType
-
-// Called when a browser has finished loading a page.
-Type HTML_FinishedRequest_t
-	BrowserHandle as integer	// The handle of the surface that this call was for.
-	URL as string	// The URL that was loaded.
-	PageTitle as string	// The title of the page that got loaded.
-EndType
-
-// Called when a a browser wants to hide a tooltip.
-Type HTML_HideToolTip_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-EndType
-
-// Provides details on the visibility and size of the horizontal scrollbar.
-// Associated Functions: SetHorizontalScroll
-Type HTML_HorizontalScroll_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	ScrollMax as integer	// The maximum amount you can scroll horizontally.
-	ScrollCurrent as integer	// The current horizontal scroll position.
-	PageScale as float	// The current page scale.
-	Visible as integer	// Whether the horizontal scrollbar is visible.
-	PageSize as integer	// The total width of the page in pixels.
-EndType
-
-// Called when the browser wants to display a Javascript alert dialog, call JSDialogResponse when the user dismisses this dialog; or right away to ignore it.
-Type HTML_JSAlert_t
-	BrowserHandle as integer	// The handle of the surface that this call was for.
-	Message as string	// The message associated with the dialog.
-EndType
-
-// Called when the browser wants to display a Javascript confirmation dialog, call JSDialogResponse when the user dismisses this dialog; or right away to ignore it.
-Type HTML_JSConfirm_t
-	BrowserHandle as integer	// The handle of the surface that this call was for.
-	Message as string	// The message associated with the dialog.
-EndType
-
-// Result of a call to GetLinkAtPosition
-// Associated Functions: GetLinkAtPosition
-Type HTML_LinkAtPosition_t
-	BrowserHandle as integer	// The handle of the surface that this call was for.
-	X as integer	// Unused.
-	Y as integer	// Unused.
-	URL as string	// The URL found at this position.
-	Input as integer	// Was the position an input field?
-	LiveLink as integer
-EndType
-
-// Called when a browser surface has a pending paint.
-Type HTML_NeedsPaint_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	BGRA as string	// A pointer to the B8G8R8A8 image data for this surface, valid until SteamAPI_RunCallbacks is next called.
-	Wide as integer	// The total width of the pBGRA texture.
-	Tall as integer	// The total height of the pBGRA texture.
-	UpdateX as integer	// The offset in X for the damage rect for this update.
-	UpdateY as integer	// The offset in Y for the damage rect for this update.
-	UpdateWide as integer	// The width of the damage rect for this update.
-	UpdateTall as integer	// The height of the damage rect for this update.
-	ScrollX as integer	// The horizontal scroll position the browser was at when this texture was rendered.
-	ScrollY as integer	// The veritcal scroll position the browser was at when this texture was rendered.
-	PageScale as float	// The scale factor the browser was at when this texture was rendered.
-	PageSerial as integer	// Incremented on each new page load, you can use this to reject draws while navigating to new pages.
-EndType
-
-// A browser has created a new HTML window.
-Type HTML_NewWindow_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	URL as string	// The URL to load in the new window.
-	X as integer	// The x pos into the page to display the popup.
-	Y as integer	// The y pos into the page to display the popup.
-	Wide as integer	// The total width of the pBGRA texture.
-	Tall as integer	// The total height of the pBGRA texture.
-EndType
-
-// The browser has requested to load a url in a new tab.
-Type HTML_OpenLinkInNewTab_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	URL as string	// The URL that the browser wants to load.
-EndType
-
-// Results from a search.
-// Associated Functions: Find
-Type HTML_SearchResults_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	Results as integer	// The number of matching results found.
-	CurrentMatch as integer	// The ordinal of the current match relative to unResults.
-EndType
-
-// Called when a browser wants to change the mouse cursor.
-Type HTML_SetCursor_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	MouseCursor as integer	// The EMouseCursor to display.
-EndType
-
-// Called when a browser wants to display a tooltip.
-Type HTML_ShowToolTip_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	Msg as string	// The text of the tooltip that wants to be displayed.
-EndType
-
-// Called when a browser wants to navigate to a new page.
-// Associated Functions: LoadURL
-Type HTML_StartRequest_t
-	BrowserHandle as integer	// The handle of the surface that is navigating.
-	URL as string	// The url it wants to navigate to.
-	Target as string	// The html link target type (i.e _blank, _self, _parent, _top ).
-	PostData as string	// Any posted data for the request.
-	IsRedirect as integer	// True if this was a http/html redirect from the last load request.
-EndType
-
-// Called when a browser wants you to display an informational message.
-Type HTML_StatusText_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	Msg as string	// The text of the status message to display.
-EndType
-
-// Called when the text of an existing tooltip has been updated.
-Type HTML_UpdateToolTip_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	Msg as string	// The new text of the tooltip.
-EndType
-
-// Called when the browser is navigating to a new url
-Type HTML_URLChanged_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	URL as string	// The url that the browser is navigating to.
-	PostData as string	// Any posted data for the request, NULL if there was none.
-	IsRedirect as integer	// true if this was a http/html redirect from the last load request, otherwise false.
-	PageTitle as string	// The title of the page.
-	NewNavigation as integer	// This is true if the page has changed rather than just a call to the browser history API.
-EndType
-
-// Provides details on the visibility and size of the vertical scrollbar.
-// Associated Functions: SetVerticalScroll
-Type HTML_VerticalScroll_t
-	BrowserHandle as integer	// The handle of the surface that this callback is for.
-	ScrollMax as integer	// The maximum amount you can scroll vertically.
-	ScrollCurrent as integer	// The current vertical scroll position.
-	PageScale as float	// The current page scale.
-	Visible as integer	// Whether the vertical scrollbar is visible.
-	PageSize as integer	// The total height of the page in pixels.
-EndType
+//~ // A new browser was created and is ready for use.
+//~ // Associated Functions: CreateBrowser
+//~ Type HTML_BrowserReady_t
+	//~ BrowserHandle as integer	// This is the handle to the browser that was just created, which you can use with future calls to ISteamHTMLSurface.
+//~ EndType
+//~ 
+//~ // Called when page history status has changed the ability to go backwards and forward.
+//~ Type HTML_CanGoBackAndForward_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ CanGoBack as integer	// Returns whether you can navigate backwards.
+	//~ CanGoForward as integer	// Returns whether you can navigate forward.
+//~ EndType
+//~ 
+//~ // Called when the current page in a browser gets a new title.
+//~ Type HTML_ChangedTitle_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ Title as string	// The new title of the page.
+//~ EndType
+//~ 
+//~ // Called when the browser has been requested to close due to user interaction; usually because of a javascript
+//~ Type HTML_CloseBrowser_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+//~ EndType
+//~ 
+//~ // Called when a browser surface has received a file open dialog from a
+//~ Type HTML_FileOpenDialog_t
+	//~ BrowserHandle as integer	// The handle of the surface that is navigating.
+	//~ Title as string	// The name of the dialog.
+	//~ InitialFile as string	// The filename that the page wants you to set by default.
+//~ EndType
+//~ 
+//~ // Called when a browser has finished loading a page.
+//~ Type HTML_FinishedRequest_t
+	//~ BrowserHandle as integer	// The handle of the surface that this call was for.
+	//~ URL as string	// The URL that was loaded.
+	//~ PageTitle as string	// The title of the page that got loaded.
+//~ EndType
+//~ 
+//~ // Called when a a browser wants to hide a tooltip.
+//~ Type HTML_HideToolTip_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+//~ EndType
+//~ 
+//~ // Provides details on the visibility and size of the horizontal scrollbar.
+//~ // Associated Functions: SetHorizontalScroll
+//~ Type HTML_HorizontalScroll_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ ScrollMax as integer	// The maximum amount you can scroll horizontally.
+	//~ ScrollCurrent as integer	// The current horizontal scroll position.
+	//~ PageScale as float	// The current page scale.
+	//~ Visible as integer	// Whether the horizontal scrollbar is visible.
+	//~ PageSize as integer	// The total width of the page in pixels.
+//~ EndType
+//~ 
+//~ // Called when the browser wants to display a Javascript alert dialog, call JSDialogResponse when the user dismisses this dialog; or right away to ignore it.
+//~ Type HTML_JSAlert_t
+	//~ BrowserHandle as integer	// The handle of the surface that this call was for.
+	//~ Message as string	// The message associated with the dialog.
+//~ EndType
+//~ 
+//~ // Called when the browser wants to display a Javascript confirmation dialog, call JSDialogResponse when the user dismisses this dialog; or right away to ignore it.
+//~ Type HTML_JSConfirm_t
+	//~ BrowserHandle as integer	// The handle of the surface that this call was for.
+	//~ Message as string	// The message associated with the dialog.
+//~ EndType
+//~ 
+//~ // Result of a call to GetLinkAtPosition
+//~ // Associated Functions: GetLinkAtPosition
+//~ Type HTML_LinkAtPosition_t
+	//~ BrowserHandle as integer	// The handle of the surface that this call was for.
+	//~ X as integer	// Unused.
+	//~ Y as integer	// Unused.
+	//~ URL as string	// The URL found at this position.
+	//~ Input as integer	// Was the position an input field?
+	//~ LiveLink as integer
+//~ EndType
+//~ 
+//~ // Called when a browser surface has a pending paint.
+//~ Type HTML_NeedsPaint_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ BGRA as string	// A pointer to the B8G8R8A8 image data for this surface, valid until SteamAPI_RunCallbacks is next called.
+	//~ Wide as integer	// The total width of the pBGRA texture.
+	//~ Tall as integer	// The total height of the pBGRA texture.
+	//~ UpdateX as integer	// The offset in X for the damage rect for this update.
+	//~ UpdateY as integer	// The offset in Y for the damage rect for this update.
+	//~ UpdateWide as integer	// The width of the damage rect for this update.
+	//~ UpdateTall as integer	// The height of the damage rect for this update.
+	//~ ScrollX as integer	// The horizontal scroll position the browser was at when this texture was rendered.
+	//~ ScrollY as integer	// The veritcal scroll position the browser was at when this texture was rendered.
+	//~ PageScale as float	// The scale factor the browser was at when this texture was rendered.
+	//~ PageSerial as integer	// Incremented on each new page load, you can use this to reject draws while navigating to new pages.
+//~ EndType
+//~ 
+//~ // A browser has created a new HTML window.
+//~ Type HTML_NewWindow_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ URL as string	// The URL to load in the new window.
+	//~ X as integer	// The x pos into the page to display the popup.
+	//~ Y as integer	// The y pos into the page to display the popup.
+	//~ Wide as integer	// The total width of the pBGRA texture.
+	//~ Tall as integer	// The total height of the pBGRA texture.
+//~ EndType
+//~ 
+//~ // The browser has requested to load a url in a new tab.
+//~ Type HTML_OpenLinkInNewTab_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ URL as string	// The URL that the browser wants to load.
+//~ EndType
+//~ 
+//~ // Results from a search.
+//~ // Associated Functions: Find
+//~ Type HTML_SearchResults_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ Results as integer	// The number of matching results found.
+	//~ CurrentMatch as integer	// The ordinal of the current match relative to unResults.
+//~ EndType
+//~ 
+//~ // Called when a browser wants to change the mouse cursor.
+//~ Type HTML_SetCursor_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ MouseCursor as integer	// The EMouseCursor to display.
+//~ EndType
+//~ 
+//~ // Called when a browser wants to display a tooltip.
+//~ Type HTML_ShowToolTip_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ Msg as string	// The text of the tooltip that wants to be displayed.
+//~ EndType
+//~ 
+//~ // Called when a browser wants to navigate to a new page.
+//~ // Associated Functions: LoadURL
+//~ Type HTML_StartRequest_t
+	//~ BrowserHandle as integer	// The handle of the surface that is navigating.
+	//~ URL as string	// The url it wants to navigate to.
+	//~ Target as string	// The html link target type (i.e _blank, _self, _parent, _top ).
+	//~ PostData as string	// Any posted data for the request.
+	//~ IsRedirect as integer	// True if this was a http/html redirect from the last load request.
+//~ EndType
+//~ 
+//~ // Called when a browser wants you to display an informational message.
+//~ Type HTML_StatusText_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ Msg as string	// The text of the status message to display.
+//~ EndType
+//~ 
+//~ // Called when the text of an existing tooltip has been updated.
+//~ Type HTML_UpdateToolTip_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ Msg as string	// The new text of the tooltip.
+//~ EndType
+//~ 
+//~ // Called when the browser is navigating to a new url
+//~ Type HTML_URLChanged_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ URL as string	// The url that the browser is navigating to.
+	//~ PostData as string	// Any posted data for the request, NULL if there was none.
+	//~ IsRedirect as integer	// true if this was a http/html redirect from the last load request, otherwise false.
+	//~ PageTitle as string	// The title of the page.
+	//~ NewNavigation as integer	// This is true if the page has changed rather than just a call to the browser history API.
+//~ EndType
+//~ 
+//~ // Provides details on the visibility and size of the vertical scrollbar.
+//~ // Associated Functions: SetVerticalScroll
+//~ Type HTML_VerticalScroll_t
+	//~ BrowserHandle as integer	// The handle of the surface that this callback is for.
+	//~ ScrollMax as integer	// The maximum amount you can scroll vertically.
+	//~ ScrollCurrent as integer	// The current vertical scroll position.
+	//~ PageScale as float	// The current page scale.
+	//~ Visible as integer	// Whether the vertical scrollbar is visible.
+	//~ PageSize as integer	// The total height of the page in pixels.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -644,31 +644,31 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Result when an HTTP request completes.
-// Associated Functions: SendHTTPRequest
-Type HTTPRequestCompleted_t
-	Request as integer	// Handle for the request that has completed.
-	ContextValue as integer	// Context value that the user defined on the request with SetHTTPRequestContextValue that this callback is associated with.
-	RequestSuccessful as integer	// This will be true if the request actually got any sort of response from the server (even an error).
-	StatusCode as integer	// EHTTPStatusCode. Will be the HTTP status code value returned by the server.k_EHTTPStatusCode200OK is the normal OK response, if you get something else you probably need to treat it as a failure.
-	BodySize as integer	// The size of the request body in bytes.
-EndType
-
-// Triggered when a chunk of data is received from a streaming HTTP request.
-// Associated Functions: SendHTTPRequestAndStreamResponse
-Type HTTPRequestDataReceived_t
-	Request as integer	// Handle value for the request that has received data.
-	ContextValue as integer	// Context value that the user defined on the request that this callback is associated with, 0 ifno context value was set.
-	Offset as integer	// Offset to provide to GetHTTPStreamingResponseBodyData to get this chunk of data
-	BytesReceived as integer	// Size in bytes to provide to GetHTTPStreamingResponseBodyData to get this chunk of data
-EndType
-
-// Triggered when HTTP headers are received from a streaming HTTP request.
-// Associated Functions: SendHTTPRequestAndStreamResponse
-Type HTTPRequestHeadersReceived_t
-	Request as integer	// Handle value for the request that has received headers.
-	ContextValue as integer	// Context value that the user defined on the request that this callback is associated with, 0 ifno context value was set.
-EndType
+//~ // Result when an HTTP request completes.
+//~ // Associated Functions: SendHTTPRequest
+//~ Type HTTPRequestCompleted_t
+	//~ Request as integer	// Handle for the request that has completed.
+	//~ ContextValue as integer	// Context value that the user defined on the request with SetHTTPRequestContextValue that this callback is associated with.
+	//~ RequestSuccessful as integer	// This will be true if the request actually got any sort of response from the server (even an error).
+	//~ StatusCode as integer	// EHTTPStatusCode. Will be the HTTP status code value returned by the server.k_EHTTPStatusCode200OK is the normal OK response, if you get something else you probably need to treat it as a failure.
+	//~ BodySize as integer	// The size of the request body in bytes.
+//~ EndType
+//~ 
+//~ // Triggered when a chunk of data is received from a streaming HTTP request.
+//~ // Associated Functions: SendHTTPRequestAndStreamResponse
+//~ Type HTTPRequestDataReceived_t
+	//~ Request as integer	// Handle value for the request that has received data.
+	//~ ContextValue as integer	// Context value that the user defined on the request that this callback is associated with, 0 ifno context value was set.
+	//~ Offset as integer	// Offset to provide to GetHTTPStreamingResponseBodyData to get this chunk of data
+	//~ BytesReceived as integer	// Size in bytes to provide to GetHTTPStreamingResponseBodyData to get this chunk of data
+//~ EndType
+//~ 
+//~ // Triggered when HTTP headers are received from a streaming HTTP request.
+//~ // Associated Functions: SendHTTPRequestAndStreamResponse
+//~ Type HTTPRequestHeadersReceived_t
+	//~ Request as integer	// Handle value for the request that has received headers.
+	//~ ContextValue as integer	// Context value that the user defined on the request that this callback is associated with, 0 ifno context value was set.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1102,45 +1102,45 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Returned when you have requested the list of "eligible" promo items that can be manually granted to the given user.
-// Associated Functions: RequestEligiblePromoItemDefinitionsIDs
-Type SteamInventoryEligiblePromoItemDefIDs_t
-	Result as integer	// EResult. k_EResultOK upon success, any other value indicates failure.
-	SteamID as integer	// The Steam ID of the user who these items are for.
-	NumEligiblePromoItemDefs as integer	// The number of eligible promo items available for this user.
-	CachedData as integer	// Indicates that the data was retrieved from the cache and not the server.
-EndType
-
-// Triggered when GetAllItems successfully returns a result which is newer / fresher than the last known result.
-Type SteamInventoryFullUpdate_t
-	Handle as integer	// A new inventory result handle.
-EndType
-
-// This is fired whenever an inventory result transitions from k_EResultPending to any other completed state, see GetResultStatus for the complete list of states.
-Type SteamInventoryResultReady_t
-	Handle as integer	// The inventory result which is now ready.
-	Result as integer	// EResult. The new status of the handle.
-EndType
-
-// Returned after StartPurchase is called.
-Type SteamInventoryStartPurchaseResult_t
-	Result as integer	// EResult. k_EResultOK upon success, any other value indicates failure.
-	OrderID as integer	// The auto-generated order id for the initiated purchase.
-	TransID as integer	// The auto-generated transaction id for the initiated purchase.
-EndType
-
-// Returned after RequestPrices is called.
-Type SteamInventoryRequestPricesResult_t
-	Result as integer	// EResult. k_EResultOK upon success, any other value indicates failure.
-	Currency as string	// The string representing the user's local currency code.
-EndType
-
-Type SteamItemDetails_t
-	ItemId as integer	// The globally unique item instance handle.
-	Definition as integer	// The item definition number for this item.
-	Quantity as integer	// The current quantity of the item.
-	Flags as integer	// This is a bitmasked collection of ESteamItemFlags.
-EndType
+//~ // Returned when you have requested the list of "eligible" promo items that can be manually granted to the given user.
+//~ // Associated Functions: RequestEligiblePromoItemDefinitionsIDs
+//~ Type SteamInventoryEligiblePromoItemDefIDs_t
+	//~ Result as integer	// EResult. k_EResultOK upon success, any other value indicates failure.
+	//~ SteamID as integer	// The Steam ID of the user who these items are for.
+	//~ NumEligiblePromoItemDefs as integer	// The number of eligible promo items available for this user.
+	//~ CachedData as integer	// Indicates that the data was retrieved from the cache and not the server.
+//~ EndType
+//~ 
+//~ // Triggered when GetAllItems successfully returns a result which is newer / fresher than the last known result.
+//~ Type SteamInventoryFullUpdate_t
+	//~ Handle as integer	// A new inventory result handle.
+//~ EndType
+//~ 
+//~ // This is fired whenever an inventory result transitions from k_EResultPending to any other completed state, see GetResultStatus for the complete list of states.
+//~ Type SteamInventoryResultReady_t
+	//~ Handle as integer	// The inventory result which is now ready.
+	//~ Result as integer	// EResult. The new status of the handle.
+//~ EndType
+//~ 
+//~ // Returned after StartPurchase is called.
+//~ Type SteamInventoryStartPurchaseResult_t
+	//~ Result as integer	// EResult. k_EResultOK upon success, any other value indicates failure.
+	//~ OrderID as integer	// The auto-generated order id for the initiated purchase.
+	//~ TransID as integer	// The auto-generated transaction id for the initiated purchase.
+//~ EndType
+//~ 
+//~ // Returned after RequestPrices is called.
+//~ Type SteamInventoryRequestPricesResult_t
+	//~ Result as integer	// EResult. k_EResultOK upon success, any other value indicates failure.
+	//~ Currency as string	// The string representing the user's local currency code.
+//~ EndType
+//~ 
+//~ Type SteamItemDetails_t
+	//~ ItemId as integer	// The globally unique item instance handle.
+	//~ Definition as integer	// The item definition number for this item.
+	//~ Quantity as integer	// The current quantity of the item.
+	//~ Flags as integer	// This is a bitmasked collection of ESteamItemFlags.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1161,97 +1161,97 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-Type FavoritesListAccountsUpdated_t
-	Result as integer	// EResult. 
-EndType
-
-// A server was added/removed from the favorites list, you should refresh now.
-Type FavoritesListChanged_t
-	IP as string	// An IP of 0 means reload the whole list, any other value means just one server.
-	QueryPort as integer	// If m_nIP is set then this is the new servers query port, in host order.
-	ConnPort as integer	// If m_nIP is set then this is the new servers connection port, in host order.
-	AppID as integer	// If m_nIP is set then this is the App ID the game server belongs to.
-	Flags as integer	// If m_nIP is set then this returns whether the the server is on the favorites list or the history list.
-	Add as integer	// If m_nIP is set then this is whether the server was added to the list (true) or removed (false) from it.
-	AccountId as integer
-EndType
-
-// A chat (text or binary) message for this lobby has been received. 
-// Associated Functions: SendLobbyChatMsg
-Type LobbyChatMsg_t
-	SteamIDLobby as integer		// The Steam ID handle of the lobby this message was sent in.
-	SteamIDUser as integer		// Steam ID of the user who sent this message. Note that it could have been the local user.
-	ChatEntryType as integer	// Type of message received. This is actually a EChatEntryType.
-	ChatEntry as string			// The text of the message.
-EndType
-
-// A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
-Type LobbyChatUpdate_t
-	SteamIDLobby as integer	// The Steam ID of the lobby.
-	SteamIDUserChanged as integer	// The user who's status in the lobby just changed - can be recipient.
-	SteamIDMakingChange as integer	// Chat member who made the change.
-	ChatMemberStateChange as integer	// Bitfield of EChatMemberStateChange values.
-EndType
-
-// Result of our request to create a Lobby.
-// Associated Functions: CreateLobby
-Type LobbyCreated_t
-	Result as integer	// EResult. The result of the operation.
-	SteamIDLobby as integer	// The Steam ID of the lobby that was created, 0 if failed.
-EndType
-
-// The lobby metadata has changed.
-// Associated Functions: CreateLobby
-Type LobbyDataUpdate_t
-	SteamIDLobby as integer	// The Steam ID of the Lobby.
-	SteamIDMember as integer	// Steam ID of either the member whose data changed, or the room itself.
-	Success as integer	// true if the lobby data was successfully changed, otherwise false.
-EndType
-
-// Recieved upon attempting to enter a lobby.
-// Associated Functions: CreateLobby
-Type LobbyEnter_t
-	SteamIDLobby as integer	// The steam ID of the Lobby you have entered.
-	ChatPermissions as integer	// Unused - Always 0.
-	Locked as integer	// If true, then only invited users may join.
-	ChatRoomEnterResponse as integer	// This is actually a EChatRoomEnterResponse value.
-EndType
-
-// A game server has been set via SetLobbyGameServer for all of the members of the lobby to join.
-// Associated Functions: SetLobbyGameServer
-Type LobbyGameCreated_t
-	SteamIDLobby as integer	// The lobby that set the game server.
-	SteamIDGameServer as integer	// The Steam ID of the game server, if it's set.
-	IP as string	// The IP address of the game server in host order, i.e 127.0.0.1 == 0x7f000001, if it's set.
-	Port as integer	// The connection port of the game server, in host order, if it's set.
-EndType
-
-// Associated Fcuntion: GetLobbyGameServerJSON
-Type LobbyGameServer_t
-	GameServerIP as string			// IP of the game server (if any)
-	GameServerPort as integer		// The port of the game server (if any)
-	SteamIDGameServer as integer	// The game server.
-EndType
-
-// Someone has invited you to join a Lobby.
-Type LobbyInvite_t
-	SteamIDUser as integer	// Steam ID of the person that sent the invite.
-	SteamIDLobby as integer	// Steam ID of the lobby we're invited to.
-	GameID as integer	// Game ID of the lobby we're invited to.
-EndType
-
-// Favorite game information.
-// Returned by GetFavoriteGameJSON.
-// This isn't from the Steamworks SDK, but compensates for the values being returned via parameters.
-// Associated functions: GetFavoriteGameJSON
-Type FavoriteGame_t
-	AppID as integer
-	IP as string
-	ConnPort as integer
-	QueryPort as integer
-	Flags as integer
-	TimeLastPlayedOnServer as integer
-EndType
+//~ Type FavoritesListAccountsUpdated_t
+	//~ Result as integer	// EResult. 
+//~ EndType
+//~ 
+//~ // A server was added/removed from the favorites list, you should refresh now.
+//~ Type FavoritesListChanged_t
+	//~ IP as string	// An IP of 0 means reload the whole list, any other value means just one server.
+	//~ QueryPort as integer	// If m_nIP is set then this is the new servers query port, in host order.
+	//~ ConnPort as integer	// If m_nIP is set then this is the new servers connection port, in host order.
+	//~ AppID as integer	// If m_nIP is set then this is the App ID the game server belongs to.
+	//~ Flags as integer	// If m_nIP is set then this returns whether the the server is on the favorites list or the history list.
+	//~ Add as integer	// If m_nIP is set then this is whether the server was added to the list (true) or removed (false) from it.
+	//~ AccountId as integer
+//~ EndType
+//~ 
+//~ // A chat (text or binary) message for this lobby has been received. 
+//~ // Associated Functions: SendLobbyChatMsg
+//~ Type LobbyChatMsg_t
+	//~ SteamIDLobby as integer		// The Steam ID handle of the lobby this message was sent in.
+	//~ SteamIDUser as integer		// Steam ID of the user who sent this message. Note that it could have been the local user.
+	//~ ChatEntryType as integer	// Type of message received. This is actually a EChatEntryType.
+	//~ ChatEntry as string			// The text of the message.
+//~ EndType
+//~ 
+//~ // A lobby chat room state has changed, this is usually sent when a user has joined or left the lobby.
+//~ Type LobbyChatUpdate_t
+	//~ SteamIDLobby as integer	// The Steam ID of the lobby.
+	//~ SteamIDUserChanged as integer	// The user who's status in the lobby just changed - can be recipient.
+	//~ SteamIDMakingChange as integer	// Chat member who made the change.
+	//~ ChatMemberStateChange as integer	// Bitfield of EChatMemberStateChange values.
+//~ EndType
+//~ 
+//~ // Result of our request to create a Lobby.
+//~ // Associated Functions: CreateLobby
+//~ Type LobbyCreated_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ SteamIDLobby as integer	// The Steam ID of the lobby that was created, 0 if failed.
+//~ EndType
+//~ 
+//~ // The lobby metadata has changed.
+//~ // Associated Functions: CreateLobby
+//~ Type LobbyDataUpdate_t
+	//~ SteamIDLobby as integer	// The Steam ID of the Lobby.
+	//~ SteamIDMember as integer	// Steam ID of either the member whose data changed, or the room itself.
+	//~ Success as integer	// true if the lobby data was successfully changed, otherwise false.
+//~ EndType
+//~ 
+//~ // Recieved upon attempting to enter a lobby.
+//~ // Associated Functions: CreateLobby
+//~ Type LobbyEnter_t
+	//~ SteamIDLobby as integer	// The steam ID of the Lobby you have entered.
+	//~ ChatPermissions as integer	// Unused - Always 0.
+	//~ Locked as integer	// If true, then only invited users may join.
+	//~ ChatRoomEnterResponse as integer	// This is actually a EChatRoomEnterResponse value.
+//~ EndType
+//~ 
+//~ // A game server has been set via SetLobbyGameServer for all of the members of the lobby to join.
+//~ // Associated Functions: SetLobbyGameServer
+//~ Type LobbyGameCreated_t
+	//~ SteamIDLobby as integer	// The lobby that set the game server.
+	//~ SteamIDGameServer as integer	// The Steam ID of the game server, if it's set.
+	//~ IP as string	// The IP address of the game server in host order, i.e 127.0.0.1 == 0x7f000001, if it's set.
+	//~ Port as integer	// The connection port of the game server, in host order, if it's set.
+//~ EndType
+//~ 
+//~ // Associated Fcuntion: GetLobbyGameServerJSON
+//~ Type LobbyGameServer_t
+	//~ GameServerIP as string			// IP of the game server (if any)
+	//~ GameServerPort as integer		// The port of the game server (if any)
+	//~ SteamIDGameServer as integer	// The game server.
+//~ EndType
+//~ 
+//~ // Someone has invited you to join a Lobby.
+//~ Type LobbyInvite_t
+	//~ SteamIDUser as integer	// Steam ID of the person that sent the invite.
+	//~ SteamIDLobby as integer	// Steam ID of the lobby we're invited to.
+	//~ GameID as integer	// Game ID of the lobby we're invited to.
+//~ EndType
+//~ 
+//~ // Favorite game information.
+//~ // Returned by GetFavoriteGameJSON.
+//~ // This isn't from the Steamworks SDK, but compensates for the values being returned via parameters.
+//~ // Associated functions: GetFavoriteGameJSON
+//~ Type FavoriteGame_t
+	//~ AppID as integer
+	//~ IP as string
+	//~ ConnPort as integer
+	//~ QueryPort as integer
+	//~ Flags as integer
+	//~ TimeLastPlayedOnServer as integer
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1301,11 +1301,11 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Store key/value pair used in matchmaking queries.
-Type MatchMakingKeyValuePair_t
-	Key as string	// Filter operation code.
-	Value as string	// Operation operand.
-EndType
+//~ // Store key/value pair used in matchmaking queries.
+//~ Type MatchMakingKeyValuePair_t
+	//~ Key as string	// Filter operation code.
+	//~ Value as string	// Operation operand.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1326,9 +1326,9 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-Type VolumeHasChanged_t
-	NewVolume as float
-EndType
+//~ Type VolumeHasChanged_t
+	//~ NewVolume as float
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1350,29 +1350,29 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-Type MusicPlayerSelectsPlaylistEntry_t
-	ID as integer
-EndType
-
-Type MusicPlayerSelectsQueueEntry_t
-	ID as integer
-EndType
-
-Type MusicPlayerWantsLooped_t
-	Looped as integer
-EndType
-
-Type MusicPlayerWantsPlayingRepeatStatus_t
-	PlayingRepeatStatus as integer
-EndType
-
-Type MusicPlayerWantsShuffled_t
-	Shuffled as integer
-EndType
-
-Type MusicPlayerWantsVolume_t
-	NewVolume as float
-EndType
+//~ Type MusicPlayerSelectsPlaylistEntry_t
+	//~ ID as integer
+//~ EndType
+//~ 
+//~ Type MusicPlayerSelectsQueueEntry_t
+	//~ ID as integer
+//~ EndType
+//~ 
+//~ Type MusicPlayerWantsLooped_t
+	//~ Looped as integer
+//~ EndType
+//~ 
+//~ Type MusicPlayerWantsPlayingRepeatStatus_t
+	//~ PlayingRepeatStatus as integer
+//~ EndType
+//~ 
+//~ Type MusicPlayerWantsShuffled_t
+	//~ Shuffled as integer
+//~ EndType
+//~ 
+//~ Type MusicPlayerWantsVolume_t
+	//~ NewVolume as float
+//~ EndType
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamNetworking
@@ -1383,37 +1383,37 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Called when packets can't get through to the specified user.
-Type P2PSessionConnectFail_t
-	SteamIDRemote as integer	// User we were trying to send the packets to.
-	P2PSessionError as integer	// Indicates the reason why we're having trouble.
-EndType
-
-// A user wants to communicate with us over the P2P channel via the SendP2PPacket.
-// Associated Functions: SendP2PPacket
-Type P2PSessionRequest_t
-	SteamIDRemote as integer	// The user who wants to start a P2P session with us.
-EndType
-
-// Called when the status of a socket has changed, used as part of the CreateListenSocket and CreateP2PConnectionSocket calls.
-Type SocketStatusCallback_t
-	Socket as integer	// the socket used to send/receive data to the remote host
-	ListenSocket as integer	// this is the server socket that we were listening on; NULL if this was an outgoing connection
-	SteamIDRemote as integer	// remote Steam ID we have connected to, if it has one
-	SNetSocketState as integer	// socket state, ESNetSocketState
-EndType
-
-// Connection state to a specified user, returned by GetP2PSessionState.
-Type P2PSessionState_t
-	ConnectionActive as integer	// Do we have an active open connection with the user (true) or not (false)?
-	Connecting as integer	// Are we currently trying to establish a connection with the user (true) or not (false)?
-	P2PSessionError as integer	// Last error recorded on the socket.
-	UsingRelay as integer	// Is this connection going through a Steam relay server (true) or not (false)?
-	BytesQueuedForSend as integer	// The number of bytes queued up to be sent to the user.
-	PacketsQueuedForSend as integer	// The number of packets queued up to be sent to the user.
-	RemoteIP as string	// The IP of remote host if set.
-	RemotePort as integer	// The Port of remote host if set.
-EndType
+//~ // Called when packets can't get through to the specified user.
+//~ Type P2PSessionConnectFail_t
+	//~ SteamIDRemote as integer	// User we were trying to send the packets to.
+	//~ P2PSessionError as integer	// Indicates the reason why we're having trouble.
+//~ EndType
+//~ 
+//~ // A user wants to communicate with us over the P2P channel via the SendP2PPacket.
+//~ // Associated Functions: SendP2PPacket
+//~ Type P2PSessionRequest_t
+	//~ SteamIDRemote as integer	// The user who wants to start a P2P session with us.
+//~ EndType
+//~ 
+//~ // Called when the status of a socket has changed, used as part of the CreateListenSocket and CreateP2PConnectionSocket calls.
+//~ Type SocketStatusCallback_t
+	//~ Socket as integer	// the socket used to send/receive data to the remote host
+	//~ ListenSocket as integer	// this is the server socket that we were listening on; NULL if this was an outgoing connection
+	//~ SteamIDRemote as integer	// remote Steam ID we have connected to, if it has one
+	//~ SNetSocketState as integer	// socket state, ESNetSocketState
+//~ EndType
+//~ 
+//~ // Connection state to a specified user, returned by GetP2PSessionState.
+//~ Type P2PSessionState_t
+	//~ ConnectionActive as integer	// Do we have an active open connection with the user (true) or not (false)?
+	//~ Connecting as integer	// Are we currently trying to establish a connection with the user (true) or not (false)?
+	//~ P2PSessionError as integer	// Last error recorded on the socket.
+	//~ UsingRelay as integer	// Is this connection going through a Steam relay server (true) or not (false)?
+	//~ BytesQueuedForSend as integer	// The number of bytes queued up to be sent to the user.
+	//~ PacketsQueuedForSend as integer	// The number of packets queued up to be sent to the user.
+	//~ RemoteIP as string	// The IP of remote host if set.
+	//~ RemotePort as integer	// The Port of remote host if set.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1469,35 +1469,35 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// This callback is used as a call response for JoinParty.
-Type JoinPartyCallback_t
-	Result as integer	// EResult. The result of the attempt to join the party.
-	BeaconID as integer	// Beacon ID used in the attempt.
-	SteamIDBeaconOwner as integer	// Creator of the beacon used in the attempt.
-	ConnectString as string	// If successful, a "join game" string for your game to use to complete the process of joining the desired party
-EndType
-
-// This callback is used as a call response for CreateBeacon.
-Type CreateBeaconCallback_t
-	Result as integer	// EResult. The result of the attempt to create a beacon.
-	BeaconID as integer	// Beacon ID of the newly created beacon.
-EndType
-
-// After creating a beacon, when a user "follows" that beacon Steam will send you this callback to know that you should be prepared for the user to join your game.
-Type ReservationNotificationCallback_t
-	BeaconID as integer	// Beacon ID of your beacon.
-	SteamIDJoiner as integer	// SteamID of the user following your beacon.
-EndType
-
-// Call result for ChangeNumOpenSlots.
-Type ChangeNumOpenSlotsCallback_t
-	Result as integer	// EResult. The result of the attempt to change the number of open slots.
-EndType
-
-Type SteamPartyBeaconLocation_t
-	LocationType as integer	// ESteamPartyBeaconLocationType. The location type.
-	LocationID as integer	// Opaque identifier of this location.
-EndType
+//~ // This callback is used as a call response for JoinParty.
+//~ Type JoinPartyCallback_t
+	//~ Result as integer	// EResult. The result of the attempt to join the party.
+	//~ BeaconID as integer	// Beacon ID used in the attempt.
+	//~ SteamIDBeaconOwner as integer	// Creator of the beacon used in the attempt.
+	//~ ConnectString as string	// If successful, a "join game" string for your game to use to complete the process of joining the desired party
+//~ EndType
+//~ 
+//~ // This callback is used as a call response for CreateBeacon.
+//~ Type CreateBeaconCallback_t
+	//~ Result as integer	// EResult. The result of the attempt to create a beacon.
+	//~ BeaconID as integer	// Beacon ID of the newly created beacon.
+//~ EndType
+//~ 
+//~ // After creating a beacon, when a user "follows" that beacon Steam will send you this callback to know that you should be prepared for the user to join your game.
+//~ Type ReservationNotificationCallback_t
+	//~ BeaconID as integer	// Beacon ID of your beacon.
+	//~ SteamIDJoiner as integer	// SteamID of the user following your beacon.
+//~ EndType
+//~ 
+//~ // Call result for ChangeNumOpenSlots.
+//~ Type ChangeNumOpenSlotsCallback_t
+	//~ Result as integer	// EResult. The result of the attempt to change the number of open slots.
+//~ EndType
+//~ 
+//~ Type SteamPartyBeaconLocation_t
+	//~ LocationType as integer	// ESteamPartyBeaconLocationType. The location type.
+	//~ LocationID as integer	// Opaque identifier of this location.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1526,75 +1526,75 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Associated Functions: UGCDownload
-Type RemoteStorageDownloadUGCResult_t
-	Result as integer	// EResult. The result of the operation.
-	File as integer	// The handle to the file that was attempted to be downloaded.
-	AppID as integer	// ID of the app that created this file.
-	SizeInBytes as integer	// The size of the file that was downloaded, in bytes.
-	FileName as string	// The name of the file that was downloaded.
-	SteamIDOwner as integer	// Steam ID of the user who created this content.
-EndType
-
-// Response when reading a file asyncrounously with FileReadAsync.
-// Associated Functions: FileReadAsync
-Type RemoteStorageFileReadAsyncComplete_t
-	FileReadAsync as integer	// Call handle of the async read which was made, must be passed to FileReadAsyncComplete to get the data.
-	Result as integer	// EResult. The result of the operation.
-	Offset as integer	// Offset into the file this read was at.
-	Read as integer	// Amount of bytes read - will be the <= the amount requested.
-EndType
-
-// Associated Functions: FileShare
-Type RemoteStorageFileShareResult_t
-	Result as integer	// EResult. The result of the operation
-	File as integer	// The handle that can be shared with users and features
-	Filename as string	// The name of the file that was shared
-EndType
-
-// Response when writing a file asyncrounously with FileWriteAsync.
-// Associated Functions: FileWriteAsync
-Type RemoteStorageFileWriteAsyncComplete_t
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-Type RemoteStoragePublishedFileSubscribed_t
-	PublishedFileId as integer	// The published file id
-	AppID as integer	// ID of the app that will consume this file.
-EndType
-
-Type RemoteStoragePublishedFileUnsubscribed_t
-	PublishedFileId as integer	// The published file id
-	AppID as integer	// ID of the app that will consume this file.
-EndType
-
-// Called when the user has subscribed to a piece of UGC.
-// Associated Functions: SubscribePublishedFile
-Type RemoteStorageSubscribePublishedFileResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The workshop item that the user subscribed to.
-EndType
-
-// Called when the user has unsubscribed from a piece of UGC.
-// Associated Functions: UnsubscribePublishedFile
-Type RemoteStorageUnsubscribePublishedFileResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The workshop item that the user unsubscribed from.
-EndType
-
-// Cloud file list information
-// Obtainable from: GetCloudFileListJSON
-Type CloudFileInfo_t
-	Name as string		// The file name.
-	Size as integer		// The size of the file.
-EndType
-
-// Cloud quota information
-// Obtainable from: GetCloudQuotaJSON
-Type CloudQuota_t
-	Available as integer	// The number of bytes available.
-	Total as integer		// Total amount of bytes the user has access to.
-EndType
+//~ // Associated Functions: UGCDownload
+//~ Type RemoteStorageDownloadUGCResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ File as integer	// The handle to the file that was attempted to be downloaded.
+	//~ AppID as integer	// ID of the app that created this file.
+	//~ SizeInBytes as integer	// The size of the file that was downloaded, in bytes.
+	//~ FileName as string	// The name of the file that was downloaded.
+	//~ SteamIDOwner as integer	// Steam ID of the user who created this content.
+//~ EndType
+//~ 
+//~ // Response when reading a file asyncrounously with FileReadAsync.
+//~ // Associated Functions: FileReadAsync
+//~ Type RemoteStorageFileReadAsyncComplete_t
+	//~ FileReadAsync as integer	// Call handle of the async read which was made, must be passed to FileReadAsyncComplete to get the data.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ Offset as integer	// Offset into the file this read was at.
+	//~ Read as integer	// Amount of bytes read - will be the <= the amount requested.
+//~ EndType
+//~ 
+//~ // Associated Functions: FileShare
+//~ Type RemoteStorageFileShareResult_t
+	//~ Result as integer	// EResult. The result of the operation
+	//~ File as integer	// The handle that can be shared with users and features
+	//~ Filename as string	// The name of the file that was shared
+//~ EndType
+//~ 
+//~ // Response when writing a file asyncrounously with FileWriteAsync.
+//~ // Associated Functions: FileWriteAsync
+//~ Type RemoteStorageFileWriteAsyncComplete_t
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ Type RemoteStoragePublishedFileSubscribed_t
+	//~ PublishedFileId as integer	// The published file id
+	//~ AppID as integer	// ID of the app that will consume this file.
+//~ EndType
+//~ 
+//~ Type RemoteStoragePublishedFileUnsubscribed_t
+	//~ PublishedFileId as integer	// The published file id
+	//~ AppID as integer	// ID of the app that will consume this file.
+//~ EndType
+//~ 
+//~ // Called when the user has subscribed to a piece of UGC.
+//~ // Associated Functions: SubscribePublishedFile
+//~ Type RemoteStorageSubscribePublishedFileResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The workshop item that the user subscribed to.
+//~ EndType
+//~ 
+//~ // Called when the user has unsubscribed from a piece of UGC.
+//~ // Associated Functions: UnsubscribePublishedFile
+//~ Type RemoteStorageUnsubscribePublishedFileResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The workshop item that the user unsubscribed from.
+//~ EndType
+//~ 
+//~ // Cloud file list information
+//~ // Obtainable from: GetCloudFileListJSON
+//~ Type CloudFileInfo_t
+	//~ Name as string		// The file name.
+	//~ Size as integer		// The size of the file.
+//~ EndType
+//~ 
+//~ // Cloud quota information
+//~ // Obtainable from: GetCloudQuotaJSON
+//~ Type CloudQuota_t
+	//~ Available as integer	// The number of bytes available.
+	//~ Total as integer		// Total amount of bytes the user has access to.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1652,12 +1652,12 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// A screenshot successfully written or otherwise added to the library and can now be tagged.
-// Associated Functions: WriteScreenshot
-Type ScreenshotReady_t
-	Handle as integer	// The screenshot handle that has been written.
-	Result as integer	// EResult. The result of the operation.
-EndType
+//~ // A screenshot successfully written or otherwise added to the library and can now be tagged.
+//~ // Associated Functions: WriteScreenshot
+//~ Type ScreenshotReady_t
+	//~ Handle as integer	// The screenshot handle that has been written.
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1681,161 +1681,161 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// The result of a call to AddAppDependency.
-// Associated Functions: AddAppDependency
-Type AddAppDependencyResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The parent workshop item that the dependency was added to.
-	AppID as integer	// The app/dlc.
-EndType
-
-// The result of a call to AddDependency.
-// Associated Functions: AddDependency
-Type AddUGCDependencyResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The parent workshop item that the dependency was added to.
-	ChildPublishedFileId as integer	// The child workshop item which was added as a dependency to the parent item.
-EndType
-
-// Called when a new workshop item has been created.
-// Associated Functions: CreateItem
-Type CreateItemResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The new items unique ID.
-	UserNeedsToAcceptWorkshopLegalAgreement as integer	// Does the user need to accept the Steam Workshop legal agreement (true) or not (false)?
-EndType
-
-// Called when a workshop item has been downloaded.
-// Associated Functions: DownloadItem
-Type DownloadItemResult_t
-	AppID as integer	// The app ID associated with this workshop item.
-	PublishedFileId as integer	// The workshop item that has finished downloading.
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-// Called when getting the app dependencies for an item.
-// Associated Functions: GetAppDependencies
-Type GetAppDependenciesResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The workshop item to get app dependencies for.
-	AppIDs as integer	// Array of app dependencies
-	NumAppDependencies as integer	// Number of returned app dependencies in m_rgAppIDs
-	TotalNumAppDependencies as integer	// Total app dependencies found.
-EndType
-
-// Called when an attempt at deleting an item completes.
-// Associated Functions: DeleteItem
-Type DeleteItemResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The workshop item which was being deleted.
-EndType
-
-// Called when getting the users vote status on an item.
-// Associated Functions: GetUserItemVote
-Type GetUserItemVoteResult_t
-	PublishedFileId as integer	// The workshop item to get the vote status.
-	Result as integer	// EResult. The result of the operation.
-	VotedUp as integer	// Has the user voted the item up?
-	VotedDown as integer	// Has the user voted the item down?
-	VoteSkipped as integer	// Has the user skipped voting on this item?
-EndType
-
-// Called when a workshop item has been installed or updated.
-Type ItemInstalled_t
-	AppID as integer	// The app ID associated with this workshop item.
-	PublishedFileId as integer	// The workshop item that has finished installing.
-EndType
-
-// Purpose: The result of a call to RemoveAppDependency.
-// Associated Functions: RemoveAppDependency
-Type RemoveAppDependencyResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The parent workshop item that the dependency was removed from.
-	AppID as integer	// The app/dlc.
-EndType
-
-// Purpose: The result of a call to RemoveDependency.
-// Associated Functions: RemoveDependency
-Type RemoveUGCDependencyResult_t
-	Result as integer	// EResult. The result of the operation.
-	PublishedFileId as integer	// The parent workshop item that the dependency was removed from.
-	ChildPublishedFileId as integer	// The child workshop item which was removed as a dependency from the parent item.
-EndType
-
-// Called when the user has voted on an item.
-// Associated Functions: SetUserItemVote
-Type SetUserItemVoteResult_t
-	PublishedFileId as integer	// The workshop item that the user voted on.
-	Result as integer	// EResult. The result of the operation.
-	VoteUp as integer	// Was the vote up (true) or down (false)?
-EndType
-
-// Called when workshop item playtime tracking has started.
-// Associated Functions: StartPlaytimeTracking
-Type StartPlaytimeTrackingResult_t
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-// Called when a UGC query request completes.
-// Associated Functions: SendQueryUGCRequest
-Type SteamUGCQueryCompleted_t
-	Handle as integer	// The UGC query handle associated with this call result.
-	Result as integer	// EResult. The result of the operation.
-	NumResultsReturned as integer	// The number of items returned.
-	TotalMatchingResults as integer	// The total number of items that matched the query.
-	CachedData as integer	// Indicates whether this data was retrieved from the local on-disk cache.
-EndType
-
-// Called when workshop item playtime tracking has stopped.
-// Associated Functions: StopPlaytimeTracking
-Type StopPlaytimeTrackingResult_t
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-// Called when an item update has completed.
-// Associated Functions: SubmitItemUpdate
-Type SubmitItemUpdateResult_t
-	Result as integer	// EResult. The result of the operation.
-	UserNeedsToAcceptWorkshopLegalAgreement as integer	// Does the user need to accept the Steam Workshop legal agreement?
-EndType
-
-// Called when the user has added or removed an item to/from their favorites.
-// Associated Functions: AddItemToFavorites
-Type UserFavoriteItemsListChanged_t
-	PublishedFileId as integer	// The item which was added/removed.
-	Result as integer	// EResult. The result of the operation.
-	WasAddRequest as integer	// Was it an added (true) or removed (false) from the users favorites?
-EndType
-
-// Details for a single published item/UGC.
-Type SteamUGCDetails_t
-	PublishedFileId as integer	// The globally unique item handle to this piece of UGC.
-	Result as integer	// EResult. The result of the operation.
-	FileType as integer	// EWorkshopFileType. The type of the item.
-	CreatorAppID as integer	// App Id of the app that created this item.
-	ConsumerAppID as integer	// App Id of the app that will consume this item.
-	Title as string	// The title of the item.
-	Description as string	// The description of the item.
-	SteamIDOwner as integer	// Steam ID of the user who created this content.
-	TimeCreated as integer	// Time when the published item was created, provided in Unix epoch format (time since Jan 1st, 1970).
-	TimeUpdated as integer	// Time when the published item was last updated, provided in Unix epoch format (time since Jan 1st, 1970).
-	TimeAddedToUserList as integer	// Time when the user added the published item to their list (not always applicable), provided in Unix epoch format (time since Jan 1st, 1970).
-	Visibility as integer	// ERemoteStoragePublishedFileVisibility. The visibility of the item.
-	Banned as integer	// Whether the item was banned.
-	AcceptedForUse as integer	// Whether the developer of this app has specifically flagged this item as accepted in the Workshop.
-	TagsTruncated as integer	// Whether the list of tags was too long to be returned in the provided buffer, and were therefore truncated.
-	Tags as string	// Comma separated list of all tags associated with this item.
-	File as integer	// The handle of the primary file.
-	PreviewFile as integer	// The handle of the preview file.
-	FileName as string	// The cloud filename of the primary file.
-	FileSize as integer	// The file size of the primary file.
-	PreviewFileSize as integer	// The file size of the preview file.
-	URL as string	// The URL associated with this item.
-	VotesUp as integer	// Number of votes up.
-	VotesDown as integer	// Number of votes down.
-	Score as float	// The bayesian average for up votes / total votes, between [0,1].
-	NumChildren as integer	// The number of items in the collection if m_eFileType is k_EWorkshopFileTypeCollection, or the number of items this specific item has a dependency on (see AddDependency).
-EndType
+//~ // The result of a call to AddAppDependency.
+//~ // Associated Functions: AddAppDependency
+//~ Type AddAppDependencyResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The parent workshop item that the dependency was added to.
+	//~ AppID as integer	// The app/dlc.
+//~ EndType
+//~ 
+//~ // The result of a call to AddDependency.
+//~ // Associated Functions: AddDependency
+//~ Type AddUGCDependencyResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The parent workshop item that the dependency was added to.
+	//~ ChildPublishedFileId as integer	// The child workshop item which was added as a dependency to the parent item.
+//~ EndType
+//~ 
+//~ // Called when a new workshop item has been created.
+//~ // Associated Functions: CreateItem
+//~ Type CreateItemResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The new items unique ID.
+	//~ UserNeedsToAcceptWorkshopLegalAgreement as integer	// Does the user need to accept the Steam Workshop legal agreement (true) or not (false)?
+//~ EndType
+//~ 
+//~ // Called when a workshop item has been downloaded.
+//~ // Associated Functions: DownloadItem
+//~ Type DownloadItemResult_t
+	//~ AppID as integer	// The app ID associated with this workshop item.
+	//~ PublishedFileId as integer	// The workshop item that has finished downloading.
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ // Called when getting the app dependencies for an item.
+//~ // Associated Functions: GetAppDependencies
+//~ Type GetAppDependenciesResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The workshop item to get app dependencies for.
+	//~ AppIDs as integer	// Array of app dependencies
+	//~ NumAppDependencies as integer	// Number of returned app dependencies in m_rgAppIDs
+	//~ TotalNumAppDependencies as integer	// Total app dependencies found.
+//~ EndType
+//~ 
+//~ // Called when an attempt at deleting an item completes.
+//~ // Associated Functions: DeleteItem
+//~ Type DeleteItemResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The workshop item which was being deleted.
+//~ EndType
+//~ 
+//~ // Called when getting the users vote status on an item.
+//~ // Associated Functions: GetUserItemVote
+//~ Type GetUserItemVoteResult_t
+	//~ PublishedFileId as integer	// The workshop item to get the vote status.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ VotedUp as integer	// Has the user voted the item up?
+	//~ VotedDown as integer	// Has the user voted the item down?
+	//~ VoteSkipped as integer	// Has the user skipped voting on this item?
+//~ EndType
+//~ 
+//~ // Called when a workshop item has been installed or updated.
+//~ Type ItemInstalled_t
+	//~ AppID as integer	// The app ID associated with this workshop item.
+	//~ PublishedFileId as integer	// The workshop item that has finished installing.
+//~ EndType
+//~ 
+//~ // Purpose: The result of a call to RemoveAppDependency.
+//~ // Associated Functions: RemoveAppDependency
+//~ Type RemoveAppDependencyResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The parent workshop item that the dependency was removed from.
+	//~ AppID as integer	// The app/dlc.
+//~ EndType
+//~ 
+//~ // Purpose: The result of a call to RemoveDependency.
+//~ // Associated Functions: RemoveDependency
+//~ Type RemoveUGCDependencyResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ PublishedFileId as integer	// The parent workshop item that the dependency was removed from.
+	//~ ChildPublishedFileId as integer	// The child workshop item which was removed as a dependency from the parent item.
+//~ EndType
+//~ 
+//~ // Called when the user has voted on an item.
+//~ // Associated Functions: SetUserItemVote
+//~ Type SetUserItemVoteResult_t
+	//~ PublishedFileId as integer	// The workshop item that the user voted on.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ VoteUp as integer	// Was the vote up (true) or down (false)?
+//~ EndType
+//~ 
+//~ // Called when workshop item playtime tracking has started.
+//~ // Associated Functions: StartPlaytimeTracking
+//~ Type StartPlaytimeTrackingResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ // Called when a UGC query request completes.
+//~ // Associated Functions: SendQueryUGCRequest
+//~ Type SteamUGCQueryCompleted_t
+	//~ Handle as integer	// The UGC query handle associated with this call result.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ NumResultsReturned as integer	// The number of items returned.
+	//~ TotalMatchingResults as integer	// The total number of items that matched the query.
+	//~ CachedData as integer	// Indicates whether this data was retrieved from the local on-disk cache.
+//~ EndType
+//~ 
+//~ // Called when workshop item playtime tracking has stopped.
+//~ // Associated Functions: StopPlaytimeTracking
+//~ Type StopPlaytimeTrackingResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ // Called when an item update has completed.
+//~ // Associated Functions: SubmitItemUpdate
+//~ Type SubmitItemUpdateResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ UserNeedsToAcceptWorkshopLegalAgreement as integer	// Does the user need to accept the Steam Workshop legal agreement?
+//~ EndType
+//~ 
+//~ // Called when the user has added or removed an item to/from their favorites.
+//~ // Associated Functions: AddItemToFavorites
+//~ Type UserFavoriteItemsListChanged_t
+	//~ PublishedFileId as integer	// The item which was added/removed.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ WasAddRequest as integer	// Was it an added (true) or removed (false) from the users favorites?
+//~ EndType
+//~ 
+//~ // Details for a single published item/UGC.
+//~ Type SteamUGCDetails_t
+	//~ PublishedFileId as integer	// The globally unique item handle to this piece of UGC.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ FileType as integer	// EWorkshopFileType. The type of the item.
+	//~ CreatorAppID as integer	// App Id of the app that created this item.
+	//~ ConsumerAppID as integer	// App Id of the app that will consume this item.
+	//~ Title as string	// The title of the item.
+	//~ Description as string	// The description of the item.
+	//~ SteamIDOwner as integer	// Steam ID of the user who created this content.
+	//~ TimeCreated as integer	// Time when the published item was created, provided in Unix epoch format (time since Jan 1st, 1970).
+	//~ TimeUpdated as integer	// Time when the published item was last updated, provided in Unix epoch format (time since Jan 1st, 1970).
+	//~ TimeAddedToUserList as integer	// Time when the user added the published item to their list (not always applicable), provided in Unix epoch format (time since Jan 1st, 1970).
+	//~ Visibility as integer	// ERemoteStoragePublishedFileVisibility. The visibility of the item.
+	//~ Banned as integer	// Whether the item was banned.
+	//~ AcceptedForUse as integer	// Whether the developer of this app has specifically flagged this item as accepted in the Workshop.
+	//~ TagsTruncated as integer	// Whether the list of tags was too long to be returned in the provided buffer, and were therefore truncated.
+	//~ Tags as string	// Comma separated list of all tags associated with this item.
+	//~ File as integer	// The handle of the primary file.
+	//~ PreviewFile as integer	// The handle of the preview file.
+	//~ FileName as string	// The cloud filename of the primary file.
+	//~ FileSize as integer	// The file size of the primary file.
+	//~ PreviewFileSize as integer	// The file size of the preview file.
+	//~ URL as string	// The URL associated with this item.
+	//~ VotesUp as integer	// Number of votes up.
+	//~ VotesDown as integer	// Number of votes down.
+	//~ Score as float	// The bayesian average for up votes / total votes, between [0,1].
+	//~ NumChildren as integer	// The number of items in the collection if m_eFileType is k_EWorkshopFileTypeCollection, or the number of items this specific item has a dependency on (see AddDependency).
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -1955,69 +1955,69 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Sent by the Steam server to the client telling it to disconnect from the specified game server, which it may be in the process of or already connected to.
-Type ClientGameServerDeny_t
-	AppID as integer	// The App ID this call is for.
-	GameServerIP as string	// The IP of the game server that is telling us to disconnect, in host order, i.e 127.0.0.1 == 0x7f000001.
-	GameServerPort as integer	// The port of the game server that is telling us to disconnect, in host order.
-	Secure as integer	// Is the game server VAC secure (true) or not (false)?
-	Reason as integer
-EndType
-
-// Called when an encrypted application ticket has been received.
-// Associated Functions: RequestEncryptedAppTicket
-Type EncryptedAppTicketResponse_t
-	Result as integer	// EResult. Was the call successful?
-EndType
-
-// Sent to your game in response to a steam://gamewebcallback/ command from a user clicking a link in the Steam overlay browser.
-Type GameWebCallback_t
-	URL as string	// The complete url that the user clicked on.
-EndType
-
-// Result when creating an auth session ticket.
-// Associated Functions: GetAuthSessionTicket
-Type GetAuthSessionTicketResponse_t
-	AuthTicket as integer	// The handle to the ticket that was created.
-	Result as integer	// EResult. The result of the operation.
-EndType
-
-// Called when the callback system for this client is in an error state (and has flushed pending callbacks)
-Type IPCFailure_t
-	FailureType as integer	// This is a EFailureType.
-EndType
-
-// Called when a user has responded to a microtransaction authorization request.
-Type MicroTxnAuthorizationResponse_t
-	AppID as integer	// App ID for this microtransaction
-	OrderID as integer	// Order ID provided for the microtransaction.
-	Authorized as integer	// Did the user authorize the transaction (1) or not (0)?
-EndType
-
-// Called when a connection attempt has failed.
-Type SteamServerConnectFailure_t
-	Result as integer	// EResult. The reason why the connection failed.
-	StillRetrying as integer	// Is the Steam client still trying to connect to the server?
-EndType
-
-// Called if the client has lost connection to the Steam servers.
-Type SteamServersDisconnected_t
-	Result as integer	// EResult. The reason we were disconnected from Steam.
-EndType
-
-// Response when we have recieved the authentication URL after a call to RequestStoreAuthURL.
-// Associated Functions: RequestStoreAuthURL
-Type StoreAuthURLResponse_t
-	URL as string	// The authentication URL.
-EndType
-
-// Called when an auth ticket has been validated.
-// Associated Functions: BeginAuthSession
-Type ValidateAuthTicketResponse_t
-	SteamID as integer	// The Steam ID of the entity that provided the auth ticket.
-	AuthSessionResponse as integer	// EAuthSessionResponse. The result of the validation.
-	OwnerSteamID as integer	// The Steam ID that owns the game, this will be different from m_SteamID if the game is being borrowed via Steam Family Sharing.
-EndType
+//~ // Sent by the Steam server to the client telling it to disconnect from the specified game server, which it may be in the process of or already connected to.
+//~ Type ClientGameServerDeny_t
+	//~ AppID as integer	// The App ID this call is for.
+	//~ GameServerIP as string	// The IP of the game server that is telling us to disconnect, in host order, i.e 127.0.0.1 == 0x7f000001.
+	//~ GameServerPort as integer	// The port of the game server that is telling us to disconnect, in host order.
+	//~ Secure as integer	// Is the game server VAC secure (true) or not (false)?
+	//~ Reason as integer
+//~ EndType
+//~ 
+//~ // Called when an encrypted application ticket has been received.
+//~ // Associated Functions: RequestEncryptedAppTicket
+//~ Type EncryptedAppTicketResponse_t
+	//~ Result as integer	// EResult. Was the call successful?
+//~ EndType
+//~ 
+//~ // Sent to your game in response to a steam://gamewebcallback/ command from a user clicking a link in the Steam overlay browser.
+//~ Type GameWebCallback_t
+	//~ URL as string	// The complete url that the user clicked on.
+//~ EndType
+//~ 
+//~ // Result when creating an auth session ticket.
+//~ // Associated Functions: GetAuthSessionTicket
+//~ Type GetAuthSessionTicketResponse_t
+	//~ AuthTicket as integer	// The handle to the ticket that was created.
+	//~ Result as integer	// EResult. The result of the operation.
+//~ EndType
+//~ 
+//~ // Called when the callback system for this client is in an error state (and has flushed pending callbacks)
+//~ Type IPCFailure_t
+	//~ FailureType as integer	// This is a EFailureType.
+//~ EndType
+//~ 
+//~ // Called when a user has responded to a microtransaction authorization request.
+//~ Type MicroTxnAuthorizationResponse_t
+	//~ AppID as integer	// App ID for this microtransaction
+	//~ OrderID as integer	// Order ID provided for the microtransaction.
+	//~ Authorized as integer	// Did the user authorize the transaction (1) or not (0)?
+//~ EndType
+//~ 
+//~ // Called when a connection attempt has failed.
+//~ Type SteamServerConnectFailure_t
+	//~ Result as integer	// EResult. The reason why the connection failed.
+	//~ StillRetrying as integer	// Is the Steam client still trying to connect to the server?
+//~ EndType
+//~ 
+//~ // Called if the client has lost connection to the Steam servers.
+//~ Type SteamServersDisconnected_t
+	//~ Result as integer	// EResult. The reason we were disconnected from Steam.
+//~ EndType
+//~ 
+//~ // Response when we have recieved the authentication URL after a call to RequestStoreAuthURL.
+//~ // Associated Functions: RequestStoreAuthURL
+//~ Type StoreAuthURLResponse_t
+	//~ URL as string	// The authentication URL.
+//~ EndType
+//~ 
+//~ // Called when an auth ticket has been validated.
+//~ // Associated Functions: BeginAuthSession
+//~ Type ValidateAuthTicketResponse_t
+	//~ SteamID as integer	// The Steam ID of the entity that provided the auth ticket.
+	//~ AuthSessionResponse as integer	// EAuthSessionResponse. The result of the validation.
+	//~ OwnerSteamID as integer	// The Steam ID that owns the game, this will be different from m_SteamID if the game is being borrowed via Steam Family Sharing.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -2037,114 +2037,114 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Called when the global achievement percentages have been received from the server.
-// Associated Functions: RequestGlobalAchievementPercentages
-Type GlobalAchievementPercentagesReady_t
-	GameID as integer	// Game ID which these achievement percentages are for.
-	Result as integer	// EResult. Result of the request.
-EndType
-
-// Called when the global stats have been received from the server.
-// Associated Functions: RequestGlobalStats
-Type GlobalStatsReceived_t
-	GameID as integer	// Game ID which these global stats are for.
-	Result as integer	// EResult. The result of the request.
-EndType
-
-// Result when finding a leaderboard.
-// Associated Functions: FindOrCreateLeaderboard
-Type LeaderboardFindResult_t
-	SteamLeaderboard as integer	// Handle to the leaderboard that was serarched for.
-	LeaderboardFound as integer	// Was the leaderboard found?
-EndType
-
-// Called when scores for a leaderboard have been downloaded and are ready to be retrieved.
-// Associated Functions: DownloadLeaderboardEntries
-Type LeaderboardScoresDownloaded_t
-	SteamLeaderboard as integer	// Handle to the leaderboard that these entries belong to.
-	SteamLeaderboardEntries as integer	// The handle to pass into GetDownloadedLeaderboardEntry to retrieve the info for each downloaded entry.
-	EntryCount as integer	// The number of entries downloaded.
-EndType
-
-// Result indicating that a leaderboard score has been uploaded.
-// Associated Functions: UploadLeaderboardScore
-Type LeaderboardScoreUploaded_t
-	Success as integer	// Was the call successful?
-	SteamLeaderboard as integer	// Handle to the leaderboard that this score was uploaded to.
-	Score as integer	// The score that was attempted to set.
-	ScoreChanged as integer	// true if the score on the leaderboard changed otherwise false if the existing score was better.
-	GlobalRankNew as integer	// The new global rank of the user on this leaderboard.
-	GlobalRankPrevious as integer	// The previous global rank of the user on this leaderboard; 0 if the user had no existing entry in the leaderboard.
-EndType
-
-// Result indicating that user generated content has been attached to one of the current user's leaderboard entries.
-// Associated Functions: AttachLeaderboardUGC
-Type LeaderboardUGCSet_t
-	Result as integer	// EResult. The result of the operation.
-	SteamLeaderboard as integer	// Handle to the leaderboard that the UGC was attached to.
-EndType
-
-// Gets the current number of players for the current AppId.
-// Associated Functions: GetNumberOfCurrentPlayers
-Type NumberOfCurrentPlayers_t
-	Success as integer	// Was the call successful?
-	Players as integer	// Number of players currently playing.
-EndType
-
-// Called when PS3 trophies are available.
-Type PS3TrophiesInstalled_t
-	GameID as integer	// Game that these stats are for.
-	Result as integer	// EResult. The result of the operation.
-	RequiredDiskSpace as integer	// If m_eResult is k_EResultDiskFull, then this will contain the amount of space needed to install trophies.
-EndType
-
-// Result of an achievement icon that has been fetched
-// Associated Functions: GetAchievementIcon
-Type UserAchievementIconFetched_t
-	GameID as integer	// The Game ID this achievement is for.
-	AchievementName as string	// The name of the achievement that this callback is for.
-	Achieved as integer	// Returns whether the icon for the achieved (true) or unachieved (false) version.
-	IconHandle as integer	// Handle to the image, which can be used with ISteamUtils::GetImageRGBA to get the image data.
-EndType
-
-// Result of a request to store the achievements on the server, or an "indicate progress" call.
-// Associated Functions: StoreStats
-Type UserAchievementStored_t
-	GameID as integer	// Game ID that this achievement is for.
-	GroupAchievement as integer	// Unused.
-	AchievementName as string	// Name of the achievement.
-	CurProgress as integer	// Current progress towards the achievement.
-	MaxProgress as integer	// The total amount of progress required to unlock.
-EndType
-
-// Called when the latest stats and achievements for a specific user (including the local user) have been received from the server.
-// Associated Functions: RequestCurrentStats
-Type UserStatsReceived_t
-	GameID as integer	// Game ID that these stats are for.
-	Result as integer	// EResult. Returns whether the call was successful or not.
-	SteamIDUser as integer	// The user whose stats were retrieved.
-EndType
-
-// Result of a request to store the user stats.
-// Associated Functions: StoreStats
-Type UserStatsStored_t
-	GameID as integer	// Game ID that these stats are for.
-	Result as integer	// EResult. Returns whether the call was successful or not.
-EndType
-
-// Callback indicating that a user's stats have been unloaded.
-Type UserStatsUnloaded_t
-	SteamIDUser as integer	// User whose stats have been unloaded.
-EndType
-
-// A single entry in a leaderboard, as returned by GetDownloadedLeaderboardEntry.
-Type LeaderboardEntry_t
-	SteamIDUser as integer	// User who this entry belongs to.
-	GlobalRank as integer	// The global rank of this entry ranging from [1..
-	Score as integer	// The raw score as set in the leaderboard.
-	Details as integer	// The number of details available for this entry.
-	UGC as integer	// Handle for the UGC attached to the entry.
-EndType
+//~ // Called when the global achievement percentages have been received from the server.
+//~ // Associated Functions: RequestGlobalAchievementPercentages
+//~ Type GlobalAchievementPercentagesReady_t
+	//~ GameID as integer	// Game ID which these achievement percentages are for.
+	//~ Result as integer	// EResult. Result of the request.
+//~ EndType
+//~ 
+//~ // Called when the global stats have been received from the server.
+//~ // Associated Functions: RequestGlobalStats
+//~ Type GlobalStatsReceived_t
+	//~ GameID as integer	// Game ID which these global stats are for.
+	//~ Result as integer	// EResult. The result of the request.
+//~ EndType
+//~ 
+//~ // Result when finding a leaderboard.
+//~ // Associated Functions: FindOrCreateLeaderboard
+//~ Type LeaderboardFindResult_t
+	//~ SteamLeaderboard as integer	// Handle to the leaderboard that was serarched for.
+	//~ LeaderboardFound as integer	// Was the leaderboard found?
+//~ EndType
+//~ 
+//~ // Called when scores for a leaderboard have been downloaded and are ready to be retrieved.
+//~ // Associated Functions: DownloadLeaderboardEntries
+//~ Type LeaderboardScoresDownloaded_t
+	//~ SteamLeaderboard as integer	// Handle to the leaderboard that these entries belong to.
+	//~ SteamLeaderboardEntries as integer	// The handle to pass into GetDownloadedLeaderboardEntry to retrieve the info for each downloaded entry.
+	//~ EntryCount as integer	// The number of entries downloaded.
+//~ EndType
+//~ 
+//~ // Result indicating that a leaderboard score has been uploaded.
+//~ // Associated Functions: UploadLeaderboardScore
+//~ Type LeaderboardScoreUploaded_t
+	//~ Success as integer	// Was the call successful?
+	//~ SteamLeaderboard as integer	// Handle to the leaderboard that this score was uploaded to.
+	//~ Score as integer	// The score that was attempted to set.
+	//~ ScoreChanged as integer	// true if the score on the leaderboard changed otherwise false if the existing score was better.
+	//~ GlobalRankNew as integer	// The new global rank of the user on this leaderboard.
+	//~ GlobalRankPrevious as integer	// The previous global rank of the user on this leaderboard; 0 if the user had no existing entry in the leaderboard.
+//~ EndType
+//~ 
+//~ // Result indicating that user generated content has been attached to one of the current user's leaderboard entries.
+//~ // Associated Functions: AttachLeaderboardUGC
+//~ Type LeaderboardUGCSet_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ SteamLeaderboard as integer	// Handle to the leaderboard that the UGC was attached to.
+//~ EndType
+//~ 
+//~ // Gets the current number of players for the current AppId.
+//~ // Associated Functions: GetNumberOfCurrentPlayers
+//~ Type NumberOfCurrentPlayers_t
+	//~ Success as integer	// Was the call successful?
+	//~ Players as integer	// Number of players currently playing.
+//~ EndType
+//~ 
+//~ // Called when PS3 trophies are available.
+//~ Type PS3TrophiesInstalled_t
+	//~ GameID as integer	// Game that these stats are for.
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ RequiredDiskSpace as integer	// If m_eResult is k_EResultDiskFull, then this will contain the amount of space needed to install trophies.
+//~ EndType
+//~ 
+//~ // Result of an achievement icon that has been fetched
+//~ // Associated Functions: GetAchievementIcon
+//~ Type UserAchievementIconFetched_t
+	//~ GameID as integer	// The Game ID this achievement is for.
+	//~ AchievementName as string	// The name of the achievement that this callback is for.
+	//~ Achieved as integer	// Returns whether the icon for the achieved (true) or unachieved (false) version.
+	//~ IconHandle as integer	// Handle to the image, which can be used with ISteamUtils::GetImageRGBA to get the image data.
+//~ EndType
+//~ 
+//~ // Result of a request to store the achievements on the server, or an "indicate progress" call.
+//~ // Associated Functions: StoreStats
+//~ Type UserAchievementStored_t
+	//~ GameID as integer	// Game ID that this achievement is for.
+	//~ GroupAchievement as integer	// Unused.
+	//~ AchievementName as string	// Name of the achievement.
+	//~ CurProgress as integer	// Current progress towards the achievement.
+	//~ MaxProgress as integer	// The total amount of progress required to unlock.
+//~ EndType
+//~ 
+//~ // Called when the latest stats and achievements for a specific user (including the local user) have been received from the server.
+//~ // Associated Functions: RequestCurrentStats
+//~ Type UserStatsReceived_t
+	//~ GameID as integer	// Game ID that these stats are for.
+	//~ Result as integer	// EResult. Returns whether the call was successful or not.
+	//~ SteamIDUser as integer	// The user whose stats were retrieved.
+//~ EndType
+//~ 
+//~ // Result of a request to store the user stats.
+//~ // Associated Functions: StoreStats
+//~ Type UserStatsStored_t
+	//~ GameID as integer	// Game ID that these stats are for.
+	//~ Result as integer	// EResult. Returns whether the call was successful or not.
+//~ EndType
+//~ 
+//~ // Callback indicating that a user's stats have been unloaded.
+//~ Type UserStatsUnloaded_t
+	//~ SteamIDUser as integer	// User whose stats have been unloaded.
+//~ EndType
+//~ 
+//~ // A single entry in a leaderboard, as returned by GetDownloadedLeaderboardEntry.
+//~ Type LeaderboardEntry_t
+	//~ SteamIDUser as integer	// User who this entry belongs to.
+	//~ GlobalRank as integer	// The global rank of this entry ranging from [1..
+	//~ Score as integer	// The raw score as set in the leaderboard.
+	//~ Details as integer	// The number of details available for this entry.
+	//~ UGC as integer	// Handle for the UGC attached to the entry.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -2184,29 +2184,29 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// CallResult for CheckFileSignature.
-// Associated Functions: CheckFileSignature
-Type CheckFileSignature_t
-	CheckFileSignature as integer	// ECheckFileSignature. Contains the result of the file signature check.k_ECheckFileSignatureNoSignaturesFoundForThisApp - This app has not been configured on the signing tab of the partner site to enable this function.k_ECheckFileSignatureNoSignaturesFoundForThisFile - This file is not listed on the signing tab for the partner site.k_ECheckFileSignatureFileNotFound - The file does not exist on disk.k_ECheckFileSignatureInvalidSignature - The file exists, and the signing tab has been set for this file, but the file is either not signed or the signature does not match.k_ECheckFileSignatureValidSignature - The file is signed and the signature is valid.
-EndType
-
-// Called when the big picture gamepad text input has been closed.
-Type GamepadTextInputDismissed_t
-	Submitted as integer	// true if user entered & accepted text (Call GetEnteredGamepadTextInput to receive the text), false if input was canceled.
-	SubmittedText as string	// Contains the text if there was any submitted.
-EndType
-
-// Called when running on a laptop and less than 10 minutes of battery is left, and then fires then every minute afterwards.
-Type LowBatteryPower_t
-	MinutesBatteryLeft as integer	// The estimated amount of battery life left in minutes.
-EndType
-
-// Called when a SteamAPICall_t has completed (or failed)
-Type SteamAPICallCompleted_t
-	AsyncCall as integer	// The handle of the Steam API Call that completed.
-	Callback as integer	// This is the k_iCallback constant which uniquely identifies the completed callback.
-	Param as integer	// The size in bytes of the completed callback.
-EndType
+//~ // CallResult for CheckFileSignature.
+//~ // Associated Functions: CheckFileSignature
+//~ Type CheckFileSignature_t
+	//~ CheckFileSignature as integer	// ECheckFileSignature. Contains the result of the file signature check.k_ECheckFileSignatureNoSignaturesFoundForThisApp - This app has not been configured on the signing tab of the partner site to enable this function.k_ECheckFileSignatureNoSignaturesFoundForThisFile - This file is not listed on the signing tab for the partner site.k_ECheckFileSignatureFileNotFound - The file does not exist on disk.k_ECheckFileSignatureInvalidSignature - The file exists, and the signing tab has been set for this file, but the file is either not signed or the signature does not match.k_ECheckFileSignatureValidSignature - The file is signed and the signature is valid.
+//~ EndType
+//~ 
+//~ // Called when the big picture gamepad text input has been closed.
+//~ Type GamepadTextInputDismissed_t
+	//~ Submitted as integer	// true if user entered & accepted text (Call GetEnteredGamepadTextInput to receive the text), false if input was canceled.
+	//~ SubmittedText as string	// Contains the text if there was any submitted.
+//~ EndType
+//~ 
+//~ // Called when running on a laptop and less than 10 minutes of battery is left, and then fires then every minute afterwards.
+//~ Type LowBatteryPower_t
+	//~ MinutesBatteryLeft as integer	// The estimated amount of battery life left in minutes.
+//~ EndType
+//~ 
+//~ // Called when a SteamAPICall_t has completed (or failed)
+//~ Type SteamAPICallCompleted_t
+	//~ AsyncCall as integer	// The handle of the Steam API Call that completed.
+	//~ Callback as integer	// This is the k_iCallback constant which uniquely identifies the completed callback.
+	//~ Param as integer	// The size in bytes of the completed callback.
+//~ EndType
 
 //------------------------------------------------------------------------------
 // Enums and Constants
@@ -2247,25 +2247,25 @@ EndType
 // Structs
 //------------------------------------------------------------------------------
 
-// Automatically called whenever the user stops broadcasting.
-Type BroadcastUploadStop_t
-	Result as integer	// EBroadcastUploadResult. The reason why the broadcast has stopped.
-EndType
-
-// Triggered when the OPF Details for 360 video playback are retrieved.
-// Associated Functions: GetOPFSettings
-Type GetOPFSettingsResult_t
-	Result as integer	// EResult. The result of the operation.
-	VideoAppID as integer	// The app ID of the video that we got the details of.
-EndType
-
-// Provides the result of a call to GetVideoURL.
-// Associated Functions: GetVideoURL
-Type GetVideoURLResult_t
-	Result as integer	// EResult. The result of the operation.	 k_EResultOK if the call is successful.
-	VideoAppID as integer	// The App ID provided in the original call to GetVideoURL.
-	URL as string	// If the call was successful this contains the URL to the MPEG-DASH Standard schema formatted xml document which can be used to stream the content.
-EndType
+//~ // Automatically called whenever the user stops broadcasting.
+//~ Type BroadcastUploadStop_t
+	//~ Result as integer	// EBroadcastUploadResult. The reason why the broadcast has stopped.
+//~ EndType
+//~ 
+//~ // Triggered when the OPF Details for 360 video playback are retrieved.
+//~ // Associated Functions: GetOPFSettings
+//~ Type GetOPFSettingsResult_t
+	//~ Result as integer	// EResult. The result of the operation.
+	//~ VideoAppID as integer	// The app ID of the video that we got the details of.
+//~ EndType
+//~ 
+//~ // Provides the result of a call to GetVideoURL.
+//~ // Associated Functions: GetVideoURL
+//~ Type GetVideoURLResult_t
+	//~ Result as integer	// EResult. The result of the operation.	 k_EResultOK if the call is successful.
+	//~ VideoAppID as integer	// The App ID provided in the original call to GetVideoURL.
+	//~ URL as string	// If the call was successful this contains the URL to the MPEG-DASH Standard schema formatted xml document which can be used to stream the content.
+//~ EndType
 
 ////////////////////////////////////////////////////////////////////////////////
 // SteamEncryptedAppTicket

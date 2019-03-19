@@ -280,7 +280,6 @@ Function ProcessCallbacks()
 	//
 	// Process DownloadLeaderboardEntries CallResult: user rank.
 	//
-	entries as LeaderboardEntry_t[]
 	if server.downloadRankCallResult
 		result = Steam.GetCallResultCode(server.downloadRankCallResult)
 		if result

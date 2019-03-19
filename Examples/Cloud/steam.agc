@@ -25,8 +25,6 @@ global dlcDownloadBar as ProgressBar
 dlcUploadBar = CreateProgressBar(0, 200, 100, 500, "File Upload:")
 dlcDownloadBar = CreateProgressBar(0, 200, 130, 500, "File Download:")
 
-global cloudFiles as CloudFileInfo_t[]
-
 AddStatus(Steam.GetSteamID3(Steam.GetSteamID()))
 AddStatus("Cloud enabled for app: " + TF(Steam.IsCloudEnabledForApp()))
 AddStatus("Cloud enabled for account: " + TF(Steam.IsCloudEnabledForAccount()))
@@ -42,14 +40,10 @@ if Steam.CloudFileExists(TEST_FILE_NAME)
 endif
 //~ AddStatus("GetCachedUGCCount: " + str(Steam.GetCachedUGCCount()))
 
+AddStatus("Files:")
 for x = 0 to Steam.GetCloudFileCount() - 1
-	file as CloudFileInfo_t
-	file.Name = Steam.GetCloudFileName(x)
-	file.Size = Steam.GetCloudFileSize(x)
-	cloudFiles.insert(file)
+	AddStatus("> " + Steam.GetCloudFileName(x) + " - size: " + str(Steam.GetCloudFileSize(x)))
 next
-AddStatus("Files: " + cloudFiles.toJSON())
-
 
 //
 // The main loop

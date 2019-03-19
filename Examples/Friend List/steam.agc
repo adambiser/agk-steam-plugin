@@ -19,7 +19,11 @@ Type FriendInfo
 	name as string
 	state as integer
 	//~ level as integer // GetFriendSteamLevel doesn't seem to work like the Steam API docs say.
-	gameinfo as FriendGameInfo_t
+	gameAppID as integer
+	gameIP as string
+	gamePort as integer
+	queryPort as integer
+	hLobby as integer
 	avatarImageID as integer
 	avatarHandle as integer
 EndType
@@ -248,11 +252,11 @@ Function GetFriendInfo(hSteamID as integer)
 	info.name = Steam.GetFriendPersonaName(hSteamID)
 	info.state = Steam.GetFriendPersonaState(hSteamID)
 	//~ info.level = Steam.GetFriendSteamLevel(hSteamID)
-	info.gameinfo.GameAppID = Steam.GetFriendGamePlayedGameAppID(hSteamID)
-	info.gameinfo.GameIP = Steam.GetFriendGamePlayedIP(hSteamID)
-	info.gameinfo.GamePort = Steam.GetFriendGamePlayedConnectionPort(hSteamID)
-	info.gameinfo.QueryPort = Steam.GetFriendGamePlayedQueryPort(hSteamID)
-	info.gameinfo.SteamIDLobby = Steam.GetFriendGamePlayedLobby(hSteamID)
+	info.gameAppID = Steam.GetFriendGamePlayedGameAppID(hSteamID)
+	info.gameIP = Steam.GetFriendGamePlayedIP(hSteamID)
+	info.gamePort = Steam.GetFriendGamePlayedConnectionPort(hSteamID)
+	info.queryPort = Steam.GetFriendGamePlayedQueryPort(hSteamID)
+	info.hLobby = Steam.GetFriendGamePlayedLobby(hSteamID)
 	info.avatarImageID = CreateImageColor(0, 0, 0, 0)
 	info.avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
 	if info.avatarHandle > 0
@@ -298,7 +302,7 @@ EndFunction
 //
 Function GetFriendInfoSortGroup(info as FriendInfo)
 	if info.state <> EPersonaStateOffline
-		if info.gameinfo.GameAppID
+		if info.gameAppID
 			ExitFunction 0 // ingame group
 		else
 			ExitFunction 1 // online group
@@ -348,13 +352,13 @@ Function UpdateFriendStatus(hSteamID as integer)
 		if info.state = EPersonaStateOffline
 			SetTextColor(ui.friendNameIDs[uiindex], OFFLINE_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], OFFLINE_COLOR)
-		elseif info.gameinfo.GameAppID
+		elseif info.gameAppID
 			SetTextColor(ui.friendNameIDs[uiindex], INGAME_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], INGAME_COLOR)
 			// Note: GetAppName is a restricted interface that can only be used by approved apps.
 			// Space War (480) is one such approved app.
 			appname as string
-			appname = Steam.GetAppName(info.gameinfo.GameAppID)
+			appname = Steam.GetAppName(info.gameAppID)
 			// Note: appname will be blank if the name hasn't cached yet.  It will be "Not found" when not found.
 			if len(appname)
 				text = text + " [In-Game: " + appname + "]"
