@@ -142,8 +142,12 @@ class ExportedMethodLoader:
         # Final validation checks
         if 'desc' not in method:
             print("{} has no description.".format(method['name']))
-        if bool(method['return_type']) != bool('return_desc' in method):
-            print("{} has a return type without a return description.".format(method['name']))
+        if method['return_type']:
+            if 'return_desc' not in method:
+                print("{} has a return type without a return description.".format(method['name']))
+        else:
+            if 'return_desc' in method:
+                print("{} has a return description without a return type.".format(method['name']))
         for param in method['params']:
             if 'desc' not in param:
                 print("{} has a parameter without a description: {}".format(method['name'], param['name']))

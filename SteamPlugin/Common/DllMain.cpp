@@ -56,6 +56,9 @@ std::mutex g_JoinedLobbiesMutex;
 std::vector<CSteamID> g_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 int g_InputCount = 0;
 InputHandle_t g_InputHandles[STEAM_INPUT_MAX_COUNT];
+InputAnalogActionData_t g_InputAnalogActionData;
+InputDigitalActionData_t g_InputDigitalActionData;
+InputMotionData_t g_InputMotionData;
 
 /*
 Check to see if the SteamPlugin has been initialized.
@@ -167,6 +170,10 @@ void ResetVariables()
 	// Clear handles
 	CallResults()->Clear();
 	SteamHandles()->Clear();
+	// Clear motion data
+	Clear(g_InputAnalogActionData);
+	Clear(g_InputDigitalActionData);
+	Clear(g_InputMotionData);
 	// Variables
 	g_AppID = 0;
 	g_InputCount = 0;
@@ -555,7 +562,7 @@ char *GetLaunchQueryParam(const char *key)
 	return utils::CreateString(SteamApps()->GetLaunchQueryParam(key));
 }
 
-void InstallDLC(int appID) // Check HasDLCInstalled, GetDLCInstalled
+void InstallDLC(int appID)
 {
 	CheckInitialized(NORETURN);
 	Callbacks()->EnableDlcInstalledCallback();
@@ -684,28 +691,30 @@ int GetActionSetHandle(const char *actionSetName)
 	return SteamHandles()->GetPluginHandle(SteamInput()->GetActionSetHandle(actionSetName));
 }
 
-int GetAnalogActionDataActive(int hInput, int hAnalogAction)
+int GetAnalogActionData(int hInput, int hAnalogAction)
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction)).bActive;
+	g_InputAnalogActionData = SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction));
+	return g_InputAnalogActionData.bActive;
 }
 
-int GetAnalogActionDataMode(int hInput, int hAnalogAction)
+int GetAnalogActionDataActive()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction)).eMode;
+	return g_InputAnalogActionData.bActive;
 }
 
-float GetAnalogActionDataX(int hInput, int hAnalogAction)
+int GetAnalogActionDataMode()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction)).x;
+	return g_InputAnalogActionData.eMode;
 }
 
-float GetAnalogActionDataY(int hInput, int hAnalogAction)
+float GetAnalogActionDataX()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction)).y;
+	return g_InputAnalogActionData.x;
+}
+
+float GetAnalogActionDataY()
+{
+	return g_InputAnalogActionData.y;
 }
 
 int GetAnalogActionHandle(const char *actionName)
@@ -748,21 +757,25 @@ int GetConnectedControllers()
 
 int GetCurrentActionSet(int hInput)
 {
-	CheckInitialized(0);
 	ValidateInputHandle(hInput, 0);
 	return SteamHandles()->GetPluginHandle(SteamInput()->GetCurrentActionSet(g_InputHandles[hInput]));
 }
 
-int GetDigitalActionDataActive(int hInput, int hDigitalAction)
+int GetDigitalActionData(int hInput, int hDigitalAction)
 {
 	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetDigitalActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hDigitalAction)).bActive;
+	g_InputDigitalActionData = SteamInput()->GetDigitalActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hDigitalAction));
+	return g_InputDigitalActionData.bActive;
 }
 
-int GetDigitalActionDataState(int hInput, int hDigitalAction)
+int GetDigitalActionDataActive()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetDigitalActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hDigitalAction)).bState;
+	return g_InputDigitalActionData.bActive;
+}
+
+int GetDigitalActionDataState()
+{
+	return g_InputDigitalActionData.bState;
 }
 
 int GetDigitalActionHandle(const char *actionName)
@@ -809,64 +822,60 @@ int GetInputTypeForHandle(int hInput)
 	return SteamInput()->GetInputTypeForHandle(g_InputHandles[hInput]);
 }
 
-float GetMotionDataPosAccelX(int hInput)
+void GetMotionData(int hInput)
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).posAccelX;
+	ValidateInputHandle(hInput, );
+	g_InputMotionData = SteamInput()->GetMotionData(g_InputHandles[hInput]);
 }
 
-float GetMotionDataPosAccelY(int hInput)
+float GetMotionDataPosAccelX()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).posAccelY;
+	return g_InputMotionData.posAccelX;
 }
 
-float GetMotionDataPosAccelZ(int hInput)
+float GetMotionDataPosAccelY()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).posAccelZ;
+	return g_InputMotionData.posAccelY;
 }
 
-float GetMotionDataRotQuatW(int hInput)
+float GetMotionDataPosAccelZ()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotQuatW;
+	return g_InputMotionData.posAccelZ;
 }
 
-float GetMotionDataRotQuatX(int hInput)
+float GetMotionDataRotQuatW()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotQuatX;
+	return g_InputMotionData.rotQuatW;
 }
 
-float GetMotionDataRotQuatY(int hInput)
+float GetMotionDataRotQuatX()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotQuatY;
+	return g_InputMotionData.rotQuatX;
 }
 
-float GetMotionDataRotQuatZ(int hInput)
+float GetMotionDataRotQuatY()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotQuatZ;
+	return g_InputMotionData.rotQuatY;
 }
 
-float GetMotionDataRotVelX(int hInput)
+float GetMotionDataRotQuatZ()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotVelX;
+	return g_InputMotionData.rotQuatZ;
 }
 
-float GetMotionDataRotVelY(int hInput)
+float GetMotionDataRotVelX()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotVelY;
+	return g_InputMotionData.rotVelX;
+}
+
+float GetMotionDataRotVelY()
+{
+	return g_InputMotionData.rotVelY;
 
 }
-float GetMotionDataRotVelZ(int hInput)
+float GetMotionDataRotVelZ()
 {
-	ValidateInputHandle(hInput, 0);
-	return SteamInput()->GetMotionData(g_InputHandles[hInput]).rotVelZ;
+	return g_InputMotionData.rotVelZ;
 }
 
 char *GetStringForActionOrigin(int eOrigin)
@@ -1221,6 +1230,7 @@ int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitialized(0);
 	Callbacks()->EnableAvatarImageLoadedCallback();
+	Callbacks()->EnablePersonaStateChangeCallback();
 	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
@@ -1282,6 +1292,7 @@ int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 {
 	CheckInitialized(false);
 	Callbacks()->EnablePersonaStateChangeCallback();
+	Callbacks()->EnableAvatarImageLoadedCallback();
 	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hUserSteamID), requireNameOnly != 0);
 }
 
@@ -1777,6 +1788,7 @@ void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
 {
 	CheckInitialized(false);
+	Callbacks()->EnableLobbyGameCreatedCallback();
 	if (gameServerPort < 0 || gameServerPort > 0xffff)
 	{
 		agk::PluginError("SetLobbyGameServer: Invalid game server port.");
@@ -3039,6 +3051,7 @@ int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *descrip
 		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
 		charMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
 	}
+	Callbacks()->EnableGamepadTextInputDismissedCallback();
 	return SteamUtils()->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 

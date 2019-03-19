@@ -85,11 +85,20 @@ namespace utils
 
 	static inline std::string ToIPString(uint32 ip)
 	{
+		if (ip == 0)
+		{
+			return std::string();
+		}
 		return std::to_string((ip >> 24) & 0xff) + "." + std::to_string((ip >> 16) & 0xff) + "." + std::to_string((ip >> 8) & 0xff) + "." + std::to_string((ip >> 0) & 0xff);
 	}
 
 	static inline bool ParseIP(const char *ipv4, unsigned __int32 *ip)
 	{
+		if (strnlen_s(ipv4, 12) == 0)
+		{
+			*ip = 0;
+			return true;
+		}
 		int ip1, ip2, ip3, ip4;
 		sscanf(ipv4, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
 		if ((ip1 < 0 || ip1 > 255)

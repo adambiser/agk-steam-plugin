@@ -490,40 +490,42 @@ extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index);
 extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName);
 
 /*
-@desc Returns whether or not this action is currently available to be bound in the active action set.
+@desc Queries the analog action data for an input.
+Also returns whether or not this action is currently available to be bound in the active action set (the same as GetAnalogActionDataActive).
 @param hInput The handle of the input you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
 @return 1 if available; otherwise 0.
 @api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT int GetAnalogActionDataActive(int hInput, int hAnalogAction);
+extern "C" DLL_EXPORT int GetAnalogActionData(int hInput, int hAnalogAction);
 
 /*
-@desc Returns the type of data coming from this action.
-@param hInput The handle of the input you want to query.
-@param hAnalogAction The handle of the analog action you want to query.
+@desc Returns whether or not this action is currently available to be bound in the active action set as of the last GetAnalogActionData call.
+@return 1 if available; otherwise 0.
+@api ISteamController#ControllerAnalogActionData_t
+*/
+extern "C" DLL_EXPORT int GetAnalogActionDataActive();
+
+/*
+@desc Returns the type of data coming from this action as of the last GetAnalogActionData call
 @return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t, ISteamController#EControllerSourceMode
+@api ISteamController#ControllerAnalogActionData_t, ISteamController#EControllerSourceMode
 */
-extern "C" DLL_EXPORT int GetAnalogActionDataMode(int hInput, int hAnalogAction);
+extern "C" DLL_EXPORT int GetAnalogActionDataMode();
 
 /*
-@desc Returns the current state of this action on the horizontal axis.
-@param hInput The handle of the input you want to query.
-@param hAnalogAction The handle of the analog action you want to query.
+@desc Returns the state of this action on the horizontal axis as of the last GetAnalogActionData call
 @return The current state of this action on the horizontal axis.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+@api ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT float GetAnalogActionDataX(int hInput, int hAnalogAction);
+extern "C" DLL_EXPORT float GetAnalogActionDataX();
 
 /*
-@desc Returns the current state of this action on the vertical axis.
-@param hInput The handle of the input you want to query.
-@param hAnalogAction The handle of the analog action you want to query.
+@desc Returns the state of this action on the vertical axis as of the last GetAnalogActionData call
 @return The current state of this action on the vertical axis.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+@api ISteamController#ControllerAnalogActionData_t
 */
-extern "C" DLL_EXPORT float GetAnalogActionDataY(int hInput, int hAnalogAction);
+extern "C" DLL_EXPORT float GetAnalogActionDataY();
 
 /*
 @desc Get the handle of the specified Analog action.
@@ -583,22 +585,27 @@ extern "C" DLL_EXPORT int GetConnectedControllers();
 extern "C" DLL_EXPORT int GetCurrentActionSet(int hInput);
 
 /*
-@desc Returns whether or not this action is currently available to be bound in the active action set.
+@desc Queries the digital action data for an input.
+Also returns whether or not this action is currently available to be bound in the active action set (the same as GetDigitalActionDataActive).
 @param hInput The handle of the input you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
 @return 1 if this action is currently available; otherwise 0.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT int GetDigitalActionDataActive(int hInput, int hDigitalAction);
+extern "C" DLL_EXPORT int GetDigitalActionData(int hInput, int hDigitalAction);
+/*
+@desc Returns whether or not this action is currently available to be bound in the active action set.
+@return 1 if this action is currently available; otherwise 0.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT int GetDigitalActionDataActive();
 
 /*
 @desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
-@param hInput The handle of the input you want to query.
-@param hDigitalAction The handle of the digital action you want to query.
 @return The current state of this action; 1 if the action is currently pressed, otherwise 0.
 @api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT int GetDigitalActionDataState(int hInput, int hDigitalAction);
+extern "C" DLL_EXPORT int GetDigitalActionDataState();
 
 /*
 @desc Get the handle of the specified digital action.
@@ -660,85 +667,81 @@ extern "C" DLL_EXPORT char * GetGlyphForActionOrigin(int eOrigin);
 extern "C" DLL_EXPORT int GetInputTypeForHandle(int hInput);
 
 /*
-@desc Reads the raw motion data for the specified input and returns the positional acceleration, x axis.
+@desc Reads the raw motion data for the specified input;
 @param hInput The handle of the input you want to get motion data for.
+@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+*/
+extern "C" DLL_EXPORT void GetMotionData(int hInput);
+/*
+@desc Returns the positional acceleration, x axis for the last GetMotionData call.
 @return Positional acceleration, x axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataPosAccelX(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataPosAccelX();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the positional acceleration, y axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the positional acceleration, y axis for the last GetMotionData call
 @return Positional acceleration, y axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataPosAccelY(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataPosAccelY();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the positional acceleration, z axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the positional acceleration, z axis for the last GetMotionData call
 @return Positional acceleration, z axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataPosAccelZ(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataPosAccelZ();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), w axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), w axis for the last GetMotionData call
 GetMotionData MUST be called in order to populate the value returned by this method.
 @return Sensor-fused absolute rotation (will drift in heading), w axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatW(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotQuatW();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), x axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), x axis for the last GetMotionData call
 @return Sensor-fused absolute rotation (will drift in heading), x axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatX(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotQuatX();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), y axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), y axis for the last GetMotionData call
 @return Sensor-fused absolute rotation (will drift in heading), y axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatY(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotQuatY();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the sensor-fused absolute rotation (will drift in heading), z axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the sensor-fused absolute rotation (will drift in heading), z axis for the last GetMotionData call
 @return Sensor-fused absolute rotation (will drift in heading), z axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotQuatZ(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotQuatZ();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the angular velocity, x axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the angular velocity, x axis for the last GetMotionData call
 @return Angular velocity, x axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotVelX(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotVelX();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the angular velocity, y axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the angular velocity, y axis for the last GetMotionData call
 @return Angular velocity, y axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotVelY(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotVelY();
 
 /*
-@desc Reads the raw motion data for the specified input and returns the angular velocity, z axis.
-@param hInput The handle of the input you want to get motion data for.
+@desc Returns the angular velocity, z axis for the last GetMotionData call
 @return Angular velocity, z axis.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@api ISteamController#ControllerDigitalActionData_t
 */
-extern "C" DLL_EXPORT float GetMotionDataRotVelZ(int hInput);
+extern "C" DLL_EXPORT float GetMotionDataRotVelZ();
 
 /*
 @desc Returns a localized string (from Steam's language setting) for the specified origin.

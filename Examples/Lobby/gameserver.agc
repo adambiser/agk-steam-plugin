@@ -6,18 +6,18 @@
 
 Function HostGameServer()
 	server.networkID = HostNetwork("AGKSteamPluginTest", Steam.GetPersonaName(), GAME_SERVER_PORT)
-	AddChatLine(GAME_SERVER_COLOR, "Hosting game server.")
+	AddChatLine(GAME_SERVER_COLOR, "Hosting game server.  hLobby: " + str(server.hLobby) + ", IP: " + GetDeviceIP() + ", Port: " + str(GAME_SERVER_PORT))
 	// TODO Use SteamGameServer or somehow get public IP.
 	Steam.SetLobbyGameServer(server.hLobby, GetDeviceIP(), GAME_SERVER_PORT, 0)
 EndFunction
 
-Function ConnectGameServer(gameserver as LobbyGameCreated_t)
-	AddChatLine(GAME_SERVER_COLOR, "Connecting to " + gameserver.IP + ":" + str(gameserver.Port) + "...")
+Function ConnectGameServer(hLobby as integer, IP as string, Port as integer)
+	AddChatLine(GAME_SERVER_COLOR, "Connecting to " + IP + ":" + str(Port) + "...")
 	if not server.isLobbyOwner
-		server.networkID = JoinNetwork(gameserver.IP, gameserver.Port, Steam.GetPersonaName())
+		server.networkID = JoinNetwork(IP, Port, Steam.GetPersonaName())
 	endif
 	memberCount as integer
-	memberCount = Steam.GetNumLobbyMembers(gameserver.SteamIDLobby)
+	memberCount = Steam.GetNumLobbyMembers(hLobby)
 	timeout as float
 	timeout = Timer() + 3 // 3 second timeout.
 	clientCount as integer

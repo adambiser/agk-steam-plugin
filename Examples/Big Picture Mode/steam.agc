@@ -22,13 +22,11 @@ if Steam.IsSteamInBigPictureMode()
 	SetButtonEnabled(MULTUPLE_LINE_BUTTON, 1)
 	SetButtonEnabled(PASSWORD_BUTTON, 1)
 else
-	// To see how this works, the Spacewar install will need to be replaced with this test project.
-	// 1) Make a backup of the original contents of steamapps\common\Spacewar.
-	// 2) Copy this project folder's contents into steamapps\common\Spacewar
-	// 3) Rename "Big Picture Mode.exe" to "SteamworksExample.exe" so the Steam client runs it.
-	// The Steam client will now run this test project when you start Spacewar.
+	// To see how this works, the example must be started from the Steam client.
+	// To test, add this examples's EXE as a Non-Steam Game in the Steam client.
 	// Connect a controller, start Big Picture Mode, and give it a try.
 	Message("Steam needs to be in Big Picture Mode to test this.")
+	end
 endif
 
 //

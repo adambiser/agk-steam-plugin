@@ -101,7 +101,7 @@ private:
 	// GameConnectedClanChatMsg_t - JoinClanChatRoom
 	// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
 	CALLBACK_LIST(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
-	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t);// , m_CallbackGameOverlayActivated);
+	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
 	// GameRichPresenceJoinRequested_t - InviteUserToGame
 	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
