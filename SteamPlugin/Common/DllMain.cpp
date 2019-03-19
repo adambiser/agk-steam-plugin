@@ -640,28 +640,24 @@ char *GetAppName(int appID)
 // As of v1.43 - Use ISteamInput instead of ISteamController.
 void ActivateActionSet(int hInput, int hActionSet)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	SteamInput()->ActivateActionSet(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hActionSet));
 }
 
 void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	SteamInput()->ActivateActionSetLayer(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hActionSetLayer));
 }
 
 void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	SteamInput()->DeactivateActionSetLayer(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hActionSetLayer));
 }
 
 void DeactivateAllActionSetLayers(int hInput)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	SteamInput()->DeactivateAllActionSetLayers(g_InputHandles[hInput]);
 }
@@ -693,6 +689,7 @@ int GetActionSetHandle(const char *actionSetName)
 
 int GetAnalogActionData(int hInput, int hAnalogAction)
 {
+	ValidateInputHandle(hInput, 0);
 	g_InputAnalogActionData = SteamInput()->GetAnalogActionData(g_InputHandles[hInput], SteamHandles()->GetSteamHandle(hAnalogAction));
 	return g_InputAnalogActionData.bActive;
 }
@@ -817,7 +814,6 @@ char *GetGlyphForActionOrigin(int eOrigin)
 
 int GetInputTypeForHandle(int hInput)
 {
-	CheckInitialized(0);
 	ValidateInputHandle(hInput, k_ESteamInputType_Unknown);
 	return SteamInput()->GetInputTypeForHandle(g_InputHandles[hInput]);
 }
@@ -903,7 +899,6 @@ void RunFrame()
 
 void SetInputLEDColor(int hInput, int red, int green, int blue)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(red, 0, UINT8_MAX);
 	Clamp(green, 0, UINT8_MAX);
@@ -913,7 +908,6 @@ void SetInputLEDColor(int hInput, int red, int green, int blue)
 
 void ResetInputLEDColor(int hInput)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	SteamInput()->SetLEDColor(g_InputHandles[hInput], 0, 0, 0, k_ESteamInputLEDFlag_RestoreUserDefault);
 }
@@ -922,7 +916,6 @@ void ResetInputLEDColor(int hInput)
 
 int ShowBindingPanel(int hInput)
 {
-	CheckInitialized(false);
 	ValidateInputHandle(hInput, false);
 	return SteamInput()->ShowBindingPanel(g_InputHandles[hInput]);
 }
@@ -937,7 +930,6 @@ int ShutdownSteamInput()
 
 void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	InputAnalogActionHandle_t analogActionHandle = SteamHandles()->GetSteamHandle(hAnalogAction);
 	//ValidateActionHandle(InputAnalogActionHandle_t, analogActionHandle, hAnalogAction, m_AnalogActionHandles, );
@@ -946,7 +938,6 @@ void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 
 void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(duration, 0, USHRT_MAX);
 	SteamInput()->TriggerHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
@@ -954,7 +945,6 @@ void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 
 void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(onDuration, 0, USHRT_MAX);
 	Clamp(offDuration, 0, USHRT_MAX);
@@ -964,7 +954,6 @@ void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration,
 
 void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 {
-	CheckInitialized(NORETURN);
 	ValidateInputHandle(hInput, );
 	Clamp(leftSpeed, 0, USHRT_MAX);
 	Clamp(rightSpeed, 0, USHRT_MAX);
@@ -975,7 +964,6 @@ void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 {
 	ValidateInputHandle(hInput, k_EInputActionOrigin_None);
-	CheckInitialized(k_EInputActionOrigin_None);
 	return SteamInput()->GetActionOriginFromXboxOrigin(g_InputHandles[hInput], (EXboxOrigin)eOrigin);
 }
 
