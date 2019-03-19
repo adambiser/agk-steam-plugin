@@ -91,28 +91,36 @@ Function CheckInput()
 		for x = 0 to digitalActionHandles.length
 			// Must call GetDigitalActionData before checking GetDigitalActionDataState and/or GetDigitalActionDataActive!
 			// Note that this only indicates the current state.  You'd have to keep track of these values if you want to know when pressed or released.
-			if Steam.GetDigitalActionDataState(HINPUT, digitalActionHandles[x])
-				AddStatus("Digital action: " + digitalActionNames[x])
+			if Steam.GetDigitalActionData(HINPUT, digitalActionHandles[x])
+				if Steam.GetDigitalActionDataState()
+					AddStatus("Digital action: " + digitalActionNames[x])
+				endif
+			//~ else
+				//~ AddStatus(digitalActionNames[x] + " is inactive.")
 			endif
 		next
 		for x = 0 to analogActionHandles.length
 			// Must call GetAnalogActionData before checking GetAnalogActionDataX or GetAnalogActionDataY!
-			// Note that the Steam API does not have a dead zone value, so you'd have to implement one yourself.
-			if Steam.GetAnalogActionDataX(HINPUT, analogActionHandles[x]) <> 0 or Steam.GetAnalogActionDataY(HINPUT, analogActionHandles[x]) <> 0
-				AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX(HINPUT, analogActionHandles[x])) + ", " + str(Steam.GetAnalogActionDataY(HINPUT, analogActionHandles[x])))
+			if Steam.GetAnalogActionData(HINPUT, analogActionHandles[x])
+				if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
+					AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
+				endif
+			//~ else
+				//~ AddStatus(analogActionNames[x] + " is inactive.")
 			endif
 		next
-		// Check for motion data.
-		AddStatusIfNotZero("PosAccelX", Steam.GetMotionDataPosAccelX(HINPUT))
-		AddStatusIfNotZero("PosAccelY", Steam.GetMotionDataPosAccelY(HINPUT))
-		AddStatusIfNotZero("PosAccelZ", Steam.GetMotionDataPosAccelZ(HINPUT))
-		AddStatusIfNotZero("RotQuatW", Steam.GetMotionDataRotQuatW(HINPUT))
-		AddStatusIfNotZero("RotQuatX", Steam.GetMotionDataRotQuatX(HINPUT))
-		AddStatusIfNotZero("RotQuatY", Steam.GetMotionDataRotQuatY(HINPUT))
-		AddStatusIfNotZero("RotQuatZ", Steam.GetMotionDataRotQuatZ(HINPUT))
-		AddStatusIfNotZero("RotVelX", Steam.GetMotionDataRotVelX(HINPUT))
-		AddStatusIfNotZero("RotVelY", Steam.GetMotionDataRotVelY(HINPUT))
-		AddStatusIfNotZero("RotVelZ", Steam.GetMotionDataRotVelZ(HINPUT))
+		// Check for motion data.  Have to call GetMotionData for our input handle to load the data in the plugin for retrieval.
+		Steam.GetMotionData(HINPUT)
+		AddStatusIfNotZero("PosAccelX", Steam.GetMotionDataPosAccelX())
+		AddStatusIfNotZero("PosAccelY", Steam.GetMotionDataPosAccelY())
+		AddStatusIfNotZero("PosAccelZ", Steam.GetMotionDataPosAccelZ())
+		AddStatusIfNotZero("RotQuatW", Steam.GetMotionDataRotQuatW())
+		AddStatusIfNotZero("RotQuatX", Steam.GetMotionDataRotQuatX())
+		AddStatusIfNotZero("RotQuatY", Steam.GetMotionDataRotQuatY())
+		AddStatusIfNotZero("RotQuatZ", Steam.GetMotionDataRotQuatZ())
+		AddStatusIfNotZero("RotVelX", Steam.GetMotionDataRotVelX())
+		AddStatusIfNotZero("RotVelY", Steam.GetMotionDataRotVelY())
+		AddStatusIfNotZero("RotVelZ", Steam.GetMotionDataRotVelZ())
 	endif
 	// Scrollable text.
 	PerformVerticalScroll(statusArea)
@@ -124,9 +132,10 @@ Function CheckInput()
 		SetButtonEnabled(HAPTIC_BUTTON, controllerCount > 0)
 		for x = 1 to controllerCount
 			AddStatus("Input type " + str(x) + ": " + GetInputTypeName(Steam.GetInputTypeForHandle(x)))
-			AddStatus("Input action set " + str(x) + ": " + str(Steam.GetCurrentActionSet(x)))
 		next
 		if controllerCount > 0
+			Steam.ActivateActionSet(HINPUT, ActionSetHandles.shipControls)
+			AddStatus("Input action set " + str(HINPUT) + ": " + str(Steam.GetCurrentActionSet(HINPUT)))
 			origins as integer[]
 			for x = 0 to Steam.GetDigitalActionOriginCount(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[0]) - 1
 				origins.insert(Steam.GetDigitalActionOriginValue(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[0], x))

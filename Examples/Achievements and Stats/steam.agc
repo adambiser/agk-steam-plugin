@@ -144,7 +144,7 @@ Function ProcessCallbacks()
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
 	//
 	if Steam.HasUserStatsReceivedResponse()
-		AddStatus("HasNewUserStatsReceived.")
+		AddStatus("HasUserStatsReceivedResponse.")
 		if Steam.GetUserStatsReceivedResult() = EResultOK
 			AddStatus("User stats initialized.")
 			// Enable all stats buttons.
@@ -167,30 +167,26 @@ Function ProcessCallbacks()
 	//
 	// Process StoreStats/ResetStats callback.
 	//
-	//~ select Steam.GetStoreStatsCallbackState()
-		//~ case STATE_IDLE // Only StoreStats when in this state.
-			//~ if server.needToStoreStats
-				//~ Steam.StoreStats()
-				//~ AddStatus("Storing user stats.")
-			//~ endif
-		//~ endcase
-		//~ case STATE_DONE
-			//~ server.needToStoreStats = 0
-			//~ AddStatus("StatsStored: " + TF(Steam.StatsStored()) + ", AchievementStored: " + TF(Steam.AchievementStored()))
-			//~ RefreshInformation()
-		//~ endcase
-		//~ case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
-			//~ if not errorReported[ERROR_STORESTATS]
-				//~ errorReported[ERROR_STORESTATS] = 1
-				//~ AddStatus("Error storing user stats.")
-			//~ endif
-		//~ endcase
-	//~ endselect
-	//
-	// Process achievement icon loading.
-	//
-	// Don't load the achievement icon while stats need to be stored!  Otherwise it might reload the old icon state.
-	if server.needToStoreStats = 0
+	if server.needToStoreStats
+		if Steam.StoreStats()
+			server.needToStoreStats = 0
+			AddStatus("Storing user stats.")
+		endif
+	endif
+	while Steam.HasUserAchievementStoredResponse()
+		AddStatus("HasUserAchievementStoredResponse:")
+		AddStatus("> Name: " + Steam.GetUserAchievementStoredName())
+		AddStatus("> CurentProgress: " + str(Steam.GetUserAchievementStoredCurrentProgress()))
+		AddStatus("> MaxProgress: " + str(Steam.GetUserAchievementStoredMaxProgress()))
+	endwhile
+	while Steam.HasUserStatsStoredResponse()
+		AddStatus("HasUserStatsStoredResponse: Result = " + str(Steam.GetUserStatsStoredResult()))
+		if Steam.GetUserStatsStoredResult() = EResultOK
+			RefreshInformation()
+		endif
+	endwhile
+	// Don't load the achievement icon while stats need to be stored or are being stored!  Otherwise it might reload the old icon state.
+	if not Steam.IsStoringStats()
 		for x = 0 to server.achievementIcons.length
 			// A value of -1 indicates that we're waiting for the icon to download, so try getting the handle again.
 			if server.achievementIcons[x] = -1
