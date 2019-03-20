@@ -304,7 +304,7 @@ int HasFriend(int hUserSteamID, int friendFlags)
 //IsClanChatWindowOpenInSteam
 //IsFollowing - FriendsIsFollowing_t
 //IsUserInSource
-//JoinClanChatRoom - GameConnectedChatJoin_t, GameConnectedClanChatMsg_t, JoinClanChatRoomCompletionResult_t, GameConnectedChatLeave_t
+//JoinClanChatRoom - JoinClanChatRoomCompletionResult_t (cr) GameConnectedChatJoin_t, GameConnectedClanChatMsg_t, GameConnectedChatLeave_t
 //LeaveClanChatRoom - GameConnectedChatLeave_t
 //OpenClanChatWindowInSteam
 //ReplyToFriendMessage

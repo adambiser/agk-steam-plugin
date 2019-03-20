@@ -233,10 +233,7 @@ void Shutdown()
 #pragma endregion
 
 #pragma region ISteamAppTicket
-// TODO?
-// ISteamAppTicket does not expose a global accessor function. You must access it through ISteamClient::GetISteamGenericInterface.
-// uint32 GetAppOwnershipTicketData( uint32 nAppID, void *pvBuffer, uint32 cbBufferLength, uint32 *piAppId, uint32 *piSteamId, uint32 *piSignature, uint32 *pcbSignature );
-// See docs for example.
+// This should never be needed in most cases.
 #pragma endregion
 
 #pragma region ISteamClient

@@ -173,6 +173,7 @@ Function ProcessCallbacks()
 			AddStatus("Storing user stats.")
 		endif
 	endif
+	GetUnixTime()
 	while Steam.HasUserAchievementStoredResponse()
 		AddStatus("HasUserAchievementStoredResponse:")
 		AddStatus("> Name: " + Steam.GetUserAchievementStoredName())

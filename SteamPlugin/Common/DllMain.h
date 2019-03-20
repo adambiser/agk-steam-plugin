@@ -308,6 +308,40 @@ extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesTotal(int appID);
 extern "C" DLL_EXPORT int GetEarliestPurchaseUnixTime(int appID);
 
 /*
+@desc Asynchronously retrieves metadata details about a specific file in the depot manifest.
+@param filename The filename in the current depot.
+@callback-type callresult
+@callback-getters GetFileDetailsSHA1, GetFileDetailsSize, GetFileDetailsFlags
+@return A[call result handle](Callbacks - and-Call - Results#call - results) on success; otherwise 0.
+@api ISteamApps#GetFileDetails
+*/
+extern "C" DLL_EXPORT int GetFileDetails(const char *filename);
+
+/*
+@desc Returns the SHA1 hash for the file.
+@param hCallResult A GetFileDetails call result handle.
+@return A 40 character hexidecimal string or an empty string if there was an error.
+@api ISteamApps#GetFileDetails, ISteamApps#FileDetailsResult_t
+*/
+extern "C" DLL_EXPORT char *GetFileDetailsSHA1(int hCallResult);
+
+/*
+@desc Returns the size of the file.
+@param hCallResult A GetFileDetails call result handle.
+@return The file size.
+@api ISteamApps#GetFileDetails, ISteamApps#FileDetailsResult_t
+*/
+extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult);
+
+///*
+//@desc Returns a flag value that is not explained in the Steamworks SDK documentation.
+//@param hCallResult A GetFileDetails call result handle.
+//@return A flag value.
+//@api ISteamApps#GetFileDetails, ISteamApps#FileDetailsResult_t
+//*/
+//extern "C" DLL_EXPORT int GetFileDetailsFlags(int hCallResult);
+
+/*
 @desc Gets a list of all installed depots for a given App ID in mount order.
 @param appID The App to list the depots for.
 @param maxDepots The maximum number of depots to obtain.

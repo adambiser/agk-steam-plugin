@@ -21,8 +21,26 @@ THE SOFTWARE.
 */
 
 #include "Common.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "SteamApps.h"
+
+#define MAX_PATH	260
+
+void CFileDetailsResultCallResult::OnFileDetailsResult(FileDetailsResult_t *pParam, bool bIOFailure)
+{
+	m_FileDetailsResult = *pParam;
+	SetResultCode(pParam->m_eResult, bIOFailure);
+	utils::Log(GetName() + ": Result = " + std::to_string(pParam->m_eResult));
+}
+
+void CFileDetailsResultCallResult::Call()
+{
+	m_hSteamAPICall = SteamApps()->GetFileDetails(m_Filename.c_str());
+	if (m_hSteamAPICall == k_uAPICallInvalid)
+	{
+		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+	}
+	m_CallResult.Set(m_hSteamAPICall, this, &CFileDetailsResultCallResult::OnFileDetailsResult);
+}
 
 int IsAppInstalled(int appID)
 {
@@ -91,11 +109,7 @@ char *GetAppInstallDir(int appID)
 	uint32 length = SteamApps()->GetAppInstallDir(appID, folder, sizeof(folder));
 	if (length)
 	{
-		//length++; // NULL terminator
-		//char *result = agk::utils::CreateString(length);
-		//strcpy_s(result, length, folder);
-		//return result;
-		// TODO Verify this works as expected without using the returned length.
+		folder[length] = 0;
 		return utils::CreateString(folder);
 	}
 	return NULL_STRING;
@@ -200,7 +214,27 @@ int GetEarliestPurchaseUnixTime(int appID)
 	return SteamApps()->GetEarliestPurchaseUnixTime(appID);
 }
 
-//SteamAPICall_t GetFileDetails(const char*pszFileName); // FileDetailsResult_t call result.
+int GetFileDetails(const char *filename)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CFileDetailsResultCallResult(filename));
+}
+
+char *GetFileDetailsSHA1(int hCallResult)
+{
+	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSHA1);
+}
+
+int GetFileDetailsSize(int hCallResult)
+{
+	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSize);
+}
+
+// Not explained in the documentation.
+//int GetFileDetailsFlags(int hCallResult)
+//{
+//	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileFlags);
+//}
 
 // This is an array of integers.  Speed is not important.  Returning JSON seems easiest.
 char *GetInstalledDepotsJSON(int appID, int maxDepots)

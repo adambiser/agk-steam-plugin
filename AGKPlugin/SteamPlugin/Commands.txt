@@ -44,6 +44,9 @@ GetDLCDataByIndexName,S,I,GetDLCDataByIndexName,0,0,0,0,GetDLCDataByIndexName
 GetDLCDownloadProgressBytesDownloaded,I,I,GetDLCDownloadProgressBytesDownloaded,0,0,0,0,GetDLCDownloadProgressBytesDownloaded
 GetDLCDownloadProgressBytesTotal,I,I,GetDLCDownloadProgressBytesTotal,0,0,0,0,GetDLCDownloadProgressBytesTotal
 GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,GetEarliestPurchaseUnixTime
+GetFileDetails,I,S,GetFileDetails,0,0,0,0,GetFileDetails
+GetFileDetailsSHA1,S,I,GetFileDetailsSHA1,0,0,0,0,GetFileDetailsSHA1
+GetFileDetailsSize,I,I,GetFileDetailsSize,0,0,0,0,GetFileDetailsSize
 GetInstalledDepotsJSON,S,II,GetInstalledDepotsJSON,0,0,0,0,GetInstalledDepotsJSON
 GetLaunchCommandLine,S,0,GetLaunchCommandLine,0,0,0,0,GetLaunchCommandLine
 GetLaunchQueryParam,S,S,GetLaunchQueryParam,0,0,0,0,GetLaunchQueryParam

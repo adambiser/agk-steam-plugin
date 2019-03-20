@@ -27,6 +27,16 @@ AddStatus("SteamID3: " + Steam.GetSteamID3(Steam.GetSteamID()))
 AddStatus("SteamID64: " + Steam.GetSteamID64(Steam.GetSteamID()))
 AddStatus("IP Country: " + Steam.GetIPCountry())
 AddStatus("Steam UI Language: " + Steam.GetSteamUILanguage())
+AddStatus("AppInstallDir: " + Steam.GetAppInstallDir(480))
+
+global filenames as string[1] = ['dummy.txt', 'SteamworksExample.exe']
+global fileCallResults as integer[1]
+
+for x = 0 to filenames.length
+	fileCallResults[x] = Steam.GetFileDetails(filenames[x])
+	AddStatus("GetFileDetails: " + filenames[x] + ', call result = ' + str(fileCallResults[x]))
+next
+	
 
 info as string
 //
@@ -78,4 +88,20 @@ Function ProcessCallbacks()
 	if Steam.IsSteamShuttingDown()
 		AddStatus("Steam is shutting down.")
 	endif
+	x as integer
+	for x = 0 to fileCallResults.length
+		if fileCallResults[x]
+			result as integer
+			result = Steam.GetCallResultCode(fileCallResults[x])
+			if result
+				AddStatus("GetFileDetails: " + filenames[x] + ', result code = ' + str(result))
+				//~ if result = EResultOK
+					AddStatus(filenames[x] + ': size = ' + str(Steam.GetFileDetailsSize(fileCallResults[x])) + ', SHA = ' + Steam.GetFileDetailsSHA1(fileCallResults[x]))
+				//~ endif
+				// Done with the call result.  Delete and clear.
+				Steam.DeleteCallResult(fileCallResults[x])
+				fileCallResults[x] = 0
+			endif
+		endif
+	next
 EndFunction
