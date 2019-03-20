@@ -34,7 +34,7 @@ THE SOFTWARE.
 #include <mutex>
 #include <vector>
 
-#define _CALLBACK_LIST_MAIN(func, callback_type, list_type)						\
+#define _LIST_CALLBACK_MAIN(func, callback_type, list_type)						\
 	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
 public:																			\
 	void Enable##func##Callback()												\
@@ -83,13 +83,13 @@ private:																		\
 	list_type m_Current##func
 
 // Allow the list_type parameter to be 'optional'.  When omitted, use callback_type.
-#define _CALLBACK_LIST_2(func, callback_type)				_CALLBACK_LIST_MAIN(func, callback_type, callback_type)
-#define _CALLBACK_LIST_3(func, callback_type, list_type) 	_CALLBACK_LIST_MAIN(func, callback_type, list_type)
-#define _CALLBACK_LIST_HELPER( _1, _2, SELECTED, ... )		_CALLBACK_LIST_##SELECTED
-#define _CALLBACK_LIST_SELECT( X, Y )		_CALLBACK_LIST_HELPER X Y
-#define CALLBACK_LIST(func, ...)			_CALLBACK_LIST_SELECT( ( __VA_ARGS__, 3, 2 ), ( func, __VA_ARGS__ ) )
+#define _LIST_CALLBACK_2(func, callback_type)				_LIST_CALLBACK_MAIN(func, callback_type, callback_type)
+#define _LIST_CALLBACK_3(func, callback_type, list_type) 	_LIST_CALLBACK_MAIN(func, callback_type, list_type)
+#define _LIST_CALLBACK_HELPER( _1, _2, SELECTED, ... )		_LIST_CALLBACK_##SELECTED
+#define _LIST_CALLBACK_SELECT( X, Y )		_LIST_CALLBACK_HELPER X Y
+#define LIST_CALLBACK(func, ...)			_LIST_CALLBACK_SELECT( ( __VA_ARGS__, 3, 2 ), ( func, __VA_ARGS__ ) )
 
-#define CALLBACK_BOOL(func, callback_type)		\
+#define BOOL_CALLBACK(func, callback_type)		\
 	STEAM_CALLBACK(CCallbacks, On##func, callback_type);\
 public:											\
 	bool Has##func##Response();					\
@@ -109,11 +109,11 @@ public:
 	void ResetSessionVariables();
 #pragma region ISteamApps
 private:
-	CALLBACK_LIST(DlcInstalled, DlcInstalled_t);	// InstallDLC
-	//CALLBACK_LIST(CCallbacks, OnFileDetailsResult, FileDetailsResult_t, m_CallbackFileDetailsResult);	// GetFileDetails
-	CALLBACK_BOOL(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
+	LIST_CALLBACK(DlcInstalled, DlcInstalled_t);	// InstallDLC
+	//LIST_CALLBACK(CCallbacks, OnFileDetailsResult, FileDetailsResult_t, m_CallbackFileDetailsResult);	// GetFileDetails
+	BOOL_CALLBACK(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 	// Removed SDK v1.43
-	//CALLBACK_BOOL(NewLaunchQueryParameters, NewLaunchQueryParameters_t);
+	//BOOL_CALLBACK(NewLaunchQueryParameters, NewLaunchQueryParameters_t);
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -130,7 +130,7 @@ private:
 
 #pragma region ISteamFriends
 private:
-	CALLBACK_LIST(AvatarImageLoaded, AvatarImageLoaded_t, CSteamID); // GetFriendAvatar
+	LIST_CALLBACK(AvatarImageLoaded, AvatarImageLoaded_t, CSteamID); // GetFriendAvatar
 	// ClanOfficerListResponse_t - RequestClanOfficerList
 	// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
 	// FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
@@ -141,13 +141,13 @@ private:
 	// GameConnectedChatLeave_t - LeaveClanChatRoom
 	// GameConnectedClanChatMsg_t - JoinClanChatRoom
 	// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
-	CALLBACK_LIST(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
+	LIST_CALLBACK(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
 	// GameRichPresenceJoinRequested_t - InviteUserToGame
 	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
 	// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
-	CALLBACK_LIST(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
+	LIST_CALLBACK(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
 public:
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
@@ -180,12 +180,12 @@ public:
 #pragma region ISteamMatchmaking
 private:
 	// FavoritesListChanged_t - fires when server favorites list changes.
-	CALLBACK_LIST(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
-	CALLBACK_LIST(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
+	LIST_CALLBACK(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
+	LIST_CALLBACK(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 	// LobbyCreated_t - Call result
-	CALLBACK_LIST(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
-	CALLBACK_LIST(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
-	CALLBACK_LIST(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
+	LIST_CALLBACK(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
+	LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
+	LIST_CALLBACK(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
 	// LobbyInvite_t - when invited by someone.
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
@@ -197,8 +197,8 @@ private:
 
 #pragma region ISteamMusic
 private:
-	CALLBACK_BOOL(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-	CALLBACK_BOOL(VolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
+	BOOL_CALLBACK(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+	BOOL_CALLBACK(VolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -288,10 +288,10 @@ private:
 	//PS3TrophiesInstalled_t - ignore
 	STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t);// , m_CallbackUserAchievementIconFetched);
 	std::map<std::string, int> m_AchievementIconsMap;
-	CALLBACK_LIST(UserAchievementStored, UserAchievementStored_t);
-	CALLBACK_LIST(UserStatsReceived, UserStatsReceived_t);
+	LIST_CALLBACK(UserAchievementStored, UserAchievementStored_t);
+	LIST_CALLBACK(UserStatsReceived, UserStatsReceived_t);
 	bool m_StatsInitialized;
-	CALLBACK_LIST(UserStatsStored, UserStatsStored_t);
+	LIST_CALLBACK(UserStatsStored, UserStatsStored_t);
 	//UserStatsUnloaded_t - RequestUserStats again
 public:
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
@@ -302,12 +302,12 @@ public:
 #pragma region ISteamUtils
 private:
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
-	CALLBACK_LIST(GamepadTextInputDismissed, GamepadTextInputDismissed_t, plugin::GamepadTextInputDismissed_t);
-	CALLBACK_BOOL(IPCountryChanged, IPCountry_t);
-	CALLBACK_BOOL(LowBatteryPower, LowBatteryPower_t);
+	LIST_CALLBACK(GamepadTextInputDismissed, GamepadTextInputDismissed_t, plugin::GamepadTextInputDismissed_t);
+	BOOL_CALLBACK(IPCountryChanged, IPCountry_t);
+	BOOL_CALLBACK(LowBatteryPower, LowBatteryPower_t);
 	uint8 m_nMinutesBatteryLeft;
 	//SteamAPICallCompleted_t - not needed
-	CALLBACK_BOOL(SteamShutdown, SteamShutdown_t);
+	BOOL_CALLBACK(SteamShutdown, SteamShutdown_t);
 public:
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
 #pragma endregion

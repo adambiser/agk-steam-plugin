@@ -29,21 +29,21 @@ THE SOFTWARE.
 	m_##func##List.push_back(result);		\
 	m_##func##Mutex.unlock()
 
-#define CALLBACK_BOOL_METHODS(func, callback_type)				\
-	void CCallbacks::On##func##(callback_type *pParam)			\
-	{															\
-		agk::Log("Callback: On" #func);							\
-		m_b##func## = true;										\
-	}															\
-	\
-	bool CCallbacks::Has##func##Response()		\
-	{											\
-		if (m_b##func##)						\
-		{										\
-			m_b##func## = false;				\
-			return true;						\
-		}										\
-		return false;							\
+// Default BOOL_CALLBACK methods.
+#define BOOL_CALLBACK_METHODS(func, callback_type)			\
+	void CCallbacks::On##func##(callback_type *pParam)		\
+	{														\
+		agk::Log("Callback: On" #func);						\
+		m_b##func## = true;									\
+	}														\
+	bool CCallbacks::Has##func##Response()					\
+	{														\
+		if (m_b##func##)									\
+		{													\
+			m_b##func## = false;							\
+			return true;									\
+		}													\
+		return false;										\
 	}
 
 CCallbacks *Callbacks()
@@ -133,9 +133,7 @@ void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 	STORE_CALLBACK_RESULT(DlcInstalled, *pParam);
 }
 
-//CALLBACK_LIST_METHODS(DlcInstalled, DlcInstalled_t);	// InstallDLC
-
-CALLBACK_BOOL_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
+BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -157,8 +155,6 @@ void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 	STORE_CALLBACK_RESULT(AvatarImageLoaded, pParam->m_steamID);
 }
 
-//CALLBACK_LIST_METHODS(AvatarImageLoaded, CSteamID); // GetFriendAvatar
-
 // ClanOfficerListResponse_t - RequestClanOfficerList
 // DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
 // FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
@@ -175,8 +171,6 @@ void CCallbacks::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 	agk::Log("Callback: OnGameLobbyJoinRequested");
 	STORE_CALLBACK_RESULT(GameLobbyJoinRequested, *pParam);
 }
-
-//CALLBACK_LIST_METHODS(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 
 void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
@@ -202,8 +196,6 @@ void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 		}
 	}
 }
-
-//CALLBACK_LIST_METHODS(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
 #pragma endregion
 
 #pragma region ISteamGameCoordinator
@@ -240,23 +232,17 @@ void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 	STORE_CALLBACK_RESULT(LobbyChatMessage, info);
 }
 
-//CALLBACK_LIST_METHODS(LobbyChatMessage, plugin::LobbyChatMsg_t); // While in a lobby
-
 void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
 {
 	agk::Log("Callback: OnLobbyChatUpdate");
 	STORE_CALLBACK_RESULT(LobbyChatUpdate, *pParam);
 }
 
-//CALLBACK_LIST_METHODS(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
-
 void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 {
 	utils::Log("Callback OnLobbyDataUpdate.  Success: " + std::to_string(pParam->m_bSuccess));
 	STORE_CALLBACK_RESULT(LobbyDataUpdate, *pParam);
 }
-
-//CALLBACK_LIST_METHODS(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
 
 // Fires from CreateLobby and JoinLobby.
 void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
@@ -268,15 +254,11 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 	g_JoinedLobbiesMutex.unlock();
 }
 
-//CALLBACK_LIST_METHODS(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
-
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
 	agk::Log("Callback: OnLobbyGameCreated");
 	STORE_CALLBACK_RESULT(LobbyGameCreated, *pParam);
 }
-
-//CALLBACK_LIST_METHODS(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
 
 // LobbyInvite_t - when invited by someone.
 // LobbyKicked_t - Currently unused!
@@ -288,8 +270,8 @@ void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 #pragma endregion
 
 #pragma region ISteamMusic
-CALLBACK_BOOL_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-CALLBACK_BOOL_METHODS(VolumeHasChanged, VolumeHasChanged_t);
+BOOL_CALLBACK_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+BOOL_CALLBACK_METHODS(VolumeHasChanged, VolumeHasChanged_t);
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -405,8 +387,6 @@ void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pCallback)
 	}
 }
 
-//CALLBACK_LIST_METHODS(UserAchievementStored, UserAchievementStored_t);
-
 void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	if (pCallback->m_nGameID == g_AppID)
@@ -425,8 +405,6 @@ void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 	}
 }
 
-//CALLBACK_LIST_METHODS(UserStatsReceived, UserStatsReceived_t);
-
 // Callback for StoreStats and ResetAllStats.
 void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
@@ -436,8 +414,6 @@ void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 		STORE_CALLBACK_RESULT(UserStatsStored, *pCallback);
 	}
 }
-
-//CALLBACK_LIST_METHODS(UserStatsStored, UserStatsStored_t);
 #pragma endregion
 
 #pragma region ISteamUtils
@@ -457,9 +433,7 @@ void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallb
 	STORE_CALLBACK_RESULT(GamepadTextInputDismissed, info);
 }
 
-//CALLBACK_LIST_METHODS(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t);
-
-CALLBACK_BOOL_METHODS(IPCountryChanged, IPCountry_t);
+BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t);
 
 void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
 {
@@ -479,7 +453,7 @@ bool CCallbacks::HasLowBatteryPowerResponse()
 	return false;
 }
 
-CALLBACK_BOOL_METHODS(SteamShutdown, SteamShutdown_t);
+BOOL_CALLBACK_METHODS(SteamShutdown, SteamShutdown_t);
 #pragma endregion
 
 #pragma region ISteamVideo
