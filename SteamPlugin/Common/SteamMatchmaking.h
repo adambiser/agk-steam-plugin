@@ -20,12 +20,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLOBBYENTERCALLRESULT_H_
-#define _CLOBBYENTERCALLRESULT_H_
+#ifndef _STEAMMATCHMAKING_H_
+#define _STEAMMATCHMAKING_H_
 #pragma once
 
 #include "CCallResultItem.h"
-#include <vector>
+
+class CLobbyCreatedCallResult : public CCallResultItem
+{
+public:
+	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers) :
+		CCallResultItem(),
+		m_eLobbyType(eLobbyType),
+		m_cMaxMembers(cMaxMembers)
+	{
+		m_CallResultName = "CreateLobby("
+			+ std::to_string(m_eLobbyType) + ", "
+			+ std::to_string(m_cMaxMembers) + ")";
+		m_LobbyCreated.m_eResult = (EResult)0;
+		m_LobbyCreated.m_ulSteamIDLobby = 0;
+	}
+	virtual ~CLobbyCreatedCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	uint64 GetLobbyCreatedHandle()
+	{
+		return m_LobbyCreated.m_ulSteamIDLobby;
+	}
+protected:
+	void Call();
+private:
+	CCallResult<CLobbyCreatedCallResult, LobbyCreated_t> m_CallResult;
+	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
+	ELobbyType m_eLobbyType;
+	int m_cMaxMembers;
+	LobbyCreated_t m_LobbyCreated;
+};
 
 class CLobbyEnterCallResult : public CCallResultItem
 {
@@ -69,4 +100,35 @@ private:
 	LobbyEnter_t m_LobbyEnter;
 };
 
-#endif // _CLOBBYENTERCALLRESULT_H_
+class CLobbyMatchListCallResult : public CCallResultItem
+{
+public:
+	CLobbyMatchListCallResult() : CCallResultItem()
+	{
+		m_CallResultName = "RequestLobbyList()";
+	}
+	virtual ~CLobbyMatchListCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	int GetLobbyCount()
+	{
+		return (int)m_Lobbies.size();
+	}
+	bool IsValidIndex(int index)
+	{
+		return index >= 0 && index < (int)m_Lobbies.size();
+	}
+	uint64 GetLobby(int index)
+	{
+		return m_Lobbies[index].ConvertToUint64();
+	}
+protected:
+	void Call();
+private:
+	CCallResult<CLobbyMatchListCallResult, LobbyMatchList_t> m_CallResult;
+	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
+	std::vector<CSteamID> m_Lobbies;
+};
+
+#endif // _STEAMMATCHMAKING_H_

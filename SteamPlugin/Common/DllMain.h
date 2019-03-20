@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,29 +24,11 @@ THE SOFTWARE.
 #define _DLLMAIN_H_
 #pragma once
 
-#include "..\AGKLibraryCommands.h"
-#if defined(_WINDOWS)
-#if defined(_WIN64)
-#pragma comment(lib, "steam_api64.lib")
-#else
-#pragma comment(lib, "steam_api.lib")
-#endif
-#endif
-#include "steam_api.h"
-#include <mutex>
-#include <vector>
-
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
 */
 
-#define AVATAR_SMALL	0 // 32x32
-#define AVATAR_MEDIUM	1 // 64x64
-#define AVATAR_LARGE	2 // 128x128
-
-extern uint64 g_AppID;
-extern std::mutex g_JoinedLobbiesMutex;
-extern std::vector<CSteamID> g_JoinedLobbies;
+#include "Common.h"
 
 #pragma region Additional Methods
 /* @page Additional Methods

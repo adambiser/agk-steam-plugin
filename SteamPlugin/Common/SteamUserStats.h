@@ -20,11 +20,108 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLEADERBOARDSCOREUPLOADEDCALLRESULT_H_
-#define _CLEADERBOARDSCOREUPLOADEDCALLRESULT_H_
+#ifndef _STEAMUSERSTATS_H_
+#define _STEAMUSERSTATS_H_
 #pragma once
 
 #include "CCallResultItem.h"
+
+class CLeaderboardFindCallResult : public CCallResultItem
+{
+public:
+	CLeaderboardFindCallResult(std::string leaderboardName) :
+		CCallResultItem(),
+		m_LeaderboardName(leaderboardName)
+	{
+		m_CallResultName = "FindLeaderboard(" + m_LeaderboardName + ")";
+		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
+		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
+	}
+	virtual ~CLeaderboardFindCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	int GetLeaderboardFindResultFound()
+	{
+		return m_LeaderboardFindResult.m_bLeaderboardFound;
+	}
+	SteamLeaderboard_t GetLeaderboardFindResultHandle()
+	{
+		return m_LeaderboardFindResult.m_hSteamLeaderboard;
+	}
+protected:
+	void Call();
+private:
+	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
+	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
+	std::string m_LeaderboardName;
+	LeaderboardFindResult_t m_LeaderboardFindResult;
+};
+
+class CLeaderboardScoresDownloadedCallResult : public CCallResultItem
+{
+public:
+	CLeaderboardScoresDownloadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd) :
+		CCallResultItem(),
+		m_hLeaderboard(hLeaderboard),
+		m_eLeaderboardDataRequest(eLeaderboardDataRequest),
+		m_nRangeStart(nRangeStart),
+		m_nRangeEnd(nRangeEnd)
+	{
+		m_CallResultName = "DownloadLeaderboardEntries("
+			+ std::to_string(m_hLeaderboard) + ", "
+			+ std::to_string(m_eLeaderboardDataRequest) + ", "
+			+ std::to_string(m_nRangeStart) + ", "
+			+ std::to_string(m_nRangeEnd) + ")";
+	}
+	virtual ~CLeaderboardScoresDownloadedCallResult(void)
+	{
+		m_CallResult.Cancel();
+	}
+	uint64 GetLeaderboardID()
+	{
+		return m_Downloaded.m_hSteamLeaderboard;
+	}
+	int GetLeaderboardEntryCount()
+	{
+		return (int)m_Entries.size();
+	}
+	bool IsValidIndex(int index)
+	{
+		return (index >= 0) && (index < (int)m_Entries.size());
+	}
+	uint64 GetLeaderboardEntryUser(int index)
+	{
+		return m_Entries[index].m_steamIDUser.ConvertToUint64();
+	}
+	int GetLeaderboardEntryGlobalRank(int index)
+	{
+		return m_Entries[index].m_nGlobalRank;
+	}
+	int GetLeaderboardEntryScore(int index)
+	{
+		return m_Entries[index].m_nScore;
+	}
+	int GetLeaderboardEntryDetails(int index)
+	{
+		return m_Entries[index].m_cDetails;
+	}
+	uint64 GetLeaderboardEntryUGCHandle(int index)
+	{
+		return m_Entries[index].m_hUGC;
+	}
+protected:
+	void Call();
+private:
+	CCallResult<CLeaderboardScoresDownloadedCallResult, LeaderboardScoresDownloaded_t> m_CallResult;
+	void OnDownloadScore(LeaderboardScoresDownloaded_t *pCallResult, bool bIOFailure);
+	SteamLeaderboard_t m_hLeaderboard;
+	ELeaderboardDataRequest m_eLeaderboardDataRequest;
+	int m_nRangeStart;
+	int m_nRangeEnd;
+	LeaderboardScoresDownloaded_t m_Downloaded;
+	std::vector<LeaderboardEntry_t> m_Entries;
+};
 
 class CLeaderboardScoreUploadedCallResult : public CCallResultItem
 {
@@ -35,9 +132,9 @@ public:
 		m_eLeaderboardUploadScoreMethod(m_eLeaderboardUploadScoreMethod),
 		m_nScore(nScore)
 	{
-		m_CallResultName =  "UploadLeaderboardScore("
-			+ std::to_string(m_hLeaderboard) + ", " 
-			+ std::to_string(m_eLeaderboardUploadScoreMethod) + ", " 
+		m_CallResultName = "UploadLeaderboardScore("
+			+ std::to_string(m_hLeaderboard) + ", "
+			+ std::to_string(m_eLeaderboardUploadScoreMethod) + ", "
 			+ std::to_string(m_nScore) + ")";
 		m_LeaderboardScoreUploaded.m_bScoreChanged = 0;
 		m_LeaderboardScoreUploaded.m_bSuccess = 0;
@@ -85,4 +182,4 @@ private:
 	LeaderboardScoreUploaded_t m_LeaderboardScoreUploaded;
 };
 
-#endif // _CLEADERBOARDSCOREUPLOADEDCALLRESULT_H_
+#endif // _STEAMUSERSTATS_H_

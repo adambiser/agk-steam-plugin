@@ -48,8 +48,10 @@ protected:
 	{
 		callResult.Call();
 	}
-	EResult m_eResult;
+	void SetResultCode(EResult eResult, bool bFailure = false);
 	bool m_bRunning;
+private:
+	EResult m_eResult;
 };
 
 /*
@@ -88,5 +90,63 @@ private:
 
 // Use this to access the call result map.
 CCallResultMap *CallResults();
+
+template <typename CR>
+int GetCallResultValue(int hCallResult, int(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return (callResult->*function)();
+	}
+	return 0;
+}
+
+template <typename CR>
+int GetCallResultValue(int hCallResult, int index, int(CR::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return (callResult->*function)(index);
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
+
+template <typename CR>
+int GetCallResultValue(int hCallResult, uint64(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
+
+template <typename CR>
+int GetCallResultValue(int hCallResult, int index, uint64(CR::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return SteamHandles()->GetPluginHandle((callResult->*function)(index));
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
+
+template <typename CR>
+char *GetCallResultValue(int hCallResult, std::string(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
 
 #endif // _CCALLRESULTITEM_H_

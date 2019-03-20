@@ -20,32 +20,71 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CLobbyMatchListCallResult.h"
+#include "Common.h"
 
-void CLobbyMatchListCallResult::OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure)
+int IsMusicEnabled()
 {
-	if (!bIOFailure)
-	{
-		utils::Log(GetName() + ": Succeeded.");
-		for (int index = 0; index < (int)pLobbyMatchList->m_nLobbiesMatching; index++)
-		{
-			m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
-		}
-		m_eResult = k_EResultOK;
-	}
-	else
-	{
-		utils::Log(GetName() + ": Failed.");
-		m_eResult = k_EResultFail;
-	}
+	CheckInitialized(0);
+	return SteamMusic()->BIsEnabled();
 }
 
-void CLobbyMatchListCallResult::Call()
+int IsMusicPlaying()
 {
-	m_hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
-	if (m_hSteamAPICall == k_uAPICallInvalid)
-	{
-		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
-	}
-	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyMatchListCallResult::OnLobbyMatchList);
+	CheckInitialized(0);
+	return SteamMusic()->BIsPlaying();
+}
+
+int GetMusicPlaybackStatus()
+{
+	CheckInitialized(AudioPlayback_Undefined);
+	return SteamMusic()->GetPlaybackStatus();
+}
+
+float GetMusicVolume()
+{
+	CheckInitialized(0.0);
+	return SteamMusic()->GetVolume();
+}
+
+void PauseMusic()
+{
+	CheckInitialized(NORETURN);
+	SteamMusic()->Pause();
+}
+
+void PlayMusic()
+{
+	CheckInitialized(NORETURN);
+	SteamMusic()->Play();
+}
+
+void PlayNextSong()
+{
+	CheckInitialized(NORETURN);
+	SteamMusic()->PlayNext();
+}
+
+void PlayPreviousSong()
+{
+	CheckInitialized(NORETURN);
+	SteamMusic()->PlayPrevious();
+}
+
+void SetMusicVolume(float volume)
+{
+	CheckInitialized(NORETURN);
+	SteamMusic()->SetVolume(volume);
+}
+
+//Callbacks
+int HasMusicPlaybackStatusChangedResponse()
+{
+	CheckInitialized(0);
+	return Callbacks()->HasPlaybackStatusHasChangedResponse();
+}
+
+int HasMusicVolumeChangedResponse()
+{
+	CheckInitialized(0);
+	return Callbacks()->HasVolumeHasChangedResponse();
 }

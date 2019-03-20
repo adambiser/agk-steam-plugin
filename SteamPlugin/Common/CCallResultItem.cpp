@@ -22,6 +22,25 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
+void CCallResultItem::SetResultCode(EResult eResult, bool bFailure)
+{
+	if (bFailure && eResult <= k_EResultOK)
+	{
+		// Failure is true, but eResult doesn't indicate failure?  Why?  Can this happen?
+		utils::Log(GetName() + ": bFailure is true and eResult is " + std::to_string(eResult) + ", so... fail?");
+		m_eResult = k_EResultFail;
+	}
+	else if (!bFailure && eResult == 0)
+	{
+		utils::Log(GetName() + ": bFailure is false and eResult is 0, so... fail?");
+		m_eResult = k_EResultFail;
+	}
+	else
+	{
+		m_eResult = eResult;
+	}
+}
+
 // Add the call result and run it.
 int CCallResultMap::Add(CCallResultItem *callResult)
 {

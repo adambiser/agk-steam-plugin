@@ -1719,7 +1719,7 @@ unsigned int(*AGKCommand1189)( unsigned int ) = 0;
 //int(*AGKCommand1716)(  ) = 0;
 //void(*AGKCommand1717)( int ) = 0;
 //void(*AGKCommand1718)( float, float ) = 0;
-//int(*AGKCommand1719)(  ) = 0;
+int(*AGKCommand1719)(  ) = 0;
 //int(*AGKCommand1720)(  ) = 0;
 //char*(*AGKCommand1721)(  ) = 0;
 //char*(*AGKCommand1722)(  ) = 0;
@@ -3616,7 +3616,7 @@ extern "C" DLL_EXPORT void ReceiveAGKPtr( AGKVoidFunc ptr )
 	//AGKCommand1716 = (int(*)()) GetAGKFunction( "GETGPSSENSOREXISTS_L_0" );
 	//AGKCommand1717 = (void(*)(int)) GetAGKFunction( "SETRAWMOUSEVISIBLE_0_L" );
 	//AGKCommand1718 = (void(*)(float,float)) GetAGKFunction( "SETRAWMOUSEPOSITION_0_F_F" );
-	//AGKCommand1719 = (int(*)()) GetAGKFunction( "GETUNIXTIME_L_0" );
+	AGKCommand1719 = (int(*)()) GetAGKFunction( "GETUNIXTIME_L_0" );
 	//AGKCommand1720 = (int(*)()) GetAGKFunction( "GETDAYOFWEEK_L_0" );
 	//AGKCommand1721 = (char*(*)()) GetAGKFunction( "GETCURRENTDATE_S_0" );
 	//AGKCommand1722 = (char*(*)()) GetAGKFunction( "GETCURRENTTIME_S_0" );

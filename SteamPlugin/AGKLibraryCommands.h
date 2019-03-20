@@ -1730,7 +1730,7 @@ extern unsigned int(*AGKCommand1189)( unsigned int );
 //extern int(*AGKCommand1716)(  );
 //extern void(*AGKCommand1717)( int );
 //extern void(*AGKCommand1718)( float, float );
-//extern int(*AGKCommand1719)(  );
+extern int(*AGKCommand1719)(  );
 //extern int(*AGKCommand1720)(  );
 //extern char*(*AGKCommand1721)(  );
 //extern char*(*AGKCommand1722)(  );
@@ -3623,7 +3623,7 @@ class agk
 		//static inline int GetGPSSensorExists(  ) { return AGKCommand1716(  ); }
 		//static inline void SetRawMouseVisible( int visible ) { AGKCommand1717( visible ); }
 		//static inline void SetRawMousePosition( float x, float y ) { AGKCommand1718( x, y ); }
-		//static inline int GetUnixTime(  ) { return AGKCommand1719(  ); }
+		static inline int GetUnixTime(  ) { return AGKCommand1719(  ); }
 		//static inline int GetDayOfWeek(  ) { return AGKCommand1720(  ); }
 		//static inline char* GetCurrentDate(  ) { return AGKCommand1721(  ); }
 		//static inline char* GetCurrentTime(  ) { return AGKCommand1722(  ); }
