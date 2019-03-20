@@ -21,22 +21,7 @@ THE SOFTWARE.
 */
 
 #include "CCallbacks.h"
-#include "StructClear.h"
 
-// Clears the callback list and current value variable.
-#define CLEAR_CALLBACK_LIST(func)			\
-	m_##func##Mutex.lock();					\
-	m_##func##List.clear();					\
-	Clear(m_Current##func##);				\
-	if (m_b##func##Enabled)					\
-	{										\
-		m_b##func##Enabled = false;			\
-		m_Callback##func##.Unregister();	\
-	}										\
-	m_##func##Mutex.unlock()
-
-#define CLEAR_CALLBACK_BOOL(func)			\
-	m_b##func = false
 
 // Adds the result to the end of the callback list.
 #define STORE_CALLBACK_RESULT(func, result)	\
@@ -44,41 +29,10 @@ THE SOFTWARE.
 	m_##func##List.push_back(result);		\
 	m_##func##Mutex.unlock()
 
-// Moves the front value of the list into the current value variable.
-#define CALLBACK_LIST_METHODS(func, list_type)					\
-	void CCallbacks::Enable##func##Callback()					\
-	{															\
-		if (!m_b##func##Enabled)								\
-		{														\
-			m_b##func##Enabled = true;							\
-			m_Callback##func##.Register(this, &CCallbacks::On##func##);\
-		}														\
-	}															\
-	\
-	bool CCallbacks::Has##func##Response()						\
-	{															\
-		m_##func##Mutex.lock();									\
-		if (m_##func##List.size() > 0)							\
-		{														\
-			m_Current##func = m_##func##List.front();			\
-			m_##func##List.pop_front();							\
-			m_##func##Mutex.unlock();							\
-			return true;										\
-		}														\
-		Clear(m_Current##func##);								\
-		m_##func##Mutex.unlock();								\
-		return false;											\
-	}															\
-	\
-	list_type CCallbacks::Get##func##()							\
-	{															\
-		return m_Current##func##;								\
-	}
-
 #define CALLBACK_BOOL_METHODS(func, callback_type)				\
 	void CCallbacks::On##func##(callback_type *pParam)			\
 	{															\
-		agk::Log("Callback: " #func);							\
+		agk::Log("Callback: On" #func);							\
 		m_b##func## = true;										\
 	}															\
 	\
@@ -111,19 +65,19 @@ CCallbacks::~CCallbacks(void)
 void CCallbacks::ResetSessionVariables()
 {
 	// ISteamApps
-	CLEAR_CALLBACK_LIST(DlcInstalled);
-	CLEAR_CALLBACK_BOOL(NewUrlLaunchParameters);
+	ClearDlcInstalled();
+	ClearNewUrlLaunchParameters();
 
 	// ISteamAppTicket
 	// ISteamClient
 	// ISteamController/ISteamInput
 
 	// ISteamFriends
-	CLEAR_CALLBACK_LIST(AvatarImageLoaded);
-	CLEAR_CALLBACK_LIST(GameLobbyJoinRequested);
+	ClearAvatarImageLoaded();
+	ClearGameLobbyJoinRequested();
 	//STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
 	m_IsGameOverlayActive = false;
-	CLEAR_CALLBACK_LIST(PersonaStateChange);
+	ClearPersonaStateChange();
 
 	// ISteamGameCoordinator
 	// ISteamGameServer
@@ -133,17 +87,17 @@ void CCallbacks::ResetSessionVariables()
 	// ISteamInventory
 
 	// ISteamMatchmaking
-	CLEAR_CALLBACK_LIST(LobbyChatMessage);
-	CLEAR_CALLBACK_LIST(LobbyChatUpdate);
-	CLEAR_CALLBACK_LIST(LobbyDataUpdate);
-	CLEAR_CALLBACK_LIST(LobbyEnter);
-	CLEAR_CALLBACK_LIST(LobbyGameCreated);
+	ClearLobbyChatMessage();
+	ClearLobbyChatUpdate();
+	ClearLobbyDataUpdate();
+	ClearLobbyEnter();
+	ClearLobbyGameCreated();
 
 	// ISteamMatchmakingServers
 
 	// ISteamMusic
-	CLEAR_CALLBACK_BOOL(PlaybackStatusHasChanged);
-	CLEAR_CALLBACK_BOOL(VolumeHasChanged);
+	ClearPlaybackStatusHasChanged();
+	ClearVolumeHasChanged();
 
 	// ISteamMusicRemote
 	// ISteamNetworking
@@ -159,17 +113,17 @@ void CCallbacks::ResetSessionVariables()
 	// ISteamUserStats
 	//STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackUserAchievementIconFetched);
 	m_AchievementIconsMap.clear();
-	CLEAR_CALLBACK_LIST(UserAchievementStored);
-	CLEAR_CALLBACK_LIST(UserStatsReceived);
+	ClearUserAchievementStored();
+	ClearUserStatsReceived();
 	m_StatsInitialized = false;
-	CLEAR_CALLBACK_LIST(UserStatsStored);
+	ClearUserStatsStored();
 	// ISteamUtils
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
-	CLEAR_CALLBACK_LIST(GamepadTextInputDismissed);
-	CLEAR_CALLBACK_BOOL(IPCountryChanged);
-	CLEAR_CALLBACK_BOOL(LowBatteryPower);
+	ClearGamepadTextInputDismissed();
+	ClearIPCountryChanged();
+	ClearLowBatteryPower();
 	m_nMinutesBatteryLeft = 0;
-	CLEAR_CALLBACK_BOOL(SteamShutdown);
+	ClearSteamShutdown();
 }
 
 #pragma region ISteamApps
@@ -179,7 +133,7 @@ void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 	STORE_CALLBACK_RESULT(DlcInstalled, *pParam);
 }
 
-CALLBACK_LIST_METHODS(DlcInstalled, DlcInstalled_t);	// InstallDLC
+//CALLBACK_LIST_METHODS(DlcInstalled, DlcInstalled_t);	// InstallDLC
 
 CALLBACK_BOOL_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 #pragma endregion
@@ -203,7 +157,7 @@ void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 	STORE_CALLBACK_RESULT(AvatarImageLoaded, pParam->m_steamID);
 }
 
-CALLBACK_LIST_METHODS(AvatarImageLoaded, CSteamID); // GetFriendAvatar
+//CALLBACK_LIST_METHODS(AvatarImageLoaded, CSteamID); // GetFriendAvatar
 
 // ClanOfficerListResponse_t - RequestClanOfficerList
 // DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
@@ -222,7 +176,7 @@ void CCallbacks::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 	STORE_CALLBACK_RESULT(GameLobbyJoinRequested, *pParam);
 }
 
-CALLBACK_LIST_METHODS(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
+//CALLBACK_LIST_METHODS(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 
 void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 {
@@ -249,7 +203,7 @@ void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 	}
 }
 
-CALLBACK_LIST_METHODS(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
+//CALLBACK_LIST_METHODS(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
 #pragma endregion
 
 #pragma region ISteamGameCoordinator
@@ -286,7 +240,7 @@ void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 	STORE_CALLBACK_RESULT(LobbyChatMessage, info);
 }
 
-CALLBACK_LIST_METHODS(LobbyChatMessage, plugin::LobbyChatMsg_t); // While in a lobby
+//CALLBACK_LIST_METHODS(LobbyChatMessage, plugin::LobbyChatMsg_t); // While in a lobby
 
 void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
 {
@@ -294,7 +248,7 @@ void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
 	STORE_CALLBACK_RESULT(LobbyChatUpdate, *pParam);
 }
 
-CALLBACK_LIST_METHODS(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
+//CALLBACK_LIST_METHODS(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 
 void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 {
@@ -302,7 +256,7 @@ void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 	STORE_CALLBACK_RESULT(LobbyDataUpdate, *pParam);
 }
 
-CALLBACK_LIST_METHODS(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
+//CALLBACK_LIST_METHODS(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
 
 // Fires from CreateLobby and JoinLobby.
 void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
@@ -314,7 +268,7 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 	g_JoinedLobbiesMutex.unlock();
 }
 
-CALLBACK_LIST_METHODS(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
+//CALLBACK_LIST_METHODS(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
 
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
@@ -322,7 +276,7 @@ void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 	STORE_CALLBACK_RESULT(LobbyGameCreated, *pParam);
 }
 
-CALLBACK_LIST_METHODS(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
+//CALLBACK_LIST_METHODS(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
 
 // LobbyInvite_t - when invited by someone.
 // LobbyKicked_t - Currently unused!
@@ -451,7 +405,7 @@ void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pCallback)
 	}
 }
 
-CALLBACK_LIST_METHODS(UserAchievementStored, UserAchievementStored_t);
+//CALLBACK_LIST_METHODS(UserAchievementStored, UserAchievementStored_t);
 
 void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
@@ -471,7 +425,7 @@ void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 	}
 }
 
-CALLBACK_LIST_METHODS(UserStatsReceived, UserStatsReceived_t);
+//CALLBACK_LIST_METHODS(UserStatsReceived, UserStatsReceived_t);
 
 // Callback for StoreStats and ResetAllStats.
 void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
@@ -483,7 +437,7 @@ void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 	}
 }
 
-CALLBACK_LIST_METHODS(UserStatsStored, UserStatsStored_t);
+//CALLBACK_LIST_METHODS(UserStatsStored, UserStatsStored_t);
 #pragma endregion
 
 #pragma region ISteamUtils
@@ -503,9 +457,7 @@ void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallb
 	STORE_CALLBACK_RESULT(GamepadTextInputDismissed, info);
 }
 
-CALLBACK_LIST_METHODS(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t);
-
-//IMPL_CALLBACK_LIST(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t)
+//CALLBACK_LIST_METHODS(GamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t);
 
 CALLBACK_BOOL_METHODS(IPCountryChanged, IPCountry_t);
 

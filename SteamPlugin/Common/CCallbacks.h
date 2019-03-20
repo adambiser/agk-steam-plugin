@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include "DllMain.h"
 #include "PluginTypes.h"
+#include "StructClear.h"
 #include <steam_api.h>
 #include "Utils.h"
 #include <list>
@@ -33,16 +34,52 @@ THE SOFTWARE.
 #include <mutex>
 #include <vector>
 
-#define _CALLBACK_LIST_MAIN(func, callback_type, list_type)		\
+#define _CALLBACK_LIST_MAIN(func, callback_type, list_type)						\
 	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
-public:														\
-	void Enable##func##Callback();							\
-	bool Has##func##Response();								\
-	list_type Get##func##();								\
-private:													\
-	bool m_b##func##Enabled;								\
-	std::list<##list_type##> m_##func##List;				\
-	std::mutex m_##func##Mutex;								\
+public:																			\
+	void Enable##func##Callback()												\
+	{																			\
+		if (!m_b##func##Enabled)												\
+		{																		\
+			m_b##func##Enabled = true;											\
+			m_Callback##func##.Register(this, &CCallbacks::On##func##);			\
+		}																		\
+	}																			\
+	/* Moves the front value of the list into the current value variable. */	\
+	bool Has##func##Response()													\
+	{																			\
+		m_##func##Mutex.lock();													\
+		if (m_##func##List.size() > 0)											\
+		{																		\
+			m_Current##func = m_##func##List.front();							\
+			m_##func##List.pop_front();											\
+			m_##func##Mutex.unlock();											\
+			return true;														\
+		}																		\
+		Clear(m_Current##func##);												\
+		m_##func##Mutex.unlock();												\
+		return false;															\
+	}																			\
+	list_type Get##func##()														\
+	{																			\
+		return m_Current##func##;												\
+	}																			\
+private:																		\
+	/* Clears the callback list and current value variable. */					\
+	void Clear##func##() 														\
+	{																			\
+		m_##func##Mutex.lock();													\
+		Clear(m_Current##func##);												\
+		if (m_b##func##Enabled)													\
+		{																		\
+			m_b##func##Enabled = false;											\
+			m_Callback##func##.Unregister();									\
+		}																		\
+		m_##func##Mutex.unlock();												\
+	} 																			\
+	bool m_b##func##Enabled;													\
+	std::list<##list_type##> m_##func##List;									\
+	std::mutex m_##func##Mutex;													\
 	list_type m_Current##func
 
 // Allow the list_type parameter to be 'optional'.  When omitted, use callback_type.
@@ -57,6 +94,10 @@ private:													\
 public:											\
 	bool Has##func##Response();					\
 private:										\
+	void Clear##func##() 						\
+	{											\
+		m_b##func = false;						\
+	} 											\
 	bool m_b##func
 
 class CCallbacks
