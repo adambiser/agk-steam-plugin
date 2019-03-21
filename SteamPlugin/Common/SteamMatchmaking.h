@@ -26,11 +26,11 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-class CLobbyCreatedCallResult : public CCallResultItem
+class CLobbyCreatedCallResult : public CCallResultItemBase
 {
 public:
 	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers) :
-		CCallResultItem(),
+		CCallResultItemBase(),
 		m_eLobbyType(eLobbyType),
 		m_cMaxMembers(cMaxMembers)
 	{
@@ -58,11 +58,11 @@ private:
 	LobbyCreated_t m_LobbyCreated;
 };
 
-class CLobbyEnterCallResult : public CCallResultItem
+class CLobbyEnterCallResult : public CCallResultItemBase
 {
 public:
 	CLobbyEnterCallResult(CSteamID steamIDLobby) :
-		CCallResultItem(),
+		CCallResultItemBase(),
 		m_steamIDLobby(steamIDLobby)
 	{
 		m_CallResultName = "JoinLobby(" + std::to_string(m_steamIDLobby.ConvertToUint64()) + ")";
@@ -100,10 +100,10 @@ private:
 	LobbyEnter_t m_LobbyEnter;
 };
 
-class CLobbyMatchListCallResult : public CCallResultItem
+class CLobbyMatchListCallResult : public CCallResultItemBase
 {
 public:
-	CLobbyMatchListCallResult() : CCallResultItem()
+	CLobbyMatchListCallResult() : CCallResultItemBase()
 	{
 		m_CallResultName = "RequestLobbyList()";
 	}

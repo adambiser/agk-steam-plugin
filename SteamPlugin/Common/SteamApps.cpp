@@ -25,23 +25,60 @@ THE SOFTWARE.
 
 #define MAX_PATH	260
 
-void CFileDetailsResultCallResult::OnFileDetailsResult(FileDetailsResult_t *pParam, bool bIOFailure)
-{
-	m_FileDetailsResult = *pParam;
-	SetResultCode(pParam->m_eResult, bIOFailure);
-	utils::Log(GetName() + ": Result = " + std::to_string(pParam->m_eResult));
-}
+//class CFileDetailsResultCallResult : public CCallResultEx<FileDetailsResult_t>
+//{
+//public:
+//	CFileDetailsResultCallResult(const char *pszFileName) :
+//		m_FileName(pszFileName)
+//	{
+//		m_CallResultName = "GetFileDetails('" + m_FileName + "')";
+//		m_Response.m_eResult = (EResult)0;
+//		memset(m_Response.m_FileSHA, 0, sizeof(m_Response.m_FileSHA));
+//		m_Response.m_ulFileSize = 0;
+//		m_Response.m_unFlags = 0;
+//	}
+//	std::string GetFileSHA1() const
+//	{
+//		if (m_Response.m_eResult != k_EResultOK)
+//		{
+//			return std::string();
+//		}
+//		std::ostringstream sha;
+//		sha << std::uppercase << std::setfill('0') << std::hex;
+//		for (int x = 0; x < sizeof(m_Response.m_FileSHA); x++)
+//		{
+//			sha << std::setw(2) << (int)m_Response.m_FileSHA[x];
+//		}
+//		return sha.str();
+//	}
+//	int GetFileSize() const { return (int)m_Response.m_ulFileSize; }
+//	int GetFileFlags() const { return m_Response.m_unFlags; }
+//protected:
+//	SteamAPICall_t CallFunction()
+//	{
+//		return SteamApps()->GetFileDetails(m_FileName.c_str());
+//	}
+//private:
+//	std::string m_FileName;
+//};
 
-void CFileDetailsResultCallResult::Call()
-{
-	m_hSteamAPICall = SteamApps()->GetFileDetails(m_Filename.c_str());
-	if (m_hSteamAPICall == k_uAPICallInvalid)
-	{
-		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
-	}
-	m_CallResult.Set(m_hSteamAPICall, this, &CFileDetailsResultCallResult::OnFileDetailsResult);
-}
-
+//void CFileDetailsResultCallResult::OnFileDetailsResult(FileDetailsResult_t *pParam, bool bIOFailure)
+//{
+//	m_FileDetailsResult = *pParam;
+//	SetResultCode(pParam->m_eResult, bIOFailure);
+//	utils::Log(GetName() + ": Result = " + std::to_string(pParam->m_eResult));
+//}
+//
+//void CFileDetailsResultCallResult::Call()
+//{
+//	m_hSteamAPICall = SteamApps()->GetFileDetails(m_Filename.c_str());
+//	if (m_hSteamAPICall == k_uAPICallInvalid)
+//	{
+//		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+//	}
+//	m_CallResult.Set(m_hSteamAPICall, this, &CFileDetailsResultCallResult::OnFileDetailsResult);
+//}
+//
 int IsAppInstalled(int appID)
 {
 	CheckInitialized(false);

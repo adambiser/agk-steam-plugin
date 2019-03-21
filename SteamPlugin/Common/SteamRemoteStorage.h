@@ -26,48 +26,78 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-//class CFileReadAsyncCallResult : public CCallResultItem
-//{
-//public:
-//	CFileReadAsyncCallResult(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
-//		CCallResultItem(),
-//		m_FileName(pchFile),
-//		m_nOffset(nOffset),
-//		m_cubToRead(cubToRead),
-//		m_MemblockID(0)
-//	{
-//		m_CallResultName = "FileReadAsync("
-//			+ m_FileName + ", "
-//			+ std::to_string(m_nOffset) + ", "
-//			+ std::to_string(m_cubToRead) + ")";
-//	}
-//	virtual ~CFileReadAsyncCallResult(void)
-//	{
-//		if (m_MemblockID && agk::GetMemblockExists(m_MemblockID))
-//		{
-//			agk::DeleteMemblock(m_MemblockID);
-//		}
-//		m_MemblockID = 0;
-//		m_CallResult.Cancel();
-//	}
-//	std::string GetFileName() { return m_FileName; }
-//	int GetMemblockID() { return m_MemblockID; }
-//protected:
-//	void Call();
-//private:
-//	CCallResult<CFileReadAsyncCallResult, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-//	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
-//	std::string m_FileName;
-//	uint32 m_nOffset;
-//	uint32 m_cubToRead;
-//	int m_MemblockID;
-//};
+namespace wrapper
+{
+	struct RemoteStorageFileReadAsyncComplete_t
+	{
+		int m_MemblockID;
+		EResult m_eResult;
 
-class CFileWriteAsyncCallResult : public CCallResultItem
+		RemoteStorageFileReadAsyncComplete_t() : m_MemblockID(0), m_eResult((EResult)0) {};
+
+		// This performs the weight of the OnResponse code.
+		RemoteStorageFileReadAsyncComplete_t(::RemoteStorageFileReadAsyncComplete_t value) : RemoteStorageFileReadAsyncComplete_t()
+		{
+			m_eResult = value.m_eResult;
+			if (value.m_eResult == k_EResultOK)
+			{
+				m_MemblockID = agk::CreateMemblock(value.m_cubRead);
+				if (!SteamRemoteStorage()->FileReadAsyncComplete(value.m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), value.m_cubRead))
+				{
+					agk::DeleteMemblock(m_MemblockID);
+					m_MemblockID = 0;
+					agk::Log("FileReadAsyncComplete failed.");
+					m_eResult = k_EResultFail;
+				}
+			}
+		}
+	};
+}
+
+class CFileReadAsyncCallResult2 : public CCallResultItem<RemoteStorageFileReadAsyncComplete_t, wrapper::RemoteStorageFileReadAsyncComplete_t>
+{
+public:
+	CFileReadAsyncCallResult2(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
+		m_FileName(pchFile),
+		m_nOffset(nOffset),
+		m_cubToRead(cubToRead)
+	{
+		m_CallResultName = "FileReadAsync('" + m_FileName + "', " + std::to_string(m_nOffset) + ", " + std::to_string(m_cubToRead) + ")";
+	}
+	virtual ~CFileReadAsyncCallResult2()
+	{
+		if (m_Response.m_MemblockID && agk::GetMemblockExists(m_Response.m_MemblockID))
+		{
+			agk::DeleteMemblock(m_Response.m_MemblockID);
+			m_Response.m_MemblockID = 0;
+		}
+	}
+	std::string GetFileName() { return m_FileName; }
+	int GetMemblockID() { return m_Response.m_MemblockID; }
+protected:
+	SteamAPICall_t CallFunction()
+	{
+		const char *m_pchFile = m_FileName.c_str();
+		// Check for file existence because calling FileReadAsync() on files that have been FileDeleted()
+		// will cause Steamworks report an error in the callback, but subsequent FileReadAsync() attempts
+		// when the file exists again will return k_uAPICallInvalid until the user logs out and back into 
+		// the Steam client.  FileRead() does not have this issue.
+		if (!SteamRemoteStorage()->FileExists(m_pchFile))
+		{
+			throw std::string(GetName() + ": File does not exist.");
+		}
+		return SteamRemoteStorage()->FileReadAsync(m_pchFile, m_nOffset, m_cubToRead);
+	}
+private:
+	std::string m_FileName;
+	uint32 m_nOffset;
+	uint32 m_cubToRead;
+};
+
+class CFileWriteAsyncCallResult : public CCallResultItem<RemoteStorageFileWriteAsyncComplete_t>
 {
 public:
 	CFileWriteAsyncCallResult(const char *pchFile, const void *pvData, uint32 cubData) :
-		CCallResultItem(),
 		m_FileName(pchFile),
 		m_pvData(pvData),
 		m_cubData(cubData)
@@ -77,16 +107,13 @@ public:
 			+ "*data, "
 			+ std::to_string(m_cubData) + ")";
 	}
-	virtual ~CFileWriteAsyncCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
 	std::string GetFileName() { return m_FileName; }
 protected:
-	void Call();
+	SteamAPICall_t CallFunction()
+	{
+		return SteamRemoteStorage()->FileWriteAsync(m_FileName.c_str(), m_pvData, m_cubData);
+	}
 private:
-	CCallResult<CFileWriteAsyncCallResult, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
 	std::string m_FileName;
 	const void *m_pvData;
 	uint32 m_cubData;

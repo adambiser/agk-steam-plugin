@@ -169,7 +169,7 @@ void DeleteCallResult(int hCallResult)
 int GetCallResultCode(int hCallResult)
 {
 	CheckInitialized(0);
-	if (CCallResultItem *callResult = CallResults()->Get<CCallResultItem>(hCallResult))
+	if (CCallResultItemBase *callResult = CallResults()->Get<CCallResultItemBase>(hCallResult))
 	{
 		return callResult->GetResultCode();
 	}

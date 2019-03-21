@@ -28,46 +28,41 @@ THE SOFTWARE.
 #include <sstream>
 #include <iomanip>
 
-class CFileDetailsResultCallResult : public CCallResultItem
+class CFileDetailsResultCallResult : public CCallResultItem<FileDetailsResult_t>
 {
 public:
 	CFileDetailsResultCallResult(const char *pszFileName) :
-		CCallResultItem(),
-		m_Filename(pszFileName)
+		m_FileName(pszFileName)
 	{
-		m_CallResultName = "GetFileDetails(" + m_Filename + ")";
-		m_FileDetailsResult.m_eResult = (EResult)0;
-		memset(m_FileDetailsResult.m_FileSHA, 0, sizeof(m_FileDetailsResult.m_FileSHA));
-		m_FileDetailsResult.m_ulFileSize = 0;
-		m_FileDetailsResult.m_unFlags = 0;
-	}
-	virtual ~CFileDetailsResultCallResult(void)
-	{
-		m_CallResult.Cancel();
+		m_CallResultName = "GetFileDetails('" + m_FileName + "')";
+		m_Response.m_eResult = (EResult)0;
+		memset(m_Response.m_FileSHA, 0, sizeof(m_Response.m_FileSHA));
+		m_Response.m_ulFileSize = 0;
+		m_Response.m_unFlags = 0;
 	}
 	std::string GetFileSHA1()
 	{
-		if (m_FileDetailsResult.m_eResult != k_EResultOK)
+		if (m_Response.m_eResult != k_EResultOK)
 		{
 			return std::string();
 		}
 		std::ostringstream sha;
 		sha << std::uppercase << std::setfill('0') << std::hex;
-		for (int x = 0; x < sizeof(m_FileDetailsResult.m_FileSHA); x++)
+		for (int x = 0; x < sizeof(m_Response.m_FileSHA); x++)
 		{
-			sha << std::setw(2) << (int)m_FileDetailsResult.m_FileSHA[x];
+			sha << std::setw(2) << (int)m_Response.m_FileSHA[x];
 		}
 		return sha.str();
 	}
-	int GetFileSize() { return (int)m_FileDetailsResult.m_ulFileSize; }
-	int GetFileFlags() { return m_FileDetailsResult.m_unFlags; }
+	int GetFileSize() { return (int)m_Response.m_ulFileSize; }
+	int GetFileFlags() { return m_Response.m_unFlags; }
 protected:
-	void Call();
+	SteamAPICall_t CallFunction()
+	{
+		return SteamApps()->GetFileDetails(m_FileName.c_str());
+	}
 private:
-	CCallResult<CFileDetailsResultCallResult, FileDetailsResult_t> m_CallResult;
-	void OnFileDetailsResult(FileDetailsResult_t *pParam, bool bIOFailure);
-	std::string m_Filename;
-	FileDetailsResult_t m_FileDetailsResult;
+	std::string m_FileName;
 };
 
 #endif // _STEAMAPPS_H_

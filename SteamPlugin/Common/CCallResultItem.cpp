@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-void CCallResultItem::SetResultCode(EResult eResult, bool bFailure)
+void CCallResultItemBase::SetResultCode(EResult eResult, bool bFailure)
 {
 	if (bFailure && eResult <= k_EResultOK)
 	{
@@ -32,8 +32,9 @@ void CCallResultItem::SetResultCode(EResult eResult, bool bFailure)
 	}
 	else if (!bFailure && eResult == 0)
 	{
-		utils::Log(GetName() + ": bFailure is false and eResult is 0, so... fail?");
-		m_eResult = k_EResultFail;
+		// This happens for call result parameter types that don't have a m_eResult member variable.
+		utils::Log(GetName() + ": bFailure is false and eResult is 0, so... OK?");
+		m_eResult = k_EResultOK;
 	}
 	else
 	{
@@ -42,7 +43,7 @@ void CCallResultItem::SetResultCode(EResult eResult, bool bFailure)
 }
 
 // Add the call result and run it.
-int CCallResultMap::Add(CCallResultItem *callResult)
+int CCallResultMap::Add(CCallResultItemBase *callResult)
 {
 	if (callResult)
 	{

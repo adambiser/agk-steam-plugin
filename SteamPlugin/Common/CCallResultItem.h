@@ -28,14 +28,14 @@ THE SOFTWARE.
 #include "Utils.h"
 #include <map>
 
-class CCallResultItem
+class CCallResultItemBase
 {
 public:
-	CCallResultItem() : 
+	CCallResultItemBase() :
 		m_eResult((EResult)0),
 		m_bRunning(false) {}
-	virtual ~CCallResultItem(void) {}
-	// Return a 'name' for the CCallResultItem object, usually indicates type and some useful parameter values.
+	virtual ~CCallResultItemBase(void) {}
+	// Return a 'name' for the CCallResultItemBase object, usually indicates type and some useful parameter values.
 	std::string GetName() { return m_CallResultName; }
 	EResult GetResultCode() { return m_eResult; }
 protected:
@@ -44,7 +44,7 @@ protected:
 	// Throw std::string for errors.
 	virtual void Call() = 0;
 	// Called from CCallResultMap.Add().
-	friend void FriendCall(CCallResultItem &callResult)
+	friend void FriendCall(CCallResultItemBase &callResult)
 	{
 		callResult.Call();
 	}
@@ -55,18 +55,15 @@ private:
 };
 
 template <class callback_type, class response_type = callback_type>
-class CCallResultEx : public CCallResultItem
+class CCallResultItem : public CCallResultItemBase
 {
 public:
-	CCallResultEx() : CCallResultItem() {}
-	virtual ~CCallResultEx(void)
+	CCallResultItem() : CCallResultItemBase() {}
+	virtual ~CCallResultItem(void)
 	{
 		m_CallResult.Cancel();
 	}
-	response_type GetResponse() {
-		agk::Log("Get response.");
-		return m_Response;
-	}
+	//response_type GetResponse() { return m_Response; }
 protected:
 	virtual SteamAPICall_t CallFunction()
 	{
@@ -79,18 +76,16 @@ protected:
 		{
 			throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
 		}
-		m_CallResult.Set(m_hSteamAPICall, this, &CCallResultEx<callback_type, response_type>::OnResponse);
+		m_CallResult.Set(m_hSteamAPICall, this, &CCallResultItem<callback_type, response_type>::OnResponse);
 	}
 	response_type m_Response;
 private:
-	CCallResult<CCallResultEx<callback_type, response_type>, callback_type> m_CallResult;
+	CCallResult<CCallResultItem<callback_type, response_type>, callback_type> m_CallResult;
 	void OnResponse(callback_type *pCallResult, bool bFailure)
 	{
-		agk::Log("OnResponse!");
 		m_Response = *pCallResult;
 		SetResultCode(m_Response.m_eResult, bFailure);
 		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
-		agk::Log("OnResponse exit");
 	}
 };
 
@@ -103,7 +98,7 @@ public:
 	CCallResultMap() {}
 	virtual ~CCallResultMap(void) {}
 
-	int Add(CCallResultItem *callResult);
+	int Add(CCallResultItemBase *callResult);
 	// Template methods MUST be defined in the header file!
 	template <class T> T *Get(int handle)
 	{
@@ -124,7 +119,7 @@ public:
 	void Delete(int handle);
 	void Clear();
 private:
-	std::map<int, CCallResultItem*> m_Items;
+	std::map<int, CCallResultItemBase*> m_Items;
 	int m_CurrentHandle;
 };
 

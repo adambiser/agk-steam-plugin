@@ -26,43 +26,105 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-class CLeaderboardFindCallResult : public CCallResultItem
+namespace wrapper
+{
+	struct LeaderboardFindResult_t : ::LeaderboardFindResult_t
+	{
+		EResult m_eResult;
+
+		LeaderboardFindResult_t() : m_eResult((EResult)0) {}
+
+		LeaderboardFindResult_t(::LeaderboardFindResult_t param) : LeaderboardFindResult_t()
+		{
+			m_hSteamLeaderboard = param.m_hSteamLeaderboard;
+			m_bLeaderboardFound = param.m_bLeaderboardFound;
+			// Assigned a result based on m_bLeaderboardFound.
+			m_eResult = m_bLeaderboardFound ? k_EResultOK : k_EResultFail;
+		}
+	};
+
+	struct LeaderboardScoresDownloaded_t : ::LeaderboardScoresDownloaded_t
+	{
+		EResult m_eResult;
+		std::vector<LeaderboardEntry_t> m_Entries;
+
+		LeaderboardScoresDownloaded_t() : m_eResult((EResult)0) {}
+
+		LeaderboardScoresDownloaded_t(::LeaderboardScoresDownloaded_t param) : LeaderboardScoresDownloaded_t()
+		{
+			m_hSteamLeaderboard = param.m_hSteamLeaderboard;
+			m_cEntryCount = param.m_cEntryCount;
+			if (param.m_hSteamLeaderboardEntries == 0)
+			{
+				m_eResult = k_EResultFail;
+			}
+			else 
+			{
+				for (int index = 0; index < param.m_cEntryCount; index++)
+				{
+					// TODO Add Details support.
+					LeaderboardEntry_t entry;
+					if (SteamUserStats()->GetDownloadedLeaderboardEntry(param.m_hSteamLeaderboardEntries, index, &entry, NULL, 0))
+					{
+						m_Entries.push_back(entry);
+					}
+					else
+					{
+						// Report error.
+						utils::Log("GetDownloadedLeaderboardEntry failed for index " + std::to_string(index) + ".");
+						m_eResult = k_EResultFail;
+						return;
+					}
+				}
+				m_eResult = k_EResultOK;
+			}
+		}
+	};
+
+	struct LeaderboardScoreUploaded_t : ::LeaderboardScoreUploaded_t
+	{
+		EResult m_eResult;
+
+		LeaderboardScoreUploaded_t() : m_eResult((EResult)0) {}
+
+		LeaderboardScoreUploaded_t(::LeaderboardScoreUploaded_t param) : LeaderboardScoreUploaded_t()
+		{
+			m_bSuccess = param.m_bSuccess;
+			m_hSteamLeaderboard = param.m_hSteamLeaderboard;
+			m_nScore = param.m_nScore;
+			m_bScoreChanged = param.m_bScoreChanged;
+			m_nGlobalRankNew = param.m_nGlobalRankNew;
+			m_nGlobalRankPrevious = param.m_nGlobalRankPrevious;
+			m_eResult = m_bSuccess ? k_EResultOK : k_EResultFail;
+		}
+	};
+}
+
+class CLeaderboardFindCallResult : public CCallResultItem<LeaderboardFindResult_t, wrapper::LeaderboardFindResult_t>
 {
 public:
 	CLeaderboardFindCallResult(std::string leaderboardName) :
-		CCallResultItem(),
 		m_LeaderboardName(leaderboardName)
 	{
-		m_CallResultName = "FindLeaderboard(" + m_LeaderboardName + ")";
-		m_LeaderboardFindResult.m_bLeaderboardFound = 0;
-		m_LeaderboardFindResult.m_hSteamLeaderboard = 0;
+		m_CallResultName = "FindLeaderboard('" + m_LeaderboardName + "')";
+		m_Response.m_bLeaderboardFound = 0;
+		m_Response.m_hSteamLeaderboard = 0;
 	}
-	virtual ~CLeaderboardFindCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	int GetLeaderboardFindResultFound()
-	{
-		return m_LeaderboardFindResult.m_bLeaderboardFound;
-	}
-	SteamLeaderboard_t GetLeaderboardFindResultHandle()
-	{
-		return m_LeaderboardFindResult.m_hSteamLeaderboard;
-	}
+	int GetLeaderboardFindResultFound() { return m_Response.m_bLeaderboardFound; }
+	SteamLeaderboard_t GetLeaderboardFindResultHandle()	{ return m_Response.m_hSteamLeaderboard; }
 protected:
-	void Call();
+	SteamAPICall_t CallFunction()
+	{
+		return SteamUserStats()->FindLeaderboard(m_LeaderboardName.c_str());;
+	}
 private:
-	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
-	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
 	std::string m_LeaderboardName;
-	LeaderboardFindResult_t m_LeaderboardFindResult;
 };
 
-class CLeaderboardScoresDownloadedCallResult : public CCallResultItem
+class CLeaderboardScoresDownloadedCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, wrapper::LeaderboardScoresDownloaded_t>
 {
 public:
 	CLeaderboardScoresDownloadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd) :
-		CCallResultItem(),
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardDataRequest(eLeaderboardDataRequest),
 		m_nRangeStart(nRangeStart),
@@ -74,60 +136,30 @@ public:
 			+ std::to_string(m_nRangeStart) + ", "
 			+ std::to_string(m_nRangeEnd) + ")";
 	}
-	virtual ~CLeaderboardScoresDownloadedCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	uint64 GetLeaderboardID()
-	{
-		return m_Downloaded.m_hSteamLeaderboard;
-	}
-	int GetLeaderboardEntryCount()
-	{
-		return (int)m_Entries.size();
-	}
-	bool IsValidIndex(int index)
-	{
-		return (index >= 0) && (index < (int)m_Entries.size());
-	}
-	uint64 GetLeaderboardEntryUser(int index)
-	{
-		return m_Entries[index].m_steamIDUser.ConvertToUint64();
-	}
-	int GetLeaderboardEntryGlobalRank(int index)
-	{
-		return m_Entries[index].m_nGlobalRank;
-	}
-	int GetLeaderboardEntryScore(int index)
-	{
-		return m_Entries[index].m_nScore;
-	}
-	int GetLeaderboardEntryDetails(int index)
-	{
-		return m_Entries[index].m_cDetails;
-	}
-	uint64 GetLeaderboardEntryUGCHandle(int index)
-	{
-		return m_Entries[index].m_hUGC;
-	}
+	uint64 GetLeaderboardID() { return m_Response.m_hSteamLeaderboard; }
+	int GetLeaderboardEntryCount() { return (int)m_Response.m_Entries.size(); }
+	bool IsValidIndex(int index) { return (index >= 0) && (index < (int)m_Response.m_Entries.size()); }
+	uint64 GetLeaderboardEntryUser(int index) { return m_Response.m_Entries[index].m_steamIDUser.ConvertToUint64(); }
+	int GetLeaderboardEntryGlobalRank(int index) { return m_Response.m_Entries[index].m_nGlobalRank; }
+	int GetLeaderboardEntryScore(int index) { return m_Response.m_Entries[index].m_nScore; }
+	int GetLeaderboardEntryDetails(int index) { return m_Response.m_Entries[index].m_cDetails; }
+	uint64 GetLeaderboardEntryUGCHandle(int index) { return m_Response.m_Entries[index].m_hUGC; }
 protected:
-	void Call();
+	SteamAPICall_t CallFunction()
+	{
+		return SteamUserStats()->DownloadLeaderboardEntries(m_hLeaderboard, m_eLeaderboardDataRequest, m_nRangeStart, m_nRangeEnd);
+	}
 private:
-	CCallResult<CLeaderboardScoresDownloadedCallResult, LeaderboardScoresDownloaded_t> m_CallResult;
-	void OnDownloadScore(LeaderboardScoresDownloaded_t *pCallResult, bool bIOFailure);
 	SteamLeaderboard_t m_hLeaderboard;
 	ELeaderboardDataRequest m_eLeaderboardDataRequest;
 	int m_nRangeStart;
 	int m_nRangeEnd;
-	LeaderboardScoresDownloaded_t m_Downloaded;
-	std::vector<LeaderboardEntry_t> m_Entries;
 };
 
-class CLeaderboardScoreUploadedCallResult : public CCallResultItem
+class CLeaderboardScoreUploadedCallResult : public CCallResultItem<LeaderboardScoreUploaded_t, wrapper::LeaderboardScoreUploaded_t>
 {
 public:
 	CLeaderboardScoreUploadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod m_eLeaderboardUploadScoreMethod, int nScore) :
-		CCallResultItem(),
 		m_hLeaderboard(hLeaderboard),
 		m_eLeaderboardUploadScoreMethod(m_eLeaderboardUploadScoreMethod),
 		m_nScore(nScore)
@@ -136,50 +168,28 @@ public:
 			+ std::to_string(m_hLeaderboard) + ", "
 			+ std::to_string(m_eLeaderboardUploadScoreMethod) + ", "
 			+ std::to_string(m_nScore) + ")";
-		m_LeaderboardScoreUploaded.m_bScoreChanged = 0;
-		m_LeaderboardScoreUploaded.m_bSuccess = 0;
-		m_LeaderboardScoreUploaded.m_hSteamLeaderboard = 0;
-		m_LeaderboardScoreUploaded.m_nGlobalRankNew = 0;
-		m_LeaderboardScoreUploaded.m_nGlobalRankPrevious = 0;
-		m_LeaderboardScoreUploaded.m_nScore = 0;
+		m_Response.m_bScoreChanged = 0;
+		m_Response.m_bSuccess = 0;
+		m_Response.m_hSteamLeaderboard = 0;
+		m_Response.m_nGlobalRankNew = 0;
+		m_Response.m_nGlobalRankPrevious = 0;
+		m_Response.m_nScore = 0;
 	}
-	virtual ~CLeaderboardScoreUploadedCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedSuccess()
-	{
-		return m_LeaderboardScoreUploaded.m_bSuccess;
-	}
-	uint64 CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedHandle()
-	{
-		return m_LeaderboardScoreUploaded.m_hSteamLeaderboard;
-	}
-	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScore()
-	{
-		return m_LeaderboardScoreUploaded.m_nScore;
-	}
-	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScoreChanged()
-	{
-		return m_LeaderboardScoreUploaded.m_bScoreChanged;
-	}
-	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankNew()
-	{
-		return m_LeaderboardScoreUploaded.m_nGlobalRankNew;
-	}
-	int CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankPrevious()
-	{
-		return m_LeaderboardScoreUploaded.m_nGlobalRankPrevious;
-	}
+	int GetLeaderboardScoreUploadedSuccess() { return m_Response.m_bSuccess; }
+	uint64 GetLeaderboardScoreUploadedHandle() { return m_Response.m_hSteamLeaderboard; }
+	int GetLeaderboardScoreUploadedScore() { return m_Response.m_nScore; }
+	int GetLeaderboardScoreUploadedScoreChanged() { return m_Response.m_bScoreChanged; }
+	int GetLeaderboardScoreUploadedRankNew() { return m_Response.m_nGlobalRankNew; }
+	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
 protected:
-	void Call();
+	SteamAPICall_t CallFunction()
+	{
+		return SteamUserStats()->UploadLeaderboardScore(m_hLeaderboard, m_eLeaderboardUploadScoreMethod, m_nScore, NULL, 0);
+	}
 private:
-	CCallResult<CLeaderboardScoreUploadedCallResult, LeaderboardScoreUploaded_t> m_CallResult;
-	void OnUploadScore(LeaderboardScoreUploaded_t *pCallResult, bool bIOFailure);
 	SteamLeaderboard_t m_hLeaderboard;
 	ELeaderboardUploadScoreMethod m_eLeaderboardUploadScoreMethod;
 	int m_nScore;
-	LeaderboardScoreUploaded_t m_LeaderboardScoreUploaded;
 };
 
 #endif // _STEAMUSERSTATS_H_
