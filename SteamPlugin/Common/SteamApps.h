@@ -57,7 +57,7 @@ public:
 	int GetFileSize() { return (int)m_Response.m_ulFileSize; }
 	int GetFileFlags() { return m_Response.m_unFlags; }
 protected:
-	SteamAPICall_t CallFunction()
+	SteamAPICall_t Call()
 	{
 		return SteamApps()->GetFileDetails(m_FileName.c_str());
 	}

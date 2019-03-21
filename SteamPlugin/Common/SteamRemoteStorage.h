@@ -75,7 +75,7 @@ public:
 	std::string GetFileName() { return m_FileName; }
 	int GetMemblockID() { return m_Response.m_MemblockID; }
 protected:
-	SteamAPICall_t CallFunction()
+	SteamAPICall_t Call()
 	{
 		const char *m_pchFile = m_FileName.c_str();
 		// Check for file existence because calling FileReadAsync() on files that have been FileDeleted()
@@ -109,7 +109,7 @@ public:
 	}
 	std::string GetFileName() { return m_FileName; }
 protected:
-	SteamAPICall_t CallFunction()
+	SteamAPICall_t Call()
 	{
 		return SteamRemoteStorage()->FileWriteAsync(m_FileName.c_str(), m_pvData, m_cubData);
 	}

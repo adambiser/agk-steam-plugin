@@ -26,109 +26,106 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-class CLobbyCreatedCallResult : public CCallResultItemBase
+namespace wrapper
+{
+	struct LobbyEnter_t : ::LobbyEnter_t
+	{
+		EResult m_eResult;
+
+		LobbyEnter_t() : m_eResult((EResult)0) {}
+
+		LobbyEnter_t(::LobbyEnter_t param) : LobbyEnter_t()
+		{
+			m_ulSteamIDLobby = param.m_ulSteamIDLobby;
+			m_rgfChatPermissions = param.m_rgfChatPermissions;
+			m_bLocked = param.m_bLocked;
+			m_EChatRoomEnterResponse = param.m_EChatRoomEnterResponse;
+			m_eResult = m_ulSteamIDLobby != 0 ? k_EResultOK : k_EResultFail;
+		}
+	};
+
+	struct LobbyMatchList_t
+	{
+		EResult m_eResult;
+		std::vector<CSteamID> m_Lobbies;
+
+		LobbyMatchList_t() : m_eResult((EResult)0) {}
+
+		LobbyMatchList_t(::LobbyMatchList_t param) : LobbyMatchList_t()
+		{
+			for (int index = 0; index < (int)param.m_nLobbiesMatching; index++)
+			{
+				m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
+			}
+			m_eResult = k_EResultOK;
+		}
+	};
+}
+
+class CLobbyCreatedCallResult : public CCallResultItem<LobbyCreated_t>
 {
 public:
 	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers) :
-		CCallResultItemBase(),
 		m_eLobbyType(eLobbyType),
 		m_cMaxMembers(cMaxMembers)
 	{
 		m_CallResultName = "CreateLobby("
 			+ std::to_string(m_eLobbyType) + ", "
 			+ std::to_string(m_cMaxMembers) + ")";
-		m_LobbyCreated.m_eResult = (EResult)0;
-		m_LobbyCreated.m_ulSteamIDLobby = 0;
+		m_Response.m_eResult = (EResult)0;
+		m_Response.m_ulSteamIDLobby = 0;
 	}
-	virtual ~CLobbyCreatedCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	uint64 GetLobbyCreatedHandle()
-	{
-		return m_LobbyCreated.m_ulSteamIDLobby;
-	}
+	uint64 GetLobbyCreatedHandle() { return m_Response.m_ulSteamIDLobby; }
 protected:
-	void Call();
+	SteamAPICall_t Call()
+	{
+		return SteamMatchmaking()->CreateLobby(m_eLobbyType, m_cMaxMembers);
+	}
 private:
-	CCallResult<CLobbyCreatedCallResult, LobbyCreated_t> m_CallResult;
-	void OnLobbyCreated(LobbyCreated_t *pParam, bool bIOFailure);
 	ELobbyType m_eLobbyType;
 	int m_cMaxMembers;
-	LobbyCreated_t m_LobbyCreated;
 };
 
-class CLobbyEnterCallResult : public CCallResultItemBase
+class CLobbyEnterCallResult : public CCallResultItem<LobbyEnter_t, wrapper::LobbyEnter_t>
 {
 public:
 	CLobbyEnterCallResult(CSteamID steamIDLobby) :
-		CCallResultItemBase(),
 		m_steamIDLobby(steamIDLobby)
 	{
 		m_CallResultName = "JoinLobby(" + std::to_string(m_steamIDLobby.ConvertToUint64()) + ")";
-		m_LobbyEnter.m_bLocked = 0;
-		m_LobbyEnter.m_EChatRoomEnterResponse = 0;
-		m_LobbyEnter.m_rgfChatPermissions = 0; // unused - always 0.
-		m_LobbyEnter.m_ulSteamIDLobby = 0;
+		m_Response.m_bLocked = 0;
+		m_Response.m_EChatRoomEnterResponse = 0;
+		m_Response.m_rgfChatPermissions = 0; // unused - always 0.
+		m_Response.m_ulSteamIDLobby = 0;
 	}
-	virtual ~CLobbyEnterCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	uint64 GetLobbyEnterHandle()
-	{
-		return m_LobbyEnter.m_ulSteamIDLobby;
-	}
-	int GetLobbyEnterChatPermissions()
-	{
-		return (int)m_LobbyEnter.m_rgfChatPermissions;
-	}
-	int GetLobbyEnterLocked()
-	{
-		return (int)m_LobbyEnter.m_bLocked;
-	}
-	int GetLobbyEnterChatRoomEnterResponse()
-	{
-		return (int)m_LobbyEnter.m_EChatRoomEnterResponse;
-	}
+	uint64 GetLobbyEnterHandle() { return m_Response.m_ulSteamIDLobby; }
+	int GetLobbyEnterChatPermissions() { return (int)m_Response.m_rgfChatPermissions; }
+	int GetLobbyEnterLocked() { return (int)m_Response.m_bLocked; }
+	int GetLobbyEnterChatRoomEnterResponse() { return (int)m_Response.m_EChatRoomEnterResponse; }
 protected:
-	void Call();
+	SteamAPICall_t Call()
+	{
+		return SteamMatchmaking()->JoinLobby(m_steamIDLobby);
+	}
 private:
-	CCallResult<CLobbyEnterCallResult, LobbyEnter_t> m_CallResult;
-	void OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure);
 	CSteamID m_steamIDLobby;
-	LobbyEnter_t m_LobbyEnter;
 };
 
-class CLobbyMatchListCallResult : public CCallResultItemBase
+class CLobbyMatchListCallResult : public CCallResultItem<LobbyMatchList_t, wrapper::LobbyMatchList_t>
 {
 public:
-	CLobbyMatchListCallResult() : CCallResultItemBase()
+	CLobbyMatchListCallResult()
 	{
 		m_CallResultName = "RequestLobbyList()";
 	}
-	virtual ~CLobbyMatchListCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	int GetLobbyCount()
-	{
-		return (int)m_Lobbies.size();
-	}
-	bool IsValidIndex(int index)
-	{
-		return index >= 0 && index < (int)m_Lobbies.size();
-	}
-	uint64 GetLobby(int index)
-	{
-		return m_Lobbies[index].ConvertToUint64();
-	}
+	int GetLobbyCount() { return (int)m_Response.m_Lobbies.size(); }
+	bool IsValidIndex(int index) { return index >= 0 && index < (int)m_Response.m_Lobbies.size(); }
+	uint64 GetLobby(int index) { return m_Response.m_Lobbies[index].ConvertToUint64(); }
 protected:
-	void Call();
-private:
-	CCallResult<CLobbyMatchListCallResult, LobbyMatchList_t> m_CallResult;
-	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
-	std::vector<CSteamID> m_Lobbies;
+	SteamAPICall_t Call()
+	{
+		return SteamMatchmaking()->RequestLobbyList();
+	}
 };
 
 #endif // _STEAMMATCHMAKING_H_

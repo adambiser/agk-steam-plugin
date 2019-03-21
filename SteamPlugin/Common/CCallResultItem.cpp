@@ -50,7 +50,7 @@ int CCallResultMap::Add(CCallResultItemBase *callResult)
 		try
 		{
 			utils::Log(callResult->GetName() + ": Calling.");
-			FriendCall(*callResult);
+			FriendCreateAPICall(*callResult);
 			// Find the next unassigned handle.
 			while (m_Items.find(++m_CurrentHandle) != m_Items.end());
 			m_Items[m_CurrentHandle] = callResult;

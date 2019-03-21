@@ -42,11 +42,15 @@ protected:
 	std::string m_CallResultName;
 	SteamAPICall_t m_hSteamAPICall;
 	// Throw std::string for errors.
-	virtual void Call() = 0;
-	// Called from CCallResultMap.Add().
-	friend void FriendCall(CCallResultItemBase &callResult)
+	virtual SteamAPICall_t Call()
 	{
-		callResult.Call();
+		throw std::string(GetName() + ": Call is not defined.");
+	}
+	virtual void CreateAPICall() = 0;
+	// Called from CCallResultMap.Add().
+	friend void FriendCreateAPICall(CCallResultItemBase &callResult)
+	{
+		callResult.CreateAPICall();
 	}
 	void SetResultCode(EResult eResult, bool bFailure = false);
 	bool m_bRunning;
@@ -65,13 +69,9 @@ public:
 	}
 	//response_type GetResponse() { return m_Response; }
 protected:
-	virtual SteamAPICall_t CallFunction()
+	void CreateAPICall()
 	{
-		throw std::string(GetName() + ": CallFunction is not defined.");
-	}
-	void Call()
-	{
-		m_hSteamAPICall = CallFunction();
+		m_hSteamAPICall = Call();
 		if (m_hSteamAPICall == k_uAPICallInvalid)
 		{
 			throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");

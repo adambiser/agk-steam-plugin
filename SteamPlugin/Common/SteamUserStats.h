@@ -113,7 +113,7 @@ public:
 	int GetLeaderboardFindResultFound() { return m_Response.m_bLeaderboardFound; }
 	SteamLeaderboard_t GetLeaderboardFindResultHandle()	{ return m_Response.m_hSteamLeaderboard; }
 protected:
-	SteamAPICall_t CallFunction()
+	SteamAPICall_t Call()
 	{
 		return SteamUserStats()->FindLeaderboard(m_LeaderboardName.c_str());;
 	}
@@ -145,7 +145,7 @@ public:
 	int GetLeaderboardEntryDetails(int index) { return m_Response.m_Entries[index].m_cDetails; }
 	uint64 GetLeaderboardEntryUGCHandle(int index) { return m_Response.m_Entries[index].m_hUGC; }
 protected:
-	SteamAPICall_t CallFunction()
+	SteamAPICall_t Call()
 	{
 		return SteamUserStats()->DownloadLeaderboardEntries(m_hLeaderboard, m_eLeaderboardDataRequest, m_nRangeStart, m_nRangeEnd);
 	}
@@ -182,7 +182,7 @@ public:
 	int GetLeaderboardScoreUploadedRankNew() { return m_Response.m_nGlobalRankNew; }
 	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
 protected:
-	SteamAPICall_t CallFunction()
+	SteamAPICall_t Call()
 	{
 		return SteamUserStats()->UploadLeaderboardScore(m_hLeaderboard, m_eLeaderboardUploadScoreMethod, m_nScore, NULL, 0);
 	}
