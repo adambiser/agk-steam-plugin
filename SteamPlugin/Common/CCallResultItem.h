@@ -54,6 +54,46 @@ private:
 	EResult m_eResult;
 };
 
+template <class callback_type, class response_type = callback_type>
+class CCallResultEx : public CCallResultItem
+{
+public:
+	CCallResultEx() : CCallResultItem() {}
+	virtual ~CCallResultEx(void)
+	{
+		m_CallResult.Cancel();
+	}
+	response_type GetResponse() {
+		agk::Log("Get response.");
+		return m_Response;
+	}
+protected:
+	virtual SteamAPICall_t CallFunction()
+	{
+		throw std::string(GetName() + ": CallFunction is not defined.");
+	}
+	void Call()
+	{
+		m_hSteamAPICall = CallFunction();
+		if (m_hSteamAPICall == k_uAPICallInvalid)
+		{
+			throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+		}
+		m_CallResult.Set(m_hSteamAPICall, this, &CCallResultEx<callback_type, response_type>::OnResponse);
+	}
+	response_type m_Response;
+private:
+	CCallResult<CCallResultEx<callback_type, response_type>, callback_type> m_CallResult;
+	void OnResponse(callback_type *pCallResult, bool bFailure)
+	{
+		agk::Log("OnResponse!");
+		m_Response = *pCallResult;
+		SetResultCode(m_Response.m_eResult, bFailure);
+		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
+		agk::Log("OnResponse exit");
+	}
+};
+
 /*
 Map for maintaining all existing call results.
 */

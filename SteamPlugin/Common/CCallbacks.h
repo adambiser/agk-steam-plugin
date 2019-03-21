@@ -179,7 +179,8 @@ public:
 
 #pragma region ISteamMatchmaking
 private:
-	// FavoritesListChanged_t - fires when server favorites list changes.
+	// FavoritesListAccountsUpdated_t - not much information given about this.
+	//STEAM_CALLBACK(CCallbacks, OnFavoritesListChanged, FavoritesListChanged_t);
 	LIST_CALLBACK(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
 	LIST_CALLBACK(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 	// LobbyCreated_t - Call result
@@ -286,7 +287,7 @@ private:
 	//LeaderboardUGCSet_t - Call result for AttachLeaderboardUGC
 	//NumberOfCurrentPlayers_t - GetNumberOfCurrentPlayers
 	//PS3TrophiesInstalled_t - ignore
-	STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t);// , m_CallbackUserAchievementIconFetched);
+	STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t);
 	std::map<std::string, int> m_AchievementIconsMap;
 	LIST_CALLBACK(UserAchievementStored, UserAchievementStored_t);
 	LIST_CALLBACK(UserStatsReceived, UserStatsReceived_t);

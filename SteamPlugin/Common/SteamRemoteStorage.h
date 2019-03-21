@@ -26,42 +26,42 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-class CFileReadAsyncCallResult : public CCallResultItem
-{
-public:
-	CFileReadAsyncCallResult(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
-		CCallResultItem(),
-		m_FileName(pchFile),
-		m_nOffset(nOffset),
-		m_cubToRead(cubToRead),
-		m_MemblockID(0)
-	{
-		m_CallResultName = "FileReadAsync("
-			+ m_FileName + ", "
-			+ std::to_string(m_nOffset) + ", "
-			+ std::to_string(m_cubToRead) + ")";
-	}
-	virtual ~CFileReadAsyncCallResult(void)
-	{
-		if (m_MemblockID && agk::GetMemblockExists(m_MemblockID))
-		{
-			agk::DeleteMemblock(m_MemblockID);
-		}
-		m_MemblockID = 0;
-		m_CallResult.Cancel();
-	}
-	std::string GetFileName() { return m_FileName; }
-	int GetMemblockID() { return m_MemblockID; }
-protected:
-	void Call();
-private:
-	CCallResult<CFileReadAsyncCallResult, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
-	std::string m_FileName;
-	uint32 m_nOffset;
-	uint32 m_cubToRead;
-	int m_MemblockID;
-};
+//class CFileReadAsyncCallResult : public CCallResultItem
+//{
+//public:
+//	CFileReadAsyncCallResult(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
+//		CCallResultItem(),
+//		m_FileName(pchFile),
+//		m_nOffset(nOffset),
+//		m_cubToRead(cubToRead),
+//		m_MemblockID(0)
+//	{
+//		m_CallResultName = "FileReadAsync("
+//			+ m_FileName + ", "
+//			+ std::to_string(m_nOffset) + ", "
+//			+ std::to_string(m_cubToRead) + ")";
+//	}
+//	virtual ~CFileReadAsyncCallResult(void)
+//	{
+//		if (m_MemblockID && agk::GetMemblockExists(m_MemblockID))
+//		{
+//			agk::DeleteMemblock(m_MemblockID);
+//		}
+//		m_MemblockID = 0;
+//		m_CallResult.Cancel();
+//	}
+//	std::string GetFileName() { return m_FileName; }
+//	int GetMemblockID() { return m_MemblockID; }
+//protected:
+//	void Call();
+//private:
+//	CCallResult<CFileReadAsyncCallResult, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
+//	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
+//	std::string m_FileName;
+//	uint32 m_nOffset;
+//	uint32 m_cubToRead;
+//	int m_MemblockID;
+//};
 
 class CFileWriteAsyncCallResult : public CCallResultItem
 {
