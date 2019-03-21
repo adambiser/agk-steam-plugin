@@ -88,8 +88,7 @@ void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueTo
 int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitialized(0);
-	Callbacks()->EnableLobbyDataUpdateCallback();
-	Callbacks()->EnableLobbyEnterCallback();
+	Callbacks()->RegisterLobbyEnterCallback();
 	return CallResults()->Add(new CLobbyCreatedCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
@@ -105,7 +104,7 @@ int DeleteLobbyData(int hLobbySteamID, const char *key)
 }
 
 //GetFavoriteGame
-// Leave this as by-index since AddFavoriteGame appears to return an index.
+
 int GetFavoriteGameAppID(int index)
 {
 	AppId_t nAppID;
@@ -321,8 +320,7 @@ int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
-	Callbacks()->EnableLobbyDataUpdateCallback();
-	Callbacks()->EnableLobbyEnterCallback();
+	Callbacks()->RegisterLobbyEnterCallback();
 	return CallResults()->Add(new CLobbyEnterCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
@@ -360,6 +358,16 @@ void LeaveLobby(int hLobbySteamID)
 		g_JoinedLobbies.erase(it);
 	}
 	g_JoinedLobbiesMutex.unlock();
+	if (g_JoinedLobbies.size() == 0)
+	{
+		// Unregister the in-lobby callbacks when leaving the last lobby.
+		// Should be the same callbacks that get registered in CCallbacks::OnLobbyEnter.
+		agk::Log("Unregistering in-lobby callbacks");
+		Callbacks()->UnregisterLobbyChatMessageCallback();
+		Callbacks()->UnregisterLobbyChatUpdateCallback();
+		Callbacks()->UnregisterLobbyDataUpdateCallback();
+		Callbacks()->UnregisterLobbyGameCreatedCallback();
+	}
 }
 
 int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags)
@@ -426,7 +434,7 @@ void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
 {
 	CheckInitialized(false);
-	Callbacks()->EnableLobbyGameCreatedCallback();
+	Callbacks()->RegisterLobbyGameCreatedCallback();
 	if (gameServerPort < 0 || gameServerPort > 0xffff)
 	{
 		agk::PluginError("SetLobbyGameServer: Invalid game server port.");

@@ -22,7 +22,6 @@ THE SOFTWARE.
 
 #include "CCallbacks.h"
 
-
 // Adds the result to the end of the callback list.
 #define STORE_CALLBACK_RESULT(func, result)	\
 	m_##func##Mutex.lock();					\
@@ -54,15 +53,15 @@ CCallbacks *Callbacks()
 
 CCallbacks::CCallbacks()
 {
-	ResetSessionVariables();
+	Reset();
 }
 
 CCallbacks::~CCallbacks(void)
 {
-	this->ResetSessionVariables();
+	this->Reset();
 }
 
-void CCallbacks::ResetSessionVariables()
+void CCallbacks::Reset()
 {
 	// ISteamApps
 	ClearDlcInstalled();
@@ -249,9 +248,18 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 {
 	agk::Log("Callback: OnLobbyEnter");
 	STORE_CALLBACK_RESULT(LobbyEnter, *pParam);
-	g_JoinedLobbiesMutex.lock();
-	g_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
-	g_JoinedLobbiesMutex.unlock();
+	if (pParam->m_ulSteamIDLobby != 0)
+	{
+		g_JoinedLobbiesMutex.lock();
+		g_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
+		g_JoinedLobbiesMutex.unlock();
+		// Register the in-lobby callbacks.
+		agk::Log("Registering in-lobby callbacks");
+		Callbacks()->RegisterLobbyChatMessageCallback();
+		Callbacks()->RegisterLobbyChatUpdateCallback();
+		Callbacks()->RegisterLobbyDataUpdateCallback();
+		Callbacks()->RegisterLobbyGameCreatedCallback();
+	}
 }
 
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)

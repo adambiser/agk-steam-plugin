@@ -160,7 +160,7 @@ int GetFriendGamePlayedLobby(int hUserSteamID)
 char *GetFriendPersonaName(int hUserSteamID)
 {
 	CheckInitialized(NULL_STRING);
-	// TODO m_PersonaStateChangedEnabled = true;
+	Callbacks()->RegisterPersonaStateChangeCallback();
 	return utils::CreateString(SteamFriends()->GetFriendPersonaName(SteamHandles()->GetSteamHandle(hUserSteamID)));
 }
 
@@ -169,7 +169,7 @@ char *GetFriendPersonaName(int hUserSteamID)
 int GetFriendPersonaState(int hUserSteamID)
 {
 	CheckInitialized(-1);
-	// TODO m_PersonaStateChangedEnabled = true;
+	Callbacks()->RegisterPersonaStateChangeCallback();
 	return SteamFriends()->GetFriendPersonaState(SteamHandles()->GetSteamHandle(hUserSteamID));
 }
 
@@ -244,7 +244,7 @@ Possible solution is to just keep requesting the level when 0 is returned.
 int GetFriendSteamLevel(int hUserSteamID)
 {
 	CheckInitialized(0);
-	// TODO m_PersonaStateChangedEnabled = true;
+	Callbacks()->RegisterPersonaStateChangeCallback();
 	return SteamFriends()->GetFriendSteamLevel(SteamHandles()->GetSteamHandle(hUserSteamID));
 }
 
@@ -252,8 +252,8 @@ int GetFriendSteamLevel(int hUserSteamID)
 int GetFriendAvatar(int hUserSteamID, int size)
 {
 	CheckInitialized(0);
-	Callbacks()->EnableAvatarImageLoadedCallback();
-	Callbacks()->EnablePersonaStateChangeCallback();
+	Callbacks()->RegisterAvatarImageLoadedCallback();
+	Callbacks()->RegisterPersonaStateChangeCallback();
 	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
 	//SteamFriends()->RequestUserInformation(steamID, false);
 	int hImage = 0;
@@ -314,8 +314,8 @@ int HasFriend(int hUserSteamID, int friendFlags)
 int RequestUserInformation(int hUserSteamID, int requireNameOnly)
 {
 	CheckInitialized(false);
-	Callbacks()->EnablePersonaStateChangeCallback();
-	Callbacks()->EnableAvatarImageLoadedCallback();
+	Callbacks()->RegisterPersonaStateChangeCallback();
+	Callbacks()->RegisterAvatarImageLoadedCallback();
 	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hUserSteamID), requireNameOnly != 0);
 }
 

@@ -28,7 +28,7 @@ THE SOFTWARE.
 int ClearAchievement(const char *name)
 {
 	CheckInitialized(false);
-	Callbacks()->EnableUserAchievementStoredCallback();
+	Callbacks()->RegisterUserAchievementStoredCallback();
 	return SteamUserStats()->ClearAchievement(name);
 }
 
@@ -237,7 +237,7 @@ int IndicateAchievementProgress(const char *name, int curProgress, int maxProgre
 int RequestCurrentStats()
 {
 	CheckInitialized(false);
-	Callbacks()->EnableUserStatsReceivedCallback();
+	Callbacks()->RegisterUserStatsReceivedCallback();
 	return SteamUserStats()->RequestCurrentStats();
 }
 
@@ -248,15 +248,15 @@ int RequestCurrentStats()
 int ResetAllStats(int achievementsToo)
 {
 	CheckInitialized(false);
-	Callbacks()->EnableUserAchievementStoredCallback();
-	Callbacks()->EnableUserStatsStoredCallback();
+	Callbacks()->RegisterUserAchievementStoredCallback();
+	Callbacks()->RegisterUserStatsStoredCallback();
 	return SteamUserStats()->ResetAllStats(achievementsToo != 0);
 }
 
 int SetAchievement(const char *name)
 {
 	CheckInitialized(false);
-	Callbacks()->EnableUserAchievementStoredCallback();
+	Callbacks()->RegisterUserAchievementStoredCallback();
 	return SteamUserStats()->SetAchievement(name);
 }
 
@@ -282,7 +282,7 @@ int StoreStats()
 		return false;
 	}
 	g_StoringStats = true;
-	Callbacks()->EnableUserStatsStoredCallback();
+	Callbacks()->RegisterUserStatsStoredCallback();
 	return SteamUserStats()->StoreStats();
 }
 

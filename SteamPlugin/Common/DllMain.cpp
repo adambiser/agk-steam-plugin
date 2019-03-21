@@ -38,7 +38,7 @@ bool g_StoringStats;
 std::mutex g_JoinedLobbiesMutex;
 std::vector<CSteamID> g_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 
-void ResetVariables()
+void ResetSession()
 {
 	// Disconnect from any lobbies.
 	g_JoinedLobbiesMutex.lock();
@@ -48,7 +48,7 @@ void ResetVariables()
 	}
 	g_JoinedLobbies.clear();
 	g_JoinedLobbiesMutex.unlock();
-	Callbacks()->ResetSessionVariables();
+	Callbacks()->Reset();
 	// Clear handles
 	CallResults()->Clear();
 	SteamHandles()->Clear();
@@ -186,7 +186,7 @@ int Init()
 		return false;
 	}
 	agk::Log("Initializing Steam API.");
-	ResetVariables();
+	ResetSession();
 	g_SteamInitialized = SteamAPI_Init();
 	if (g_SteamInitialized)
 	{
@@ -221,7 +221,7 @@ void RunCallbacks()
 
 void Shutdown()
 {
-	ResetVariables();
+	ResetSession();
 	SteamAPI_Shutdown();
 }
 

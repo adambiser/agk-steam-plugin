@@ -37,12 +37,20 @@ THE SOFTWARE.
 #define _LIST_CALLBACK_MAIN(func, callback_type, list_type)						\
 	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
 public:																			\
-	void Enable##func##Callback()												\
+	void Register##func##Callback()												\
 	{																			\
 		if (!m_b##func##Enabled)												\
 		{																		\
 			m_b##func##Enabled = true;											\
 			m_Callback##func##.Register(this, &CCallbacks::On##func##);			\
+		}																		\
+	}																			\
+	void Unregister##func##Callback()											\
+	{																			\
+		if (m_b##func##Enabled)													\
+		{																		\
+			m_b##func##Enabled = false;											\
+			m_Callback##func##.Unregister();									\
 		}																		\
 	}																			\
 	/* Moves the front value of the list into the current value variable. */	\
@@ -106,7 +114,7 @@ public:
 	CCallbacks();
 	virtual ~CCallbacks(void);
 
-	void ResetSessionVariables();
+	void Reset();
 #pragma region ISteamApps
 private:
 	LIST_CALLBACK(DlcInstalled, DlcInstalled_t);	// InstallDLC
@@ -144,13 +152,14 @@ private:
 	LIST_CALLBACK(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
+public:
+	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
+private:
 	// GameRichPresenceJoinRequested_t - InviteUserToGame
 	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
 	// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
 	LIST_CALLBACK(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
-public:
-	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 #pragma endregion
 
 #pragma region ISteamGameCoordinator

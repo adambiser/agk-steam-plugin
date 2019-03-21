@@ -213,7 +213,7 @@ int GetFileDetailsSize(int hCallResult)
 	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSize);
 }
 
-// Not explained in the documentation.
+// Not explained in the documentation.  Assuming flags are unused.
 //int GetFileDetailsFlags(int hCallResult)
 //{
 //	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileFlags);
@@ -256,7 +256,7 @@ char *GetLaunchQueryParam(const char *key)
 void InstallDLC(int appID)
 {
 	CheckInitialized(NORETURN);
-	Callbacks()->EnableDlcInstalledCallback();
+	Callbacks()->RegisterDlcInstalledCallback();
 	SteamApps()->InstallDLC(appID);
 }
 

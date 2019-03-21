@@ -209,7 +209,7 @@ int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *descrip
 		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
 		charMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
 	}
-	Callbacks()->EnableGamepadTextInputDismissedCallback();
+	Callbacks()->RegisterGamepadTextInputDismissedCallback();
 	return SteamUtils()->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
