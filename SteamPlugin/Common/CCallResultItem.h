@@ -33,24 +33,26 @@ class CCallResultItemBase
 public:
 	CCallResultItemBase() :
 		m_eResult((EResult)0),
-		m_bRunning(false) {}
+		m_CallResultName("Unnamed Call Result"),
+		m_bRunning(false),
+		m_hSteamAPICall(k_uAPICallInvalid) {}
 	virtual ~CCallResultItemBase(void) {}
 	// Return a 'name' for the CCallResultItemBase object, usually indicates type and some useful parameter values.
 	std::string GetName() { return m_CallResultName; }
 	EResult GetResultCode() { return m_eResult; }
 protected:
-	std::string m_CallResultName;
 	SteamAPICall_t m_hSteamAPICall;
+	std::string m_CallResultName;
 	// Throw std::string for errors.
 	virtual SteamAPICall_t Call()
 	{
 		throw std::string(GetName() + ": Call is not defined.");
 	}
-	virtual void CreateAPICall() = 0;
+	virtual void Register() = 0;
 	// Called from CCallResultMap.Add().
-	friend void FriendCreateAPICall(CCallResultItemBase &callResult)
+	friend void FriendRegister(CCallResultItemBase &callResult)
 	{
-		callResult.CreateAPICall();
+		callResult.Register();
 	}
 	void SetResultCode(EResult eResult, bool bFailure = false);
 	bool m_bRunning;
@@ -62,16 +64,15 @@ template <class callback_type, class response_type = callback_type>
 class CCallResultItem : public CCallResultItemBase
 {
 public:
-	CCallResultItem() : CCallResultItemBase() {}
+	CCallResultItem() {}
 	virtual ~CCallResultItem(void)
 	{
 		m_CallResult.Cancel();
 	}
-	//response_type GetResponse() { return m_Response; }
+	//response_type GetResponse() { return m_Response; };
 protected:
-	void CreateAPICall()
+	void Register()
 	{
-		m_hSteamAPICall = Call();
 		if (m_hSteamAPICall == k_uAPICallInvalid)
 		{
 			throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");

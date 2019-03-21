@@ -28,17 +28,14 @@ THE SOFTWARE.
 #include <sstream>
 #include <iomanip>
 
+
 class CFileDetailsResultCallResult : public CCallResultItem<FileDetailsResult_t>
 {
 public:
-	CFileDetailsResultCallResult(const char *pszFileName) :
-		m_FileName(pszFileName)
+	CFileDetailsResultCallResult(const char *pszFileName)
 	{
-		m_CallResultName = "GetFileDetails('" + m_FileName + "')";
-		m_Response.m_eResult = (EResult)0;
-		memset(m_Response.m_FileSHA, 0, sizeof(m_Response.m_FileSHA));
-		m_Response.m_ulFileSize = 0;
-		m_Response.m_unFlags = 0;
+		m_CallResultName = "GetFileDetails('" + std::string(pszFileName) + "')";
+		m_hSteamAPICall = SteamApps()->GetFileDetails(pszFileName);
 	}
 	std::string GetFileSHA1()
 	{
@@ -56,13 +53,6 @@ public:
 	}
 	int GetFileSize() { return (int)m_Response.m_ulFileSize; }
 	int GetFileFlags() { return m_Response.m_unFlags; }
-protected:
-	SteamAPICall_t Call()
-	{
-		return SteamApps()->GetFileDetails(m_FileName.c_str());
-	}
-private:
-	std::string m_FileName;
 };
 
 #endif // _STEAMAPPS_H_

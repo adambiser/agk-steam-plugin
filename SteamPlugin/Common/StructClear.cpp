@@ -64,7 +64,6 @@ void Clear(LobbyChatUpdate_t &value)
 	value.m_ulSteamIDLobby = 0;
 	value.m_ulSteamIDMakingChange = 0;
 	value.m_ulSteamIDUserChanged = 0;
-
 }
 
 void Clear(LobbyDataUpdate_t &value)

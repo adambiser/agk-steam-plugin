@@ -80,28 +80,26 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 	{
 		length = SteamRemoteStorage()->GetFileSize(filename);
 	}
-	return CallResults()->Add(new CFileReadAsyncCallResult2(filename, offset, length));
+	// Check for file existence because calling FileReadAsync() on files that have been FileDeleted()
+	// will cause Steamworks report an error in the callback, but subsequent FileReadAsync() attempts
+	// when the file exists again will return k_uAPICallInvalid until the user logs out and back into 
+	// the Steam client.  FileRead() does not have this issue.
+	if (!SteamRemoteStorage()->FileExists(filename))
+	{
+		utils::Log("CloudFileReadAsync: '" + std::string(filename) + "' does not exist.");
+		return 0;
+	}
+	return CallResults()->Add(new CFileReadAsyncCallResult(filename, offset, length));
 }
 
 char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
-	//if (auto *callResult = CallResults()->Get<CFileReadAsyncCallResult2>(hCallResult))
-	//{
-	//	//return callResult->Ge
-	//}
-	//return NULL_STRING;
-	return GetCallResultValue<CFileReadAsyncCallResult2>(hCallResult, &CFileReadAsyncCallResult2::GetFileName);
+	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetFileName);
 }
 
 int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
-	//if (auto *callResult = CallResults()->Get<CFileReadAsyncCallResult2>(hCallResult))
-	//{
-	//	utils::Log(callResult->GetName() + ": memblock");
-	//	return callResult->GetResponse().m_MemblockID;
-	//}
-	//return 0;
-	return GetCallResultValue<CFileReadAsyncCallResult2>(hCallResult, &CFileReadAsyncCallResult2::GetMemblockID);
+	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
 
 //FileShare

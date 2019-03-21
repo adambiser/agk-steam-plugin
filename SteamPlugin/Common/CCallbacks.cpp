@@ -184,7 +184,7 @@ void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 // Callback for RequestUserInformation and more.
 void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 {
-	agk::Log("Callback: OnPersonaStateChange");
+	agk::Log("Callback: OnPersonaStateChange"); //.SteamID = " + std::to_string(pParam->m_ulSteamID) + ", Flags = " + std::to_string(pParam->m_nChangeFlags));
 	STORE_CALLBACK_RESULT(PersonaStateChange, *pParam);
 	if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
 	{
