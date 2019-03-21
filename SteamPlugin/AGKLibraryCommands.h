@@ -1185,7 +1185,7 @@ extern int(*AGKCommand1170)( unsigned int );
 extern void(*AGKCommand1171)( unsigned int );
 //extern void(*AGKCommand1172)( unsigned int, unsigned int, unsigned int, unsigned int, unsigned int );
 extern int(*AGKCommand1173)( unsigned int );
-//extern int(*AGKCommand1174)( unsigned int, unsigned int );
+extern int(*AGKCommand1174)( unsigned int, unsigned int );
 //extern int(*AGKCommand1175)( unsigned int, unsigned int );
 //extern int(*AGKCommand1176)( unsigned int, unsigned int );
 //extern int(*AGKCommand1177)( unsigned int, unsigned int );
@@ -3078,7 +3078,7 @@ class agk
 		static inline void DeleteMemblock( unsigned int memID ) { AGKCommand1171( memID ); }
 		//static inline void CopyMemblock( unsigned int memSrcID, unsigned int memDstID, unsigned int srcOffset, unsigned int dstOffset, unsigned int size ) { AGKCommand1172( memSrcID, memDstID, srcOffset, dstOffset, size ); }
 		static inline int GetMemblockSize( unsigned int memID ) { return AGKCommand1173( memID ); }
-		//static inline int GetMemblockByte( unsigned int memID, unsigned int offset ) { return AGKCommand1174( memID, offset ); }
+		static inline int GetMemblockByte( unsigned int memID, unsigned int offset ) { return AGKCommand1174( memID, offset ); }
 		//static inline int GetMemblockByteSigned( unsigned int memID, unsigned int offset ) { return AGKCommand1175( memID, offset ); }
 		//static inline int GetMemblockShort( unsigned int memID, unsigned int offset ) { return AGKCommand1176( memID, offset ); }
 		//static inline int GetMemblockInt( unsigned int memID, unsigned int offset ) { return AGKCommand1177( memID, offset ); }

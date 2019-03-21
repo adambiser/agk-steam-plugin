@@ -200,6 +200,7 @@ Function ProcessCallbacks()
 				memblock as integer
 				memblock = Steam.GetCloudFileReadAsyncMemblock(asyncReadCallResults[index])
 				if memblock
+					AddStatus("Length: " + str(GetMemblockSize(memblock)))
 					AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(filename)))
 					// NOTE: Deleting the FileReadAsync call result will delete its memblock.
 				else

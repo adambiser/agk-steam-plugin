@@ -37,10 +37,7 @@ struct RemoteStorageFileReadAsyncCompleteResponse
 		m_eResult = value.m_eResult;
 		if (value.m_eResult == k_EResultOK)
 		{
-			agk::Log("Creating memblock...");
-			utils ::Log("Length: " + std::to_string(value.m_cubRead));
 			m_MemblockID = agk::CreateMemblock(value.m_cubRead);
-			utils::Log("memblock: " + std::to_string(m_MemblockID));
 			if (!SteamRemoteStorage()->FileReadAsyncComplete(value.m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), value.m_cubRead))
 			{
 				agk::DeleteMemblock(m_MemblockID);
@@ -49,16 +46,6 @@ struct RemoteStorageFileReadAsyncCompleteResponse
 				m_eResult = k_EResultFail;
 			}
 		}
-	}
-
-	~RemoteStorageFileReadAsyncCompleteResponse()
-	{
-		//if (m_MemblockID && agk::GetMemblockExists(m_MemblockID))
-		//{
-			agk::Log("struct Destroyed!");
-		//	agk::DeleteMemblock(m_MemblockID);
-		//	m_MemblockID = 0;
-		//}
 	}
 };
 
@@ -81,16 +68,15 @@ public:
 	{
 		if (m_Response.m_MemblockID && agk::GetMemblockExists(m_Response.m_MemblockID))
 		{
-			agk::Log("Memblock Destroyed!");
-			//agk::DeleteMemblock(m_Response.m_MemblockID);
+			agk::DeleteMemblock(m_Response.m_MemblockID);
 			m_Response.m_MemblockID = 0;
 		}
-		agk::Log("CFileReadAsyncCallResult2 Destroyed!");
 	}
+	std::string GetFileName() { return m_FileName; }
+	int GetMemblockID() { return m_Response.m_MemblockID; }
 protected:
 	SteamAPICall_t CallFunction()
 	{
-		utils::Log(GetName() + ": calling.");
 		const char *m_pchFile = m_FileName.c_str();
 		// Check for file existence because calling FileReadAsync() on files that have been FileDeleted()
 		// will cause Steamworks report an error in the callback, but subsequent FileReadAsync() attempts
@@ -234,22 +220,23 @@ int CloudFileReadAsync(const char *filename, int offset, int length)
 
 char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
-	if (auto *callResult = CallResults()->Get<CFileReadAsyncCallResult2>(hCallResult))
-	{
-		//return callResult->Ge
-	}
-	return NULL_STRING;
-	//return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetResponse);
+	//if (auto *callResult = CallResults()->Get<CFileReadAsyncCallResult2>(hCallResult))
+	//{
+	//	//return callResult->Ge
+	//}
+	//return NULL_STRING;
+	return GetCallResultValue<CFileReadAsyncCallResult2>(hCallResult, &CFileReadAsyncCallResult2::GetFileName);
 }
 
 int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
-	if (auto *callResult = CallResults()->Get<CFileReadAsyncCallResult2>(hCallResult))
-	{
-		return callResult->GetResponse().m_MemblockID;
-	}
-	return 0;
-	//return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
+	//if (auto *callResult = CallResults()->Get<CFileReadAsyncCallResult2>(hCallResult))
+	//{
+	//	utils::Log(callResult->GetName() + ": memblock");
+	//	return callResult->GetResponse().m_MemblockID;
+	//}
+	//return 0;
+	return GetCallResultValue<CFileReadAsyncCallResult2>(hCallResult, &CFileReadAsyncCallResult2::GetMemblockID);
 }
 
 //FileShare
