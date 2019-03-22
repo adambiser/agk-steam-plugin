@@ -3213,7 +3213,7 @@ extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress();
 @desc Triggered when the latest stats and achievements for a specific user (including the local user) have been received from the server.
 @return 1 when the callback has more responses to process; otherwise 0.
 @callback-type list
-@callback-getters GetUserStatsReceivedUser
+@callback-getters GetUserStatsReceivedResult, GetUserStatsReceivedUser
 @api ISteamUserStats#UserStatsReceived_t
 */
 extern "C" DLL_EXPORT int HasUserStatsReceivedResponse();
@@ -3221,12 +3221,12 @@ extern "C" DLL_EXPORT int HasUserStatsReceivedResponse();
 // This plugin only reports for the current app id.
 //extern "C" DLL_EXPORT int GetUserStatsReceivedGameAppID();
 
-///*
-//@desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
-//@return 1 when the call is successful; otherwise 0.
-//@api ISteamUserStats#UserStatsReceived_t
-//*/
-//extern "C" DLL_EXPORT int GetUserStatsReceivedResult();
+/*
+@desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
+@return 1 when the call is successful; otherwise 0.
+@api ISteamUserStats#UserStatsReceived_t
+*/
+extern "C" DLL_EXPORT int GetUserStatsReceivedResult();
 
 /*
 @desc Returns the user whose stats were retrieved for the current UserStatsReceived_t callback response.

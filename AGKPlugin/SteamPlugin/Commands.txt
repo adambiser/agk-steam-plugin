@@ -355,6 +355,7 @@ GetUserAchievementStoredName,S,0,GetUserAchievementStoredName,0,0,0,0,GetUserAch
 GetUserAchievementStoredCurrentProgress,I,0,GetUserAchievementStoredCurrentProgress,0,0,0,0,GetUserAchievementStoredCurrentProgress
 GetUserAchievementStoredMaxProgress,I,0,GetUserAchievementStoredMaxProgress,0,0,0,0,GetUserAchievementStoredMaxProgress
 HasUserStatsReceivedResponse,I,0,HasUserStatsReceivedResponse,0,0,0,0,HasUserStatsReceivedResponse
+GetUserStatsReceivedResult,I,0,GetUserStatsReceivedResult,0,0,0,0,GetUserStatsReceivedResult
 GetUserStatsReceivedUser,I,0,GetUserStatsReceivedUser,0,0,0,0,GetUserStatsReceivedUser
 StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
 StatsInitialized,I,I,StatsInitializedForUser,0,0,0,0,StatsInitializedForUser

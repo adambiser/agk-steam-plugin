@@ -569,10 +569,10 @@ int HasUserStatsReceivedResponse()
 //	return ((CGameID)(int)Callbacks()->GetUserStatsReceived().m_nGameID).AppID();
 //}
 
-//int GetUserStatsReceivedResult()
-//{
-//	return (int)Callbacks()->GetUserStatsReceived().m_eResult;
-//}
+int GetUserStatsReceivedResult()
+{
+	return (int)Callbacks()->GetUserStatsReceived().m_eResult;
+}
 
 int GetUserStatsReceivedUser()
 {
