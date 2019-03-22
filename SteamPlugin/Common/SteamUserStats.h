@@ -36,7 +36,7 @@ struct PluginLeaderboardFindResult_t : LeaderboardFindResult_t
 	{
 		m_hSteamLeaderboard = param.m_hSteamLeaderboard;
 		m_bLeaderboardFound = param.m_bLeaderboardFound;
-		// Assigned a result based on m_bLeaderboardFound.
+		// Assign a result based on m_bLeaderboardFound.
 		m_eResult = m_bLeaderboardFound ? k_EResultOK : k_EResultFail;
 	}
 };
@@ -44,10 +44,18 @@ struct PluginLeaderboardFindResult_t : LeaderboardFindResult_t
 class CLeaderboardFindCallResult : public CCallResultItem<LeaderboardFindResult_t, PluginLeaderboardFindResult_t>
 {
 public:
-	CLeaderboardFindCallResult(const char *pchLeaderboardName)
+	CLeaderboardFindCallResult(const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod = k_ELeaderboardSortMethodNone, ELeaderboardDisplayType eLeaderboardDisplayType = k_ELeaderboardDisplayTypeNone)
 	{
-		m_CallResultName = "FindLeaderboard('" + std::string(pchLeaderboardName) + "')";
-		m_hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+		// No sort and/or no display type = find only.
+		if (eLeaderboardSortMethod == k_ELeaderboardSortMethodNone || eLeaderboardDisplayType == k_ELeaderboardDisplayTypeNone)
+		{
+			m_CallResultName = "FindLeaderboard('" + std::string(pchLeaderboardName) + "')";
+			m_hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+		}
+		m_CallResultName = "FindOrCreateLeaderboard('" + std::string(pchLeaderboardName) + "', "
+			+ std::to_string(eLeaderboardSortMethod) + ", "
+			+ std::to_string(eLeaderboardDisplayType) + ")";
+		m_hSteamAPICall = SteamUserStats()->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
 	}
 	int GetLeaderboardFindResultFound() { return m_Response.m_bLeaderboardFound; }
 	SteamLeaderboard_t GetLeaderboardFindResultHandle()	{ return m_Response.m_hSteamLeaderboard; }
