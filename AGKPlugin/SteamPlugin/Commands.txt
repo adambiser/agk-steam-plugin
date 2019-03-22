@@ -320,11 +320,17 @@ GetLeaderboardDisplayType,I,I,GetLeaderboardDisplayType,0,0,0,0,GetLeaderboardDi
 GetLeaderboardEntryCount,I,I,GetLeaderboardEntryCount,0,0,0,0,GetLeaderboardEntryCount
 GetLeaderboardName,S,I,GetLeaderboardName,0,0,0,0,GetLeaderboardName
 GetLeaderboardSortMethod,I,I,GetLeaderboardSortMethod,0,0,0,0,GetLeaderboardSortMethod
+GetMostAchievedAchievementInfo,I,0,GetMostAchievedAchievementInfo,0,0,0,0,GetMostAchievedAchievementInfo
+GetNextMostAchievedAchievementInfo,I,0,GetNextMostAchievedAchievementInfo,0,0,0,0,GetNextMostAchievedAchievementInfo
+GetMostAchievedAchievementInfoName,S,0,GetMostAchievedAchievementInfoName,0,0,0,0,GetMostAchievedAchievementInfoName
+GetMostAchievedAchievementInfoPercent,F,0,GetMostAchievedAchievementInfoPercent,0,0,0,0,GetMostAchievedAchievementInfoPercent
+GetMostAchievedAchievementInfoAchieved,I,0,GetMostAchievedAchievementInfoAchieved,0,0,0,0,GetMostAchievedAchievementInfoAchieved
 GetNumAchievements,I,0,GetNumAchievements,0,0,0,0,GetNumAchievements
 GetStatInt,I,S,GetStatInt,0,0,0,0,GetStatInt
 GetStatFloat,F,S,GetStatFloat,0,0,0,0,GetStatFloat
 IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,IndicateAchievementProgress
 RequestCurrentStats,I,0,RequestCurrentStats,0,0,0,0,RequestCurrentStats
+RequestGlobalAchievementPercentages,I,0,RequestGlobalAchievementPercentages,0,0,0,0,RequestGlobalAchievementPercentages
 RequestGlobalStats,I,I,RequestGlobalStats,0,0,0,0,RequestGlobalStats
 ResetAllStats,I,I,ResetAllStats,0,0,0,0,ResetAllStats
 SetAchievement,I,S,SetAchievement,0,0,0,0,SetAchievement

@@ -25,6 +25,20 @@ THE SOFTWARE.
 
 #define MAX_STATS_HISTORY_DAYS	60
 
+const int ACH_NAME_MAX_LENGTH = 128;
+char g_MostAchievedAchievementInfoName[ACH_NAME_MAX_LENGTH];
+float g_MostAchievedAchievementInfoPercent;
+bool g_MostAchievedAchievementInfoAchieved;
+int g_MostAchievedAchievementInfoIterator;
+
+void ClearMostAchievedAchievementInfo()
+{
+	g_MostAchievedAchievementInfoName[0] = 0;
+	g_MostAchievedAchievementInfoPercent = 0;
+	g_MostAchievedAchievementInfoAchieved = false;
+	g_MostAchievedAchievementInfoIterator = -1;
+}
+
 //AttachLeaderboardUGC
 
 int ClearAchievement(const char *name)
@@ -273,16 +287,48 @@ int GetLeaderboardSortMethod(int hLeaderboard)
 	return SteamUserStats()->GetLeaderboardSortMethod(SteamHandles()->GetSteamHandle(hLeaderboard));
 }
 
-const int ACH_NAME_MAX_LENGTH = 256;
-char g_AchievementInfoName[ACH_NAME_MAX_LENGTH];
-float g_AchievementInfoPercent;
-bool g_AchievementInfoAchieved;
-
 int GetMostAchievedAchievementInfo()
 {
-	CheckInitialized(-1);
-	return SteamUserStats()->GetMostAchievedAchievementInfo(g_AchievementInfoName, ACH_NAME_MAX_LENGTH, &g_AchievementInfoPercent, &g_AchievementInfoAchieved);
+	CheckInitialized(false);
+	g_MostAchievedAchievementInfoIterator = SteamUserStats()->GetMostAchievedAchievementInfo(g_MostAchievedAchievementInfoName, ACH_NAME_MAX_LENGTH, &g_MostAchievedAchievementInfoPercent, &g_MostAchievedAchievementInfoAchieved);
+	if (g_MostAchievedAchievementInfoIterator == -1)
+	{
+		ClearMostAchievedAchievementInfo();
+		return false;
+	}
+	return true;
 }
+
+int GetNextMostAchievedAchievementInfo()
+{
+	if (g_MostAchievedAchievementInfoIterator == -1)
+	{
+		return false;
+	}
+	g_MostAchievedAchievementInfoIterator = SteamUserStats()->GetNextMostAchievedAchievementInfo(g_MostAchievedAchievementInfoIterator, g_MostAchievedAchievementInfoName, ACH_NAME_MAX_LENGTH, &g_MostAchievedAchievementInfoPercent, &g_MostAchievedAchievementInfoAchieved);
+	if (g_MostAchievedAchievementInfoIterator == -1)
+	{
+		ClearMostAchievedAchievementInfo();
+		return false;
+	}
+	return true;
+}
+
+char *GetMostAchievedAchievementInfoName()
+{
+	return utils::CreateString(g_MostAchievedAchievementInfoName);
+}
+
+float GetMostAchievedAchievementInfoPercent()
+{
+	return g_MostAchievedAchievementInfoPercent;
+}
+
+int GetMostAchievedAchievementInfoAchieved()
+{
+	return g_MostAchievedAchievementInfoAchieved;
+}
+
 //GetMostAchievedAchievementInfo
 //GetNextMostAchievedAchievementInfo
 
@@ -339,7 +385,11 @@ int RequestCurrentStats()
 	return SteamUserStats()->RequestCurrentStats();
 }
 
-//RequestGlobalAchievementPercentages
+int RequestGlobalAchievementPercentages()
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CRequestGlobalAchievementPercentagesCallResult());
+}
 
 int RequestGlobalStats(int historyDays)
 {

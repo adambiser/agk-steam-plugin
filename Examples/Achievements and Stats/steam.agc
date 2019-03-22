@@ -16,6 +16,7 @@ Type SteamServerInfo
 	needToUploadScore as integer
 	// global stats
 	globalStatsCallResult as integer // 0 = loaded, > 0 = processing, -1 = done and loaded. 
+	globalAchCallResult as integer // 0 = loaded, > 0 = processing, -1 = done and loaded. 
 EndType
 
 #constant HISTORY_DAYS	10
@@ -168,6 +169,8 @@ Function ProcessCallbacks()
 	if not Steam.StatsInitialized()
 		ExitFunction
 	endif
+	// Global stats
+	result as integer
 	if server.globalStatsCallResult >= 0
 		if server.globalStatsCallResult = 0
 			server.globalStatsCallResult = Steam.RequestGlobalStats(HISTORY_DAYS)
@@ -177,9 +180,7 @@ Function ProcessCallbacks()
 				server.globalStatsCallResult = -1
 			endif
 		else
-			result as integer
 			result =  Steam.GetCallResultCode(server.globalStatsCallResult)
-			AddStatus("RequestGlobalStats call result code: " + str(result))
 			if result
 				AddStatus("RequestGlobalStats call result code: " + str(result))
 				if result = EResultOK
@@ -192,6 +193,34 @@ Function ProcessCallbacks()
 				endif
 				Steam.DeleteCallResult(server.globalStatsCallResult)
 				server.globalStatsCallResult = -1
+			endif
+		endif
+	endif
+	// Global achievement percentages - 
+	if server.globalAchCallResult >= 0
+		if server.globalAchCallResult = 0
+			server.globalAchCallResult = Steam.RequestGlobalAchievementPercentages()
+			AddStatus("Calling RequestGlobalAchievementPercentages.  Call result = " + str(server.globalAchCallResult))
+			if not server.globalAchCallResult
+				AddStatus("Error calling RequestGlobalAchievementPercentages")
+				server.globalAchCallResult = -1
+			endif
+		else
+			result =  Steam.GetCallResultCode(server.globalAchCallResult)
+			if result
+				AddStatus("RequestGlobalAchievementPercentages call result code: " + str(result))
+				if result = EResultOK
+					AddStatus("Most achieved:")
+					if Steam.GetMostAchievedAchievementInfo()
+						repeat
+							AddStatus("> " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoAchieved()))
+						until not Steam.GetNextMostAchievedAchievementInfo()
+					endif
+				else
+					AddStatus("If you're using app 480 / SpaceWar, it doesn't display this information.  Try another app id.")
+				endif
+				Steam.DeleteCallResult(server.globalAchCallResult)
+				server.globalAchCallResult = -1
 			endif
 		endif
 	endif

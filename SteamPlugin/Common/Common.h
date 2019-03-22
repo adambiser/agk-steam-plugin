@@ -56,6 +56,8 @@ extern InputAnalogActionData_t g_InputAnalogActionData;
 extern InputDigitalActionData_t g_InputDigitalActionData;
 extern InputMotionData_t g_InputMotionData;
 
+extern void ClearMostAchievedAchievementInfo();
+
 /*
 Check to see if the SteamPlugin has been initialized.
 If it has not been, return a default value.

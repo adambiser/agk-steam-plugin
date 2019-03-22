@@ -79,15 +79,15 @@ protected:
 		}
 		m_CallResult.Set(m_hSteamAPICall, this, &CCallResultItem<callback_type, response_type>::OnResponse);
 	}
-	response_type m_Response;
-private:
-	CCallResult<CCallResultItem<callback_type, response_type>, callback_type> m_CallResult;
-	void OnResponse(callback_type *pCallResult, bool bFailure)
+	virtual void OnResponse(callback_type *pCallResult, bool bFailure)
 	{
 		m_Response = *pCallResult;
 		SetResultCode(m_Response.m_eResult, bFailure);
 		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
 	}
+	response_type m_Response;
+private:
+	CCallResult<CCallResultItem<callback_type, response_type>, callback_type> m_CallResult;
 };
 
 /*

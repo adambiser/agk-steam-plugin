@@ -2854,6 +2854,27 @@ extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard);
 extern "C" DLL_EXPORT int GetLeaderboardSortMethod(int hLeaderboard);
 
 /*
+@api ISteamUserStats#GetMostAchievedAchievementInfo
+*/
+extern "C" DLL_EXPORT int GetMostAchievedAchievementInfo();
+/*
+@api ISteamUserStats#GetNextMostAchievedAchievementInfo
+*/
+extern "C" DLL_EXPORT int GetNextMostAchievedAchievementInfo();
+/*
+@api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
+*/
+extern "C" DLL_EXPORT char *GetMostAchievedAchievementInfoName();
+/*
+@api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
+*/
+extern "C" DLL_EXPORT float GetMostAchievedAchievementInfoPercent();
+/*
+@api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
+*/
+extern "C" DLL_EXPORT int GetMostAchievedAchievementInfoAchieved();
+
+/*
 @desc Gets the number of achievements for the app.
 
 _This method is generally just for testing purposes since the app should already know what the achievements are._
@@ -2918,7 +2939,13 @@ _This command is called within Init so AppGameKit code will likely never need to
 */
 extern "C" DLL_EXPORT int RequestCurrentStats();
 
-//RequestGlobalAchievementPercentages
+/*
+@desc Asynchronously fetch the data for the percentage of players who have received each achievement for the current game globally.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamUserStats#RequestGlobalAchievementPercentages, ISteamUserStats#GlobalAchievementPercentagesReady_t
+*/
+extern "C" DLL_EXPORT int RequestGlobalAchievementPercentages();
+
 /*
 @desc Asynchronously fetches global stats data, which is available for stats marked as "aggregated" in the App Admin panel of the Steamworks website.
 @param historyDays How many days of day-by-day history to retrieve in addition to the overall totals. The limit is 60.

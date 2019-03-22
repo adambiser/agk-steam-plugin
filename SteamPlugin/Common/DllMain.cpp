@@ -61,6 +61,7 @@ void ResetSession()
 	g_InputCount = 0;
 	g_SteamInitialized = false;
 	g_StoringStats = false;
+	ClearMostAchievedAchievementInfo();
 }
 
 #pragma region Additional Methods

@@ -158,6 +158,26 @@ public:
 	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
 };
 
+class CRequestGlobalAchievementPercentagesCallResult : public CCallResultItem<GlobalAchievementPercentagesReady_t>
+{
+public:
+	CRequestGlobalAchievementPercentagesCallResult()
+	{
+		m_CallResultName = "RequestGlobalAchievementPercentages()";
+		m_hSteamAPICall = SteamUserStats()->RequestGlobalAchievementPercentages();
+	}
+protected:
+	void OnResponse(GlobalAchievementPercentagesReady_t *pCallResult, bool bFailure)
+	{
+		if (pCallResult->m_nGameID != g_AppID)
+		{
+			utils::Log(GetName() + ":  Received result for another app id: " + std::to_string(pCallResult->m_nGameID));
+			return;
+		}
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+	}
+};
+
 class CGlobalStatsReceivedCallResult : public CCallResultItem<GlobalStatsReceived_t>
 {
 public:
@@ -166,17 +186,15 @@ public:
 		m_CallResultName = "RequestGlobalStats(" + std::to_string(nHistoryDays) + ")";
 		m_hSteamAPICall = SteamUserStats()->RequestGlobalStats(nHistoryDays);
 	}
-private:
+protected:
 	void OnResponse(GlobalStatsReceived_t *pCallResult, bool bFailure)
 	{
 		if (pCallResult->m_nGameID != g_AppID)
 		{
-			utils::Log(GetName() + ":  Received stats for another app id: " + std::to_string(pCallResult->m_nGameID));
+			utils::Log(GetName() + ":  Received result for another app id: " + std::to_string(pCallResult->m_nGameID));
 			return;
 		}
-		m_Response = *pCallResult;
-		SetResultCode(m_Response.m_eResult, bFailure);
-		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
+		CCallResultItem::OnResponse(pCallResult, bFailure);
 	}
 };
 
