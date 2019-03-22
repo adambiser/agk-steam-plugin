@@ -158,4 +158,26 @@ public:
 	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
 };
 
+class CGlobalStatsReceivedCallResult : public CCallResultItem<GlobalStatsReceived_t>
+{
+public:
+	CGlobalStatsReceivedCallResult(int nHistoryDays)
+	{
+		m_CallResultName = "RequestGlobalStats(" + std::to_string(nHistoryDays) + ")";
+		m_hSteamAPICall = SteamUserStats()->RequestGlobalStats(nHistoryDays);
+	}
+private:
+	void OnResponse(GlobalStatsReceived_t *pCallResult, bool bFailure)
+	{
+		if (pCallResult->m_nGameID != g_AppID)
+		{
+			utils::Log(GetName() + ":  Received stats for another app id: " + std::to_string(pCallResult->m_nGameID));
+			return;
+		}
+		m_Response = *pCallResult;
+		SetResultCode(m_Response.m_eResult, bFailure);
+		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
+	}
+};
+
 #endif // _STEAMUSERSTATS_H_

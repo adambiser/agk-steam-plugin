@@ -14,7 +14,11 @@ Type SteamServerInfo
 	// Instructions
 	needToStoreStats as integer
 	needToUploadScore as integer
+	// global stats
+	globalStatsCallResult as integer // 0 = loaded, > 0 = processing, -1 = done and loaded. 
 EndType
+
+#constant HISTORY_DAYS	10
 
 // Additional UI for this demo.
 CreateTextEx(0, 80, "Click an icon to toggle the achievement.")
@@ -163,6 +167,33 @@ Function ProcessCallbacks()
 	//
 	if not Steam.StatsInitialized()
 		ExitFunction
+	endif
+	if server.globalStatsCallResult >= 0
+		if server.globalStatsCallResult = 0
+			server.globalStatsCallResult = Steam.RequestGlobalStats(HISTORY_DAYS)
+			AddStatus("Calling RequestGlobalStats.  Call result = " + str(server.globalStatsCallResult))
+			if not server.globalStatsCallResult
+				AddStatus("Error calling RequestGlobalStats")
+				server.globalStatsCallResult = -1
+			endif
+		else
+			result as integer
+			result =  Steam.GetCallResultCode(server.globalStatsCallResult)
+			AddStatus("RequestGlobalStats call result code: " + str(result))
+			if result
+				AddStatus("RequestGlobalStats call result code: " + str(result))
+				if result = EResultOK
+					AddStatus("GlobalStats: NumGames: " + Steam.GetGlobalStatInt64AsString("NumGames"))
+					AddStatus("GlobalStats: FeetTraveled: " + Steam.GetGlobalStatDoubleAsString("FeetTraveled", 3))
+					AddStatus("GlobalStatHistory: NumGames: " + Steam.GetGlobalStatHistoryInt64JSON("NumGames"))
+					AddStatus("GlobalStatHistory: FeetTraveled: " + Steam.GetGlobalStatHistoryDoubleJSON("FeetTraveled", 3))
+				else
+					AddStatus("Error receiving RequestGlobalStats")
+				endif
+				Steam.DeleteCallResult(server.globalStatsCallResult)
+				server.globalStatsCallResult = -1
+			endif
+		endif
 	endif
 	//
 	// Process StoreStats/ResetStats callback.

@@ -2674,6 +2674,8 @@ extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 @desc Gets a leaderboard by name, it will create it if it's not yet created.
 Leaderboards created with this function will not automatically show up in the Steam Community.
 You must manually set the Community Name field in the App Admin panel of the Steamworks website.
+
+_Note: If either eLeaderboardSortMethod OR eLeaderboardDisplayType are 0 (none), then FindLeaderboard is performed instead._
 @param leaderboardName The name of the leaderboard to find.
 @param eLeaderboardSortMethod The sort order of the new leaderboard if it's created.
 @param-api eLeaderboardSortMethod ISteamUserStats#ELeaderboardSortMethod
@@ -2708,7 +2710,17 @@ extern "C" DLL_EXPORT int GetFindLeaderboardHandle(int hCallResult);
 */
 extern "C" DLL_EXPORT int GetAchievement(const char *name);
 
-// GetAchievementAchievedPercent
+/*
+@desc Returns the percentage of users who have unlocked the specified achievement.
+
+You must have called RequestGlobalAchievementPercentages and it needs to return successfully via its callback prior to calling this.
+
+_If RequestGlobalAchievementPercentages has not been called or if the specified 'API Name' does not exist in the global achievement percentages, an error will be raised._
+@param name The 'API Name' of the achievement.
+@return The percentage of people that have unlocked this achievement from 0 to 100 or -1 if there is an error.
+@api ISteamUserStats#GetAchievementAchievedPercent
+*/
+extern "C" DLL_EXPORT float GetAchievementAchievedPercent(const char *name);
 
 /*
 @desc Gets the time at which an achievement was unlocked, if ever.
@@ -2759,8 +2771,55 @@ _This method is generally just for testing purposes since the app should already
 */
 extern "C" DLL_EXPORT char *GetAchievementAPIName(int index);
 
-//GetGlobalStat
-//GetGlobalStatHistory
+/*
+@desc Gets the lifetime totals for an aggregated integer stat.
+
+You must have called RequestGlobalStats and it needs to return successfully via its callback prior to calling this.
+
+_Note: Since AppGameKit is limited to 32-bit integers, this value is returned as a string._
+
+_If there is a problem getting the value, an error is raised._
+@param name The 'API Name' of the stat.
+@return The lifetime totals for a stat.
+@api ISteamUserStats#GetGlobalStat
+*/
+extern "C" DLL_EXPORT char *GetGlobalStatInt64AsString(const char *name);
+
+/*
+@desc Gets the lifetime totals for an aggregated float stat.
+
+You must have called RequestGlobalStats and it needs to return successfully via its callback prior to calling this.
+
+_Note: Since AppGameKit is limited to floats, this value is returned as a string._
+
+_If there is a problem getting the value, an error is raised._
+@param name The 'API Name' of the stat.
+@param precision The precision of the returned string.
+@return The lifetime totals for a stat.
+@api ISteamUserStats#GetGlobalStat
+*/
+extern "C" DLL_EXPORT char *GetGlobalStatDoubleAsString(const char *name, int precision);
+
+/*
+@desc Gets the daily history for an aggregated int stat.
+
+Returned as a JSON array of strings, starting with today's value.
+@param name The 'API Name' of the stat.
+@return A JSON array of int64 values as strings.
+@api ISteamUserStats#GetGlobalStatHistory
+*/
+extern "C" DLL_EXPORT char *GetGlobalStatHistoryInt64JSON(const char *name);
+
+/*
+@desc Gets the daily history for an aggregated floar stat.
+
+Returned as a JSON array of strings, starting with today's value.
+@param name The 'API Name' of the stat.
+@param precision The precision of the returned string.
+@return A JSON array of double values as strings.
+@api ISteamUserStats#GetGlobalStatHistory
+*/
+extern "C" DLL_EXPORT char *GetGlobalStatHistoryDoubleJSON(const char *name, int precision);
 
 /*
 @desc Returns the display type of a leaderboard.
@@ -2853,14 +2912,21 @@ extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *name, int curP
 
 Sends a request for user stats to Steam.
 
-_This command is called within Init so AGK code will likely never need to call this command explicitly._
+_This command is called within Init so AppGameKit code will likely never need to call this command explicitly._
 @return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
 @api ISteamUserStats#RequestUserStats
 */
 extern "C" DLL_EXPORT int RequestCurrentStats();
 
 //RequestGlobalAchievementPercentages
-//RequestGlobalStats
+/*
+@desc Asynchronously fetches global stats data, which is available for stats marked as "aggregated" in the App Admin panel of the Steamworks website.
+@param historyDays How many days of day-by-day history to retrieve in addition to the overall totals. The limit is 60.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamUserStats#RequestGlobalStats, ISteamUserStats#GlobalStatsReceived_t
+*/
+extern "C" DLL_EXPORT int RequestGlobalStats(int historyDays);
+
 //RequestUserStats
 
 /*

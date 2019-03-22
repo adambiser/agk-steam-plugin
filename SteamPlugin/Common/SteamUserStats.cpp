@@ -23,6 +23,8 @@ THE SOFTWARE.
 #include "Common.h"
 #include "SteamUserStats.h"
 
+#define MAX_STATS_HISTORY_DAYS	60
+
 //AttachLeaderboardUGC
 
 int ClearAchievement(const char *name)
@@ -117,7 +119,17 @@ int GetAchievement(const char *name)
 	return false;
 }
 
-//GetAchievementAchievedPercent
+float GetAchievementAchievedPercent(const char *name)
+{
+	CheckInitialized(-1.0f);
+	float pflPercent;
+	if (SteamUserStats()->GetAchievementAchievedPercent(name, &pflPercent))
+	{
+		return pflPercent;
+	}
+	agk::PluginError("GetAchievementAchievedPercent failed.");
+	return -1.0f;
+}
 
 int GetAchievementUnlockTime(const char *name)
 {
@@ -164,8 +176,78 @@ char *GetAchievementAPIName(int index)
 	return utils::CreateString(SteamUserStats()->GetAchievementName(index));
 }
 
-//GetGlobalStat
-//GetGlobalStatHistory
+char *GetGlobalStatInt64AsString(const char *name)
+{
+	CheckInitialized(NULL_STRING);
+	int64 result = 0;
+	if (SteamUserStats()->GetGlobalStat(name, &result))
+	{
+		return utils::CreateString(std::to_string(result));
+	}
+	agk::PluginError("GetGlobalStat failed.");
+	return NULL_STRING;
+}
+
+char *GetGlobalStatDoubleAsString(const char *name, int precision)
+{
+	CheckInitialized(NULL_STRING);
+	double result = 0.0;
+	if (SteamUserStats()->GetGlobalStat(name, &result))
+	{
+		try
+		{
+			std::stringstream ss;
+			ss << std::fixed << std::setprecision(precision) << result;
+			return utils::CreateString(ss.str());
+		}
+		catch (...)
+		{ }
+	}
+	agk::PluginError("GetGlobalStat failed.");
+	return NULL_STRING;
+}
+
+char *GetGlobalStatHistoryInt64JSON(const char *name)
+{
+	std::ostringstream json;
+	json << "[";
+	if (g_SteamInitialized)
+	{
+		int64 pData[MAX_STATS_HISTORY_DAYS];
+		int count = SteamUserStats()->GetGlobalStatHistory(name, pData, MAX_STATS_HISTORY_DAYS * 8);
+		for (int index = 0; index < count; index++)
+		{
+			if (index > 0)
+			{
+				json << ", ";
+			}
+			json << "'" << pData[index] << "'";
+		}
+	}
+	json << "]";
+	return utils::CreateString(json);
+}
+
+char *GetGlobalStatHistoryDoubleJSON(const char *name, int precision)
+{
+	std::ostringstream json;
+	json << "[";
+	if (g_SteamInitialized)
+	{
+		double pData[MAX_STATS_HISTORY_DAYS];
+		int count = SteamUserStats()->GetGlobalStatHistory(name, pData, MAX_STATS_HISTORY_DAYS * 8);
+		for (int index = 0; index < count; index++)
+		{
+			if (index > 0)
+			{
+				json << ", ";
+			}
+			json << "'" << std::fixed << std::setprecision(precision) << pData[index] << "'";
+		}
+	}
+	json << "]";
+	return utils::CreateString(json);
+}
 
 int GetLeaderboardDisplayType(int hLeaderboard)
 {
@@ -191,6 +273,16 @@ int GetLeaderboardSortMethod(int hLeaderboard)
 	return SteamUserStats()->GetLeaderboardSortMethod(SteamHandles()->GetSteamHandle(hLeaderboard));
 }
 
+const int ACH_NAME_MAX_LENGTH = 256;
+char g_AchievementInfoName[ACH_NAME_MAX_LENGTH];
+float g_AchievementInfoPercent;
+bool g_AchievementInfoAchieved;
+
+int GetMostAchievedAchievementInfo()
+{
+	CheckInitialized(-1);
+	return SteamUserStats()->GetMostAchievedAchievementInfo(g_AchievementInfoName, ACH_NAME_MAX_LENGTH, &g_AchievementInfoPercent, &g_AchievementInfoAchieved);
+}
 //GetMostAchievedAchievementInfo
 //GetNextMostAchievedAchievementInfo
 
@@ -206,7 +298,8 @@ int GetStatInt(const char *name)
 {
 	CheckInitialized(0);
 	int result = 0;
-	if (SteamUserStats()->GetStat(name, &result)) {
+	if (SteamUserStats()->GetStat(name, &result))
+	{
 		return result;
 	}
 	agk::PluginError("GetStat failed.");
@@ -217,7 +310,8 @@ float GetStatFloat(const char *name)
 {
 	CheckInitialized(0.0);
 	float result = 0.0;
-	if (SteamUserStats()->GetStat(name, &result)) {
+	if (SteamUserStats()->GetStat(name, &result))
+	{
 		return result;
 	}
 	agk::PluginError("GetStat failed.");
@@ -246,7 +340,13 @@ int RequestCurrentStats()
 }
 
 //RequestGlobalAchievementPercentages
-//RequestGlobalStats
+
+int RequestGlobalStats(int historyDays)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CGlobalStatsReceivedCallResult(historyDays));
+}
+
 //RequestUserStats
 
 int ResetAllStats(int achievementsToo)

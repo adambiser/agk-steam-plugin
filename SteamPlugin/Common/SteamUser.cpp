@@ -70,7 +70,7 @@ int LoggedOn()
 
 int GetGameBadgeLevel(int series, int foil)
 {
-	return SteamUser()->GetGameBadgeLevel(series, foil);
+	return SteamUser()->GetGameBadgeLevel(series, foil != 0);
 }
 
 //GetHSteamUser - internal use

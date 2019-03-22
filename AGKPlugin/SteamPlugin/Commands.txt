@@ -305,12 +305,17 @@ FindOrCreateLeaderboard,I,SII,FindOrCreateLeaderboard,0,0,0,0,FindOrCreateLeader
 GetFindLeaderboardFound,I,I,GetFindLeaderboardFound,0,0,0,0,GetFindLeaderboardFound
 GetFindLeaderboardHandle,I,I,GetFindLeaderboardHandle,0,0,0,0,GetFindLeaderboardHandle
 GetAchievement,I,S,GetAchievement,0,0,0,0,GetAchievement
+GetAchievementAchievedPercent,F,S,GetAchievementAchievedPercent,0,0,0,0,GetAchievementAchievedPercent
 GetAchievementUnlockTime,I,S,GetAchievementUnlockTime,0,0,0,0,GetAchievementUnlockTime
 GetAchievementDisplayName,S,S,GetAchievementDisplayName,0,0,0,0,GetAchievementDisplayName
 GetAchievementDisplayDesc,S,S,GetAchievementDisplayDesc,0,0,0,0,GetAchievementDisplayDesc
 GetAchievementDisplayHidden,I,S,GetAchievementDisplayHidden,0,0,0,0,GetAchievementDisplayHidden
 GetAchievementIcon,I,S,GetAchievementIcon,0,0,0,0,GetAchievementIcon
 GetAchievementAPIName,S,I,GetAchievementAPIName,0,0,0,0,GetAchievementAPIName
+GetGlobalStatInt64AsString,S,S,GetGlobalStatInt64AsString,0,0,0,0,GetGlobalStatInt64AsString
+GetGlobalStatDoubleAsString,S,SI,GetGlobalStatDoubleAsString,0,0,0,0,GetGlobalStatDoubleAsString
+GetGlobalStatHistoryInt64JSON,S,S,GetGlobalStatHistoryInt64JSON,0,0,0,0,GetGlobalStatHistoryInt64JSON
+GetGlobalStatHistoryDoubleJSON,S,SI,GetGlobalStatHistoryDoubleJSON,0,0,0,0,GetGlobalStatHistoryDoubleJSON
 GetLeaderboardDisplayType,I,I,GetLeaderboardDisplayType,0,0,0,0,GetLeaderboardDisplayType
 GetLeaderboardEntryCount,I,I,GetLeaderboardEntryCount,0,0,0,0,GetLeaderboardEntryCount
 GetLeaderboardName,S,I,GetLeaderboardName,0,0,0,0,GetLeaderboardName
@@ -320,6 +325,7 @@ GetStatInt,I,S,GetStatInt,0,0,0,0,GetStatInt
 GetStatFloat,F,S,GetStatFloat,0,0,0,0,GetStatFloat
 IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,IndicateAchievementProgress
 RequestCurrentStats,I,0,RequestCurrentStats,0,0,0,0,RequestCurrentStats
+RequestGlobalStats,I,I,RequestGlobalStats,0,0,0,0,RequestGlobalStats
 ResetAllStats,I,I,ResetAllStats,0,0,0,0,ResetAllStats
 SetAchievement,I,S,SetAchievement,0,0,0,0,SetAchievement
 SetStatInt,I,SI,SetStatInt,0,0,0,0,SetStatInt
