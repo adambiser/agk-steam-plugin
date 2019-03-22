@@ -43,15 +43,14 @@ struct PluginLobbyEnter_t : LobbyEnter_t
 {
 	EResult m_eResult;
 
-	PluginLobbyEnter_t() : m_eResult((EResult)0) {}
-
-	PluginLobbyEnter_t(LobbyEnter_t param) : PluginLobbyEnter_t()
+	PluginLobbyEnter_t& operator=(const LobbyEnter_t &from)
 	{
-		m_ulSteamIDLobby = param.m_ulSteamIDLobby;
-		m_rgfChatPermissions = param.m_rgfChatPermissions;
-		m_bLocked = param.m_bLocked;
-		m_EChatRoomEnterResponse = param.m_EChatRoomEnterResponse;
-		m_eResult = m_ulSteamIDLobby != 0 ? k_EResultOK : k_EResultFail;
+		m_ulSteamIDLobby = from.m_ulSteamIDLobby;
+		m_rgfChatPermissions = from.m_rgfChatPermissions;
+		m_bLocked = from.m_bLocked;
+		m_EChatRoomEnterResponse = from.m_EChatRoomEnterResponse;
+		m_eResult = from.m_ulSteamIDLobby != 0 ? k_EResultOK : k_EResultFail;
+		return *this;
 	}
 };
 
@@ -69,20 +68,16 @@ public:
 	int GetLobbyEnterChatRoomEnterResponse() { return (int)m_Response.m_EChatRoomEnterResponse; }
 };
 
-struct PluginLobbyMatchList_t
+struct PluginLobbyMatchList_t : LobbyMatchList_t
 {
 	EResult m_eResult;
 	std::vector<CSteamID> m_Lobbies;
 
-	PluginLobbyMatchList_t() : m_eResult((EResult)0) {}
-
-	PluginLobbyMatchList_t(LobbyMatchList_t param) : PluginLobbyMatchList_t()
+	PluginLobbyMatchList_t& operator=(const LobbyMatchList_t &from)
 	{
-		for (int index = 0; index < (int)param.m_nLobbiesMatching; index++)
-		{
-			m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
-		}
+		m_nLobbiesMatching = from.m_nLobbiesMatching;
 		m_eResult = k_EResultOK;
+		return *this;
 	}
 };
 
@@ -97,6 +92,15 @@ public:
 	int GetLobbyCount() { return (int)m_Response.m_Lobbies.size(); }
 	bool IsValidIndex(int index) { return index >= 0 && index < (int)m_Response.m_Lobbies.size(); }
 	uint64 GetLobby(int index) { return m_Response.m_Lobbies[index].ConvertToUint64(); }
+protected:
+	void OnResponse(LobbyMatchList_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		for (int index = 0; index < (int)m_Response.m_nLobbiesMatching; index++)
+		{
+			m_Response.m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
+		}
+	}
 };
 
 #endif // _STEAMMATCHMAKING_H_

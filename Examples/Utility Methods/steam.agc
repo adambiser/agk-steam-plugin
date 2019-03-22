@@ -35,13 +35,16 @@ AddStatus("IsPhoneRequiringVerification: " + TF(Steam.IsPhoneRequiringVerificati
 AddStatus("IsPhoneVerified: " + TF(Steam.IsPhoneVerified()))
 AddStatus("IsTwoFactorEnabled: " + TF(Steam.IsTwoFactorEnabled()))
 
-global filenames as string[1] = ['dummy.txt', 'SteamworksExample.exe']
+global filenames as string[1] = ["dummy.txt", "SteamworksExample.exe"]
 global fileCallResults as integer[1]
 
 for x = 0 to filenames.length
 	fileCallResults[x] = Steam.GetFileDetails(filenames[x])
-	AddStatus("GetFileDetails: " + filenames[x] + ', call result = ' + str(fileCallResults[x]))
+	AddStatus("GetFileDetails: " + filenames[x] + ", call result = " + str(fileCallResults[x]))
 next
+
+global numberOfPlayersCallResult as integer
+numberOfPlayersCallResult = Steam.GetNumberOfCurrentPlayers()
 	
 
 info as string
@@ -94,15 +97,15 @@ Function ProcessCallbacks()
 	if Steam.IsSteamShuttingDown()
 		AddStatus("Steam is shutting down.")
 	endif
+	result as integer
 	x as integer
 	for x = 0 to fileCallResults.length
 		if fileCallResults[x]
-			result as integer
 			result = Steam.GetCallResultCode(fileCallResults[x])
 			if result
-				AddStatus("GetFileDetails: " + filenames[x] + ', result code = ' + str(result))
+				AddStatus("GetFileDetails: " + filenames[x] + ", result code = " + str(result))
 				//~ if result = EResultOK
-					AddStatus(filenames[x] + ': size = ' + str(Steam.GetFileDetailsSize(fileCallResults[x])) + ', SHA = ' + Steam.GetFileDetailsSHA1(fileCallResults[x]))
+					AddStatus(filenames[x] + ": size = " + str(Steam.GetFileDetailsSize(fileCallResults[x])) + ", SHA = " + Steam.GetFileDetailsSHA1(fileCallResults[x]))
 				//~ endif
 				// Done with the call result.  Delete and clear.
 				Steam.DeleteCallResult(fileCallResults[x])
@@ -110,4 +113,16 @@ Function ProcessCallbacks()
 			endif
 		endif
 	next
+	if numberOfPlayersCallResult
+		result = Steam.GetCallResultCode(numberOfPlayersCallResult)
+		if result
+			AddStatus("GetNumberOfCurrentPlayers: result code = " + str(result))
+			if result = EResultOK
+				AddStatus("Number of players: " + str(Steam.GetNumberOfCurrentPlayersResult(numberOfPlayersCallResult)))
+			endif
+			// Done with the call result.  Delete and clear.
+			Steam.DeleteCallResult(numberOfPlayersCallResult)
+			numberOfPlayersCallResult = 0
+		endif
+	endif
 EndFunction

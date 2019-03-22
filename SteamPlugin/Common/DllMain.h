@@ -2665,6 +2665,8 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int 
 /*
 @desc Sends a request to find the handle for a leaderboard.
 @param leaderboardName The name of the leaderboard to find.
+@callback-type callresult
+@callback-getters GetFindLeaderboardFound, GetFindLeaderboardHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#FindLeaderboard
 */
@@ -2675,12 +2677,14 @@ extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 Leaderboards created with this function will not automatically show up in the Steam Community.
 You must manually set the Community Name field in the App Admin panel of the Steamworks website.
 
-_Note: If either eLeaderboardSortMethod OR eLeaderboardDisplayType are 0 (none), then FindLeaderboard is performed instead._
+_Note: If either eLeaderboardSortMethod OR eLeaderboardDisplayType are 0 (none), an error is raised.
 @param leaderboardName The name of the leaderboard to find.
 @param eLeaderboardSortMethod The sort order of the new leaderboard if it's created.
 @param-api eLeaderboardSortMethod ISteamUserStats#ELeaderboardSortMethod
 @param eLeaderboardDisplayType The display type (used by the Steam Community web site) of the new leaderboard if it's created.
 @param-api eLeaderboardDisplayType ISteamUserStats#ELeaderboardDisplayType
+@callback-type callresult
+@callback-getters GetFindLeaderboardFound, GetFindLeaderboardHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#FindOrCreateLeaderboard
 */
@@ -2824,8 +2828,8 @@ extern "C" DLL_EXPORT char *GetGlobalStatHistoryDoubleJSON(const char *name, int
 /*
 @desc Returns the display type of a leaderboard.
 @param hLeaderboard A leaderboard handle.
-@return An [ELeaderboardDisplayType](https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDisplayType) value.
-@api ISteamUserStats#GetLeaderboardDisplayType
+@return An ELeaderboardDisplayType value.
+@api ISteamUserStats#GetLeaderboardDisplayType, ISteamUserStats#ELeaderboardDisplayType
 */
 extern "C" DLL_EXPORT int GetLeaderboardDisplayType(int hLeaderboard);
 
@@ -2848,31 +2852,73 @@ extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard);
 /*
 @desc Returns the sort order of a leaderboard.
 @param hLeaderboard A leaderboard handle.
-@return An [ELeaderboardSortMethod](https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardSortMethod) value.
-@api ISteamUserStats#GetLeaderboardSortMethod
+@return ELeaderboardSortMethod value.
+@api ISteamUserStats#GetLeaderboardSortMethod, ISteamUserStats#ELeaderboardSortMethod
 */
 extern "C" DLL_EXPORT int GetLeaderboardSortMethod(int hLeaderboard);
 
 /*
+@desc Gets the info on the most achieved achievement for the game.
+Use GetMostAchievedAchievementInfoName, GetMostAchievedAchievementInfoPercent, and GetMostAchievedAchievementInfoAchieved to get this info.
+
+You must have called RequestGlobalAchievementPercentages and it needs to return successfully via its callback prior to calling this.
+
+_Note: The plugin keeps track of the iterator mentioned in the Steamworks documentation.__
+
+Usage:
+```
+if Steam.GetMostAchievedAchievementInfo()
+	repeat
+		Log("Name: " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
+	until not Steam.GetNextMostAchievedAchievementInfo()
+endif
+```
+@return 1 If achievement info was loaded; otherwise 0.
 @api ISteamUserStats#GetMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT int GetMostAchievedAchievementInfo();
+
 /*
+@desc Gets the info on the next most achieved achievement for the game.
+Use GetMostAchievedAchievementInfoName, GetMostAchievedAchievementInfoPercent, and GetMostAchievedAchievementInfoAchieved to get this info.
+
+You must have called RequestGlobalAchievementPercentages and it needs to return successfully via its callback prior to calling this.
+
+_Note: The plugin keeps track of the iterator mentioned in the Steamworks documentation.__
+
+Usage:
+```
+if Steam.GetMostAchievedAchievementInfo()
+repeat
+Log("Name: " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
+until not Steam.GetNextMostAchievedAchievementInfo()
+endif
+```
+@return 1 If achievement info was loaded; otherwise 0.
 @api ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT int GetNextMostAchievedAchievementInfo();
+
 /*
+@desc Returns the 'API Name' of the achievement as loaded by GetMostAchievedAchievementInfo or GetNextMostAchievedAchievementInfo.
+@return 'API Name' of an achievement or an empty string.
 @api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT char *GetMostAchievedAchievementInfoName();
+
 /*
+@desc Returns the percentage of people that have unlocked this achievement from 0 to 100 as loaded by GetMostAchievedAchievementInfo or GetNextMostAchievedAchievementInfo.
+@return A float.
 @api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT float GetMostAchievedAchievementInfoPercent();
+
 /*
+@desc Returns an integer indicating whether the current user has unlocked this achievement as loaded by GetMostAchievedAchievementInfo or GetNextMostAchievedAchievementInfo.
+@return 1 if the current user has unlocked this achievement; otherwise 0;
 @api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
-extern "C" DLL_EXPORT int GetMostAchievedAchievementInfoAchieved();
+extern "C" DLL_EXPORT int GetMostAchievedAchievementInfoUnlocked();
 
 /*
 @desc Gets the number of achievements for the app.
@@ -2883,7 +2929,22 @@ _This method is generally just for testing purposes since the app should already
 */
 extern "C" DLL_EXPORT int GetNumAchievements();
 
-//GetNumberOfCurrentPlayers
+/*
+@desc Asynchronously retrieves the total number of players currently playing the current game. Both online and in offline mode.
+@callback-type callresult
+@callback-getters GetNumberOfCurrentPlayersResult
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamUserStats#GetNumberOfCurrentPlayers, ISteamUserStats#NumberOfCurrentPlayers_t
+*/
+extern "C" DLL_EXPORT int GetNumberOfCurrentPlayers();
+
+/*
+@desc Returns the number of current players returned by the GetNumberOfCurrentPlayers call.
+@param hCallResult A GetNumberOfCurrentPlayers call result.
+@return An integer.
+@api ISteamUserStats#GetNumberOfCurrentPlayers, ISteamUserStats#NumberOfCurrentPlayers_t
+*/
+extern "C" DLL_EXPORT int GetNumberOfCurrentPlayersResult(int hCallResult);
 
 /*
 @desc Gets the current value of an integer stat for the current user.
@@ -2931,16 +2992,18 @@ extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *name, int curP
 /*
 @desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
 
-Sends a request for user stats to Steam.
+Sends a request for current user's stats to Steam.
 
 _This command is called within Init so AppGameKit code will likely never need to call this command explicitly._
 @return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
-@api ISteamUserStats#RequestUserStats
+@api ISteamUserStats#RequestCurrentStats
 */
 extern "C" DLL_EXPORT int RequestCurrentStats();
 
 /*
 @desc Asynchronously fetch the data for the percentage of players who have received each achievement for the current game globally.
+@callback-type callresult
+@callback-getters GetCallResultCode
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#RequestGlobalAchievementPercentages, ISteamUserStats#GlobalAchievementPercentagesReady_t
 */
@@ -2949,12 +3012,22 @@ extern "C" DLL_EXPORT int RequestGlobalAchievementPercentages();
 /*
 @desc Asynchronously fetches global stats data, which is available for stats marked as "aggregated" in the App Admin panel of the Steamworks website.
 @param historyDays How many days of day-by-day history to retrieve in addition to the overall totals. The limit is 60.
+@callback-type callresult
+@callback-getters GetCallResultCode
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#RequestGlobalStats, ISteamUserStats#GlobalStatsReceived_t
 */
 extern "C" DLL_EXPORT int RequestGlobalStats(int historyDays);
 
-//RequestUserStats
+/*
+@desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
+
+Sends a request for another user's stats to Steam.
+@param hSteamID The Steam ID handle of the user to load stats for.
+@return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
+@api ISteamUserStats#RequestCurrentStats
+*/
+extern "C" DLL_EXPORT int RequestUserStats(int hSteamID);
 
 /*
 @desc _[This command is initiates a callback.](Callbacks-and-Call-Results#callbacks)_
@@ -3024,6 +3097,9 @@ extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSes
 @desc Uploads a score to a leaderboard.  The leaderboard will keep the user's best score.
 @param hLeaderboard A leaderboard handle.
 @param score The score to upload.
+@callback-type callresult
+@callback-getters GetUploadLeaderboardScoreSuccess, GetUploadLeaderboardScoreHandle, GetUploadLeaderboardScoreValue,
+GetUploadLeaderboardScoreChanged, GetUploadLeaderboardScoreRankNew, GetUploadLeaderboardScoreRankPrevious
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
 */
@@ -3033,6 +3109,9 @@ extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score);
 @desc Uploads a score to a leaderboard.  Forces the server to accept the uploaded score and replace any existing score.
 @param hLeaderboard A leaderboard handle.
 @param score The score to upload.
+@callback-type callresult
+@callback-getters GetUploadLeaderboardScoreSuccess, GetUploadLeaderboardScoreHandle, GetUploadLeaderboardScoreValue,
+GetUploadLeaderboardScoreChanged, GetUploadLeaderboardScoreRankNew, GetUploadLeaderboardScoreRankPrevious
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
 */
@@ -3134,7 +3213,7 @@ extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress();
 @desc Triggered when the latest stats and achievements for a specific user (including the local user) have been received from the server.
 @return 1 when the callback has more responses to process; otherwise 0.
 @callback-type list
-@callback-getters GetUserStatsReceivedResult, GetUserStatsReceivedUser
+@callback-getters GetUserStatsReceivedUser
 @api ISteamUserStats#UserStatsReceived_t
 */
 extern "C" DLL_EXPORT int HasUserStatsReceivedResponse();
@@ -3142,16 +3221,16 @@ extern "C" DLL_EXPORT int HasUserStatsReceivedResponse();
 // This plugin only reports for the current app id.
 //extern "C" DLL_EXPORT int GetUserStatsReceivedGameAppID();
 
-/*
-@desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
-@return 1 when the call is successful; otherwise 0.
-@api ISteamUserStats#UserStatsReceived_t
-*/
-extern "C" DLL_EXPORT int GetUserStatsReceivedResult();
+///*
+//@desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
+//@return 1 when the call is successful; otherwise 0.
+//@api ISteamUserStats#UserStatsReceived_t
+//*/
+//extern "C" DLL_EXPORT int GetUserStatsReceivedResult();
 
 /*
 @desc Returns the user whose stats were retrieved for the current UserStatsReceived_t callback response.
-@return 1 when the call is successful; otherwise 0.
+@return A Steam ID handle.
 @api ISteamUserStats#UserStatsReceived_t
 */
 extern "C" DLL_EXPORT int GetUserStatsReceivedUser();
@@ -3161,6 +3240,30 @@ extern "C" DLL_EXPORT int GetUserStatsReceivedUser();
 @return 1 when users stats are initialized; otherwise 0.
 */
 extern "C" DLL_EXPORT int StatsInitialized();
+
+/*
+@desc Checks to see whether a user's stats have been initialized after a RequestUserStats call.
+@param hSteamID The Steam ID handle of the user to check.
+@return 1 when the user's stats are initialized; otherwise 0.
+@plugin-name StatsInitialized
+*/
+extern "C" DLL_EXPORT int StatsInitializedForUser(int hSteamID);
+
+/*
+@desc Triggered when the stats and achievements for a user have been unloaded.
+@return 1 when the callback has more responses to process; otherwise 0.
+@callback-type list
+@callback-getters GetUserStatsUnloadeddUser
+@api ISteamUserStats#UserStatsUnloaded_t
+*/
+extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse();
+
+/*
+@desc Returns the user whose stats were unloaded for the current UserStatsUnloaded_t callback response.
+@return A Steam ID handle.
+@api ISteamUserStats#UserStatsUnloaded_t
+*/
+extern "C" DLL_EXPORT int GetUserStatsUnloadeddUser();
 
 /*
 @desc Triggered by a request to store the user stats.

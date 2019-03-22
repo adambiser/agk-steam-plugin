@@ -334,12 +334,14 @@ private:
 	LIST_CALLBACK(UserAchievementStored, UserAchievementStored_t);
 	LIST_CALLBACK(UserStatsReceived, UserStatsReceived_t);
 	bool m_StatsInitialized;
+	std::vector<CSteamID> m_StatsInitializedUsers;
 	LIST_CALLBACK(UserStatsStored, UserStatsStored_t);
-	//UserStatsUnloaded_t - RequestUserStats again
+	LIST_CALLBACK(UserStatsUnloaded, UserStatsUnloaded_t, CSteamID); // -RequestUserStats again
 public:
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
 	int GetAchievementIcon(const char *pchName);
 	bool StatsInitialized() { return m_StatsInitialized; }
+	bool StatsInitializedForUser(CSteamID user);
 #pragma endregion
 
 #pragma region ISteamUtils

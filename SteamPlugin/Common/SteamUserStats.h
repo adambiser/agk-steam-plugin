@@ -30,14 +30,12 @@ struct PluginLeaderboardFindResult_t : LeaderboardFindResult_t
 {
 	EResult m_eResult;
 
-	PluginLeaderboardFindResult_t() : m_eResult((EResult)0) {}
-
-	PluginLeaderboardFindResult_t(LeaderboardFindResult_t param) : PluginLeaderboardFindResult_t()
+	PluginLeaderboardFindResult_t& operator=(const LeaderboardFindResult_t &from)
 	{
-		m_hSteamLeaderboard = param.m_hSteamLeaderboard;
-		m_bLeaderboardFound = param.m_bLeaderboardFound;
-		// Assign a result based on m_bLeaderboardFound.
+		m_hSteamLeaderboard = from.m_hSteamLeaderboard;
+		m_bLeaderboardFound = from.m_bLeaderboardFound;
 		m_eResult = m_bLeaderboardFound ? k_EResultOK : k_EResultFail;
+		return *this;
 	}
 };
 
@@ -52,10 +50,13 @@ public:
 			m_CallResultName = "FindLeaderboard('" + std::string(pchLeaderboardName) + "')";
 			m_hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
 		}
-		m_CallResultName = "FindOrCreateLeaderboard('" + std::string(pchLeaderboardName) + "', "
-			+ std::to_string(eLeaderboardSortMethod) + ", "
-			+ std::to_string(eLeaderboardDisplayType) + ")";
-		m_hSteamAPICall = SteamUserStats()->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
+		else
+		{
+			m_CallResultName = "FindOrCreateLeaderboard('" + std::string(pchLeaderboardName) + "', "
+				+ std::to_string(eLeaderboardSortMethod) + ", "
+				+ std::to_string(eLeaderboardDisplayType) + ")";
+			m_hSteamAPICall = SteamUserStats()->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
+		}
 	}
 	int GetLeaderboardFindResultFound() { return m_Response.m_bLeaderboardFound; }
 	SteamLeaderboard_t GetLeaderboardFindResultHandle()	{ return m_Response.m_hSteamLeaderboard; }
@@ -66,36 +67,12 @@ struct PluginLeaderboardScoresDownloaded_t : LeaderboardScoresDownloaded_t
 	EResult m_eResult;
 	std::vector<LeaderboardEntry_t> m_Entries;
 
-	PluginLeaderboardScoresDownloaded_t() : m_eResult((EResult)0) {}
-
-	PluginLeaderboardScoresDownloaded_t(LeaderboardScoresDownloaded_t param) : PluginLeaderboardScoresDownloaded_t()
+	PluginLeaderboardScoresDownloaded_t& operator=(const LeaderboardScoresDownloaded_t &from)
 	{
-		m_hSteamLeaderboard = param.m_hSteamLeaderboard;
-		m_cEntryCount = param.m_cEntryCount;
-		if (param.m_hSteamLeaderboardEntries == 0)
-		{
-			m_eResult = k_EResultFail;
-		}
-		else
-		{
-			for (int index = 0; index < param.m_cEntryCount; index++)
-			{
-				// TODO Add Details support.
-				LeaderboardEntry_t entry;
-				if (SteamUserStats()->GetDownloadedLeaderboardEntry(param.m_hSteamLeaderboardEntries, index, &entry, NULL, 0))
-				{
-					m_Entries.push_back(entry);
-				}
-				else
-				{
-					// Report error.
-					utils::Log("GetDownloadedLeaderboardEntry failed for index " + std::to_string(index) + ".");
-					m_eResult = k_EResultFail;
-					return;
-				}
-			}
-			m_eResult = k_EResultOK;
-		}
+		m_hSteamLeaderboard = from.m_hSteamLeaderboard;
+		m_cEntryCount = from.m_cEntryCount;
+		m_eResult = from.m_hSteamLeaderboardEntries ? k_EResultOK : k_EResultFail;
+		return *this;
 	}
 };
 
@@ -119,23 +96,46 @@ public:
 	int GetLeaderboardEntryScore(int index) { return m_Response.m_Entries[index].m_nScore; }
 	int GetLeaderboardEntryDetails(int index) { return m_Response.m_Entries[index].m_cDetails; }
 	uint64 GetLeaderboardEntryUGCHandle(int index) { return m_Response.m_Entries[index].m_hUGC; }
+protected:
+	void OnResponse(LeaderboardScoresDownloaded_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		if (pCallResult->m_hSteamLeaderboardEntries != 0)
+		{
+			for (int index = 0; index < pCallResult->m_cEntryCount; index++)
+			{
+				// TODO Add Details support.
+				LeaderboardEntry_t entry;
+				if (SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &entry, NULL, 0))
+				{
+					m_Response.m_Entries.push_back(entry);
+				}
+				else
+				{
+					// Report error.
+					utils::Log(GetName() + ": GetDownloadedLeaderboardEntry failed for index " + std::to_string(index) + ".");
+					m_Response.m_eResult = k_EResultFail;
+					return;
+				}
+			}
+		}
+	}
 };
 
 struct PluginLeaderboardScoreUploaded_t : LeaderboardScoreUploaded_t
 {
 	EResult m_eResult;
 
-	PluginLeaderboardScoreUploaded_t() : m_eResult((EResult)0) {}
-
-	PluginLeaderboardScoreUploaded_t(LeaderboardScoreUploaded_t param) : PluginLeaderboardScoreUploaded_t()
+	PluginLeaderboardScoreUploaded_t& operator=(const LeaderboardScoreUploaded_t &from)
 	{
-		m_bSuccess = param.m_bSuccess;
-		m_hSteamLeaderboard = param.m_hSteamLeaderboard;
-		m_nScore = param.m_nScore;
-		m_bScoreChanged = param.m_bScoreChanged;
-		m_nGlobalRankNew = param.m_nGlobalRankNew;
-		m_nGlobalRankPrevious = param.m_nGlobalRankPrevious;
+		m_bSuccess = from.m_bSuccess;
+		m_hSteamLeaderboard = from.m_hSteamLeaderboard;
+		m_nScore = from.m_nScore;
+		m_bScoreChanged = from.m_bScoreChanged;
+		m_nGlobalRankNew = from.m_nGlobalRankNew;
+		m_nGlobalRankPrevious = from.m_nGlobalRankPrevious;
 		m_eResult = m_bSuccess ? k_EResultOK : k_EResultFail;
+		return *this;
 	}
 };
 
@@ -156,6 +156,30 @@ public:
 	int GetLeaderboardScoreUploadedScoreChanged() { return m_Response.m_bScoreChanged; }
 	int GetLeaderboardScoreUploadedRankNew() { return m_Response.m_nGlobalRankNew; }
 	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
+};
+
+struct PluginNumberOfCurrentPlayers_t : NumberOfCurrentPlayers_t
+{
+	EResult m_eResult;
+
+	PluginNumberOfCurrentPlayers_t& operator=(const NumberOfCurrentPlayers_t &from)
+	{
+		this->m_bSuccess = from.m_bSuccess;
+		this->m_cPlayers = from.m_cPlayers;
+		this->m_eResult = from.m_bSuccess ? k_EResultOK : k_EResultFail;
+		return *this;
+	}
+};
+
+class CNumberOfCurrentPlayersCallResult : public CCallResultItem<NumberOfCurrentPlayers_t, PluginNumberOfCurrentPlayers_t>
+{
+public:
+	CNumberOfCurrentPlayersCallResult()
+	{
+		m_CallResultName = "GetNumberOfCurrentPlayers()";
+		m_hSteamAPICall = SteamUserStats()->GetNumberOfCurrentPlayers();
+	}
+	int GetNumberOfPlayers() { return m_Response.m_cPlayers; }
 };
 
 class CRequestGlobalAchievementPercentagesCallResult : public CCallResultItem<GlobalAchievementPercentagesReady_t>

@@ -26,35 +26,24 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
-struct PluginFileReadAsyncComplete_t
+struct PluginFileReadAsyncComplete_t : RemoteStorageFileReadAsyncComplete_t
 {
 	int m_MemblockID;
-	EResult m_eResult;
 
-	PluginFileReadAsyncComplete_t() : m_MemblockID(0), m_eResult((EResult)0) {};
-
-	// This performs the weight of the OnResponse code.
-	PluginFileReadAsyncComplete_t(RemoteStorageFileReadAsyncComplete_t value) : PluginFileReadAsyncComplete_t()
+	PluginFileReadAsyncComplete_t& operator=(const RemoteStorageFileReadAsyncComplete_t &from)
 	{
-		m_eResult = value.m_eResult;
-		if (value.m_eResult == k_EResultOK)
-		{
-			m_MemblockID = agk::CreateMemblock(value.m_cubRead);
-			if (!SteamRemoteStorage()->FileReadAsyncComplete(value.m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), value.m_cubRead))
-			{
-				agk::DeleteMemblock(m_MemblockID);
-				m_MemblockID = 0;
-				agk::Log("FileReadAsyncComplete failed.");
-				m_eResult = k_EResultFail;
-			}
-		}
+		m_cubRead = from.m_cubRead;
+		m_eResult = from.m_eResult;
+		m_hFileReadAsync = from.m_hFileReadAsync;
+		m_nOffset = from.m_nOffset;
+		m_MemblockID = 0;
+		return *this;
 	}
 };
 
 class CFileReadAsyncCallResult : public CCallResultItem<RemoteStorageFileReadAsyncComplete_t, PluginFileReadAsyncComplete_t>
 {
 public:
-	//using CCallResultItem::CCallResultItem;
 	CFileReadAsyncCallResult(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
 		m_FileName(pchFile)
 	{
@@ -72,14 +61,33 @@ public:
 	}
 	virtual ~CFileReadAsyncCallResult()
 	{
-		if (m_Response.m_MemblockID && agk::GetMemblockExists(m_Response.m_MemblockID))
+		if (m_Response.m_MemblockID)
 		{
-			agk::DeleteMemblock(m_Response.m_MemblockID);
+			if (agk::GetMemblockExists(m_Response.m_MemblockID))
+			{
+				agk::DeleteMemblock(m_Response.m_MemblockID);
+			}
 			m_Response.m_MemblockID = 0;
 		}
 	}
 	std::string GetFileName() { return m_FileName; }
 	int GetMemblockID() { return m_Response.m_MemblockID; }
+protected:
+	void OnResponse(RemoteStorageFileReadAsyncComplete_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		if (m_Response.m_eResult == k_EResultOK)
+		{
+			m_Response.m_MemblockID = agk::CreateMemblock(m_Response.m_cubRead);
+			if (!SteamRemoteStorage()->FileReadAsyncComplete(m_Response.m_hFileReadAsync, agk::GetMemblockPtr(m_Response.m_MemblockID), m_Response.m_cubRead))
+			{
+				agk::DeleteMemblock(m_Response.m_MemblockID);
+				m_Response.m_MemblockID = 0;
+				utils::Log(GetName() + ": FileReadAsyncComplete failed.");
+				m_Response.m_eResult = k_EResultFail;
+			}
+		}
+	}
 private:
 	std::string m_FileName;
 };

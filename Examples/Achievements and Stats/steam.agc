@@ -38,6 +38,12 @@ for x = 0 to buttonText.length
 	CreateButton(x + 1, 552 + x * 100, 440, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 
+global friends as integer[]
+friends.fromjson(Steam.GetFriendListJSON(EFriendFlagImmediate))
+if friends.length > 0
+	Steam.RequestUserStats(friends[0])
+endif
+
 //
 // The main loop
 //
@@ -138,6 +144,8 @@ global errorReported as integer[1]
 #constant ERROR_REQUESTSTATS	0
 #constant ERROR_STORESTATS		1
 
+global lastFriendStatsInitValue as integer = 0
+
 //
 // Processes all asynchronous callbacks.
 //
@@ -168,6 +176,16 @@ Function ProcessCallbacks()
 	//
 	if not Steam.StatsInitialized()
 		ExitFunction
+	endif
+	if friends.length > 0
+		if Steam.StatsInitialized(friends[0]) <> lastFriendStatsInitValue
+			lastFriendStatsInitValue = Steam.StatsInitialized(friends[0])
+			if lastFriendStatsInitValue
+				AddStatus("Friend's stats loaded.")
+			else
+				AddStatus("Friend's stats unloaded.")
+			endif
+		endif
 	endif
 	// Global stats
 	result as integer
@@ -213,7 +231,7 @@ Function ProcessCallbacks()
 					AddStatus("Most achieved:")
 					if Steam.GetMostAchievedAchievementInfo()
 						repeat
-							AddStatus("> " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoAchieved()))
+							AddStatus("> " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
 						until not Steam.GetNextMostAchievedAchievementInfo()
 					endif
 				else

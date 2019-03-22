@@ -115,6 +115,7 @@ void CCallbacks::Reset()
 	ClearUserAchievementStored();
 	ClearUserStatsReceived();
 	m_StatsInitialized = false;
+	m_StatsInitializedUsers.clear();
 	ClearUserStatsStored();
 	// ISteamUtils
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
@@ -397,6 +398,12 @@ int CCallbacks::GetAchievementIcon(const char *pchName)
 	return hImage;
 }
 
+bool CCallbacks::StatsInitializedForUser(CSteamID steamIDUser)
+{
+	auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), steamIDUser);
+	return it != m_StatsInitializedUsers.end();
+}
+
 // Callback for StoreStats.
 void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pCallback)
 {
@@ -411,11 +418,19 @@ void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	if (pCallback->m_nGameID == g_AppID)
 	{
-		utils::Log("Callback: OnUserStatsReceived.  Result = " + std::to_string(pCallback->m_eResult));
-		// If the current user's stats were received, set a flag.
-		if (pCallback->m_steamIDUser == SteamUser()->GetSteamID() && pCallback->m_eResult == k_EResultOK)
+		utils::Log("Callback: OnUserStatsReceived.  Result = " + std::to_string(pCallback->m_eResult) + ", user = " + std::to_string(pCallback->m_steamIDUser.ConvertToUint64()));
+		if (pCallback->m_eResult == k_EResultOK)
 		{
-			m_StatsInitialized = true;
+			auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pCallback->m_steamIDUser);
+			if (it == m_StatsInitializedUsers.end())
+			{
+				m_StatsInitializedUsers.push_back(pCallback->m_steamIDUser);
+			}
+			// If the current user's stats were received, set a flag.
+			if (pCallback->m_steamIDUser == SteamUser()->GetSteamID())
+			{
+				m_StatsInitialized = true;
+			}
 		}
 		STORE_CALLBACK_RESULT(UserStatsReceived, *pCallback);
 	}
@@ -430,9 +445,20 @@ void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 {
 	if (pCallback->m_nGameID == g_AppID)
 	{
-		utils::Log("Callback: OnUserStatsStored. Result = " + std::to_string(pCallback->m_eResult));
+		utils::Log("Callback: OnUserStatsStored.  Result = " + std::to_string(pCallback->m_eResult));
 		STORE_CALLBACK_RESULT(UserStatsStored, *pCallback);
 	}
+}
+
+void CCallbacks::OnUserStatsUnloaded(UserStatsUnloaded_t *pCallback)
+{
+	utils::Log("Callback: OnUserStatsUnloaded.  User = " + std::to_string(pCallback->m_steamIDUser.ConvertToUint64()));
+	auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pCallback->m_steamIDUser);
+	if (it != m_StatsInitializedUsers.end())
+	{
+		m_StatsInitializedUsers.erase(it);
+	}
+	STORE_CALLBACK_RESULT(UserStatsUnloaded, pCallback->m_steamIDUser);
 }
 #pragma endregion
 

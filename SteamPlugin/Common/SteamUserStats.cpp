@@ -28,14 +28,14 @@ THE SOFTWARE.
 const int ACH_NAME_MAX_LENGTH = 128;
 char g_MostAchievedAchievementInfoName[ACH_NAME_MAX_LENGTH];
 float g_MostAchievedAchievementInfoPercent;
-bool g_MostAchievedAchievementInfoAchieved;
+bool g_MostAchievedAchievementInfoUnlocked;
 int g_MostAchievedAchievementInfoIterator;
 
 void ClearMostAchievedAchievementInfo()
 {
 	g_MostAchievedAchievementInfoName[0] = 0;
 	g_MostAchievedAchievementInfoPercent = 0;
-	g_MostAchievedAchievementInfoAchieved = false;
+	g_MostAchievedAchievementInfoUnlocked = false;
 	g_MostAchievedAchievementInfoIterator = -1;
 }
 
@@ -108,6 +108,11 @@ int FindLeaderboard(const char *leaderboardName)
 int FindOrCreateLeaderboard(const char *leaderboardName, int eLeaderboardSortMethod, int eLeaderboardDisplayType)
 {
 	CheckInitialized(0);
+	if (eLeaderboardSortMethod == k_ELeaderboardSortMethodNone || eLeaderboardDisplayType == k_ELeaderboardDisplayTypeNone)
+	{
+		agk::PluginError("FindOrCreateLeaderboard: eLeaderboardSortMethod and eLeaderboardDisplayType cannot be 0.");
+		return 0;
+	}
 	return CallResults()->Add(new CLeaderboardFindCallResult(leaderboardName, (ELeaderboardSortMethod)eLeaderboardSortMethod, (ELeaderboardDisplayType) eLeaderboardDisplayType));
 }
 
@@ -290,7 +295,7 @@ int GetLeaderboardSortMethod(int hLeaderboard)
 int GetMostAchievedAchievementInfo()
 {
 	CheckInitialized(false);
-	g_MostAchievedAchievementInfoIterator = SteamUserStats()->GetMostAchievedAchievementInfo(g_MostAchievedAchievementInfoName, ACH_NAME_MAX_LENGTH, &g_MostAchievedAchievementInfoPercent, &g_MostAchievedAchievementInfoAchieved);
+	g_MostAchievedAchievementInfoIterator = SteamUserStats()->GetMostAchievedAchievementInfo(g_MostAchievedAchievementInfoName, ACH_NAME_MAX_LENGTH, &g_MostAchievedAchievementInfoPercent, &g_MostAchievedAchievementInfoUnlocked);
 	if (g_MostAchievedAchievementInfoIterator == -1)
 	{
 		ClearMostAchievedAchievementInfo();
@@ -305,7 +310,7 @@ int GetNextMostAchievedAchievementInfo()
 	{
 		return false;
 	}
-	g_MostAchievedAchievementInfoIterator = SteamUserStats()->GetNextMostAchievedAchievementInfo(g_MostAchievedAchievementInfoIterator, g_MostAchievedAchievementInfoName, ACH_NAME_MAX_LENGTH, &g_MostAchievedAchievementInfoPercent, &g_MostAchievedAchievementInfoAchieved);
+	g_MostAchievedAchievementInfoIterator = SteamUserStats()->GetNextMostAchievedAchievementInfo(g_MostAchievedAchievementInfoIterator, g_MostAchievedAchievementInfoName, ACH_NAME_MAX_LENGTH, &g_MostAchievedAchievementInfoPercent, &g_MostAchievedAchievementInfoUnlocked);
 	if (g_MostAchievedAchievementInfoIterator == -1)
 	{
 		ClearMostAchievedAchievementInfo();
@@ -324,13 +329,10 @@ float GetMostAchievedAchievementInfoPercent()
 	return g_MostAchievedAchievementInfoPercent;
 }
 
-int GetMostAchievedAchievementInfoAchieved()
+int GetMostAchievedAchievementInfoUnlocked()
 {
-	return g_MostAchievedAchievementInfoAchieved;
+	return g_MostAchievedAchievementInfoUnlocked;
 }
-
-//GetMostAchievedAchievementInfo
-//GetNextMostAchievedAchievementInfo
 
 int GetNumAchievements()
 {
@@ -338,7 +340,16 @@ int GetNumAchievements()
 	return SteamUserStats()->GetNumAchievements();
 }
 
-//GetNumberOfCurrentPlayers
+int GetNumberOfCurrentPlayers()
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CNumberOfCurrentPlayersCallResult());
+}
+
+int GetNumberOfCurrentPlayersResult(int hCallResult)
+{
+	return GetCallResultValue<CNumberOfCurrentPlayersCallResult>(hCallResult, &CNumberOfCurrentPlayersCallResult::GetNumberOfPlayers);
+}
 
 int GetStatInt(const char *name)
 {
@@ -397,7 +408,15 @@ int RequestGlobalStats(int historyDays)
 	return CallResults()->Add(new CGlobalStatsReceivedCallResult(historyDays));
 }
 
-//RequestUserStats
+int RequestUserStats(int hSteamID)
+{
+	CheckInitialized(0);
+	Callbacks()->RegisterUserStatsReceivedCallback();
+	Callbacks()->RegisterUserStatsUnloadedCallback();
+	// This returns a SteamAPICall_t, but the UserStatsReceived_t callback also reports the result.
+	// Using the existing callback rather than adding another call result to handle this.
+	return SteamUserStats()->RequestUserStats(SteamHandles()->GetSteamHandle(hSteamID)) != k_uAPICallInvalid;
+}
 
 int ResetAllStats(int achievementsToo)
 {
@@ -504,13 +523,13 @@ int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
 }
 
 //Callbacks
-//GlobalAchievementPercentagesReady_t - RequestGlobalAchievementPercentages
-//GlobalStatsReceived_t - RequestGlobalStats
+//GlobalAchievementPercentagesReady_t - Call Result
+//GlobalStatsReceived_t - Call Result
 //LeaderboardFindResult_t - Call result for FindOrCreateLeaderboard, FindLeaderboard
 //LeaderboardScoresDownloaded_t - Call result for DownloadLeaderboardEntries, DownloadLeaderboardEntriesForUsers
 //LeaderboardScoreUploaded_t - Call result for UploadLeaderboardScore
 //LeaderboardUGCSet_t - Call result for AttachLeaderboardUGC
-//NumberOfCurrentPlayers_t - GetNumberOfCurrentPlayers
+//NumberOfCurrentPlayers_t - Call result
 //PS3TrophiesInstalled_t - ignore
 
 int HasUserAchievementStoredResponse()
@@ -550,10 +569,10 @@ int HasUserStatsReceivedResponse()
 //	return ((CGameID)(int)Callbacks()->GetUserStatsReceived().m_nGameID).AppID();
 //}
 
-int GetUserStatsReceivedResult()
-{
-	return (int)Callbacks()->GetUserStatsReceived().m_eResult;
-}
+//int GetUserStatsReceivedResult()
+//{
+//	return (int)Callbacks()->GetUserStatsReceived().m_eResult;
+//}
 
 int GetUserStatsReceivedUser()
 {
@@ -563,6 +582,21 @@ int GetUserStatsReceivedUser()
 int StatsInitialized()
 {
 	return Callbacks()->StatsInitialized();
+}
+
+int StatsInitializedForUser(int hSteamID)
+{
+	return Callbacks()->StatsInitializedForUser(SteamHandles()->GetSteamHandle(hSteamID));
+}
+
+int HasUserStatsUnloadedResponse()
+{
+	return Callbacks()->HasUserStatsUnloadedResponse();
+}
+
+int GetUserStatsUnloadeddUser()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetUserStatsUnloaded());
 }
 
 int HasUserStatsStoredResponse()
