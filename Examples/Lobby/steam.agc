@@ -211,6 +211,12 @@ Function CheckInput()
 			if len(msg) > 0
 				SetEditBoxText(chatBox, "")
 				Steam.SendLobbyChatMessage(server.hLobby, msg)
+				// Messages can also be binary data, not just strings...
+				//~ memblock as integer
+				//~ memblock = CreateMemblock(len(msg) + 1)
+				//~ SetMemblockString(memblock, 0, msg)
+				//~ Steam.SendLobbyChatMessage(server.hLobby, memblock)
+				//~ DeleteMemblock(memblock)
 			endif
 			// Must call both Sync and SetEditBoxFocus to set focus back to the edit box.
 			Sync()

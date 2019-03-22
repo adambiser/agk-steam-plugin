@@ -95,22 +95,22 @@ namespace plugin
 	{
 		CSteamID m_ulSteamIDLobby;		// the lobby id this is in
 		CSteamID m_ulSteamIDUser;		// steamID of the user who has sent this message
-		uint8 m_eChatEntryType;			// type of message
-		char m_chChatEntry[MAX_CHAT_MESSAGE_LENGTH];	// the message
+		EChatEntryType m_eChatEntryType;			// type of message
+		int m_MemblockID;// the message
 
 		LobbyChatMsg_t()
 		{
 			m_ulSteamIDLobby = k_steamIDNil;
 			m_ulSteamIDUser = k_steamIDNil;
-			m_eChatEntryType = 0;
-			m_chChatEntry[0] = 0;
+			m_eChatEntryType = (EChatEntryType)0;
+			m_MemblockID = 0;
 		};
 		LobbyChatMsg_t(::LobbyChatMsg_t value)
 		{
 			m_ulSteamIDLobby = value.m_ulSteamIDLobby;
 			m_ulSteamIDUser = value.m_ulSteamIDUser;
-			m_eChatEntryType = value.m_eChatEntryType;
-			m_chChatEntry[0] = 0;
+			m_eChatEntryType = (EChatEntryType)value.m_eChatEntryType;
+			m_MemblockID = 0;
 		}
 	};
 }

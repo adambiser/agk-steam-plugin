@@ -45,7 +45,7 @@ int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort,
 	return SteamMatchmaking()->AddFavoriteGame(appID, ip, connectPort, queryPort, flags, (uint32)agk::GetUnixTime());
 }
 
-//AddRequestLobbyListCompatibleMembersFilter
+// AddRequestLobbyListCompatibleMembersFilter - unused
 
 void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)
 {
@@ -103,8 +103,7 @@ int DeleteLobbyData(int hLobbySteamID, const char *key)
 	return SteamMatchmaking()->DeleteLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID), key);
 }
 
-//GetFavoriteGame
-
+//TODO? Will this need a GetFavoriteGame call to load the data and then these methods to get each piece?  Would be faster...
 int GetFavoriteGameAppID(int index)
 {
 	AppId_t nAppID;
@@ -245,6 +244,7 @@ char *GetLobbyDataJSON(int hLobbySteamID)
 	return utils::CreateString(json);
 }
 
+//TODO? Will this need a GetLobbyGameServer call to load the data and then these methods to get each piece?  Would be faster...
 char *GetLobbyGameServerIP(int hLobbySteamID)
 {
 	uint32 nIP;
@@ -413,17 +413,19 @@ int GetRequestLobbyListHandle(int hCallResult, int index)
 	return GetCallResultValue<CLobbyMatchListCallResult>(hCallResult, index, &CLobbyMatchListCallResult::GetLobby, __FUNCTION__);
 }
 
+int SendLobbyChatMessageMemblock(int hLobbySteamID, int memblockID)
+{
+	CheckInitialized(0);
+	return SteamMatchmaking()->SendLobbyChatMsg(SteamHandles()->GetSteamHandle(hLobbySteamID), agk::GetMemblockPtr(memblockID), agk::GetMemblockSize(memblockID));
+}
+
 int SendLobbyChatMessage(int hLobbySteamID, const char *msg)
 {
 	CheckInitialized(0);
 	return SteamMatchmaking()->SendLobbyChatMsg(SteamHandles()->GetSteamHandle(hLobbySteamID), msg, (int)strlen(msg) + 1);
 }
 
-//int SetLinkedLobby(int hLobbySteamID, int hLobbyDependentSteamID)
-//{
-//	CheckInitialized(false);
-//	return Callbacks()->SetLinkedLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hLobbyDependentSteamID));
-//}
+// SetLinkedLobby - unused
 
 void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 {
@@ -480,10 +482,57 @@ int SetLobbyType(int hLobbySteamID, int eLobbyType)
 }
 
 // Callbacks
+int HasFavoritesListChangedResponse()
+{
+	Callbacks()->RegisterFavoritesListChangedCallback();
+	return Callbacks()->HasFavoritesListChangedResponse();
+}
+
+char *GetFavoritesListChangedIP()
+{
+	return utils::CreateString(utils::ToIPString(Callbacks()->GetFavoritesListChanged().m_nIP));
+}
+
+int GetFavoritesListChangedQueryPort()
+{
+	return Callbacks()->GetFavoritesListChanged().m_nQueryPort;
+}
+
+int GetFavoritesListChangedConnectionPort()
+{
+	return Callbacks()->GetFavoritesListChanged().m_nConnPort;
+}
+
+int GetFavoritesListChangedAppID()
+{
+	return Callbacks()->GetFavoritesListChanged().m_nAppID;
+}
+
+int GetFavoritesListChangedFlags()
+{
+	return Callbacks()->GetFavoritesListChanged().m_nFlags;
+}
+
+int GetFavoritesListChangedIsAdd()
+{
+	return Callbacks()->GetFavoritesListChanged().m_bAdd;
+}
+
+int GetFavoritesListChangedAccountID()
+{
+	return Callbacks()->GetFavoritesListChanged().m_unAccountId;
+}
+
 int HasLobbyChatMessageResponse()
 {
 	CheckInitialized(false);
 	return Callbacks()->HasLobbyChatMessageResponse();
+}
+
+int GetLobbyChatMessageLobby()
+{
+	CheckInitialized(0);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_ulSteamIDLobby);
 }
 
 int GetLobbyChatMessageUser()
@@ -492,10 +541,27 @@ int GetLobbyChatMessageUser()
 	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_ulSteamIDUser);
 }
 
+// Always k_EChatEntryTypeChatMsg
+//int GetLobbyChatMessageEntryType()
+//{
+//	CheckInitialized(0);
+//	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_eChatEntryType);
+//}
+
+int GetLobbyChatMessageMemblock()
+{
+	return Callbacks()->GetLobbyChatMessage().m_MemblockID;
+}
+
 char *GetLobbyChatMessageText()
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(Callbacks()->GetLobbyChatMessage().m_chChatEntry);
+	int memblock = Callbacks()->GetLobbyChatMessage().m_MemblockID;
+	if (memblock)
+	{
+		return agk::GetMemblockString(memblock, 0, agk::GetMemblockSize(memblock));
+	}
+	return NULL_STRING;
 }
 
 int HasLobbyChatUpdateResponse()

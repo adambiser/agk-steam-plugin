@@ -22,28 +22,63 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-//AdvertiseGame
-//BeginAuthSession
-//BIsBehindNAT
-//BIsPhoneIdentifying
-//BIsPhoneRequiringVerification
-//BIsPhoneVerified
-//BIsTwoFactorEnabled
+// TODO later
+// Game server methods
+//  \ Voice methods
+// Encrypted app ticket methods
+// Web-Store stuff
+
+//AdvertiseGame - game server stuff
+//BeginAuthSession - game server stuff
+
+int IsBehindNAT()
+{
+	return SteamUser()->BIsBehindNAT();
+}
+
+int IsPhoneIdentifying()
+{
+	return SteamUser()->BIsPhoneIdentifying();
+}
+
+int IsPhoneRequiringVerification()
+{
+	return SteamUser()->BIsPhoneRequiringVerification();
+}
+
+int IsPhoneVerified()
+{
+	return SteamUser()->BIsPhoneVerified();
+}
+
+int IsTwoFactorEnabled()
+{
+	return SteamUser()->BIsTwoFactorEnabled();
+}
 
 int LoggedOn()
 {
 	return SteamUser()->BLoggedOn();
 }
 
-//CancelAuthTicket
-//DecompressVoice
-//EndAuthSession
-//GetAuthSessionTicket
-//GetAvailableVoice
-//GetEncryptedAppTicket
-//GetGameBadgeLevel
-//GetHSteamUser
-//GetPlayerSteamLevel
+//CancelAuthTicket - game server stuff
+//DecompressVoice - voice stuff
+//EndAuthSession - game server stuff
+//GetAuthSessionTicket - game server stuff
+//GetAvailableVoice - voice stuff
+//GetEncryptedAppTicket - encrypted app ticket stuff
+
+int GetGameBadgeLevel(int series, int foil)
+{
+	return SteamUser()->GetGameBadgeLevel(series, foil);
+}
+
+//GetHSteamUser - internal use
+
+int GetPlayerSteamLevel()
+{
+	return SteamUser()->GetPlayerSteamLevel();
+}
 
 int GetSteamID()
 {
@@ -130,28 +165,34 @@ int GetHandleFromSteamID64(const char *steamID64)
 	return SteamHandles()->GetPluginHandle(CSteamID(id));
 }
 
-//GetUserDataFolder
-//GetVoice
-//GetVoiceOptimalSampleRate
-//InitiateGameConnection
-//RequestEncryptedAppTicket
-//RequestStoreAuthURL
-//StartVoiceRecording
-//StopVoiceRecording
-//TerminateGameConnection
-//TrackAppUsageEvent
-//UserHasLicenseForApp
+//GetUserDataFolder - Deprecated
+
+//GetVoice - voice stuff
+//GetVoiceOptimalSampleRate - voice stuff
+//InitiateGameConnection - old authentication, skip?
+//RequestEncryptedAppTicket - encrypted app ticket stuff
+//RequestStoreAuthURL - store stuff
+//StartVoiceRecording - voice stuff
+//StopVoiceRecording - voice stuff
+//TerminateGameConnection - old authentication, skip?
+//TrackAppUsageEvent - deprecated
+//UserHasLicenseForApp - game server stuff... validate DLC for auth session
 
 //Callbacks
-//ClientGameServerDeny_t
+//ClientGameServerDeny_t - game server stuff
 //EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
 //GameWebCallback_t
 //GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
-//IPCFailure_t
+
+//IPCFailure_t - Steam client had a fatal error.
+
 //LicensesUpdated_t
-//MicroTxnAuthorizationResponse_t
+
+//MicroTxnAuthorizationResponse_t - micro transaction stuff.
+
 //SteamServerConnectFailure_t
 //SteamServersConnected_t
 //SteamServersDisconnected_t
+
 //StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
 //ValidateAuthTicketResponse_t - Call result for BeginAuthSession

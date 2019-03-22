@@ -85,11 +85,15 @@ int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
 
 int FindLeaderboard(const char *leaderboardName)
 {
-	CheckInitialized(false);
+	CheckInitialized(0);
 	return CallResults()->Add(new CLeaderboardFindCallResult(leaderboardName));
 }
 
-//FindOrCreateLeaderboard
+int FindOrCreateLeaderboard(const char *leaderboardName, int eLeaderboardSortMethod, int eLeaderboardDisplayType)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CLeaderboardFindCallResult(leaderboardName, (ELeaderboardSortMethod)eLeaderboardSortMethod, (ELeaderboardDisplayType) eLeaderboardDisplayType));
+}
 
 int GetFindLeaderboardFound(int hCallResult)
 {

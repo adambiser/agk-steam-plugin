@@ -222,12 +222,24 @@ void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 #pragma endregion
 
 #pragma region ISteamMatchmaking
+void CCallbacks::OnFavoritesListChanged(FavoritesListChanged_t *pParam)
+{
+	agk::Log("Callback: OnFavoritesListChanged");
+	STORE_CALLBACK_RESULT(FavoritesListChanged, *pParam);
+}
+
 void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
 	agk::Log("Callback: OnLobbyChatMessage");
 	plugin::LobbyChatMsg_t info(*pParam);
-	int length = SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, info.m_chChatEntry, MAX_CHAT_MESSAGE_LENGTH, NULL);
-	info.m_chChatEntry[length] = 0;
+	char data[MAX_CHAT_MESSAGE_LENGTH];
+	int length = SteamMatchmaking()->GetLobbyChatEntry(info.m_ulSteamIDLobby, pParam->m_iChatID, NULL, data, MAX_CHAT_MESSAGE_LENGTH, NULL);
+	data[length] = 0;
+	if (length > 0)
+	{
+		info.m_MemblockID = agk::CreateMemblock(length);
+		memcpy_s(agk::GetMemblockPtr(info.m_MemblockID), length, data, length);
+	}
 	STORE_CALLBACK_RESULT(LobbyChatMessage, info);
 }
 

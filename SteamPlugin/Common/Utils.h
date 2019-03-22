@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include "../AGKLibraryCommands.h"
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 // From winnt.h
 #ifndef _MAC
@@ -112,6 +113,30 @@ namespace utils
 		}
 		*ip = (ip1 << 24) | (ip2 << 16) | (ip3 << 8) | (ip4);
 		return true;
+	}
+
+	static inline std::string GetSHA1(uint8 shabytes[20])
+	{
+		bool allZeroes = true;
+		for (int x = 0; x < 20; x++)
+		{
+			if (shabytes[x] != 0)
+			{
+				allZeroes = false;
+				break;
+			}
+		}
+		if (allZeroes)
+		{
+			return std::string();
+		}
+		std::ostringstream sha;
+		sha << std::uppercase << std::setfill('0') << std::hex;
+		for (int x = 0; x < 20; x++)
+		{
+			sha << std::setw(2) << (int)shabytes[x];
+		}
+		return sha.str();
 	}
 
 	static inline std::string EscapeJSON(const std::string &input)

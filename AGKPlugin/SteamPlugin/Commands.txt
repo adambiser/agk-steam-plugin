@@ -193,6 +193,7 @@ RequestLobbyData,I,I,RequestLobbyData,0,0,0,0,RequestLobbyData
 RequestLobbyList,I,0,RequestLobbyList,0,0,0,0,RequestLobbyList
 GetRequestLobbyListCount,I,I,GetRequestLobbyListCount,0,0,0,0,GetRequestLobbyListCount
 GetRequestLobbyListHandle,I,II,GetRequestLobbyListHandle,0,0,0,0,GetRequestLobbyListHandle
+SendLobbyChatMessage,I,II,SendLobbyChatMessageMemblock,0,0,0,0,SendLobbyChatMessageMemblock
 SendLobbyChatMessage,I,IS,SendLobbyChatMessage,0,0,0,0,SendLobbyChatMessage
 SetLobbyData,0,ISS,SetLobbyData,0,0,0,0,SetLobbyData
 SetLobbyGameServer,I,ISII,SetLobbyGameServer,0,0,0,0,SetLobbyGameServer
@@ -201,8 +202,18 @@ SetLobbyMemberData,0,ISS,SetLobbyMemberData,0,0,0,0,SetLobbyMemberData
 SetLobbyMemberLimit,I,II,SetLobbyMemberLimit,0,0,0,0,SetLobbyMemberLimit
 SetLobbyOwner,I,II,SetLobbyOwner,0,0,0,0,SetLobbyOwner
 SetLobbyType,I,II,SetLobbyType,0,0,0,0,SetLobbyType
+HasFavoritesListChangedResponse,I,0,HasFavoritesListChangedResponse,0,0,0,0,HasFavoritesListChangedResponse
+GetFavoritesListChangedIP,S,0,GetFavoritesListChangedIP,0,0,0,0,GetFavoritesListChangedIP
+GetFavoritesListChangedQueryPort,I,0,GetFavoritesListChangedQueryPort,0,0,0,0,GetFavoritesListChangedQueryPort
+GetFavoritesListChangedConnectionPort,I,0,GetFavoritesListChangedConnectionPort,0,0,0,0,GetFavoritesListChangedConnectionPort
+GetFavoritesListChangedAppID,I,0,GetFavoritesListChangedAppID,0,0,0,0,GetFavoritesListChangedAppID
+GetFavoritesListChangedFlags,I,0,GetFavoritesListChangedFlags,0,0,0,0,GetFavoritesListChangedFlags
+GetFavoritesListChangedIsAdd,I,0,GetFavoritesListChangedIsAdd,0,0,0,0,GetFavoritesListChangedIsAdd
+GetFavoritesListChangedAccountID,I,0,GetFavoritesListChangedAccountID,0,0,0,0,GetFavoritesListChangedAccountID
 HasLobbyChatMessageResponse,I,0,HasLobbyChatMessageResponse,0,0,0,0,HasLobbyChatMessageResponse
+GetLobbyChatMessageLobby,I,0,GetLobbyChatMessageLobby,0,0,0,0,GetLobbyChatMessageLobby
 GetLobbyChatMessageUser,I,0,GetLobbyChatMessageUser,0,0,0,0,GetLobbyChatMessageUser
+GetLobbyChatMessageMemblock,I,0,GetLobbyChatMessageMemblock,0,0,0,0,GetLobbyChatMessageMemblock
 GetLobbyChatMessageText,S,0,GetLobbyChatMessageText,0,0,0,0,GetLobbyChatMessageText
 HasLobbyChatUpdateResponse,I,0,HasLobbyChatUpdateResponse,0,0,0,0,HasLobbyChatUpdateResponse
 GetLobbyChatUpdateLobby,I,0,GetLobbyChatUpdateLobby,0,0,0,0,GetLobbyChatUpdateLobby
@@ -250,7 +261,6 @@ GetCloudFileReadAsyncMemblock,I,I,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloud
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,CloudFileWrite
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,CloudFileWriteAsync
 GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetCloudFileWriteAsyncFileName
-GetCachedUGCCount,I,0,GetCachedUGCCount,0,0,0,0,GetCachedUGCCount
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
 GetCloudFileSize,I,I,GetCloudFileSizeByIndex,0,0,0,0,GetCloudFileSizeByIndex
@@ -266,7 +276,14 @@ SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,SetCloudFileSyn
 #
 # ISteamUser
 #
+IsBehindNAT,I,0,IsBehindNAT,0,0,0,0,IsBehindNAT
+IsPhoneIdentifying,I,0,IsPhoneIdentifying,0,0,0,0,IsPhoneIdentifying
+IsPhoneRequiringVerification,I,0,IsPhoneRequiringVerification,0,0,0,0,IsPhoneRequiringVerification
+IsPhoneVerified,I,0,IsPhoneVerified,0,0,0,0,IsPhoneVerified
+IsTwoFactorEnabled,I,0,IsTwoFactorEnabled,0,0,0,0,IsTwoFactorEnabled
 LoggedOn,I,0,LoggedOn,0,0,0,0,LoggedOn
+GetGameBadgeLevel,I,II,GetGameBadgeLevel,0,0,0,0,GetGameBadgeLevel
+GetPlayerSteamLevel,I,0,GetPlayerSteamLevel,0,0,0,0,GetPlayerSteamLevel
 GetSteamID,I,0,GetSteamID,0,0,0,0,GetSteamID
 IsSteamIDValid,I,I,IsSteamIDValid,0,0,0,0,IsSteamIDValid
 GetAccountID,I,I,GetAccountID,0,0,0,0,GetAccountID
@@ -284,6 +301,7 @@ GetDownloadLeaderboardEntryUser,I,II,GetDownloadLeaderboardEntryUser,0,0,0,0,Get
 GetDownloadLeaderboardEntryGlobalRank,I,II,GetDownloadLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadLeaderboardEntryGlobalRank
 GetDownloadLeaderboardEntryScore,I,II,GetDownloadLeaderboardEntryScore,0,0,0,0,GetDownloadLeaderboardEntryScore
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
+FindOrCreateLeaderboard,I,SII,FindOrCreateLeaderboard,0,0,0,0,FindOrCreateLeaderboard
 GetFindLeaderboardFound,I,I,GetFindLeaderboardFound,0,0,0,0,GetFindLeaderboardFound
 GetFindLeaderboardHandle,I,I,GetFindLeaderboardHandle,0,0,0,0,GetFindLeaderboardHandle
 GetAchievement,I,S,GetAchievement,0,0,0,0,GetAchievement

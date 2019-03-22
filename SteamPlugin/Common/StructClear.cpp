@@ -1,4 +1,5 @@
 #include "StructClear.h"
+#include "../AGKLibraryCommands.h"
 
 void Clear(CSteamID &value)
 {
@@ -8,6 +9,17 @@ void Clear(CSteamID &value)
 void Clear(DlcInstalled_t &value)
 {
 	value.m_nAppID = 0;
+}
+
+void Clear(FavoritesListChanged_t &value)
+{
+	value.m_bAdd = 0;
+	value.m_nAppID = 0;
+	value.m_nConnPort = 0;
+	value.m_nFlags = 0;
+	value.m_nIP = 0;
+	value.m_nQueryPort = 0;
+	value.m_unAccountId = 0;
 }
 
 void Clear(GameLobbyJoinRequested_t &value)
@@ -54,8 +66,12 @@ void Clear(plugin::LobbyChatMsg_t &value)
 {
 	value.m_ulSteamIDLobby = k_steamIDNil;
 	value.m_ulSteamIDUser = k_steamIDNil;
-	value.m_eChatEntryType = 0;
-	value.m_chChatEntry[0] = 0;
+	value.m_eChatEntryType = (EChatEntryType)0;
+	if (value.m_MemblockID && agk::GetMemblockExists(value.m_MemblockID))
+	{
+		agk::DeleteMemblock(value.m_MemblockID);
+	}
+	value.m_MemblockID = 0;
 }
 
 void Clear(LobbyChatUpdate_t &value)

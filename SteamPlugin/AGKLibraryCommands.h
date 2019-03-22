@@ -1190,7 +1190,7 @@ extern int(*AGKCommand1174)( unsigned int, unsigned int );
 //extern int(*AGKCommand1176)( unsigned int, unsigned int );
 //extern int(*AGKCommand1177)( unsigned int, unsigned int );
 //extern float(*AGKCommand1178)( unsigned int, unsigned int );
-//extern char*(*AGKCommand1179)( unsigned int, unsigned int, unsigned int );
+extern char*(*AGKCommand1179)( unsigned int, unsigned int, unsigned int );
 //extern void(*AGKCommand1180)( unsigned int, unsigned int, int );
 //extern void(*AGKCommand1181)( unsigned int, unsigned int, int );
 //extern void(*AGKCommand1182)( unsigned int, unsigned int, int );
@@ -3083,7 +3083,7 @@ class agk
 		//static inline int GetMemblockShort( unsigned int memID, unsigned int offset ) { return AGKCommand1176( memID, offset ); }
 		//static inline int GetMemblockInt( unsigned int memID, unsigned int offset ) { return AGKCommand1177( memID, offset ); }
 		//static inline float GetMemblockFloat( unsigned int memID, unsigned int offset ) { return AGKCommand1178( memID, offset ); }
-		//static inline char* GetMemblockString( unsigned int memID, unsigned int offset, unsigned int length ) { return AGKCommand1179( memID, offset, length ); }
+		static inline char* GetMemblockString( unsigned int memID, unsigned int offset, unsigned int length ) { return AGKCommand1179( memID, offset, length ); }
 		//static inline void SetMemblockByte( unsigned int memID, unsigned int offset, int value ) { AGKCommand1180( memID, offset, value ); }
 		//static inline void SetMemblockByteSigned( unsigned int memID, unsigned int offset, int value ) { AGKCommand1181( memID, offset, value ); }
 		//static inline void SetMemblockShort( unsigned int memID, unsigned int offset, int value ) { AGKCommand1182( memID, offset, value ); }

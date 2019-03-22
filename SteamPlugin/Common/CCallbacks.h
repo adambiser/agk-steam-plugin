@@ -57,6 +57,7 @@ public:																			\
 	bool Has##func##Response()													\
 	{																			\
 		m_##func##Mutex.lock();													\
+		Clear(m_Current##func##);												\
 		if (m_##func##List.size() > 0)											\
 		{																		\
 			m_Current##func = m_##func##List.front();							\
@@ -64,7 +65,6 @@ public:																			\
 			m_##func##Mutex.unlock();											\
 			return true;														\
 		}																		\
-		Clear(m_Current##func##);												\
 		m_##func##Mutex.unlock();												\
 		return false;															\
 	}																			\
@@ -78,6 +78,12 @@ private:																		\
 	{																			\
 		m_##func##Mutex.lock();													\
 		Clear(m_Current##func##);												\
+		while (m_##func##List.size() > 0)										\
+		{																		\
+			m_Current##func = m_##func##List.front();							\
+			m_##func##List.pop_front();											\
+			Clear(m_Current##func##);											\
+		}																		\
 		if (m_b##func##Enabled)													\
 		{																		\
 			m_b##func##Enabled = false;											\
@@ -188,17 +194,18 @@ private:
 
 #pragma region ISteamMatchmaking
 private:
-	// FavoritesListAccountsUpdated_t - not much information given about this.
-	//STEAM_CALLBACK(CCallbacks, OnFavoritesListChanged, FavoritesListChanged_t);
+	// FavoritesListAccountsUpdated_t - no information given about this.
+	LIST_CALLBACK(FavoritesListChanged, FavoritesListChanged_t);
 	LIST_CALLBACK(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
 	LIST_CALLBACK(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 	// LobbyCreated_t - Call result
 	LIST_CALLBACK(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
 	LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
 	LIST_CALLBACK(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
-	// LobbyInvite_t - when invited by someone.
+	// LobbyInvite_t - Someone has invited you to join a Lobby. Normally you don't need to do anything with this...
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
+	// PSNGameBootInviteResult_t - deprecated
 #pragma endregion
 
 #pragma region ISteamMatchmakingServers
@@ -233,14 +240,40 @@ private:
 
 #pragma region ISteamRemoteStorage
 private:
+	// RemoteStorageAppSyncedClient_t - deprecated
+	// RemoteStorageAppSyncedServer_t - deprecated
+	// RemoteStorageAppSyncProgress_t - deprecated
+	// RemoteStorageAppSyncStatusCheck_t - deprecated
+	// RemoteStorageDeletePublishedFileResult_t - deprecated
+
 	// RemoteStorageDownloadUGCResult_t - Call result for UGCDownload, UGCDownloadToLocation.
+	
+	// RemoteStorageEnumeratePublishedFilesByUserActionResult_t - deprecated
+	// RemoteStorageEnumerateUserPublishedFilesResult_t - deprecated
+	// RemoteStorageEnumerateUserSharedWorkshopFilesResult_t - deprecated
+	// RemoteStorageEnumerateUserSubscribedFilesResult_t - deprecated
+	// RemoteStorageEnumerateWorkshopFilesResult_t - deprecated
+
 	// RemoteStorageFileReadAsyncComplete_t - Call result for FileReadAsync.
 	// RemoteStorageFileShareResult_t - Call result for FileShare.
 	// RemoteStorageFileWriteAsyncComplete_t - Call result for FileWriteAsync.
-	// RemoteStoragePublishedFileSubscribed_t - deprecated?
-	// RemoteStoragePublishedFileUnsubscribed_t - deprecated?
+
+	// RemoteStorageGetPublishedFileDetailsResult_t - deprecated
+	// RemoteStorageGetPublishedItemVoteDetailsResult_t - deprecated
+	// RemoteStoragePublishedFileDeleted_t - deprecated
+	// RemoteStoragePublishedFileSubscribed_t - deprecated
+	// RemoteStoragePublishedFileUnsubscribed_t - deprecated
+	// RemoteStoragePublishedFileUpdated_t - deprecated
+	// RemoteStoragePublishFileProgress_t - deprecated
+	// RemoteStoragePublishFileResult_t - deprecated
+	// RemoteStorageSetUserPublishedFileActionResult_t - deprecated
+
 	// RemoteStorageSubscribePublishedFileResult_t - Call result for SubscribePublishedFile, ISteamUGC::SubscribeItem.
 	// RemoteStorageUnsubscribePublishedFileResult_t - Call result for UnsubscribePublishedFile, ISteamUGC::UnsubscribeItem.
+
+	// RemoteStorageUpdatePublishedFileResult_t - deprecated
+	// RemoteStorageUpdateUserPublishedItemVoteResult_t - deprecated
+	// RemoteStorageUserVoteDetails_t - deprecated
 #pragma endregion
 
 #pragma region ISteamScreenshots

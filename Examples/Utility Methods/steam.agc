@@ -29,6 +29,12 @@ AddStatus("IP Country: " + Steam.GetIPCountry())
 AddStatus("Steam UI Language: " + Steam.GetSteamUILanguage())
 AddStatus("AppInstallDir: " + Steam.GetAppInstallDir(480))
 
+AddStatus("IsBehindNAT: " + TF(Steam.IsBehindNAT()))
+AddStatus("IsPhoneIdentifying: " + TF(Steam.IsPhoneIdentifying()))
+AddStatus("IsPhoneRequiringVerification: " + TF(Steam.IsPhoneRequiringVerification()))
+AddStatus("IsPhoneVerified: " + TF(Steam.IsPhoneVerified()))
+AddStatus("IsTwoFactorEnabled: " + TF(Steam.IsTwoFactorEnabled()))
+
 global filenames as string[1] = ['dummy.txt', 'SteamworksExample.exe']
 global fileCallResults as integer[1]
 

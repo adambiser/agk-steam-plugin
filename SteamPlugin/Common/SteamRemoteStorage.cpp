@@ -23,14 +23,14 @@ THE SOFTWARE.
 #include "Common.h"
 #include "SteamRemoteStorage.h"
 
-//CommitPublishedFileUpdate
-//CreatePublishedFileUpdateRequest
-//DeletePublishedFile
-//EnumeratePublishedFilesByUserAction
-//EnumeratePublishedWorkshopFiles
-//EnumerateUserPublishedFiles
-//EnumerateUserSharedWorkshopFiles
-//EnumerateUserSubscribedFiles
+//CommitPublishedFileUpdate - Deprecated 
+//CreatePublishedFileUpdateRequest - Deprecated 
+//DeletePublishedFile - Deprecated
+//EnumeratePublishedFilesByUserAction - Deprecated 
+//EnumeratePublishedWorkshopFiles - Deprecated 
+//EnumerateUserPublishedFiles - Deprecated 
+//EnumerateUserSharedWorkshopFiles - Deprecated 
+//EnumerateUserSubscribedFiles - Deprecated 
 
 int CloudFileDelete(const char *filename)
 {
@@ -102,7 +102,8 @@ int GetCloudFileReadAsyncMemblock(int hCallResult)
 	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
 
-//FileShare
+//FileShare - no information about what this does.
+
 int CloudFileWrite(const char *filename, int memblockID)
 {
 	CheckInitialized(false);
@@ -134,13 +135,13 @@ char *GetCloudFileWriteAsyncFileName(int hCallResult)
 //FileWriteStreamOpen
 //FileWriteStreamWriteChunk
 
-int GetCachedUGCCount()
-{
-	CheckInitialized(0);
-	return SteamRemoteStorage()->GetCachedUGCCount();
-}
+//int GetCachedUGCCount() - no information on this
+//{
+//	CheckInitialized(0);
+//	return SteamRemoteStorage()->GetCachedUGCCount();
+//}
 
-//GetCachedUGCHandle
+//GetCachedUGCHandle - no information on this
 
 int GetCloudFileCount()
 {
@@ -148,7 +149,7 @@ int GetCloudFileCount()
 	return SteamRemoteStorage()->GetFileCount();
 }
 
-//GetFileListFromServer
+//GetFileListFromServer - deprecated
 
 //GetFileNameAndSize
 char *GetCloudFileName(int index)
@@ -182,8 +183,8 @@ int GetCloudFileTimestamp(const char *filename)
 	return (int)SteamRemoteStorage()->GetFileTimestamp(filename);
 }
 
-//GetPublishedFileDetails
-//GetPublishedItemVoteDetails
+//GetPublishedFileDetails - deprecated
+//GetPublishedItemVoteDetails - deprecated
 
 int GetCloudQuotaAvailable()
 {
@@ -217,9 +218,9 @@ int GetCloudFileSyncPlatforms(const char *filename)
 	return SteamRemoteStorage()->GetSyncPlatforms(filename);
 }
 
-//GetUGCDetails
-//GetUGCDownloadProgress
-//GetUserPublishedItemVoteDetails
+//GetUGCDetails - no info
+//GetUGCDownloadProgress - no info
+//GetUserPublishedItemVoteDetails - deprecated
 
 int IsCloudEnabledForAccount()
 {
@@ -233,9 +234,9 @@ int IsCloudEnabledForApp()
 	return SteamRemoteStorage()->IsCloudEnabledForApp();
 }
 
-//PublishVideo
-//PublishWorkshopFile
-//ResetFileRequestState
+//PublishVideo - deprecated
+//PublishWorkshopFile - deprecated
+//ResetFileRequestState - deprecated
 
 void SetCloudEnabledForApp(int enabled)
 {
@@ -249,19 +250,21 @@ int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 	return SteamRemoteStorage()->SetSyncPlatforms(filename, (ERemoteStoragePlatform)eRemoteStoragePlatform);
 }
 
-//SetUserPublishedFileAction
-//SubscribePublishedFile
-//SynchronizeToClient
-//SynchronizeToServer
-//UGCDownload
-//UGCDownloadToLocation
-//UGCRead
-//UnsubscribePublishedFile
-//UpdatePublishedFileDescription
-//UpdatePublishedFileFile
-//UpdatePublishedFilePreviewFile
-//UpdatePublishedFileSetChangeDescription
-//UpdatePublishedFileTags
-//UpdatePublishedFileTitle
-//UpdatePublishedFileVisibility
-//UpdateUserPublishedItemVote
+//SetUserPublishedFileAction - deprecated
+//SubscribePublishedFile - deprecated
+//SynchronizeToClient - deprecated
+//SynchronizeToServer - deprecated
+
+//UGCDownload - no info
+//UGCDownloadToLocation - no info
+//UGCRead - no info
+
+//UnsubscribePublishedFile - deprecated
+//UpdatePublishedFileDescription - deprecated
+//UpdatePublishedFileFile - deprecated
+//UpdatePublishedFilePreviewFile - deprecated
+//UpdatePublishedFileSetChangeDescription - deprecated
+//UpdatePublishedFileTags - deprecated
+//UpdatePublishedFileTitle - deprecated
+//UpdatePublishedFileVisibility - deprecated
+//UpdateUserPublishedItemVote - deprecated

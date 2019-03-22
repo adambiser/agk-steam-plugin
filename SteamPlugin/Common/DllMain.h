@@ -311,7 +311,7 @@ extern "C" DLL_EXPORT int GetEarliestPurchaseUnixTime(int appID);
 @desc Asynchronously retrieves metadata details about a specific file in the depot manifest.
 @param filename The filename in the current depot.
 @callback-type callresult
-@callback-getters GetFileDetailsSHA1, GetFileDetailsSize, GetFileDetailsFlags
+@callback-getters GetFileDetailsSHA1, GetFileDetailsSize
 @return A[call result handle](Callbacks - and-Call - Results#call - results) on success; otherwise 0.
 @api ISteamApps#GetFileDetails
 */
@@ -1666,6 +1666,16 @@ extern "C" DLL_EXPORT int GetRequestLobbyListHandle(int hCallResult, int index);
 /*
 @desc Broadcasts a chat message to the all of the users in the lobby.
 @param hLobbySteamID The Steam ID handle of the lobby to send the chat message to.
+@param memblockID A memblock containing the message to send.
+@return 1 when the send succeeds; otherwise 0.
+@api ISteamMatchmaking#SendLobbyChatMessage
+@plugin-name SendLobbyChatMessage
+*/
+extern "C" DLL_EXPORT int SendLobbyChatMessageMemblock(int hLobbySteamID, int memblockID);
+
+/*
+@desc Broadcasts a chat message to the all of the users in the lobby.
+@param hLobbySteamID The Steam ID handle of the lobby to send the chat message to.
 @param message The message to send.
 @return 1 when the send succeeds; otherwise 0.
 @api ISteamMatchmaking#SendLobbyChatMessage
@@ -1758,13 +1768,80 @@ extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType);
 
 // Callbacks
 /*
-@desc Triggered when a chat message for this lobby has been received.
+@desc Triggered when a favorites list change message has been received.
 @callback-type list
-@callback-getters	GetLobbyChatMessageUser, GetLobbyChatMessageText
+@callback-getters	GetFavoritesListChangedIP, GetFavoritesListChangedQueryPort, GetFavoritesListChangedConnectionPort, GetFavoritesListChangedAppID,
+	GetFavoritesListChangedFlags, GetFavoritesListChangedIsAdd, GetFavoritesListChangedAccountID
+@return 1 when the callback has more responses to process; otherwise 0.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+*/
+extern "C" DLL_EXPORT int HasFavoritesListChangedResponse();
+
+/*
+@desc Gets the IP of the current FavoritesListAccountsUpdated_t callback reponse.
+When an empty string, reload the entire list; otherwise it means just one server.
+@return An IP address or empty string.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+*/
+extern "C" DLL_EXPORT char *GetFavoritesListChangedIP();
+
+/*
+@desc Gets the query port of the current FavoritesListAccountsUpdated_t callback reponse.
+@return An integer.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+*/
+extern "C" DLL_EXPORT int GetFavoritesListChangedQueryPort();
+
+/*
+@desc Gets the connection port of the current FavoritesListAccountsUpdated_t callback reponse.
+@return An integer.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+*/
+extern "C" DLL_EXPORT int GetFavoritesListChangedConnectionPort();
+
+/*
+@desc Gets the App ID of the game server for the current FavoritesListAccountsUpdated_t callback reponse.
+@return An integer.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+*/
+extern "C" DLL_EXPORT int GetFavoritesListChangedAppID();
+
+/*
+@desc Gets the query port of the current FavoritesListAccountsUpdated_t callback reponse.
+@return Whether the server is on the favorites list or history list. See k_unFavoriteFlagNone for more information.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
+*/
+extern "C" DLL_EXPORT int GetFavoritesListChangedFlags();
+
+/*
+@desc Gets whether the game server was added (1) or removed (0) from the list for the current FavoritesListAccountsUpdated_t callback reponse.
+@return 1 if added, 0 if removed.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+*/
+extern "C" DLL_EXPORT int GetFavoritesListChangedIsAdd();
+
+/*
+@desc Gets the account ID of the current FavoritesListAccountsUpdated_t callback reponse.
+@return An integer.
+@api ISteamMatchmaking#FavoritesListAccountsUpdated_t, steam_api#AccountID_t
+*/
+extern "C" DLL_EXPORT int GetFavoritesListChangedAccountID();
+
+/*
+@desc Triggered when a lobby chat message has been received.
+@callback-type list
+@callback-getters	GetLobbyChatMessageLobby, GetLobbyChatMessageUser, GetLobbyChatMessageText
 @return 1 when the callback has more responses to process; otherwise 0.
 @api ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int HasLobbyChatMessageResponse();
+
+/*
+@desc Gets the lobby for the current LobbyChatMsg_t callback response.
+@return A lobby Steam ID handle.
+@api ISteamMatchmaking#LobbyChatMsg_t
+*/
+extern "C" DLL_EXPORT int GetLobbyChatMessageLobby();
 
 /*
 @desc Gets the Steam ID handle of the user for the current LobbyChatMsg_t callback response.
@@ -1773,8 +1850,23 @@ extern "C" DLL_EXPORT int HasLobbyChatMessageResponse();
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser();
 
+///*
+//@desc Gets the chat entry type for the current LobbyChatMsg_t callback response.
+//@return An EChatEntryType value.
+//@api ISteamMatchmaking#LobbyChatMsg_t, steam_api#EChatEntryType
+//*/
+//extern "C" DLL_EXPORT int GetLobbyChatMessageEntryType();
+
 /*
-@desc Gets the chat message for the current LobbyChatMsg_t callback response.
+@desc Gets the chat message in a memblock for the current LobbyChatMsg_t callback response.
+The memblock will be deleted the next time HasLobbyChatMessageResponse is called.
+@return A memblock containing the contents of the chat message.
+@api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
+*/
+extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock();
+
+/*
+@desc Gets the chat message as text for the current LobbyChatMsg_t callback response.
 @return The contents of the chat message.
 @api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
 */
@@ -2177,7 +2269,7 @@ extern "C" DLL_EXPORT char *GetCloudFileWriteAsyncFileName(int hCallResult);
 //extern "C" DLL_EXPORT UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *filename);
 //extern "C" DLL_EXPORT bool CloudFileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
 
-extern "C" DLL_EXPORT int GetCachedUGCCount();
+//extern "C" DLL_EXPORT int GetCachedUGCCount();
 
 /*
 @desc Gets the total number of local files synchronized by Steam Cloud.
@@ -2359,11 +2451,41 @@ extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eR
 /* @page ISteamUser */
 //AdvertiseGame
 //BeginAuthSession
-//BIsBehindNAT
-//BIsPhoneIdentifying
-//BIsPhoneRequiringVerification
-//BIsPhoneVerified
-//BIsTwoFactorEnabled
+
+/*
+@desc Checks if the current users looks like they are behind a NAT device.
+@return 1 if the current user is behind a NAT, otherwise 0.
+@api ISteamUser#BIsBehindNAT
+*/
+extern "C" DLL_EXPORT int IsBehindNAT();
+
+/*
+@desc Checks whether the user's phone number is used to uniquely identify them.
+@return 1 f the current user's phone uniquely verifies their identity; otherwise, 0.
+@api ISteamUser#BIsPhoneIdentifying
+*/
+extern "C" DLL_EXPORT int IsPhoneIdentifying();
+
+/*
+@desc Checks whether the current user's phone number is awaiting (re)verification.
+@return 1 if the it is requiring verification; otherwise, 0.
+@api ISteamUser#BIsPhoneRequiringVerification
+*/
+extern "C" DLL_EXPORT int IsPhoneRequiringVerification();
+
+/*
+@desc Checks whether the current user has verified their phone number.
+@return 1 if the current user has phone verification enabled; otherwise, 0.
+@api ISteamUser#BIsTwoFactorEnabled
+*/
+extern "C" DLL_EXPORT int IsPhoneVerified();
+
+/*
+@desc Checks whether the current user has Steam Guard two factor authentication enabled on their account.
+@return 1 if the current user has two factor authentication enabled; otherwise, 0.
+@api ISteamUser#IsPhoneVerified
+*/
+extern "C" DLL_EXPORT int IsTwoFactorEnabled();
 
 /*
 @desc Checks to see whether the user is logged on to Steam.
@@ -2378,9 +2500,24 @@ extern "C" DLL_EXPORT int LoggedOn();
 //GetAuthSessionTicket
 //GetAvailableVoice
 //GetEncryptedAppTicket
-//GetGameBadgeLevel
+
+/*
+@desc Gets the level of the users Steam badge for your game.
+The user can have two different badges for a series; the regular badge (max level 5) and the foil badge (max level 1).
+@param series If you only have one set of cards, the series will be 1.
+@param foil Check if they have received the foil badge.
+@return The user's badge level.
+@api ISteamUser#GetGameBadgeLevel
+*/
+extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil);
+
 //GetHSteamUser
-//GetPlayerSteamLevel
+
+/*
+@desc Gets the Steam level of the user, as shown on their Steam community profile.
+@return The level of the current user.
+*/
+extern "C" DLL_EXPORT int GetPlayerSteamLevel();
 
 /*
 @desc Gets a handle to the Steam ID of the account currently logged into the Steam client.
@@ -2533,7 +2670,19 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int 
 */
 extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName);
 
-//FindOrCreateLeaderboard
+/*
+@desc Gets a leaderboard by name, it will create it if it's not yet created.
+Leaderboards created with this function will not automatically show up in the Steam Community.
+You must manually set the Community Name field in the App Admin panel of the Steamworks website.
+@param leaderboardName The name of the leaderboard to find.
+@param eLeaderboardSortMethod The sort order of the new leaderboard if it's created.
+@param-api eLeaderboardSortMethod ISteamUserStats#ELeaderboardSortMethod
+@param eLeaderboardDisplayType The display type (used by the Steam Community web site) of the new leaderboard if it's created.
+@param-api eLeaderboardDisplayType ISteamUserStats#ELeaderboardDisplayType
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamUserStats#FindOrCreateLeaderboard
+*/
+extern "C" DLL_EXPORT int FindOrCreateLeaderboard(const char *leaderboardName, int eLeaderboardSortMethod, int eLeaderboardDisplayType);
 
 /*
 @desc Returns whether the leaderboard was found for the FindLeaderboard call.

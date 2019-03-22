@@ -25,9 +25,6 @@ THE SOFTWARE.
 #pragma once
 
 #include "CCallResultItem.h"
-#include <sstream>
-#include <iomanip>
-
 
 class CFileDetailsResultCallResult : public CCallResultItem<FileDetailsResult_t>
 {
@@ -37,20 +34,7 @@ public:
 		m_CallResultName = "GetFileDetails('" + std::string(pszFileName) + "')";
 		m_hSteamAPICall = SteamApps()->GetFileDetails(pszFileName);
 	}
-	std::string GetFileSHA1()
-	{
-		if (m_Response.m_eResult != k_EResultOK)
-		{
-			return std::string();
-		}
-		std::ostringstream sha;
-		sha << std::uppercase << std::setfill('0') << std::hex;
-		for (int x = 0; x < sizeof(m_Response.m_FileSHA); x++)
-		{
-			sha << std::setw(2) << (int)m_Response.m_FileSHA[x];
-		}
-		return sha.str();
-	}
+	std::string GetFileSHA1() { return utils::GetSHA1(m_Response.m_FileSHA); }
 	int GetFileSize() { return (int)m_Response.m_ulFileSize; }
 	int GetFileFlags() { return m_Response.m_unFlags; }
 };
