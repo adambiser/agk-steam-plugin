@@ -2264,10 +2264,57 @@ extern "C" DLL_EXPORT int CloudFileWriteAsync(const char *filename, int memblock
 */
 extern "C" DLL_EXPORT char *GetCloudFileWriteAsyncFileName(int hCallResult);
 
-//extern "C" DLL_EXPORT bool CloudFileWriteStreamCancel(UGCFileWriteStreamHandle_t writeHandle);
-//extern "C" DLL_EXPORT bool CloudFileWriteStreamClose(UGCFileWriteStreamHandle_t writeHandle);
-//extern "C" DLL_EXPORT UGCFileWriteStreamHandle_t FileWriteStreamOpen(const char *filename);
-//extern "C" DLL_EXPORT bool CloudFileWriteStreamWriteChunk(UGCFileWriteStreamHandle_t writeHandle, const void *pvData, int32 cubData);
+/*
+@desc Cancels a file write stream that was started by FileWriteStreamOpen.
+
+This trashes all of the data written and closes the write stream, but if there was an existing file with this name, it remains untouched.
+@param writeHandle The file write stream to cancel.
+@return 1 or 0.  Steamworks SDK docs don't explain.
+@api ISteamRemoteStorage#FileWriteStreamCancel
+*/
+extern "C" DLL_EXPORT int CloudFileWriteStreamCancel(int writeHandle);
+
+/*
+@desc Closes a file write stream that was started by FileWriteStreamOpen.
+
+This flushes the stream to the disk, overwriting the existing file if there was one.
+@param writeHandle The file write stream to close.
+@return 1 if the file write stream was successfully closed; otherwise 0.
+@api ISteamRemoteStorage#FileWriteStreamClose
+*/
+extern "C" DLL_EXPORT int CloudFileWriteStreamClose(int writeHandle);
+
+/*
+@desc Creates a new file output stream allowing you to stream out data to the Steam Cloud file in chunks.
+If the target file already exists, it is not overwritten until FileWriteStreamClose has been called.
+@param filename The name of the file to write to.
+@return A file write stream handle or -1 if there's a problem.
+@api ISteamRemoteStorage#FileWriteStreamOpen
+*/
+extern "C" DLL_EXPORT int CloudFileWriteStreamOpen(const char *filename);
+
+/*
+@desc Writes a blob of data from a memblock to the file write stream.
+Data size is restricted to 100 * 1024 * 1024 bytes.
+@param writeHandle The file write stream to write to.
+@param memblockID A memblock containing the data to write.
+@param offset The offset within the memblock of the data to write.
+@param length The length of the data to write.
+@return 1 if the data was successfully written to the file write stream; otherwise 0;
+@api ISteamRemoteStorage#FileWriteStreamWriteChunk
+@plugin-name CloudFileWriteStreamWriteChunk
+*/
+extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunkEx(int writeHandle, int memblockID, int offset, int length);
+
+/*
+@desc Writes the entire contents of a memblock to the file write stream.
+Data size is restricted to 100 * 1024 * 1024 bytes.
+@param writeHandle The file write stream to write to.
+@param memblockID A memblock containing the data to write.
+@return 1 if the data was successfully written to the file write stream; otherwise 0;
+@api ISteamRemoteStorage#FileWriteStreamWriteChunk
+*/
+extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunk(int writeHandle, int memblockID);
 
 //extern "C" DLL_EXPORT int GetCachedUGCCount();
 
@@ -2965,10 +3012,46 @@ If the stat is not defined as a float, an error will be raised.
 extern "C" DLL_EXPORT float GetStatFloat(const char *name);
 
 //GetTrophySpaceRequiredBeforeInstall - deprecated
-//GetUserAchievement
-//GetUserAchievementAndUnlockTime
-//GetUserStat
-//GetUserStatsData
+
+/*
+@desc Gets whether the specified user has achieved this achievement.
+@param hSteamID The Steam ID handle of the user.
+@param name The 'API Name' of the achievement.
+@return 1 when the user has achieved this achievement; otherwise 0.
+@api ISteamUserStats#GetUserAchievement
+*/
+extern "C" DLL_EXPORT int GetUserAchievement(int hSteamID, const char *name);
+
+/*
+@desc Gets the time at which an achievement was unlocked, if ever.
+@param hSteamID The Steam ID handle of the user.
+@param name The 'API Name' of the achievement.
+@return The unload time in Unix time.
+@api ISteamUserStats#GetUserAchievementAndUnlockTime
+*/
+extern "C" DLL_EXPORT int GetUserAchievementUnlockTime(int hSteamID, const char *name);
+
+/*
+@desc Gets the current value of an integer stat for the specified user.
+If the stat is not defined as an integer, an error will be raised.
+@param hSteamID The Steam ID handle of the user.
+@param name The 'API Name' of the stat.
+@return The value of the stat.
+@api ISteamUserStats#GetUserStat
+*/
+extern "C" DLL_EXPORT int GetUserStatInt(int hSteamID, const char *name);
+
+/*
+@desc Gets the current value of a float stat for the specified user.
+If the stat is not defined as a float, an error will be raised.
+@param hSteamID The Steam ID handle of the user.
+@param name The 'API Name' of the stat.
+@return The value of the stat.
+@api ISteamUserStats#GetUserStat
+*/
+extern "C" DLL_EXPORT float GetUserStatFloat(int hSteamID, const char *name);
+
+//GetUserStatsData - deprecated
 
 /*
 @desc Raises a notification about achievemnt progress for progress stat achievements.
@@ -3253,7 +3336,7 @@ extern "C" DLL_EXPORT int StatsInitializedForUser(int hSteamID);
 @desc Triggered when the stats and achievements for a user have been unloaded.
 @return 1 when the callback has more responses to process; otherwise 0.
 @callback-type list
-@callback-getters GetUserStatsUnloadeddUser
+@callback-getters GetUserStatsUnloadedUser
 @api ISteamUserStats#UserStatsUnloaded_t
 */
 extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse();
@@ -3263,7 +3346,7 @@ extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse();
 @return A Steam ID handle.
 @api ISteamUserStats#UserStatsUnloaded_t
 */
-extern "C" DLL_EXPORT int GetUserStatsUnloadeddUser();
+extern "C" DLL_EXPORT int GetUserStatsUnloadedUser();
 
 /*
 @desc Triggered by a request to store the user stats.
@@ -3284,10 +3367,14 @@ extern "C" DLL_EXPORT int GetUserStatsStoredResult();
 
 #pragma region ISteamUtils
 /* @page ISteamUtils */
-//BOverlayNeedsPresent
-//CheckFileSignature
-//GetAPICallFailureReason
-//GetAPICallResult
+/*
+@desc Checks if the Overlay needs a present. Only required if using event driven render updates.
+
+Typically this call is unneeded if your game has a constantly running frame loop that calls Sync() or Swap() every frame.
+@return 1 if the overlay needs you to refresh the screen, otherwise 0.
+@api ISteamUtils#BOverlayNeedsPresent
+*/
+extern "C" DLL_EXPORT int OverlayNeedsPresent();
 
 /*
 @desc
@@ -3298,9 +3385,6 @@ Returns the AppID or 0 if the Steam API has not been not initialized or the AppI
 @api ISteamUtils#GetAppID
 */
 extern "C" DLL_EXPORT int GetAppID();
-
-//GetConnectedUniverse
-//GetCSERIPPort
 
 /*
 @desc Gets the current amount of battery power on the computer.
@@ -3372,8 +3456,6 @@ You probably want GetCurrentGameLanguage instead, this should only be used in ve
 @api ISteamUtils#GetSteamUILanguage
 */
 extern "C" DLL_EXPORT char *GetSteamUILanguage();
-
-//IsAPICallCompleted
 
 /*
 @desc Checks if the Steam Overlay is running and the user can access it.
@@ -3465,8 +3547,6 @@ extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMod
 extern "C" DLL_EXPORT void StartVRDashboard();
 
 //Callbacks
-//CheckFileSignature_t
-
 /*
 @desc Triggered when the big picture gamepad text input has been closed.
 @callback-type list

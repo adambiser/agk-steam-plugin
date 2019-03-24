@@ -261,6 +261,11 @@ GetCloudFileReadAsyncMemblock,I,I,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloud
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,CloudFileWrite
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,CloudFileWriteAsync
 GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetCloudFileWriteAsyncFileName
+CloudFileWriteStreamCancel,I,I,CloudFileWriteStreamCancel,0,0,0,0,CloudFileWriteStreamCancel
+CloudFileWriteStreamClose,I,I,CloudFileWriteStreamClose,0,0,0,0,CloudFileWriteStreamClose
+CloudFileWriteStreamOpen,I,S,CloudFileWriteStreamOpen,0,0,0,0,CloudFileWriteStreamOpen
+CloudFileWriteStreamWriteChunk,I,IIII,CloudFileWriteStreamWriteChunkEx,0,0,0,0,CloudFileWriteStreamWriteChunkEx
+CloudFileWriteStreamWriteChunk,I,II,CloudFileWriteStreamWriteChunk,0,0,0,0,CloudFileWriteStreamWriteChunk
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
 GetCloudFileSize,I,I,GetCloudFileSizeByIndex,0,0,0,0,GetCloudFileSizeByIndex
@@ -330,6 +335,10 @@ GetNumberOfCurrentPlayers,I,0,GetNumberOfCurrentPlayers,0,0,0,0,GetNumberOfCurre
 GetNumberOfCurrentPlayersResult,I,I,GetNumberOfCurrentPlayersResult,0,0,0,0,GetNumberOfCurrentPlayersResult
 GetStatInt,I,S,GetStatInt,0,0,0,0,GetStatInt
 GetStatFloat,F,S,GetStatFloat,0,0,0,0,GetStatFloat
+GetUserAchievement,I,IS,GetUserAchievement,0,0,0,0,GetUserAchievement
+GetUserAchievementUnlockTime,I,IS,GetUserAchievementUnlockTime,0,0,0,0,GetUserAchievementUnlockTime
+GetUserStatInt,I,IS,GetUserStatInt,0,0,0,0,GetUserStatInt
+GetUserStatFloat,F,IS,GetUserStatFloat,0,0,0,0,GetUserStatFloat
 IndicateAchievementProgress,I,SII,IndicateAchievementProgress,0,0,0,0,IndicateAchievementProgress
 RequestCurrentStats,I,0,RequestCurrentStats,0,0,0,0,RequestCurrentStats
 RequestGlobalAchievementPercentages,I,0,RequestGlobalAchievementPercentages,0,0,0,0,RequestGlobalAchievementPercentages
@@ -360,12 +369,13 @@ GetUserStatsReceivedUser,I,0,GetUserStatsReceivedUser,0,0,0,0,GetUserStatsReceiv
 StatsInitialized,I,0,StatsInitialized,0,0,0,0,StatsInitialized
 StatsInitialized,I,I,StatsInitializedForUser,0,0,0,0,StatsInitializedForUser
 HasUserStatsUnloadedResponse,I,0,HasUserStatsUnloadedResponse,0,0,0,0,HasUserStatsUnloadedResponse
-GetUserStatsUnloadeddUser,I,0,GetUserStatsUnloadeddUser,0,0,0,0,GetUserStatsUnloadeddUser
+GetUserStatsUnloadedUser,I,0,GetUserStatsUnloadedUser,0,0,0,0,GetUserStatsUnloadedUser
 HasUserStatsStoredResponse,I,0,HasUserStatsStoredResponse,0,0,0,0,HasUserStatsStoredResponse
 GetUserStatsStoredResult,I,0,GetUserStatsStoredResult,0,0,0,0,GetUserStatsStoredResult
 #
 # ISteamUtils
 #
+OverlayNeedsPresent,I,0,OverlayNeedsPresent,0,0,0,0,OverlayNeedsPresent
 GetAppID,I,0,GetAppID,0,0,0,0,GetAppID
 GetCurrentBatteryPower,I,0,GetCurrentBatteryPower,0,0,0,0,GetCurrentBatteryPower
 LoadImageFromHandle,I,I,LoadImageFromHandle,0,0,0,0,LoadImageFromHandle

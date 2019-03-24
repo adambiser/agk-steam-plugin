@@ -22,12 +22,6 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-// TODO later
-// Game server methods
-//  \ Voice methods
-// Encrypted app ticket methods
-// Web-Store stuff
-
 //AdvertiseGame - game server stuff
 //BeginAuthSession - game server stuff
 

@@ -22,18 +22,23 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-//BOverlayNeedsPresent
-//CheckFileSignature
-//GetAPICallFailureReason
-//GetAPICallResult
+int OverlayNeedsPresent()
+{
+	CheckInitialized(0);
+	return SteamUtils()->BOverlayNeedsPresent();
+}
+
+//CheckFileSignature - Deprecated
+//GetAPICallFailureReason - Not needed.
+//GetAPICallResult - Not needed.
 
 int GetAppID()
 {
 	return SteamUtils()->GetAppID();
 }
 
-//GetConnectedUniverse
-//GetCSERIPPort
+//GetConnectedUniverse - Valve use only.
+//GetCSERIPPort - Only used in Source engine games.
 
 int GetCurrentBatteryPower()
 {
@@ -137,7 +142,7 @@ char *GetSteamUILanguage()
 	return utils::CreateString(SteamUtils()->GetSteamUILanguage());
 }
 
-//IsAPICallCompleted
+//IsAPICallCompleted - Not needed.
 
 int IsOverlayEnabled()
 {

@@ -1,0 +1,126 @@
+steam_api.h - Done except mini-dumps.
+- SKIP: SteamAPI_ReleaseCurrentThreadMemory - AppGameKit is single threaded.
+- SKIP: SteamAPI_SetMiniDumpComment - 32-bit Windows only - not doable with AppGameKit.
+- SKIP: SteamAPI_WriteMiniDump - 32-bit Windows only - not doable with AppGameKit.
+- DONE
+
+steam_gameserver.h
+- TODO: Research this.
+
+steamnetworkingtypes.h
+- TODO: Research this.
+
+ISteamApps - For applications and DLC.
+- SKIP: FileDetailsResult_t.m_unFlags are not explained in the docs.  Assuming it is unused.
+- DONE
+
+ISteamAppTicket - Interface to get app ownership data.  This should never be needed in most cases.
+- SKIP
+
+ISteamClient - Only needed for a more complex versioning scheme or a multiplexed gameserver.
+- SKIP
+
+ISteamController - Steam Controller support API.
+- NOW: SteamInput
+- DONE
+
+ISteamFriends - Information about individual users and interact with the Steam Overlay.
+- TODO: Many methods are not done.
+- TODO: Clans and coplay friends haven't had anything done.
+
+ISteamGameCoordinator - Deprecated.
+- SKIP
+
+ISteamGameServer - Core of the Steam Game Servers API.
+- TODO: Research this.
+
+ISteamGameServerStats - Functions to allow game servers to set stats and achievements on players.
+- TODO: Research this.
+
+ISteamHTMLSurface - Interface for rendering and interacting with HTML pages.
+- TODO: Research this.
+
+ISteamHTTP - A small and easy to use HTTP client to send and receive data from the web.
+- TODO: Research this.
+
+ISteamInventory - Steam Inventory query and manipulation API.
+- TODO: Research this.
+
+ISteamMatchmaking - Matchmaking services, favorites, and game lobbies.
+- DONE
+
+ISteamMatchmakingServers - Game server browser.
+- TODO: Research this.
+
+ISteamMusic - Music playback in the steam client.
+- DONE
+
+ISteamMusicRemote - Direct interaction with the Steam Music player.
+- TODO: Research this.
+
+ISteamNetworking - For making connections and sending data between clients, traversing NATs when possible.
+- TODO: Research this.
+
+ISteamNetworkingSockets - Networking API similar to Berkeley sockets, but for games.
+- TODO: Research this.
+
+ISteamNetworkingUtils - For checking the local networking environment and estimating pings.
+- TODO: Research this.
+
+ISteamParties - Advertise your multiplayer game session in a Steam chat room group.
+- TODO: Research this.
+
+ISteamRemoteStorage - The Steam Cloud.
+- ??: GetUGCDetails
+- ??: GetUGCDownloadProgress
+- ??: UGCDownload
+- ??: UGCDownloadToLocation
+- ??: UGCRead
+
+ISteamScreenshots - For adding screenshots to the user's screenshot library.
+- TODO
+
+ISteamUGC - Steam Workshop, User-Generated Content.
+- TODO
+
+ISteamUnifiedMessages - Deprecated
+- SKIP
+
+ISteamUser - Steam user information.
+- AdvertiseGame - Game server stuff
+- BeginAuthSession - Game server stuff
+- CancelAuthTicket - game server stuff
+- DecompressVoice - voice stuff
+- EndAuthSession - game server stuff
+- GetAuthSessionTicket - game server stuff
+- GetAvailableVoice - voice stuff
+- GetEncryptedAppTicket - encrypted app ticket stuff
+- GetVoice - voice stuff
+- GetVoiceOptimalSampleRate - voice stuff
+- InitiateGameConnection - old authentication, skip?
+- RequestEncryptedAppTicket - encrypted app ticket stuff
+- RequestStoreAuthURL - store stuff
+- StartVoiceRecording - voice stuff
+- StopVoiceRecording - voice stuff
+- TerminateGameConnection - old authentication, skip?
+- UserHasLicenseForApp - game server stuff... validate DLC for auth session
+
+ISteamUserStats - For accessing and submitting stats, achievements, and leaderboards.
+- AttachLeaderboardUGC
+- DownloadLeaderboardEntriesForUsers
+- Download entry details
+
+ISteamUtils - Miscellaneous utility functions.
+- SKIP: CheckFileSignature - Deprecated.
+- SKIP: GetAPICallFailureReason - Not needed.
+- SKIP: GetAPICallResult - Not needed.
+- GetConnectedUniverse - Valve only.
+- GetCSERIPPort - Source games only.
+- SKIP: IsAPICallCompleted - Not needed.
+- DONE
+
+ISteamVideo - Steam video and broadcasting.
+- TODO?
+
+SteamEncryptedAppTicket - Encrypted application tickets.
+- SKIP?  Would anyone using AppGameKit need this?

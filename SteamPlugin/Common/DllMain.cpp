@@ -210,7 +210,7 @@ int RestartAppIfNecessary(int ownAppID)
 	return SteamAPI_RestartAppIfNecessary(ownAppID);
 }
 
-// S_API void S_CALLTYPE SteamAPI_ReleaseCurrentThreadMemory(); - not needed
+// S_API void S_CALLTYPE SteamAPI_ReleaseCurrentThreadMemory(); - not doable
 
 void RunCallbacks()
 {
@@ -218,7 +218,7 @@ void RunCallbacks()
 	SteamAPI_RunCallbacks();
 }
 
-// TODO S_API void S_CALLTYPE SteamAPI_SetMiniDumpComment( const char *pchMsg );
+// TODO S_API void S_CALLTYPE SteamAPI_SetMiniDumpComment( const char *pchMsg ); - not doable
 
 void Shutdown()
 {

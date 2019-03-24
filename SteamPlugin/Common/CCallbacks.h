@@ -321,13 +321,13 @@ private:
 
 #pragma region ISteamUserStats
 private:
-	//GlobalAchievementPercentagesReady_t - RequestGlobalAchievementPercentages
-	//GlobalStatsReceived_t - RequestGlobalStats
+	//GlobalAchievementPercentagesReady_t - Call result for RequestGlobalAchievementPercentages
+	//GlobalStatsReceived_t - Call result for RequestGlobalStats
 	//LeaderboardFindResult_t - Call result for FindOrCreateLeaderboard, FindLeaderboard
 	//LeaderboardScoresDownloaded_t - Call result for DownloadLeaderboardEntries, DownloadLeaderboardEntriesForUsers
 	//LeaderboardScoreUploaded_t - Call result for UploadLeaderboardScore
 	//LeaderboardUGCSet_t - Call result for AttachLeaderboardUGC
-	//NumberOfCurrentPlayers_t - GetNumberOfCurrentPlayers
+	//NumberOfCurrentPlayers_t - Call result for GetNumberOfCurrentPlayers
 	//PS3TrophiesInstalled_t - ignore
 	STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t);
 	std::map<std::string, int> m_AchievementIconsMap;

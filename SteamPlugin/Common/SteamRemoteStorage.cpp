@@ -130,10 +130,45 @@ char *GetCloudFileWriteAsyncFileName(int hCallResult)
 	return GetCallResultValue<CFileWriteAsyncCallResult>(hCallResult, &CFileWriteAsyncCallResult::GetFileName);
 }
 
-//FileWriteStreamCancel
-//FileWriteStreamClose
-//FileWriteStreamOpen
-//FileWriteStreamWriteChunk
+int CloudFileWriteStreamCancel(int writeHandle)
+{
+	return SteamRemoteStorage()->FileWriteStreamCancel(SteamHandles()->GetSteamHandle(writeHandle));
+}
+
+int CloudFileWriteStreamClose(int writeHandle)
+{
+	return SteamRemoteStorage()->FileWriteStreamClose(SteamHandles()->GetSteamHandle(writeHandle));
+}
+
+int CloudFileWriteStreamOpen(const char *filename)
+{
+	return SteamHandles()->GetPluginHandle(SteamRemoteStorage()->FileWriteStreamOpen(filename));
+}
+
+int CloudFileWriteStreamWriteChunkEx(int writeHandle, int memblockID, int offset, int length)
+{
+	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
+	{
+		agk::PluginError("Invalid memblock.");
+		return 0;
+	}
+	if (offset + length > agk::GetMemblockSize(memblockID))
+	{
+		agk::PluginError("Tried to read data beyond memblock bounds.");
+		return 0;
+	}
+	return SteamRemoteStorage()->FileWriteStreamWriteChunk(SteamHandles()->GetSteamHandle(writeHandle), agk::GetMemblockPtr(memblockID) + offset, length);
+}
+
+int CloudFileWriteStreamWriteChunk(int writeHandle, int memblockID)
+{
+	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
+	{
+		agk::PluginError("Invalid memblock.");
+		return 0;
+	}
+	return CloudFileWriteStreamWriteChunkEx(writeHandle, memblockID, 0, agk::GetMemblockSize(memblockID));
+}
 
 //int GetCachedUGCCount() - no information on this
 //{

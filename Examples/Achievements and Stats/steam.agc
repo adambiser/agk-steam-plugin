@@ -31,8 +31,9 @@ userStatsTextID = CreateTextEx(512, 100, "")
 #constant ADD_WINS_BUTTON		2
 #constant ADD_LOSSES_BUTTON		3
 #constant ADD_DISTANCE_BUTTON	4
+#constant RANDOM_FRIEND_BUTTON	5
 
-global buttonText as string[3] = ["RESET", "+5 Wins", "+1 Loss", "+100 Feet"]
+global buttonText as string[4] = ["RESET", "+5 Wins", "+1 Loss", "+100 Feet", "Random_Friend"]
 x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 552 + x * 100, 440, ReplaceString(buttonText[x], "_", NEWLINE, -1))
@@ -40,9 +41,6 @@ next
 
 global friends as integer[]
 friends.fromjson(Steam.GetFriendListJSON(EFriendFlagImmediate))
-if friends.length > 0
-	Steam.RequestUserStats(friends[0])
-endif
 
 //
 // The main loop
@@ -137,14 +135,16 @@ Function CheckInput()
 		AddStatus("UpdateAvgRateStat: " + str(Steam.GetStatFloat("AverageSpeed")))
 		server.needToStoreStats = 1
 	endif
+	if GetVirtualButtonPressed(RANDOM_FRIEND_BUTTON)
+		AddStatus("BUTTON: " + buttonText[RANDOM_FRIEND_BUTTON - 1])
+		if friends.length >= 0
+			hSteamID as integer
+			hSteamID = friends[Random(0, friends.length)]
+			AddStatus("Requesting stats for: " + Steam.GetFriendPersonaName(hSteamID))
+			Steam.RequestUserStats(hSteamID)
+		endif
+	endif
 EndFunction
-
-// Used to keep track of reported errors so they are only shown once.
-global errorReported as integer[1]
-#constant ERROR_REQUESTSTATS	0
-#constant ERROR_STORESTATS		1
-
-global lastFriendStatsInitValue as integer = 0
 
 //
 // Processes all asynchronous callbacks.
@@ -156,37 +156,44 @@ Function ProcessCallbacks()
 	// Process RequestStats callback.
 	// Loading user stats is the first step.  Have to wait for them to load before doing anything else.
 	//
-	if Steam.HasUserStatsReceivedResponse()
-		AddStatus("HasUserStatsReceivedResponse.")
+	while Steam.HasUserStatsReceivedResponse()
+		AddStatus("Received stats for " + Steam.GetFriendPersonaName(Steam.GetUserStatsReceivedUser()) + ", result = " + str(Steam.GetUserStatsReceivedResult()))
 		if Steam.GetUserStatsReceivedResult() = EResultOK
-			AddStatus("User stats initialized.")
-			// Enable all stats buttons.
-			for x = 0 to buttonText.length
-				SetButtonEnabled(x + 1, 1)
-			next
-			LoadAchievements()
-			RefreshInformation()
-		else
-			errorReported[ERROR_REQUESTSTATS] = 1
-			AddStatus("Error loading user stats.")
+			hSteamID = Steam.GetUserStatsReceivedUser()
+			if hSteamID = Steam.GetSteamID() // current user
+				AddStatus("User stats initialized.")
+				// Enable all stats buttons.
+				for x = 0 to buttonText.length
+					SetButtonEnabled(x + 1, 1)
+				next
+				LoadAchievements()
+				RefreshInformation()
+			else
+				AddStatus("NumGames: " + str(Steam.GetUserStatInt(hSteamID, "NumGames")) + ", " + server.achievements[0] + ": " + str(Steam.GetUserAchievement(hSteamID, server.achievements[0])))
+			endif
+		//~ else
+			//~ AddStatus("Error loading user stats.")
 		endif
-	endif
+	endwhile
+	while Steam.HasUserStatsUnloadedResponse()
+		AddStatus("Status unloaded for " + Steam.GetFriendPersonaName(Steam.GetUserStatsUnloadedUser()))
+	endwhile
 	//
 	// Nothing else can be done until user stats are loaded.
 	//
 	if not Steam.StatsInitialized()
 		ExitFunction
 	endif
-	if friends.length > 0
-		if Steam.StatsInitialized(friends[0]) <> lastFriendStatsInitValue
-			lastFriendStatsInitValue = Steam.StatsInitialized(friends[0])
-			if lastFriendStatsInitValue
-				AddStatus("Friend's stats loaded.")
-			else
-				AddStatus("Friend's stats unloaded.")
-			endif
-		endif
-	endif
+	//~ for x = 0 to friends.length 
+		//~ if Steam.StatsInitialized(friends[0]) <> lastFriendStatsInitValue
+			//~ lastFriendStatsInitValue = Steam.StatsInitialized(friends[0])
+			//~ if lastFriendStatsInitValue
+				//~ AddStatus("Friend's stats loaded.")
+			//~ else
+				//~ AddStatus("Friend's stats unloaded.")
+			//~ endif
+		//~ endif
+	//~ endif
 	// Global stats
 	result as integer
 	if server.globalStatsCallResult >= 0
@@ -251,7 +258,6 @@ Function ProcessCallbacks()
 			AddStatus("Storing user stats.")
 		endif
 	endif
-	GetUnixTime()
 	while Steam.HasUserAchievementStoredResponse()
 		AddStatus("HasUserAchievementStoredResponse:")
 		AddStatus("> Name: " + Steam.GetUserAchievementStoredName())

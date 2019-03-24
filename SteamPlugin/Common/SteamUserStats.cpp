@@ -376,10 +376,59 @@ float GetStatFloat(const char *name)
 }
 
 //GetTrophySpaceRequiredBeforeInstall - deprecated
-//GetUserAchievement
-//GetUserAchievementAndUnlockTime
-//GetUserStat
-//GetUserStatsData
+
+int GetUserAchievement(int hSteamID, const char *name)
+{
+	CheckInitialized(false);
+	bool result = false;
+	if (SteamUserStats()->GetUserAchievement(SteamHandles()->GetSteamHandle(hSteamID), name, &result))
+	{
+		return result;
+	}
+	agk::PluginError("GetUserAchievement failed.");
+	return false;
+}
+
+int GetUserAchievementUnlockTime(int hSteamID, const char *name)
+{
+	CheckInitialized(0);
+	bool pbAchieved;
+	uint32 punUnlockTime;
+	if (SteamUserStats()->GetUserAchievementAndUnlockTime(SteamHandles()->GetSteamHandle(hSteamID), name, &pbAchieved, &punUnlockTime))
+	{
+		if (pbAchieved)
+		{
+			return punUnlockTime;
+		}
+	}
+	return 0;
+}
+
+int GetUserStatInt(int hSteamID, const char *name)
+{
+	CheckInitialized(0);
+	int result = 0;
+	if (SteamUserStats()->GetUserStat(SteamHandles()->GetSteamHandle(hSteamID), name, &result))
+	{
+		return result;
+	}
+	agk::PluginError("GetUserStat failed.");
+	return 0;
+}
+
+float GetUserStatFloat(int hSteamID, const char *name)
+{
+	CheckInitialized(0.0);
+	float result = 0.0;
+	if (SteamUserStats()->GetUserStat(SteamHandles()->GetSteamHandle(hSteamID), name, &result))
+	{
+		return result;
+	}
+	agk::PluginError("GetUserStat failed.");
+	return 0.0;
+}
+
+//GetUserStatsData - deprecated
 
 int IndicateAchievementProgress(const char *name, int curProgress, int maxProgress)
 {
@@ -445,7 +494,7 @@ int SetStatFloat(const char *name, float value)
 	return SteamUserStats()->SetStat(name, value);
 }
 
-//SetUserStatsData
+//SetUserStatsData - deprecated
 
 int StoreStats()
 {
@@ -594,7 +643,7 @@ int HasUserStatsUnloadedResponse()
 	return Callbacks()->HasUserStatsUnloadedResponse();
 }
 
-int GetUserStatsUnloadeddUser()
+int GetUserStatsUnloadedUser()
 {
 	return SteamHandles()->GetPluginHandle(Callbacks()->GetUserStatsUnloaded());
 }
