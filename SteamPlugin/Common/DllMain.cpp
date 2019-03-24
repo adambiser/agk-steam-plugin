@@ -210,7 +210,7 @@ int RestartAppIfNecessary(int ownAppID)
 	return SteamAPI_RestartAppIfNecessary(ownAppID);
 }
 
-// S_API void S_CALLTYPE SteamAPI_ReleaseCurrentThreadMemory(); - not doable
+// SteamAPI_ReleaseCurrentThreadMemory - AppGameKit is single threaded.
 
 void RunCallbacks()
 {
@@ -218,7 +218,7 @@ void RunCallbacks()
 	SteamAPI_RunCallbacks();
 }
 
-// TODO S_API void S_CALLTYPE SteamAPI_SetMiniDumpComment( const char *pchMsg ); - not doable
+// SteamAPI_SetMiniDumpComment - not doable, AppGameKit does not provide EXCEPTION_POINTERS
 
 void Shutdown()
 {
@@ -226,108 +226,71 @@ void Shutdown()
 	SteamAPI_Shutdown();
 }
 
-// TODO S_API void S_CALLTYPE SteamAPI_WriteMiniDump( uint32 uStructuredExceptionCode, void* pvExceptionInfo, uint32 uBuildID );
+// SteamAPI_WriteMiniDump - not doable, AppGameKit does not provide EXCEPTION_POINTERS
 #pragma endregion
 
-#pragma region steam_gameserver.h
-// TODO?
-#pragma endregion
+// steam_gameserver.h
+//	TODO: Research this.
 
-#pragma region ISteamAppTicket
-// This should never be needed in most cases.
-#pragma endregion
+// steamnetworkingtypes.h
+//	TODO: Research this.
 
-#pragma region ISteamClient
-//TODO? bool BReleaseSteamPipe( HSteamPipe hSteamPipe );
-//TODO? bool BShutdownIfAllPipesClosed();
-//TODO? HSteamUser ConnectToGlobalUser( HSteamPipe hSteamPipe );
-//TODO? HSteamUser CreateLocalUser( HSteamPipe *phSteamPipe, EAccountType eAccountType );
-//TODO? HSteamPipe CreateSteamPipe();
-//TODO? uint32 GetIPCCallCount(); - this is also in SteamUtils!
-//TODO? void ReleaseUser( HSteamPipe hSteamPipe, HSteamUser hUser );
-//TODO? void SetLocalIPBinding( uint32 unIP, uint16 usPort );
-//TODO? void SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction ); - this is also in SteamUtils!
-#pragma endregion
+// ISteamAppTicket
+//	SKIP: This should never be needed in most cases.
 
-#pragma region ISteamGameCoordinator
-// deprecated
-#pragma endregion
+// ISteamClient
+// SKIP: Only needed for a more complex versioning scheme or a multiplexed gameserver.
 
-#pragma region ISteamGameServer
-// TODO? 
-#pragma endregion
+// ISteamGameCoordinator
+//	SKIP: deprecated
 
-#pragma region ISteamGameServerStats
-// TODO?
-#pragma endregion
+// ISteamGameServer
+//	TODO: Research this.
 
-#pragma region ISteamHTMLSurface
-// TODO?
-#pragma endregion
+// ISteamGameServerStats
+//	TODO: Research this.
 
-#pragma region ISteamHTTP
-// TODO?
-#pragma endregion
+// ISteamHTMLSurface
+//	TODO: Research this.
 
-#pragma region ISteamInventory
-// TODO?
-#pragma endregion
+// ISteamHTTP
+//	TODO: Research this.
 
-#pragma region ISteamMatchmakingServers
-// No callbacks.
-#pragma endregion
+// ISteamInventory
+//	TODO: Research this.
 
-#pragma region ISteamMusicRemote
-// TODO?
-#pragma endregion
+// ISteamMatchmakingServers
+//	TODO: Research this.
 
-#pragma region ISteamNetworking
-// TODO?
-#pragma endregion
+// ISteamMusicRemote
+//	TODO: Research this.
 
-#pragma region ISteamNetworkingSockets
-// TODO?
-#pragma endregion
+// ISteamNetworking
+//	TODO: Research this.
 
-#pragma region ISteamNetworkingUtils
-// TODO?
-#pragma endregion
+// ISteamNetworkingSockets
+//	TODO: Research this.
 
-#pragma region ISteamParties
-// TODO?
-#pragma endregion
+// ISteamNetworkingUtils
+//	TODO: Research this.
 
-#pragma region ISteamScreenshots
-// TODO?
-#pragma endregion
+// ISteamParties
+//	TODO: Research this.
 
-#pragma region ISteamUGC
-// TODO?
-//AddAppDependencyResult_t - Call result for AddAppDependency
-//AddUGCDependencyResult_t - Call result for AddDependency
-//CreateItemResult_t - Call result for CreateItem
-//DownloadItemResult_t - Call result for DownloadItem
-//GetAppDependenciesResult_t - Call result for GetAppDependencies
-//DeleteItemResult_t - Call result for DeleteItem
-//GetUserItemVoteResult_t - Call result for GetUserItemVote
-//ItemInstalled_t - Callback.  Check m_unAppID for this game's appid!
-//RemoveAppDependencyResult_t - Call result for RemoveAppDependency.
-//RemoveUGCDependencyResult_t - Call result for RemoveDependency
-//SetUserItemVoteResult_t - Call result for SetUserItemVote
-//StartPlaytimeTrackingResult_t - Call result for StartPlaytimeTracking
-//SteamUGCQueryCompleted_t - Call result for SendQueryUGCRequest
-//StopPlaytimeTrackingResult_t - Call result for StopPlaytimeTracking, StopPlaytimeTrackingForAllItems
-//SubmitItemUpdateResult_t - Call result for SubmitItemUpdate
-//UserFavoriteItemsListChanged_t - Call result for AddItemToFavorites, RemoveItemFromFavorites
-#pragma endregion
+// ISteamScreenshots
+//	TODO: Research this.
 
-#pragma region ISteamUnifiedMessages
-// Deprecated
-#pragma endregion
+// ISteamUGC
+//	TODO: Research this.
 
-#pragma region ISteamVideo
-// TODO?
-#pragma endregion
+// ISteamUnifiedMessages
+//	SKIP: Deprecated
+
+// ISteamVideo
+//	TODO: Research this.
+
+// SteamEncryptedAppTicket - Encrypted application tickets.
+//	SKIP? Would anyone using AppGameKit need this?
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {

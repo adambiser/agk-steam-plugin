@@ -123,11 +123,12 @@ public:
 	void Reset();
 #pragma region ISteamApps
 private:
+	// AppProofOfPurchaseKeyResponse_t - Only used internally in Steam.
 	LIST_CALLBACK(DlcInstalled, DlcInstalled_t);	// InstallDLC
-	//LIST_CALLBACK(CCallbacks, OnFileDetailsResult, FileDetailsResult_t, m_CallbackFileDetailsResult);	// GetFileDetails
+	// FileDetailsResult_t - call result for GetFileDetails
 	BOOL_CALLBACK(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
-	// Removed SDK v1.43
-	//BOOL_CALLBACK(NewLaunchQueryParameters, NewLaunchQueryParameters_t);
+	//BOOL_CALLBACK(NewLaunchQueryParameters, NewLaunchQueryParameters_t); - Removed SDK v1.43
+	// RegisterActivationCodeResponse_t - Only used internally in Steam.
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -158,14 +159,13 @@ private:
 	LIST_CALLBACK(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
-public:
-	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
-private:
 	// GameRichPresenceJoinRequested_t - InviteUserToGame
 	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
 	// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
 	LIST_CALLBACK(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
+public:
+	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 #pragma endregion
 
 #pragma region ISteamGameCoordinator

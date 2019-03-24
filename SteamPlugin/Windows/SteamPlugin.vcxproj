@@ -206,6 +206,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Common\SteamApps.cpp" />
+    <ClCompile Include="..\Common\SteamAppsList.cpp" />
     <ClCompile Include="..\Common\SteamFriends.cpp" />
     <ClCompile Include="..\Common\SteamInput.cpp" />
     <ClCompile Include="..\Common\SteamMatchmaking.cpp" />

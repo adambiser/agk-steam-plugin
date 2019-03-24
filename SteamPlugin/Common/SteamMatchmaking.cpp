@@ -41,7 +41,6 @@ int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort,
 	{
 		return 0;
 	}
-	//agk::Message(agk::Str((int)now));
 	return SteamMatchmaking()->AddFavoriteGame(appID, ip, connectPort, queryPort, flags, (uint32)agk::GetUnixTime());
 }
 

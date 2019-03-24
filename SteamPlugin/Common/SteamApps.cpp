@@ -260,22 +260,6 @@ void InstallDLC(int appID)
 	SteamApps()->InstallDLC(appID);
 }
 
-int MarkContentCorrupt(int missingFilesOnly)
-{
-	CheckInitialized(false);
-	return SteamApps()->MarkContentCorrupt(missingFilesOnly != 0);
-}
-
-// RequestAllProofOfPurchaseKeys - deprecated
-// RequestAppProofOfPurchaseKey - deprecated
-
-void UninstallDLC(int appID)
-{
-	CheckInitialized(NORETURN);
-	SteamApps()->UninstallDLC(appID);
-}
-
-// Callbacks
 int HasDLCInstalledResponse()
 {
 	CheckInitialized(false);
@@ -288,30 +272,24 @@ int GetDLCInstalledAppID()
 	return Callbacks()->GetDlcInstalled().m_nAppID;
 }
 
+int MarkContentCorrupt(int missingFilesOnly)
+{
+	CheckInitialized(false);
+	return SteamApps()->MarkContentCorrupt(missingFilesOnly != 0);
+}
+
+// SKIP: RequestAllProofOfPurchaseKeys - deprecated
+// SKIP: RequestAppProofOfPurchaseKey - deprecated
+
+void UninstallDLC(int appID)
+{
+	CheckInitialized(NORETURN);
+	SteamApps()->UninstallDLC(appID);
+}
+
+// Callbacks
 int HasNewUrlLaunchParametersResponse()
 {
 	CheckInitialized(false);
 	return Callbacks()->HasNewUrlLaunchParametersResponse();
-}
-#pragma endregion
-
-#pragma region ISteamAppsList
-// Restricted interface.
-char *GetAppName(int appID)
-{
-	char name[256];
-	int length = SteamAppList()->GetAppName(appID, name, sizeof(name));
-	// Length of 0 means there is no app of that id.
-	if (length == 0)
-	{
-		return utils::CreateString("Not found");
-	}
-	// Length > 0 means the name was found.
-	if (length > 0)
-	{
-		name[length] = 0;
-		return utils::CreateString(name);
-	}
-	// Length < 0 means the name needs to be cached.
-	return agk::CreateString(0);
 }

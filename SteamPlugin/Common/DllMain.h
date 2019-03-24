@@ -372,6 +372,22 @@ extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key);
 extern "C" DLL_EXPORT void InstallDLC(int appID);
 
 /*
+@desc Triggered after the current user gains ownership of DLC and that DLC is installed.
+@callback-type list
+@callback-getters	GetDLCInstalledAppID
+@return 1 when the callback has more responses to process; otherwise 0.
+@api ISteamApps#DlcInstalled_t
+*/
+extern "C" DLL_EXPORT int HasDLCInstalledResponse();
+
+/*
+@desc Returns the App ID for the current LobbyGameCreated_t callback response.
+@return An App ID.
+@api ISteamApps#DlcInstalled_t
+*/
+extern "C" DLL_EXPORT int GetDLCInstalledAppID();
+
+/*
 @desc Allows you to force verify game content on next launch.
 
 If you detect the game is out-of-date (for example, by having the client detect a version mismatch with a server),
@@ -390,22 +406,6 @@ _Note: This appears to take place after exiting the app._
 @api ISteamApps#UninstallDLC
 */
 extern "C" DLL_EXPORT void UninstallDLC(int appID);
-
-/*
-@desc Triggered after the current user gains ownership of DLC and that DLC is installed.
-@callback-type list
-@callback-getters	GetDLCInstalledAppID
-@return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamApps#DlcInstalled_t
-*/
-extern "C" DLL_EXPORT int HasDLCInstalledResponse();
-
-/*
-@desc Returns the App ID for the current LobbyGameCreated_t callback response.
-@return An App ID.
-@api ISteamApps#DlcInstalled_t
-*/
-extern "C" DLL_EXPORT int GetDLCInstalledAppID();
 
 /*
 @desc Posted after the user executes a steam url with query parameters while running.

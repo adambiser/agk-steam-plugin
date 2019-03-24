@@ -20,8 +20,7 @@ ISteamAppTicket - Interface to get app ownership data.  This should never be nee
 ISteamClient - Only needed for a more complex versioning scheme or a multiplexed gameserver.
 - SKIP
 
-ISteamController - Steam Controller support API.
-- NOW: SteamInput
+ISteamController - Steam Controller support API.  Now SteamInput
 - DONE
 
 ISteamFriends - Information about individual users and interact with the Steam Overlay.
@@ -47,6 +46,8 @@ ISteamInventory - Steam Inventory query and manipulation API.
 - TODO: Research this.
 
 ISteamMatchmaking - Matchmaking services, favorites, and game lobbies.
+- SKIP: AddRequestLobbyListCompatibleMembersFilter
+- SKIP: CheckForPSNGameBootInvite
 - DONE
 
 ISteamMatchmakingServers - Game server browser.
@@ -114,8 +115,8 @@ ISteamUtils - Miscellaneous utility functions.
 - SKIP: CheckFileSignature - Deprecated.
 - SKIP: GetAPICallFailureReason - Not needed.
 - SKIP: GetAPICallResult - Not needed.
-- GetConnectedUniverse - Valve only.
-- GetCSERIPPort - Source games only.
+- SKIP: GetConnectedUniverse - Valve only.
+- SKIP: GetCSERIPPort - Source games only.
 - SKIP: IsAPICallCompleted - Not needed.
 - DONE
 
