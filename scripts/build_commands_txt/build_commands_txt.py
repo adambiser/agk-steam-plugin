@@ -1,6 +1,23 @@
+import os
 import re
 
 WIKI_PATH = "../../../agk-steam-plugin.wiki/"
+error_count = 0
+
+
+# TODO Change @api, @param-api, and @return-api to @url, @param-url, @return-url.
+#  url can be a list.  urls must be delimited by newlines.
+#  Parse url to show anchor if available, otherwise page name.
+#  ie:
+#  https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t -> FriendsGetFollowerCount_t
+#  https://partner.steamgames.com/doc/api/steam_gameserver -> steam_gameserver
+#  Handle this?
+#  [Downloadable Content (DLC)](https://partner.steamgames.com/doc/store/application/dlc) -> Downloadable Content (DLC)
+
+def log(text):
+    global error_count
+    error_count += 1
+    print(text)
 
 
 class ExportedMethodLoader:
@@ -12,15 +29,31 @@ class ExportedMethodLoader:
         'constchar*': 'string',
     }
 
-    def __init__(self, filename: str):
-        self._filename = filename
-        with open(filename, 'r') as f:
-            lines = ''.join(f.readlines())
-        self.pages = self._get_page_tags(lines)
-        methods = self._get_methods(lines)
-        self.method_count = len(methods)
-        self._validate_callback_tags(methods)
-        self._assign_methods_to_pages(self.pages, methods)
+    def __init__(self, path: str):
+        # self._filename = filename
+        self.pages = []
+        self.method_count = 0
+        for (root, _, filenames) in os.walk(path):
+            for filename in [f for f in filenames if f.endswith('.cpp') or f.endswith('.h')]:
+                with open(os.path.join(root, filename), 'r') as f:
+                    lines = ''.join(f.readlines())
+                    pages = self._get_page_tags(lines)
+                    methods = self._get_methods(lines)
+                    self.method_count += len(methods)
+                    self._validate_callback_tags(methods)
+                    self._assign_methods_to_pages(pages, methods)
+                    self._merge_page_list(pages)
+        self.page_count = len(self.pages)
+        # Alphabetize the pages
+        self.pages.sort(key=lambda page: page['name'])
+
+    def _merge_page_list(self, pages):
+        for page in pages:
+            page_index = next((i for i, p in enumerate(self.pages) if p["name"] == page['name']), None)
+            if page_index is None:
+                self.pages.append(page)
+            else:
+                self.pages[page_index]['methods'].extend(page['methods'])
 
     @classmethod
     def _get_tier_1_var_type(cls, cpp_var_type):
@@ -49,7 +82,7 @@ class ExportedMethodLoader:
                                  r'^extern "C" DLL_EXPORT '
                                  # type name (params)
                                  r'(?P<type>{type_pattern})(?P<name>{id_name})\((?P<params>[^)]+?)?\)'
-                                 r';'.format(type_pattern=type_pattern, id_name=name_pattern),
+                                 r';?'.format(type_pattern=type_pattern, id_name=name_pattern),
                                  lines, re.DOTALL | re.MULTILINE):
             # Parse method name and return type.
             # method_declaration = declaration_pattern.match(match['method'])
@@ -77,7 +110,7 @@ class ExportedMethodLoader:
     @classmethod
     def _load_method_tags(cls, method, comment):
         if not comment:
-            print('{} has no documentation.'.format(method['name']))
+            log('{} has no documentation.'.format(method['name']))
             return
 
         def get_param_index(params, name):
@@ -90,37 +123,50 @@ class ExportedMethodLoader:
             method['return_desc'] = tag_text
 
         def process_return_api_tag(tag_text):
+            # TODO remove
             method['return_api'] = tag_text
+
+        def process_return_url_tag(tag_text):
+            method['return_url'] = tag_text
 
         def process_param_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
             if not tag_text:
-                print('{} has an empty description for parameter: {}'.format(method['name'], param_name))
+                log('{} has an empty description for parameter: {}'.format(method['name'], param_name))
             index = get_param_index(method['params'], param_name)
             if index is None:
-                print('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
+                log('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
             else:
                 method['params'][index]['desc'] = tag_text
 
         def process_param_api_tag(tag_text):
+            # TODO remove
             param_name, sep, tag_text = tag_text.partition(' ')
             if not tag_text:
-                print('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
+                log('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
             index = get_param_index(method['params'], param_name)
             if index is None:
-                print('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
+                log('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
             else:
                 method['params'][index]['api'] = tag_text
 
+        def process_param_url_tag(tag_text):
+            # TODO
+            pass
+
         def process_api_tag(tag_text):
             method['api'] = [api.strip() for api in tag_text.split(',')]
+
+        def process_url_tag(tag_text):
+            # TODO
+            pass
 
         def process_plugin_name_tag(tag_text):
             method['plugin_name'] = tag_text
 
         def process_callback_type_tag(tag_text):
             if tag_text not in ['list', 'bool', 'callresult']:
-                print("{} has an unknown callback type: {}".format(method['name'], tag_text))
+                log("{} has an unknown callback type: {}".format(method['name'], tag_text))
             else:
                 method['callback-type'] = tag_text
 
@@ -138,30 +184,30 @@ class ExportedMethodLoader:
             if process_function:
                 process_function(tag['text'].strip())
             else:
-                print('{} has an unknown tag: {}'.format(method['name'], tag_name))
+                log('{} has an unknown tag: {}'.format(method['name'], tag_name))
         # Final validation checks
         if 'desc' not in method:
-            print("{} has no description.".format(method['name']))
+            log("{} has no description.".format(method['name']))
         if method['return_type']:
             if 'return_desc' not in method:
-                print("{} has a return type without a return description.".format(method['name']))
+                log("{} has a return type without a return description.".format(method['name']))
         else:
             if 'return_desc' in method:
-                print("{} has a return description without a return type.".format(method['name']))
+                log("{} has a return description without a return type.".format(method['name']))
         for param in method['params']:
             if 'desc' not in param:
-                print("{} has a parameter without a description: {}".format(method['name'], param['name']))
+                log("{} has a parameter without a description: {}".format(method['name'], param['name']))
 
     @classmethod
     def _validate_callback_tags(cls, methods):
         for method in methods:
             if 'callback-getters' in method:
                 if 'callback-type' not in method:
-                    print('{} does not have a callback type.'.format(method['name']))
+                    log('{} does not have a callback type.'.format(method['name']))
                 for getter in method['callback-getters']:
                     method_index = next((i for i, m in enumerate(methods) if m["name"] == getter), None)
                     if method_index is None:
-                        print('{} has an unknown callback getter method: {}'.format(method['name'], getter))
+                        log('{} has an unknown callback getter method: {}'.format(method['name'], getter))
                     else:
                         methods[method_index]['callback-parent'] = method['name']
 
@@ -183,6 +229,7 @@ class ExportedMethodLoader:
         with open(out_file, 'w') as f:
             f.write('#CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64\n')
             for page in [p for p in self.pages if p['methods']]:
+                # print('Page {} has {} methods'.format(page['name'], len(page['methods'])))
                 f.write('#\n')
                 f.write('# {0}\n'.format(page['name']))
                 f.write('#\n')
@@ -204,6 +251,7 @@ class ExportedMethodLoader:
                             )
 
 
-loader = ExportedMethodLoader('../../SteamPlugin/Common/DllMain.h')
+loader = ExportedMethodLoader('../../SteamPlugin/Common/')
 loader.write_commands_txt('../../AGKPlugin/SteamPlugin/Commands.txt')
+print("Error count: {}".format(error_count))
 print("Method count: {}".format(loader.method_count))

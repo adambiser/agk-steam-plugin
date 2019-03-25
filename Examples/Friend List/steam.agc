@@ -46,6 +46,16 @@ EndType
 
 CreateFriendListUI()
 
+AddStatus("Your persona history: " + Steam.GetFriendPersonaNameHistoryJSON(Steam.GetSteamID()))
+
+//~ groups as integer[]
+//~ groups.fromjson(Steam.GetClanListJSON())
+//~ AddStatus("Groups: ")
+//~ x as integer
+//~ for x = 0 to groups.length
+	//~ AddStatus("Group: " + Steam.GetClanName(groups[x]))
+//~ next
+
 //
 // The main loop
 //

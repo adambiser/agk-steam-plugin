@@ -22,7 +22,16 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-int OverlayNeedsPresent()
+/* @page ISteamUtils */
+
+/*
+@desc Checks if the Overlay needs a present. Only required if using event driven render updates.
+
+Typically this call is unneeded if your game has a constantly running frame loop that calls Sync() or Swap() every frame.
+@return 1 if the overlay needs you to refresh the screen, otherwise 0.
+@api ISteamUtils#BOverlayNeedsPresent
+*/
+extern "C" DLL_EXPORT int OverlayNeedsPresent()
 {
 	CheckInitialized(0);
 	return SteamUtils()->BOverlayNeedsPresent();
@@ -32,7 +41,15 @@ int OverlayNeedsPresent()
 //GetAPICallFailureReason - Not needed.
 //GetAPICallResult - Not needed.
 
-int GetAppID()
+/*
+@desc
+_This method is just for testing purposes since the app should already know its AppID._
+
+Returns the AppID or 0 if the Steam API has not been not initialized or the AppID cannot be found.
+@return The AppID or 0.
+@api ISteamUtils#GetAppID
+*/
+extern "C" DLL_EXPORT int GetAppID()
 {
 	return SteamUtils()->GetAppID();
 }
@@ -40,7 +57,12 @@ int GetAppID()
 //GetConnectedUniverse - Valve use only.
 //GetCSERIPPort - Only used in Source engine games.
 
-int GetCurrentBatteryPower()
+/*
+@desc Gets the current amount of battery power on the computer.
+@return The current batter power as a percentage, from 0 to 100, or 255 when on AC power.
+@api ISteamUtils#GetCurrentBatteryPower
+*/
+extern "C" DLL_EXPORT int GetCurrentBatteryPower()
 {
 	CheckInitialized(0);
 	return SteamUtils()->GetCurrentBatteryPower();
@@ -94,49 +116,97 @@ int LoadImageFromHandle(int imageID, int hImage)
 	return imageID;
 }
 
-int LoadImageFromHandle(int hImage)
+/*
+@desc Loads an image from an image handle into a new image ID.
+@param hImage The handle to the image that will be obtained.
+@return An image ID containing the loaded image.
+@api SteamUtils#GetImageSize, SteamUtils#GetImageRGBA
+*/
+extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage)
 {
 	CheckInitialized(0);
 	return LoadImageFromHandle(0, hImage);
 }
 
-void LoadImageIDFromHandle(int imageID, int hImage)
+/*
+@desc Loads an image from an image handle into a new image ID.
+@param imageID The image ID into which to load the image.
+@param hImage The handle to the image that will be obtained.
+@api SteamUtils#GetImageSize, SteamUtils#GetImageRGBA
+@plugin-name LoadImageFromHandle
+*/
+extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage)
 {
 	CheckInitialized(NORETURN);
 	LoadImageFromHandle(imageID, hImage);
 }
 
-int GetIPCCallCount()
+/*
+@desc Returns the number of Inter-Process Communication calls made since the last time this method was called.
+
+Used for perf debugging so you can determine how many IPC (Inter-Process Communication) calls your game makes per frame
+Every IPC call is at minimum a thread context switch if not a process one so you want to rate control how often you do them.
+@return An integer.
+@api ISteamUtils#GetIPCCallCount
+*/
+extern "C" DLL_EXPORT int GetIPCCallCount()
 {
 	CheckInitialized(0);
 	return SteamUtils()->GetIPCCallCount();
 }
 
-char *GetIPCountry()
+/*
+@desc Returns the 2 character ISO 3166-1-alpha-2 format country code which client is running in.
+@return A two character string.
+@api ISteamUtils#GetIPCountry
+*/
+extern "C" DLL_EXPORT char *GetIPCountry()
 {
 	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamUtils()->GetIPCountry());
 }
 
-int GetSecondsSinceAppActive()
+/*
+@desc Returns the number of seconds since the application was active.
+@return An integer.
+@api ISteamUtils#GetSecondsSinceAppActive
+*/
+extern "C" DLL_EXPORT int GetSecondsSinceAppActive()
 {
 	CheckInitialized(0);
 	return SteamUtils()->GetSecondsSinceAppActive();
 }
 
-int GetSecondsSinceComputerActive()
+/*
+@desc Returns the number of seconds since the user last moved the mouse.
+@return An integer
+@api ISteamUtils#GetSecondsSinceComputerActive
+*/
+extern "C" DLL_EXPORT int GetSecondsSinceComputerActive()
 {
 	CheckInitialized(0);
 	return SteamUtils()->GetSecondsSinceComputerActive();
 }
 
-int GetServerRealTime()
+/*
+@desc Returns the Steam server time in Unix epoch format.
+@return An integer.
+@api ISteamUtils#GetServerRealTime
+*/
+extern "C" DLL_EXPORT int GetServerRealTime()
 {
 	CheckInitialized(0);
 	return SteamUtils()->GetServerRealTime();
 }
 
-char *GetSteamUILanguage()
+/*
+@desc Returns the language the steam client is running in.
+
+You probably want GetCurrentGameLanguage instead, this should only be used in very special cases.
+@return A string.
+@api ISteamUtils#GetSteamUILanguage
+*/
+extern "C" DLL_EXPORT char *GetSteamUILanguage()
 {
 	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamUtils()->GetSteamUILanguage());
@@ -144,43 +214,88 @@ char *GetSteamUILanguage()
 
 //IsAPICallCompleted - Not needed.
 
-int IsOverlayEnabled()
+/*
+@desc Checks if the Steam Overlay is running and the user can access it.
+
+The overlay process could take a few seconds to start and hook the game process, so this method will initially return 0 while the overlay is loading.
+@return 1 when the overlay is enabled; otherwise 0.
+@api ISteamUtils#IsOverlayEnabled
+*/
+extern "C" DLL_EXPORT int IsOverlayEnabled()
 {
 	CheckInitialized(0);
 	return SteamUtils()->IsOverlayEnabled();
 }
 
-int IsSteamInBigPictureMode()
+/*
+@desc Checks if Steam and the Steam Overlay are running in Big Picture mode.
+@return 1 if in Big Picture Mode; otherwise 0.
+@api ISteamUtils#IsSteamInBigPictureMode
+*/
+extern "C" DLL_EXPORT int IsSteamInBigPictureMode()
 {
 	CheckInitialized(0);
 	return SteamUtils()->IsSteamInBigPictureMode();
 }
 
-int IsSteamRunningInVR()
+/*
+@desc Checks if Steam is running in VR mode.
+@return 1 when Steam is running in VR mode; otherwise 0.
+@api ISteamUtils#IsSteamRunningInVR
+*/
+extern "C" DLL_EXPORT int IsSteamRunningInVR()
 {
 	CheckInitialized(false);
 	return SteamUtils()->IsSteamRunningInVR();
 }
 
-int IsVRHeadsetStreamingEnabled()
+/*
+@desc Checks if the HMD view will be streamed via Steam In-Home Streaming.
+
+See API reference for further information.
+@return 1 if streaming is enabled; otherwise 0.
+@api ISteamUtils#IsVRHeadsetStreamingEnabled
+*/
+extern "C" DLL_EXPORT int IsVRHeadsetStreamingEnabled()
 {
 	CheckInitialized(false);
 	return SteamUtils()->IsVRHeadsetStreamingEnabled();
 }
 
-void SetOverlayNotificationInset(int horizontalInset, int verticalInset)
+/*
+@desc Sets the inset of the overlay notification from the corner specified by SetOverlayNotificationPosition.
+@param horizontalInset The horizontal (left-right) distance in pixels from the corner.
+@param verticalInset The vertical (up-down) distance in pixels from the corner.
+@api ISteamUtils#SetOverlayNotificationInset
+*/
+extern "C" DLL_EXPORT void SetOverlayNotificationInset(int horizontalInset, int verticalInset)
 {
 	CheckInitialized(NORETURN);
 	SteamUtils()->SetOverlayNotificationInset(horizontalInset, verticalInset);
 }
 
-void SetOverlayNotificationPosition(int eNotificationPosition)
+/*
+@desc Sets which corner the Steam overlay notification popup should display itself in.
+
+This position is per-game and is reset each launch.
+@param eNotificationPosition The notification popup position.
+@param-api eNotificationPosition steam_api#ENotificationPosition
+@api ISteamUtils#SetOverlayNotificationPosition
+*/
+extern "C" DLL_EXPORT void SetOverlayNotificationPosition(int eNotificationPosition)
 {
 	CheckInitialized(NORETURN);
 	SteamUtils()->SetOverlayNotificationPosition((ENotificationPosition)eNotificationPosition);
 }
 
-void SetVRHeadsetStreamingEnabled(int enabled)
+/*
+@desc Set whether the HMD content will be streamed via Steam In-Home Streaming.
+
+See API reference for further information.
+@param enabled Turns VR HMD Streaming on (1) or off (0).
+@api ISteamUtils#SetVRHeadsetStreamingEnabled
+*/
+extern "C" DLL_EXPORT void SetVRHeadsetStreamingEnabled(int enabled)
 {
 	CheckInitialized(NORETURN);
 	SteamUtils()->SetVRHeadsetStreamingEnabled(enabled != 0);
@@ -200,13 +315,33 @@ extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebu
 	}
 }
 
-void SetWarningMessageHook()
+/*
+@desc Sets a warning message hook within the plugin to receive Steam API warnings and info messages and output them to AGK's Debug Log.
+
+_Note: I have never seen a warning show up and don't know how to force one to fire, so I can only assume the plugin code is correct._
+@api ISteamUtils#SetWarningMessageHook
+*/
+extern "C" DLL_EXPORT void SetWarningMessageHook()
 {
 	CheckInitialized(NORETURN);
 	SteamUtils()->SetWarningMessageHook(&SteamAPIDebugTextHook);
 }
 
-int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
+/*
+@desc Activates the Big Picture text input dialog which only supports gamepad input.
+
+Note: charMax is limited to 512 characters.
+@param eInputMode Selects the input mode to use, either Normal or Password (hidden text).
+@param-api eInputMode ISteamUtils#EGamepadTextInputMode
+@param eLineInputMode Controls whether to use single or multi line input.
+@param-api eLineInputMode ISteamUtils#EGamepadTextInputLineMode
+@param description Sets the description that should inform the user what the input dialog is for.
+@param charMax The maximum number of characters that the user can input.
+@param existingText Sets the preexisting text which the user can edit.
+@return 1 if the input overlay opens; otherwise 0.
+@api ISteamUtils#ShowGamepadTextInput
+*/
+extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
 {
 	CheckInitialized(false);
 	if (charMax > MAX_GAMEPAD_TEXT_INPUT_LENGTH)
@@ -218,7 +353,11 @@ int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *descrip
 	return SteamUtils()->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
-void StartVRDashboard()
+/*
+@desc Asks Steam to create and render the OpenVR dashboard.
+@api ISteamUtils#StartVRDashboard
+*/
+extern "C" DLL_EXPORT void StartVRDashboard()
 {
 	CheckInitialized(NORETURN);
 	SteamUtils()->StartVRDashboard();
@@ -227,35 +366,73 @@ void StartVRDashboard()
 //Callbacks
 //CheckFileSignature_t
 
-int HasGamepadTextInputDismissedResponse()
+/*
+@desc Triggered when the big picture gamepad text input has been closed.
+@callback-type list
+@callback-getters GetGamepadTextInputDismissedSubmitted, GetGamepadTextInputDismissedSubmittedText
+@return 1 when the big picture gamepad text input has closed; otherwise 0.
+@api ISteamUtils#GamepadTextInputDismissed_t
+*/
+extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 {
 	CheckInitialized(0);
 	return Callbacks()->HasGamepadTextInputDismissedResponse();
 }
 
-int GetGamepadTextInputDismissedSubmitted()
+/*
+@desc Gets whether the user has entered and accepted text for the current GamepadTextInputDismissed_t call.
+@return 1 if user entered and accepted text; otherwise 0.
+@api ISteamUtils#GamepadTextInputDismissed_t
+*/
+extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 {
 	return Callbacks()->GetGamepadTextInputDismissed().m_bSubmitted;
 }
 
-char *GetGamepadTextInputDismissedSubmittedText()
+/*
+@desc Gets the text for the current GamepadTextInputDismissed_t call.
+@return A string.
+@api ISteamUtils#GamepadTextInputDismissed_t
+*/
+extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 {
 	return utils::CreateString(Callbacks()->GetGamepadTextInputDismissed().m_chSubmittedText);
 }
 
-int HasIPCountryChangedResponse()
+/*
+@desc Reports when the country of the user has changed.  Use GetIPCountry to get the new value.
+@callback-type bool
+@return 1 when the country has changed; otherwise 0.
+@api ISteamUtils#IPCountry_t
+*/
+extern "C" DLL_EXPORT int HasIPCountryChangedResponse()
 {
 	CheckInitialized(false);
 	return Callbacks()->HasIPCountryChangedResponse();
 }
 
-int HasLowBatteryWarningResponse()
+/*
+@desc Tests when running on a laptop and there is less than 10 minutes of battery.  Fires every minute afterwards.
+This method returns 1 once per warning.  It is not reported as an on going effect.
+@callback-type bool
+@callback-getters GetMinutesBatteryLeft
+@return 1 when there is a low battery warning; otherwise 0.
+@api ISteamUtils#LowBatteryPower_t
+*/
+extern "C" DLL_EXPORT int HasLowBatteryWarningResponse()
 {
 	CheckInitialized(false);
 	return Callbacks()->HasLowBatteryPowerResponse();
 }
 
-int GetMinutesBatteryLeft()
+/*
+@desc HasLowBatteryWarning should be checked before calling this method.
+
+Reports the estimate battery life in minutes when a low battery warning occurs.
+@return Battery life in minutes.
+@api ISteamUtils#LowBatteryPower_t
+*/
+extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 {
 	CheckInitialized(255);
 	return Callbacks()->GetMinutesBatteryLeft();
@@ -263,7 +440,13 @@ int GetMinutesBatteryLeft()
 
 //SteamAPICallCompleted_t
 
-int IsSteamShuttingDown()
+/*
+@desc Called when Steam wants to shutdown.
+@callback-type bool
+@return 1 when Steam is shutting down; otherwise 0.
+@api ISteamUtils#SteamShutdown_t
+*/
+extern "C" DLL_EXPORT int IsSteamShuttingDown()
 {
 	CheckInitialized(false);
 	return Callbacks()->HasSteamShutdownResponse();

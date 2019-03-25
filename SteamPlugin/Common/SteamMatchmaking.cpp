@@ -638,16 +638,6 @@ int GetLobbyEnterLocked()
 	return Callbacks()->GetLobbyEnter().m_bLocked;
 }
 
-int HasGameLobbyJoinRequestedResponse()
-{
-	return Callbacks()->HasGameLobbyJoinRequestedResponse();
-}
-
-int GetGameLobbyJoinRequestedLobby()
-{
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetGameLobbyJoinRequested().m_steamIDLobby);
-}
-
 int HasLobbyGameCreatedResponse()
 {
 	return Callbacks()->HasLobbyGameCreatedResponse();

@@ -162,6 +162,16 @@ int GetCallResultValue(int hCallResult, uint64(CR::*function)(void))
 }
 
 template <typename CR>
+int GetCallResultValue(int hCallResult, CSteamID(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
+
+template <typename CR>
 int GetCallResultValue(int hCallResult, int index, uint64(CR::*function)(int), char *functionName)
 {
 	if (auto *callResult = CallResults()->Get<CR>(hCallResult))

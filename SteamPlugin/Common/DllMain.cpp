@@ -65,7 +65,15 @@ void ResetSession()
 }
 
 #pragma region Additional Methods
-char *GetCommandLineArgsJSON()
+/* @page Additional Methods
+
+These commands are not part of the Steamworks SDK but are included as a convenience.
+*/
+/*
+@desc Returns the command line arguments.
+@return The command line arguments as a JSON string of an array of strings.
+*/
+extern "C" DLL_EXPORT char *GetCommandLineArgsJSON()
 {
 	std::ostringstream json;
 	json << "[";
@@ -80,8 +88,8 @@ char *GetCommandLineArgsJSON()
 				json << ",";
 			}
 			size_t size;
-			char arg[MAX_PATH];
-			wcstombs_s(&size, arg, szArglist[i], MAX_PATH);
+			char arg[_MAX_PATH];
+			wcstombs_s(&size, arg, szArglist[i], _MAX_PATH);
 			json << "\"" << utils::EscapeJSON(arg) << "\"";
 		}
 		// Free memory.
@@ -94,7 +102,13 @@ char *GetCommandLineArgsJSON()
 #define STEAM_REGISTRY_SUBKEY TEXT("Software\\Valve\\Steam")
 #define STEAM_REGISTRY_VALUE TEXT("SteamPath")
 
-char *GetSteamPath()
+/*
+@desc Returns the path of the folder containing the Steam client EXE as found in the registry
+by reading the value of SteamPath in HKEY_CURRENT_USER\Software\Valve\Steam.
+The path may contain slashes instead of backslashes and the trailing slash may or may not be included.
+@return The path at which the Steam client is installed.
+*/
+extern "C" DLL_EXPORT char *GetSteamPath()
 {
 	HKEY hKey = 0;
 	if (RegOpenKeyEx(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
@@ -113,7 +127,12 @@ char *GetSteamPath()
 	return NULL_STRING;
 }
 
-int IsSteamEmulated()
+/*
+@desc Attempts to detect when Steam is being emulated.
+Emulation is sometimes used with pirated games, but it can also be used for valid reasons.
+@return 1 when Steam emulation is detected, otherwise 0.
+*/
+extern "C" DLL_EXPORT int IsSteamEmulated()
 {
 	HANDLE hProcess = GetCurrentProcess();
 	HMODULE hModules[1024];
@@ -145,7 +164,14 @@ int IsSteamEmulated()
 }
 
 #undef SetFileAttributes
-int SetFileAttributes(const char *filename, int attributes)
+/*
+@desc Sets the attributes of a file.
+This is only included to help with development because the AppGameKit IDE deletes Steam files in the project folder when the interpreter exits.
+@param filename The name of the file whose attributes are to be set.
+@param attributes The file attributes to set for the file.
+@return 1 if successful; otherwise, 0.
+*/
+extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes)
 {
 	return SetFileAttributesA(filename, attributes);
 }
@@ -161,13 +187,29 @@ int SetFileAttributes(const char *filename, int attributes)
 #pragma endregion
 
 #pragma region CallResult Methods
-void DeleteCallResult(int hCallResult)
+/* @page CallResult Methods
+
+Some Steamworks methods are asynchronous commands that return call result handles.
+
+Use GetCallResultCode to check the status of a call result and DeleteCallResult once the call result has been processed.
+*/
+/*
+@desc Deletes a [call result](Callbacks-and-Call-Results#call-results) and its data.
+@param hCallResult The call result handle to delete.
+*/
+extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult)
 {
 	CheckInitialized(NORETURN);
 	CallResults()->Delete(hCallResult);
 }
 
-int GetCallResultCode(int hCallResult)
+/*
+@desc Returns the result code of the given [call result](Callbacks-and-Call-Results#call-results).
+@param hCallResult The call result handle to check.
+@return An EResult code.
+@api steam_api#EResult
+*/
+extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult)
 {
 	CheckInitialized(0);
 	if (CCallResultItemBase *callResult = CallResults()->Get<CCallResultItemBase>(hCallResult))
@@ -179,7 +221,15 @@ int GetCallResultCode(int hCallResult)
 #pragma endregion
 
 #pragma region steam_api.h
-int Init()
+/* @page steam_api.h */
+/*
+@desc
+Initializes the Steam API.  This method should be called before attempting to do anything else with this plugin.
+This also calls RequestCurrentStats() internally so calling code does not need to do so. The result of the RequestCurrentStats call has no effect on the return value.
+@return 1 when Steam API initialization succeeds; otherwise 0.
+@api steam_api#SteamAPI_Init
+*/
+extern "C" DLL_EXPORT int Init()
 {
 	if (g_SteamInitialized)
 	{
@@ -200,19 +250,42 @@ int Init()
 	return false;
 }
 
-int IsSteamInitialized()
+/*
+@desc Returns whether the Steam API is currently initialized.
+@return 1 when the Steam API is initialized; otherwise 0.
+*/
+extern "C" DLL_EXPORT int IsSteamInitialized()
 {
 	return g_SteamInitialized;
 }
 
-int RestartAppIfNecessary(int ownAppID)
+/*
+@desc
+_When used, this command should be called near the beginning of the starting process and should be called before Init._
+
+Tests to see if the game has been started through the Steam Client.  Effectively serves as a basic DRM by forcing the game to be started by the Steam Client.
+@param ownAppID The Steam AppID of your game.
+@return
+1 when a new instance of the game has been started by Steam Client and this instance should close as soon as possible;
+otherwise 0 when the game is already running from the Steam Client.
+
+0 will also be reported if the steam_appid.txt file exists.
+@api steam_api#SteamAPI_RestartAppIfNecessary
+*/
+extern "C" DLL_EXPORT int RestartAppIfNecessary(int ownAppID)
 {
 	return SteamAPI_RestartAppIfNecessary(ownAppID);
 }
 
 // SteamAPI_ReleaseCurrentThreadMemory - AppGameKit is single threaded.
 
-void RunCallbacks()
+/*
+@desc
+Allows asynchronous Steam API calls to handle any new results.
+Should be called each frame sync.
+@api steam_api#SteamAPI_RunCallbacks
+*/
+extern "C" DLL_EXPORT void RunCallbacks()
 {
 	CheckInitialized(NORETURN);
 	SteamAPI_RunCallbacks();
@@ -220,7 +293,11 @@ void RunCallbacks()
 
 // SteamAPI_SetMiniDumpComment - not doable, AppGameKit does not provide EXCEPTION_POINTERS
 
-void Shutdown()
+/*
+@desc Shuts down the plugin and frees memory.
+@api steam_api#SteamAPI_Shutdown
+*/
+extern "C" DLL_EXPORT void Shutdown()
 {
 	ResetSession();
 	SteamAPI_Shutdown();

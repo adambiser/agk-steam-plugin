@@ -23,9 +23,15 @@ THE SOFTWARE.
 #include "Common.h"
 #include "SteamApps.h"
 
-#define MAX_PATH	260
+/* @page ISteamApps */
 
-int GetDLCDataByIndexAppID(int index)
+/*
+@desc Returns the App ID of a DLC by index.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return The AppID if the index is valid; otherwise 0.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
+extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index)
 {
 	AppId_t appID;
 	bool available;
@@ -37,7 +43,13 @@ int GetDLCDataByIndexAppID(int index)
 	return 0;
 }
 
-int GetDLCDataByIndexAvailable(int index)
+/*
+@desc Returns whether the DLC at the given index is available.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return 1 if available; otherwise 0.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
+extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index)
 {
 	AppId_t appID;
 	bool available;
@@ -49,7 +61,13 @@ int GetDLCDataByIndexAvailable(int index)
 	return 0;
 }
 
-char *GetDLCDataByIndexName(int index)
+/*
+@desc Returns the name of the DLC at the given index.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return The DLC name if the index is valid; otherwise and empty string.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
+extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index)
 {
 	AppId_t appID;
 	bool available;
@@ -61,37 +79,71 @@ char *GetDLCDataByIndexName(int index)
 	return NULL_STRING;
 }
 
-int IsAppInstalled(int appID)
+/*
+@desc Checks if a specific app is installed.
+This only works for base applications, not DLC. Use IsDLCInstalled for DLC instead.
+@param appID The App ID of the application to check.
+@return 1 if the app is installed; otherwise 0.
+@api ISteamApps#BIsAppInstalled
+*/
+extern "C" DLL_EXPORT int IsAppInstalled(int appID)
 {
 	CheckInitialized(false);
 	return SteamApps()->BIsAppInstalled(appID);
 }
 
-int IsCybercafe()
+/*
+@desc Checks whether the current App ID is for Cyber Cafes.
+@return 1 if a cyber cafe; otherwise 0.
+@api ISteamApps#BIsCybercafe*/
+extern "C" DLL_EXPORT int IsCybercafe()
 {
 	CheckInitialized(false);
 	return SteamApps()->BIsCybercafe();
 }
 
-int IsDLCInstalled(int appID)
+/*
+@desc Checks if the user owns a specific DLC and if the DLC is installed
+@param appID The App ID of the DLC to check.
+@return 1 when the user owns a DLC and it is installed; otherwise 0.
+@api ISteamApps#BIsDlcInstalled
+*/
+extern "C" DLL_EXPORT int IsDLCInstalled(int appID)
 {
 	CheckInitialized(false);
 	return SteamApps()->BIsDlcInstalled(appID);
 }
 
-int IsLowViolence()
+/*
+@desc Checks if the license owned by the user provides low violence depots.
+@return 1 if the license owned by the user provides low violence depots; otherwise 0.
+@api ISteamApps#BIsLowViolence
+*/
+extern "C" DLL_EXPORT int IsLowViolence()
 {
 	CheckInitialized(false);
 	return SteamApps()->BIsLowViolence();
 }
 
-int IsSubscribed()
+/*
+@desc Checks if the active user is subscribed to the current App ID.
+@return 1 if the active user owns the current AppId; otherwise 0.
+@api ISteamApps#BIsSubscribed
+*/
+extern "C" DLL_EXPORT int IsSubscribed()
 {
 	CheckInitialized(false);
 	return SteamApps()->BIsSubscribed();
 }
 
-int IsSubscribedApp(int appID)
+/*
+@desc Checks if the active user is subscribed to a specified AppId.
+Only use this if you need to check ownership of another game related to yours, a demo for example.
+@param appID The App ID to check.
+@return 1 if the active user is subscribed to the specified App ID; otherwise 0.
+@api ISteamApps#BIsSubscribedApp
+*/
+extern "C" DLL_EXPORT int IsSubscribedApp(int appID)
 {
 	CheckInitialized(false);
 	return SteamApps()->BIsSubscribedApp(appID);
@@ -124,7 +176,7 @@ int GetAppBuildID()
 char *GetAppInstallDir(int appID)
 {
 	CheckInitialized(NULL_STRING);
-	char folder[MAX_PATH];
+	char folder[_MAX_PATH];
 	uint32 length = SteamApps()->GetAppInstallDir(appID, folder, sizeof(folder));
 	if (length)
 	{
