@@ -26,6 +26,18 @@ THE SOFTWARE.
 
 #include "CCallResultItem.h"
 
+class CAttachLeaderboardUGCCallResult : public CCallResultItem<LeaderboardUGCSet_t>
+{
+public:
+	CAttachLeaderboardUGCCallResult(SteamLeaderboard_t hSteamLeaderboard, UGCHandle_t hUGC)
+	{
+		m_CallResultName = "AttachLeaderboardUGC(" 
+			+ std::to_string(hSteamLeaderboard) + ", " 
+			+ std::to_string(hUGC) + ")";
+		m_hSteamAPICall = SteamUserStats()->AttachLeaderboardUGC(hSteamLeaderboard, hUGC);
+	}
+};
+
 struct PluginLeaderboardFindResult_t : LeaderboardFindResult_t
 {
 	EResult m_eResult;
@@ -62,10 +74,25 @@ public:
 	SteamLeaderboard_t GetLeaderboardFindResultHandle()	{ return m_Response.m_hSteamLeaderboard; }
 };
 
+struct PluginLeaderboardEntry_t : LeaderboardEntry_t
+{
+	int32 m_Details[k_cLeaderboardDetailsMax];
+
+	PluginLeaderboardEntry_t& operator=(const LeaderboardEntry_t &from)
+	{
+		m_steamIDUser = from.m_steamIDUser;
+		m_nGlobalRank = from.m_nGlobalRank;
+		m_nScore = from.m_nScore;
+		m_cDetails = from.m_cDetails;
+		m_hUGC = from.m_hUGC;
+		return *this;
+	}
+};
+
 struct PluginLeaderboardScoresDownloaded_t : LeaderboardScoresDownloaded_t
 {
 	EResult m_eResult;
-	std::vector<LeaderboardEntry_t> m_Entries;
+	std::vector<PluginLeaderboardEntry_t> m_Entries;
 
 	PluginLeaderboardScoresDownloaded_t& operator=(const LeaderboardScoresDownloaded_t &from)
 	{
@@ -94,7 +121,8 @@ public:
 	uint64 GetLeaderboardEntryUser(int index) { return m_Response.m_Entries[index].m_steamIDUser.ConvertToUint64(); }
 	int GetLeaderboardEntryGlobalRank(int index) { return m_Response.m_Entries[index].m_nGlobalRank; }
 	int GetLeaderboardEntryScore(int index) { return m_Response.m_Entries[index].m_nScore; }
-	int GetLeaderboardEntryDetails(int index) { return m_Response.m_Entries[index].m_cDetails; }
+	int GetLeaderboardEntryDetailsCount(int index) { return m_Response.m_Entries[index].m_cDetails; }
+	int32 GetLeaderboardEntryDetails(int index, int detailIndex) { return m_Response.m_Entries[index].m_Details[detailIndex]; }
 	uint64 GetLeaderboardEntryUGCHandle(int index) { return m_Response.m_Entries[index].m_hUGC; }
 protected:
 	void OnResponse(LeaderboardScoresDownloaded_t *pCallResult, bool bFailure)
@@ -106,9 +134,13 @@ protected:
 			{
 				// TODO Add Details support.
 				LeaderboardEntry_t entry;
-				if (SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &entry, NULL, 0))
+				int32 details[k_cLeaderboardDetailsMax];
+				if (SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &entry, details, k_cLeaderboardDetailsMax))
 				{
-					m_Response.m_Entries.push_back(entry);
+					PluginLeaderboardEntry_t entry2;
+					entry2 = entry;
+					memcpy_s(entry2.m_Details, k_cLeaderboardDetailsMax, details, k_cLeaderboardDetailsMax);
+					m_Response.m_Entries.push_back(entry2);
 				}
 				else
 				{
@@ -148,7 +180,12 @@ public:
 			+ std::to_string(hLeaderboard) + ", " 
 			+ std::to_string(eLeaderboardUploadScoreMethod) + ", " 
 			+ std::to_string(nScore) + ")";
-		m_hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, eLeaderboardUploadScoreMethod, nScore, NULL, 0);
+		m_hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, eLeaderboardUploadScoreMethod, nScore, s_Details, s_DetailCount);
+		// If the call succeeds, clear the details.
+		if (m_hSteamAPICall != k_uAPICallInvalid)
+		{
+			s_DetailCount = 0;
+		}
 	}
 	int GetLeaderboardScoreUploadedSuccess() { return m_Response.m_bSuccess; }
 	uint64 GetLeaderboardScoreUploadedHandle() { return m_Response.m_hSteamLeaderboard; }
@@ -156,7 +193,22 @@ public:
 	int GetLeaderboardScoreUploadedScoreChanged() { return m_Response.m_bScoreChanged; }
 	int GetLeaderboardScoreUploadedRankNew() { return m_Response.m_nGlobalRankNew; }
 	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
+	static bool AddDetail(int32 detail) {
+		if (s_DetailCount == k_cLeaderboardDetailsMax)
+		{
+			return false;
+		}
+		s_Details[s_DetailCount] = detail;
+		s_DetailCount++;
+		return true;
+	}
+protected:
+	static int32 s_Details[k_cLeaderboardDetailsMax];
+	static int32 s_DetailCount;
 };
+// Normally unsafe to initialize static variables in header, but we're assigning a constant value and only one source file uses this header.
+int32 CLeaderboardScoreUploadedCallResult::s_Details[k_cLeaderboardDetailsMax];
+int32 CLeaderboardScoreUploadedCallResult::s_DetailCount = 0;
 
 struct PluginNumberOfCurrentPlayers_t : NumberOfCurrentPlayers_t
 {

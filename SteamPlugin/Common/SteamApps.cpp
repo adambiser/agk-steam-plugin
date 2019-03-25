@@ -25,6 +25,42 @@ THE SOFTWARE.
 
 #define MAX_PATH	260
 
+int GetDLCDataByIndexAppID(int index)
+{
+	AppId_t appID;
+	bool available;
+	char name[128];
+	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
+	{
+		return appID;
+	}
+	return 0;
+}
+
+int GetDLCDataByIndexAvailable(int index)
+{
+	AppId_t appID;
+	bool available;
+	char name[128];
+	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
+	{
+		return available;
+	}
+	return 0;
+}
+
+char *GetDLCDataByIndexName(int index)
+{
+	AppId_t appID;
+	bool available;
+	char name[128];
+	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
+	{
+		return utils::CreateString(name);
+	}
+	return NULL_STRING;
+}
+
 int IsAppInstalled(int appID)
 {
 	CheckInitialized(false);
@@ -133,42 +169,6 @@ int GetDLCCount()
 	return SteamApps()->GetDLCCount();
 }
 
-int GetDLCDataByIndexAppID(int index)
-{
-	AppId_t appID;
-	bool available;
-	char name[128];
-	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
-	{
-		return appID;
-	}
-	return 0;
-}
-
-int GetDLCDataByIndexAvailable(int index)
-{
-	AppId_t appID;
-	bool available;
-	char name[128];
-	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
-	{
-		return available;
-	}
-	return 0;
-}
-
-char *GetDLCDataByIndexName(int index)
-{
-	AppId_t appID;
-	bool available;
-	char name[128];
-	if (SteamApps()->BGetDLCDataByIndex(index, &appID, &available, name, sizeof(name)))
-	{
-		return utils::CreateString(name);
-	}
-	return NULL_STRING;
-}
-
 int GetDLCDownloadProgressBytesDownloaded(int appID)
 {
 	uint64 bytesDownloaded;
@@ -260,6 +260,22 @@ void InstallDLC(int appID)
 	SteamApps()->InstallDLC(appID);
 }
 
+int MarkContentCorrupt(int missingFilesOnly)
+{
+	CheckInitialized(false);
+	return SteamApps()->MarkContentCorrupt(missingFilesOnly != 0);
+}
+
+// RequestAllProofOfPurchaseKeys - deprecated
+// RequestAppProofOfPurchaseKey - deprecated
+
+void UninstallDLC(int appID)
+{
+	CheckInitialized(NORETURN);
+	SteamApps()->UninstallDLC(appID);
+}
+
+// Callbacks
 int HasDLCInstalledResponse()
 {
 	CheckInitialized(false);
@@ -272,22 +288,6 @@ int GetDLCInstalledAppID()
 	return Callbacks()->GetDlcInstalled().m_nAppID;
 }
 
-int MarkContentCorrupt(int missingFilesOnly)
-{
-	CheckInitialized(false);
-	return SteamApps()->MarkContentCorrupt(missingFilesOnly != 0);
-}
-
-// SKIP: RequestAllProofOfPurchaseKeys - deprecated
-// SKIP: RequestAppProofOfPurchaseKey - deprecated
-
-void UninstallDLC(int appID)
-{
-	CheckInitialized(NORETURN);
-	SteamApps()->UninstallDLC(appID);
-}
-
-// Callbacks
 int HasNewUrlLaunchParametersResponse()
 {
 	CheckInitialized(false);

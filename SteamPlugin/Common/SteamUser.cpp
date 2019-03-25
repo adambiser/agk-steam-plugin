@@ -173,20 +173,3 @@ int GetHandleFromSteamID64(const char *steamID64)
 //UserHasLicenseForApp - game server stuff... validate DLC for auth session
 
 //Callbacks
-//ClientGameServerDeny_t - game server stuff
-//EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
-//GameWebCallback_t
-//GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
-
-//IPCFailure_t - Steam client had a fatal error.
-
-//LicensesUpdated_t
-
-//MicroTxnAuthorizationResponse_t - micro transaction stuff.
-
-//SteamServerConnectFailure_t
-//SteamServersConnected_t
-//SteamServersDisconnected_t
-
-//StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
-//ValidateAuthTicketResponse_t - Call result for BeginAuthSession

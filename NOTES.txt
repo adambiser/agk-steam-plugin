@@ -107,9 +107,7 @@ ISteamUser - Steam user information.
 - UserHasLicenseForApp - game server stuff... validate DLC for auth session
 
 ISteamUserStats - For accessing and submitting stats, achievements, and leaderboards.
-- AttachLeaderboardUGC
-- DownloadLeaderboardEntriesForUsers
-- Download entry details
+- DONE
 
 ISteamUtils - Miscellaneous utility functions.
 - SKIP: CheckFileSignature - Deprecated.

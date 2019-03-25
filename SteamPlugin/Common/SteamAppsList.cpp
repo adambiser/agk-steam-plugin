@@ -22,11 +22,12 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-// This is a restricted interface.
+// NOTE: This is a restricted interface that can only be used by previously approved apps...
 
 char *GetAppName(int appID)
 {
 	char name[256];
+	// Note: This does not behave how the SDK says it does.  See comments in the code below.
 	int length = SteamAppList()->GetAppName(appID, name, sizeof(name));
 	// Length of 0 means there is no app of that id.
 	if (length == 0)

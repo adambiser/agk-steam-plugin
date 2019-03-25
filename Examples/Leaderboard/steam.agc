@@ -346,6 +346,11 @@ EndFunction
 
 Function UploadScore(score as integer)
 	server.currentScore = score
+	// Add some details for our score.  These are optionaly and you get to decide what they mean.
+	x as integer
+	for x = 0 to 9
+		Steam.AddUploadLeaderboardScoreDetail(x)
+	next
 	// NOTE: Uploading scores to Steam is rate limited to 10 uploads per 10 minutes and you may only have one outstanding call to this function at a time.
 	//~ Steam.UploadLeaderboardScore(leaderboardInfo[server.currentLeaderboard].handle, score)
 	//~ AddStatus("Uploading leaderboard score: " + str(score))
@@ -425,6 +430,7 @@ Function RefreshLeaderboardEntryList(hCallResult as integer)
 		SetTextString(server.entryRankTextIDs[index], "#" + str(Steam.GetDownloadLeaderboardEntryGlobalRank(hCallResult, index)))
 		SetTextString(server.entryNameTextIDs[index], Steam.GetFriendPersonaName(hSteamID))
 		SetTextString(server.entryScoreTextIDs[index], str(Steam.GetDownloadLeaderboardEntryScore(hCallResult, index)))
+		AddStatus("Entry details for " + str(Steam.GetDownloadLeaderboardEntryGlobalRank(hCallResult, index)) + ": " + Steam.GetDownloadLeaderboardEntryDetails(hCallResult, index))
 		LoadEntryAvatar(hSteamID, server.entryAvatarSpriteIDs[index])
 		SetLeaderboardEntryVisible(index, 1)
 	next

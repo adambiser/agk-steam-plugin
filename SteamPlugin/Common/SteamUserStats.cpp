@@ -39,7 +39,23 @@ void ClearMostAchievedAchievementInfo()
 	g_MostAchievedAchievementInfoIterator = -1;
 }
 
-//AttachLeaderboardUGC
+int AttachLeaderboardUGC(int hLeaderboard, int hUGC)
+{
+	CheckInitialized(0);
+	SteamLeaderboard_t leaderboard = SteamHandles()->GetSteamHandle(hLeaderboard);
+	if (!leaderboard)
+	{
+		agk::PluginError("AttachLeaderboardUGC: Invalid leaderboard handle.");
+		return 0;
+	}
+	UGCHandle_t ugc = SteamHandles()->GetSteamHandle(hUGC);
+	if (!ugc)
+	{
+		agk::PluginError("AttachLeaderboardUGC: Invalid UGC handle.");
+		return 0;
+	}
+	return CallResults()->Add(new CAttachLeaderboardUGCCallResult(leaderboard, ugc));
+}
 
 int ClearAchievement(const char *name)
 {
@@ -87,17 +103,37 @@ int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
 	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryScore, __FUNCTION__);
 }
 
-// TODO Implement entry details?
-//int GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
-//{
-//	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryDetails, __FUNCTION__);
-//}
+char *GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
+{
+	std::ostringstream json;
+	json << "[";
+	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			int detailCount = callResult->GetLeaderboardEntryDetailsCount(index);
+			for (int detailIndex = 0; detailIndex < detailCount; detailIndex++)
+			{
+				if (detailIndex > 0)
+				{
+					json << ", ";
+				}
+				json << callResult->GetLeaderboardEntryDetails(index, detailIndex);
+			}
+		}
+		else
+		{
+			utils::PluginError("GetDownloadLeaderboardEntryDetails : Index out of range.");
+		}
+	}
+	json << "]";
+	return utils::CreateString(json);
+}
 
-// TODO UGC
-//int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
-//{
-//	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
-//}
+int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
+{
+	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
+}
 
 int FindLeaderboard(const char *leaderboardName)
 {
@@ -517,6 +553,11 @@ int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLen
 {
 	CheckInitialized(false);
 	return SteamUserStats()->UpdateAvgRateStat(name, countThisSession, (double)sessionLength);
+}
+
+int AddUploadLeaderboardScoreDetail(int detail)
+{
+	return CLeaderboardScoreUploadedCallResult::AddDetail(detail);
 }
 
 int UploadLeaderboardScore(int hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)

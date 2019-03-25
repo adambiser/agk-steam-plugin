@@ -188,7 +188,7 @@ int GetFavoriteGameUnixTimeLastPlayedOnServer(int index)
 	uint32 rTime32LastPlayedOnServer;
 	if (SteamMatchmaking()->GetFavoriteGame(index, &nAppID, &nIP, &nConnPort, &nQueryPort, &nFlags, &rTime32LastPlayedOnServer))
 	{
-		return nFlags;
+		return rTime32LastPlayedOnServer;
 	}
 	return 0;
 }
@@ -199,17 +199,14 @@ int GetFavoriteGameCount()
 	return SteamMatchmaking()->GetFavoriteGameCount();
 }
 
-//GetLobbyByIndex - used in callback
-//GetLobbyChatEntry - used in callback
+//GetLobbyByIndex - used in LobbyMatchList_t call result.
+//GetLobbyChatEntry - used in LobbyChatMsg_t callback.
 
 char *GetLobbyData(int hLobbySteamID, const char *key)
 {
 	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamMatchmaking()->GetLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID), key));
 }
-
-//GetLobbyDataByIndex - see GetLobbyDataJSON
-//GetLobbyDataCount - see GetLobbyDataJSON
 
 // The only time GetLobbyDataCount and GetLobbyDataByIndex seem useful is to iterate all of the lobby data.
 // Returning the Key/Value list as JSON seems nicer than having to use GetLobbyDataCount, GetLobbyDataByIndexKey, and GetLobbyDataByIndexValue.

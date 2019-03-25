@@ -202,7 +202,7 @@ private:
 	LIST_CALLBACK(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
 	LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
 	LIST_CALLBACK(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
-	// LobbyInvite_t - Someone has invited you to join a Lobby. Normally you don't need to do anything with this...
+	//TODO LobbyInvite_t - Someone has invited you to join a Lobby. Normally you don't need to do anything with this...
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
 	// PSNGameBootInviteResult_t - deprecated
@@ -305,16 +305,21 @@ private:
 #pragma endregion
 
 #pragma region ISteamUser
-	//ClientGameServerDeny_t
+	//ClientGameServerDeny_t - game server stuff
 	//EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
 	//GameWebCallback_t
 	//GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
-	//IPCFailure_t
+
+	//IPCFailure_t - Steam client had a fatal error.
+
 	//LicensesUpdated_t
-	//MicroTxnAuthorizationResponse_t
+
+	//MicroTxnAuthorizationResponse_t - micro transaction stuff.
+
 	//SteamServerConnectFailure_t
 	//SteamServersConnected_t
 	//SteamServersDisconnected_t
+
 	//StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
 	//ValidateAuthTicketResponse_t - Call result for BeginAuthSession
 #pragma endregion

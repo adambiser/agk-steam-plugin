@@ -92,6 +92,18 @@ private:
 	std::string m_FileName;
 };
 
+class CFileShareCallResult : public CCallResultItem<RemoteStorageFileShareResult_t>
+{
+public:
+	CFileShareCallResult(const char *pchFile)
+	{
+		m_CallResultName = "FileShare('" + std::string(pchFile) + "')";
+		m_hSteamAPICall = SteamRemoteStorage()->FileShare(pchFile);
+	}
+	UGCHandle_t GetUGCHandle() { return m_Response.m_hFile; }
+	char *GetFileName() { return m_Response.m_rgchFilename; }
+};
+
 class CFileWriteAsyncCallResult : public CCallResultItem<RemoteStorageFileWriteAsyncComplete_t>
 {
 public:
@@ -104,6 +116,27 @@ public:
 	std::string GetFileName() { return m_FileName; }
 private:
 	std::string m_FileName;
+};
+
+class CDownloadUGCResult : public CCallResultItem<RemoteStorageDownloadUGCResult_t>
+{
+public:
+	CDownloadUGCResult(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority)
+	{
+		if (pchLocation == NULL)
+		{
+			m_CallResultName = "UGCDownload(" + std::to_string(hContent) + ", " + std::to_string(unPriority) + ")";
+			m_hSteamAPICall = SteamRemoteStorage()->UGCDownload(hContent, unPriority);
+		}
+		else
+		{
+			m_CallResultName = "UGCDownloadToLocation(" 
+				+ std::to_string(hContent) + ", " 
+				"'" + pchLocation + "', "
+				+ std::to_string(unPriority) + ")";
+			m_hSteamAPICall = SteamRemoteStorage()->UGCDownloadToLocation(hContent, pchLocation, unPriority);
+		}
+	}
 };
 
 #endif // _STEAMREMOTESTORAGE_H_

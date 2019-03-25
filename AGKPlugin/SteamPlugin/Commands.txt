@@ -22,6 +22,9 @@ Shutdown,0,0,Shutdown,0,0,0,0,Shutdown
 #
 # ISteamApps
 #
+GetDLCDataByIndexAppID,I,I,GetDLCDataByIndexAppID,0,0,0,0,GetDLCDataByIndexAppID
+GetDLCDataByIndexAvailable,I,I,GetDLCDataByIndexAvailable,0,0,0,0,GetDLCDataByIndexAvailable
+GetDLCDataByIndexName,S,I,GetDLCDataByIndexName,0,0,0,0,GetDLCDataByIndexName
 IsAppInstalled,I,I,IsAppInstalled,0,0,0,0,IsAppInstalled
 IsCybercafe,I,0,IsCybercafe,0,0,0,0,IsCybercafe
 IsDLCInstalled,I,I,IsDLCInstalled,0,0,0,0,IsDLCInstalled
@@ -38,9 +41,6 @@ GetAvailableGameLanguages,S,0,GetAvailableGameLanguages,0,0,0,0,GetAvailableGame
 GetCurrentBetaName,S,0,GetCurrentBetaName,0,0,0,0,GetCurrentBetaName
 GetCurrentGameLanguage,S,0,GetCurrentGameLanguage,0,0,0,0,GetCurrentGameLanguage
 GetDLCCount,I,0,GetDLCCount,0,0,0,0,GetDLCCount
-GetDLCDataByIndexAppID,I,I,GetDLCDataByIndexAppID,0,0,0,0,GetDLCDataByIndexAppID
-GetDLCDataByIndexAvailable,I,I,GetDLCDataByIndexAvailable,0,0,0,0,GetDLCDataByIndexAvailable
-GetDLCDataByIndexName,S,I,GetDLCDataByIndexName,0,0,0,0,GetDLCDataByIndexName
 GetDLCDownloadProgressBytesDownloaded,I,I,GetDLCDownloadProgressBytesDownloaded,0,0,0,0,GetDLCDownloadProgressBytesDownloaded
 GetDLCDownloadProgressBytesTotal,I,I,GetDLCDownloadProgressBytesTotal,0,0,0,0,GetDLCDownloadProgressBytesTotal
 GetEarliestPurchaseUnixTime,I,I,GetEarliestPurchaseUnixTime,0,0,0,0,GetEarliestPurchaseUnixTime
@@ -79,6 +79,7 @@ GetAnalogActionHandle,I,S,GetAnalogActionHandle,0,0,0,0,GetAnalogActionHandle
 GetAnalogActionOriginCount,I,III,GetAnalogActionOriginCount,0,0,0,0,GetAnalogActionOriginCount
 GetAnalogActionOriginValue,I,IIII,GetAnalogActionOriginValue,0,0,0,0,GetAnalogActionOriginValue
 GetConnectedControllers,I,0,GetConnectedControllers,0,0,0,0,GetConnectedControllers
+GetControllerForGamepadIndex,I,I,GetControllerForGamepadIndex,0,0,0,0,GetControllerForGamepadIndex
 GetCurrentActionSet,I,I,GetCurrentActionSet,0,0,0,0,GetCurrentActionSet
 GetDigitalActionData,I,II,GetDigitalActionData,0,0,0,0,GetDigitalActionData
 GetDigitalActionDataActive,I,0,GetDigitalActionDataActive,0,0,0,0,GetDigitalActionDataActive
@@ -86,6 +87,7 @@ GetDigitalActionDataState,I,0,GetDigitalActionDataState,0,0,0,0,GetDigitalAction
 GetDigitalActionHandle,I,S,GetDigitalActionHandle,0,0,0,0,GetDigitalActionHandle
 GetDigitalActionOriginCount,I,III,GetDigitalActionOriginCount,0,0,0,0,GetDigitalActionOriginCount
 GetDigitalActionOriginValue,I,IIII,GetDigitalActionOriginValue,0,0,0,0,GetDigitalActionOriginValue
+GetGamepadIndexForController,I,I,GetGamepadIndexForController,0,0,0,0,GetGamepadIndexForController
 GetGlyphForActionOrigin,S,I,GetGlyphForActionOrigin,0,0,0,0,GetGlyphForActionOrigin
 GetInputTypeForHandle,I,I,GetInputTypeForHandle,0,0,0,0,GetInputTypeForHandle
 GetMotionData,0,I,GetMotionData,0,0,0,0,GetMotionData
@@ -123,6 +125,25 @@ ActivateGameOverlayToStore,0,II,ActivateGameOverlayToStore,0,0,0,0,ActivateGameO
 ActivateGameOverlayToUser,0,SI,ActivateGameOverlayToUser,0,0,0,0,ActivateGameOverlayToUser
 ActivateGameOverlayToWebPage,0,S,ActivateGameOverlayToWebPage,0,0,0,0,ActivateGameOverlayToWebPage
 ActivateGameOverlayToWebPageModal,0,S,ActivateGameOverlayToWebPageModal,0,0,0,0,ActivateGameOverlayToWebPageModal
+ClearRichPresence,0,0,ClearRichPresence,0,0,0,0,ClearRichPresence
+CloseClanChatWindowInSteam,I,I,CloseClanChatWindowInSteam,0,0,0,0,CloseClanChatWindowInSteam
+AddDownloadClanActivityClan,0,I,AddDownloadClanActivityClan,0,0,0,0,AddDownloadClanActivityClan
+DownloadClanActivityCounts,I,0,DownloadClanActivityCounts,0,0,0,0,DownloadClanActivityCounts
+EnumerateFollowingList,I,I,EnumerateFollowingList,0,0,0,0,EnumerateFollowingList
+GetEnumerateFollowingListResultsReturned,I,I,GetEnumerateFollowingListResultsReturned,0,0,0,0,GetEnumerateFollowingListResultsReturned
+GetEnumerateFollowingListTotalResultCount,I,I,GetEnumerateFollowingListTotalResultCount,0,0,0,0,GetEnumerateFollowingListTotalResultCount
+GetEnumerateFollowingListSteamID,I,II,GetEnumerateFollowingListSteamID,0,0,0,0,GetEnumerateFollowingListSteamID
+GetClanChatMemberCount,I,I,GetClanChatMemberCount,0,0,0,0,GetClanChatMemberCount
+GetClanChatMemberListJSON,S,I,GetClanChatMemberListJSON,0,0,0,0,GetClanChatMemberListJSON
+GetClanActivityCountsOnline,I,I,GetClanActivityCountsOnline,0,0,0,0,GetClanActivityCountsOnline
+GetClanActivityCountsInGame,I,I,GetClanActivityCountsInGame,0,0,0,0,GetClanActivityCountsInGame
+GetClanActivityCountsChatting,I,I,GetClanActivityCountsChatting,0,0,0,0,GetClanActivityCountsChatting
+GetClanCount,I,0,GetClanCount,0,0,0,0,GetClanCount
+GetClanListJSON,S,0,GetClanListJSON,0,0,0,0,GetClanListJSON
+GetClanName,S,I,GetClanName,0,0,0,0,GetClanName
+GetClanOfficerCount,I,I,GetClanOfficerCount,0,0,0,0,GetClanOfficerCount
+GetClanOfficerListJSON,S,I,GetClanOfficerListJSON,0,0,0,0,GetClanOfficerListJSON
+GetClanOwner,I,I,GetClanOwner,0,0,0,0,GetClanOwner
 GetFriendCount,I,I,GetFriendCount,0,0,0,0,GetFriendCount
 GetFriendListJSON,S,I,GetFriendListJSON,0,0,0,0,GetFriendListJSON
 GetFriendGamePlayedGameAppID,I,I,GetFriendGamePlayedGameAppID,0,0,0,0,GetFriendGamePlayedGameAppID
@@ -258,6 +279,9 @@ CloudFileRead,I,S,CloudFileRead,0,0,0,0,CloudFileRead
 CloudFileReadAsync,I,SII,CloudFileReadAsync,0,0,0,0,CloudFileReadAsync
 GetCloudFileReadAsyncFileName,S,I,GetCloudFileReadAsyncFileName,0,0,0,0,GetCloudFileReadAsyncFileName
 GetCloudFileReadAsyncMemblock,I,I,GetCloudFileReadAsyncMemblock,0,0,0,0,GetCloudFileReadAsyncMemblock
+CloudFileShare,I,S,CloudFileShare,0,0,0,0,CloudFileShare
+GetCloudFileShareUGCHandle,I,I,GetCloudFileShareUGCHandle,0,0,0,0,GetCloudFileShareUGCHandle
+GetCloudFileShareFileName,S,I,GetCloudFileShareFileName,0,0,0,0,GetCloudFileShareFileName
 CloudFileWrite,I,SI,CloudFileWrite,0,0,0,0,CloudFileWrite
 CloudFileWriteAsync,I,SI,CloudFileWriteAsync,0,0,0,0,CloudFileWriteAsync
 GetCloudFileWriteAsyncFileName,S,I,GetCloudFileWriteAsyncFileName,0,0,0,0,GetCloudFileWriteAsyncFileName
@@ -266,6 +290,8 @@ CloudFileWriteStreamClose,I,I,CloudFileWriteStreamClose,0,0,0,0,CloudFileWriteSt
 CloudFileWriteStreamOpen,I,S,CloudFileWriteStreamOpen,0,0,0,0,CloudFileWriteStreamOpen
 CloudFileWriteStreamWriteChunk,I,IIII,CloudFileWriteStreamWriteChunkEx,0,0,0,0,CloudFileWriteStreamWriteChunkEx
 CloudFileWriteStreamWriteChunk,I,II,CloudFileWriteStreamWriteChunk,0,0,0,0,CloudFileWriteStreamWriteChunk
+GetCloudCachedUGCCount,I,0,GetCloudCachedUGCCount,0,0,0,0,GetCloudCachedUGCCount
+GetCloudCachedUGCHandle,I,I,GetCloudCachedUGCHandle,0,0,0,0,GetCloudCachedUGCHandle
 GetCloudFileCount,I,0,GetCloudFileCount,0,0,0,0,GetCloudFileCount
 GetCloudFileName,S,I,GetCloudFileName,0,0,0,0,GetCloudFileName
 GetCloudFileSize,I,I,GetCloudFileSizeByIndex,0,0,0,0,GetCloudFileSizeByIndex
@@ -274,10 +300,20 @@ GetCloudFileTimestamp,I,S,GetCloudFileTimestamp,0,0,0,0,GetCloudFileTimestamp
 GetCloudQuotaAvailable,I,0,GetCloudQuotaAvailable,0,0,0,0,GetCloudQuotaAvailable
 GetCloudQuotaTotal,I,0,GetCloudQuotaTotal,0,0,0,0,GetCloudQuotaTotal
 GetCloudFileSyncPlatforms,I,S,GetCloudFileSyncPlatforms,0,0,0,0,GetCloudFileSyncPlatforms
+GetCloudUGCDetailsAppID,I,I,GetCloudUGCDetailsAppID,0,0,0,0,GetCloudUGCDetailsAppID
+GetCloudUGCDetailsFileName,S,I,GetCloudUGCDetailsFileName,0,0,0,0,GetCloudUGCDetailsFileName
+GetCloudUGCDetailsFileSize,I,I,GetCloudUGCDetailsFileSize,0,0,0,0,GetCloudUGCDetailsFileSize
+GetCloudUGCDetailsOwner,I,I,GetCloudUGCDetailsOwner,0,0,0,0,GetCloudUGCDetailsOwner
+GetCloudUGCDownloadProgressBytesDownloaded,I,I,GetCloudUGCDownloadProgressBytesDownloaded,0,0,0,0,GetCloudUGCDownloadProgressBytesDownloaded
+GetCloudUGCDownloadProgressBytesExpected,I,I,GetCloudUGCDownloadProgressBytesExpected,0,0,0,0,GetCloudUGCDownloadProgressBytesExpected
 IsCloudEnabledForAccount,I,0,IsCloudEnabledForAccount,0,0,0,0,IsCloudEnabledForAccount
 IsCloudEnabledForApp,I,0,IsCloudEnabledForApp,0,0,0,0,IsCloudEnabledForApp
 SetCloudEnabledForApp,0,I,SetCloudEnabledForApp,0,0,0,0,SetCloudEnabledForApp
 SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,SetCloudFileSyncPlatforms
+CloudUGCDownload,I,II,CloudUGCDownload,0,0,0,0,CloudUGCDownload
+CloudUGCDownloadToLocation,I,ISI,CloudUGCDownloadToLocation,0,0,0,0,CloudUGCDownloadToLocation
+CloudUGCRead,I,IIIIII,CloudUGCReadEx,0,0,0,0,CloudUGCReadEx
+CloudUGCRead,I,IIII,CloudUGCRead,0,0,0,0,CloudUGCRead
 #
 # ISteamUser
 #
@@ -298,6 +334,7 @@ GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,GetHandleFromSteamID64
 #
 # ISteamUserStats
 #
+AttachLeaderboardUGC,I,II,AttachLeaderboardUGC,0,0,0,0,AttachLeaderboardUGC
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
 GetDownloadLeaderboardHandle,I,I,GetDownloadLeaderboardHandle,0,0,0,0,GetDownloadLeaderboardHandle
@@ -305,6 +342,8 @@ GetDownloadLeaderboardEntryCount,I,I,GetDownloadLeaderboardEntryCount,0,0,0,0,Ge
 GetDownloadLeaderboardEntryUser,I,II,GetDownloadLeaderboardEntryUser,0,0,0,0,GetDownloadLeaderboardEntryUser
 GetDownloadLeaderboardEntryGlobalRank,I,II,GetDownloadLeaderboardEntryGlobalRank,0,0,0,0,GetDownloadLeaderboardEntryGlobalRank
 GetDownloadLeaderboardEntryScore,I,II,GetDownloadLeaderboardEntryScore,0,0,0,0,GetDownloadLeaderboardEntryScore
+GetDownloadLeaderboardEntryDetails,S,II,GetDownloadLeaderboardEntryDetails,0,0,0,0,GetDownloadLeaderboardEntryDetails
+GetDownloadLeaderboardEntryUGC,I,II,GetDownloadLeaderboardEntryUGC,0,0,0,0,GetDownloadLeaderboardEntryUGC
 FindLeaderboard,I,S,FindLeaderboard,0,0,0,0,FindLeaderboard
 FindOrCreateLeaderboard,I,SII,FindOrCreateLeaderboard,0,0,0,0,FindOrCreateLeaderboard
 GetFindLeaderboardFound,I,I,GetFindLeaderboardFound,0,0,0,0,GetFindLeaderboardFound
@@ -351,6 +390,7 @@ SetStatFloat,I,SF,SetStatFloat,0,0,0,0,SetStatFloat
 StoreStats,I,0,StoreStats,0,0,0,0,StoreStats
 IsStoringStats,I,0,IsStoringStats,0,0,0,0,IsStoringStats
 UpdateAvgRateStat,I,SFF,UpdateAvgRateStat,0,0,0,0,UpdateAvgRateStat
+AddUploadLeaderboardScoreDetail,I,I,AddUploadLeaderboardScoreDetail,0,0,0,0,AddUploadLeaderboardScoreDetail
 UploadLeaderboardScore,I,II,UploadLeaderboardScore,0,0,0,0,UploadLeaderboardScore
 UploadLeaderboardScoreForceUpdate,I,II,UploadLeaderboardScoreForceUpdate,0,0,0,0,UploadLeaderboardScoreForceUpdate
 GetUploadLeaderboardScoreSuccess,I,I,GetUploadLeaderboardScoreSuccess,0,0,0,0,GetUploadLeaderboardScoreSuccess

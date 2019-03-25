@@ -176,7 +176,31 @@ int GetCallResultValue(int hCallResult, int index, uint64(CR::*function)(int), c
 }
 
 template <typename CR>
+int GetCallResultValue(int hCallResult, int index, CSteamID(CR::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return SteamHandles()->GetPluginHandle((callResult->*function)(index));
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
+
+template <typename CR>
 char *GetCallResultValue(int hCallResult, std::string(CR::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
+
+template <typename CR>
+char *GetCallResultValue(int hCallResult, char *(CR::*function)(void))
 {
 	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
 	{

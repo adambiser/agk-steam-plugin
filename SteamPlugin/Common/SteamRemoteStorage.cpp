@@ -102,7 +102,21 @@ int GetCloudFileReadAsyncMemblock(int hCallResult)
 	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
 
-//FileShare - no information about what this does.
+int CloudFileShare(const char *filename)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CFileShareCallResult(filename));
+}
+
+int GetCloudFileShareUGCHandle(int hCallResult)
+{
+	return GetCallResultValue<CFileShareCallResult>(hCallResult, &CFileShareCallResult::GetUGCHandle);
+}
+
+char *GetCloudFileShareFileName(int hCallResult)
+{
+	return GetCallResultValue<CFileShareCallResult>(hCallResult, &CFileShareCallResult::GetFileName);
+}
 
 int CloudFileWrite(const char *filename, int memblockID)
 {
@@ -149,12 +163,12 @@ int CloudFileWriteStreamWriteChunkEx(int writeHandle, int memblockID, int offset
 {
 	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
 	{
-		agk::PluginError("Invalid memblock.");
+		agk::PluginError("CloudFileWriteStreamWriteChunk: Invalid memblock.");
 		return 0;
 	}
 	if (offset + length > agk::GetMemblockSize(memblockID))
 	{
-		agk::PluginError("Tried to read data beyond memblock bounds.");
+		agk::PluginError("CloudFileWriteStreamWriteChunk: Tried to read data beyond memblock bounds.");
 		return 0;
 	}
 	return SteamRemoteStorage()->FileWriteStreamWriteChunk(SteamHandles()->GetSteamHandle(writeHandle), agk::GetMemblockPtr(memblockID) + offset, length);
@@ -162,21 +176,20 @@ int CloudFileWriteStreamWriteChunkEx(int writeHandle, int memblockID, int offset
 
 int CloudFileWriteStreamWriteChunk(int writeHandle, int memblockID)
 {
-	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
-	{
-		agk::PluginError("Invalid memblock.");
-		return 0;
-	}
 	return CloudFileWriteStreamWriteChunkEx(writeHandle, memblockID, 0, agk::GetMemblockSize(memblockID));
 }
 
-//int GetCachedUGCCount() - no information on this
-//{
-//	CheckInitialized(0);
-//	return SteamRemoteStorage()->GetCachedUGCCount();
-//}
+int GetCloudCachedUGCCount() // no information on this
+{
+	CheckInitialized(0);
+	return SteamRemoteStorage()->GetCachedUGCCount();
+}
 
-//GetCachedUGCHandle - no information on this
+int GetCloudCachedUGCHandle(int index) // no information on this
+{
+	CheckInitialized(0);
+	return SteamHandles()->GetPluginHandle(SteamRemoteStorage()->GetCachedUGCHandle(index));
+}
 
 int GetCloudFileCount()
 {
@@ -186,7 +199,6 @@ int GetCloudFileCount()
 
 //GetFileListFromServer - deprecated
 
-//GetFileNameAndSize
 char *GetCloudFileName(int index)
 {
 	CheckInitialized(NULL_STRING);
@@ -253,8 +265,86 @@ int GetCloudFileSyncPlatforms(const char *filename)
 	return SteamRemoteStorage()->GetSyncPlatforms(filename);
 }
 
-//GetUGCDetails - no info
-//GetUGCDownloadProgress - no info
+int GetCloudUGCDetailsAppID(int hUGC) // no info
+{
+	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
+	AppId_t nAppID;
+	char *pchName = NULL;
+	int32 nFileSizeInBytes;
+	CSteamID steamIDOwner;
+	if (SteamRemoteStorage()->GetUGCDetails(hContent, &nAppID, &pchName, &nFileSizeInBytes, &steamIDOwner))
+	{
+		return nAppID;
+	}
+	return 0;
+}
+
+char *GetCloudUGCDetailsFileName(int hUGC) // no info
+{
+	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
+	AppId_t nAppID;
+	char *pchName = NULL;
+	int32 nFileSizeInBytes;
+	CSteamID steamIDOwner;
+	if (SteamRemoteStorage()->GetUGCDetails(hContent, &nAppID, &pchName, &nFileSizeInBytes, &steamIDOwner))
+	{
+		return utils::CreateString(pchName);
+	}
+	return NULL_STRING;
+}
+
+int GetCloudUGCDetailsFileSize(int hUGC) // no info
+{
+	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
+	AppId_t nAppID;
+	char *pchName = NULL;
+	int32 nFileSizeInBytes;
+	CSteamID steamIDOwner;
+	if (SteamRemoteStorage()->GetUGCDetails(hContent, &nAppID, &pchName, &nFileSizeInBytes, &steamIDOwner))
+	{
+		return nFileSizeInBytes;
+	}
+	return 0;
+}
+
+int GetCloudUGCDetailsOwner(int hUGC) // no info
+{
+	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
+	AppId_t nAppID;
+	char *pchName = NULL;
+	int32 nFileSizeInBytes;
+	CSteamID steamIDOwner;
+	if (SteamRemoteStorage()->GetUGCDetails(hContent, &nAppID, &pchName, &nFileSizeInBytes, &steamIDOwner))
+	{
+		return SteamHandles()->GetPluginHandle(steamIDOwner);
+	}
+	return 0;
+}
+
+int GetCloudUGCDownloadProgressBytesDownloaded(int hUGC) // no info
+{
+	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
+	int nBytesDownloaded;
+	int nBytesExpected;
+	if (SteamRemoteStorage()->GetUGCDownloadProgress(hContent, &nBytesDownloaded, &nBytesExpected))
+	{
+		return nBytesDownloaded;
+	}
+	return 0;
+}
+
+int GetCloudUGCDownloadProgressBytesExpected(int hUGC) // no info
+{
+	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
+	int nBytesDownloaded;
+	int nBytesExpected;
+	if (SteamRemoteStorage()->GetUGCDownloadProgress(hContent, &nBytesDownloaded, &nBytesExpected))
+	{
+		return nBytesExpected;
+	}
+	return 0;
+}
+
 //GetUserPublishedItemVoteDetails - deprecated
 
 int IsCloudEnabledForAccount()
@@ -290,9 +380,37 @@ int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 //SynchronizeToClient - deprecated
 //SynchronizeToServer - deprecated
 
-//UGCDownload - no info
-//UGCDownloadToLocation - no info
-//UGCRead - no info
+int CloudUGCDownload(int hUGC, int priority)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CDownloadUGCResult(SteamHandles()->GetSteamHandle(hUGC), NULL, priority));
+}
+
+int CloudUGCDownloadToLocation(int hUGC, const char *location, int priority)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CDownloadUGCResult(SteamHandles()->GetSteamHandle(hUGC), location, priority));
+}
+int CloudUGCReadEx(int hUGC, int memblockID, int dstOffset, int length, int srcOffset, int eAction)
+{
+	CheckInitialized(0);
+	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
+	{
+		agk::PluginError("CloudUGCRead: Invalid memblock.");
+		return 0;
+	}
+	if (dstOffset + length > agk::GetMemblockSize(memblockID))
+	{
+		agk::PluginError("CloudUGCRead: Tried to write data beyond memblock bounds.");
+		return 0;
+	}
+	return SteamRemoteStorage()->UGCRead(SteamHandles()->GetSteamHandle(hUGC), agk::GetMemblockPtr(memblockID) + dstOffset, length, srcOffset, (EUGCReadAction)eAction);
+}
+
+int CloudUGCRead(int hUGC, int memblockID, int srcOffset, int eAction)
+{
+	return CloudUGCReadEx(hUGC, memblockID, 0, agk::GetMemblockSize(memblockID), srcOffset, eAction);
+}
 
 //UnsubscribePublishedFile - deprecated
 //UpdatePublishedFileDescription - deprecated

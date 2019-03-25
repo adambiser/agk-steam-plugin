@@ -143,6 +143,30 @@ extern "C" DLL_EXPORT void Shutdown();
 #pragma region ISteamApps
 /* @page ISteamApps */
 /*
+@desc Returns the App ID of a DLC by index.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return The AppID if the index is valid; otherwise 0.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
+extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index);
+
+/*
+@desc Returns whether the DLC at the given index is available.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return 1 if available; otherwise 0.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
+extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index);
+
+/*
+@desc Returns the name of the DLC at the given index.
+@param index The index.  Should be between 0 and GetDLCCount() - 1.
+@return The DLC name if the index is valid; otherwise and empty string.
+@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
+*/
+extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index);
+
+/*
 @desc Checks if a specific app is installed.
 This only works for base applications, not DLC. Use IsDLCInstalled for DLC instead.
 @param appID The App ID of the application to check.
@@ -261,31 +285,9 @@ extern "C" DLL_EXPORT char *GetCurrentGameLanguage();
 extern "C" DLL_EXPORT int GetDLCCount();
 
 /*
-@desc Returns the App ID of a DLC by index.
-@param index The index.  Should be between 0 and GetDLCCount() - 1.
-@return The AppID if the index is valid; otherwise 0.
-@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
-*/
-extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index);
-
-/*
-@desc Returns whether the DLC at the given index is available.
-@param index The index.  Should be between 0 and GetDLCCount() - 1.
-@return 1 if available; otherwise 0.
-@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
-*/
-extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index);
-
-/*
-@desc Returns the name of the DLC at the given index.
-@param index The index.  Should be between 0 and GetDLCCount() - 1.
-@return The DLC name if the index is valid; otherwise and empty string.
-@api ISteamApps#GetDLCCount, ISteamApps#BGetDLCDataByIndex
-*/
-extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index);
-
-/*
 @desc Gets the bytes downloaded of the download progress for DLC.
+
+_Note: Steamworks returns an unsigned 64-bit integer, but AppGameKit only supports signed 32-bit integers.  Files larger than 2 GB will cause problems._
 @param appID The App ID of the DLC to monitor.
 @return A JSON string of the download progress.
 @api ISteamApps#GetDlcDownloadProgress
@@ -293,6 +295,8 @@ extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index);
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesDownloaded(int appID);
 /*
 @desc Gets the bytes total of the download progress for DLC.
+
+_Note: Steamworks returns an unsigned 64-bit integer, but AppGameKit only supports signed 32-bit integers.  Files larger than 2 GB will cause problems._
 @param appID The App ID of the DLC to monitor.
 @return A JSON string of the download progress.
 @api ISteamApps#GetDlcDownloadProgress
@@ -372,22 +376,6 @@ extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key);
 extern "C" DLL_EXPORT void InstallDLC(int appID);
 
 /*
-@desc Triggered after the current user gains ownership of DLC and that DLC is installed.
-@callback-type list
-@callback-getters	GetDLCInstalledAppID
-@return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamApps#DlcInstalled_t
-*/
-extern "C" DLL_EXPORT int HasDLCInstalledResponse();
-
-/*
-@desc Returns the App ID for the current LobbyGameCreated_t callback response.
-@return An App ID.
-@api ISteamApps#DlcInstalled_t
-*/
-extern "C" DLL_EXPORT int GetDLCInstalledAppID();
-
-/*
 @desc Allows you to force verify game content on next launch.
 
 If you detect the game is out-of-date (for example, by having the client detect a version mismatch with a server),
@@ -406,6 +394,22 @@ _Note: This appears to take place after exiting the app._
 @api ISteamApps#UninstallDLC
 */
 extern "C" DLL_EXPORT void UninstallDLC(int appID);
+
+/*
+@desc Triggered after the current user gains ownership of DLC and that DLC is installed.
+@callback-type list
+@callback-getters	GetDLCInstalledAppID
+@return 1 when the callback has more responses to process; otherwise 0.
+@api ISteamApps#DlcInstalled_t
+*/
+extern "C" DLL_EXPORT int HasDLCInstalledResponse();
+
+/*
+@desc Returns the App ID for the current LobbyGameCreated_t callback response.
+@return An App ID.
+@api ISteamApps#DlcInstalled_t
+*/
+extern "C" DLL_EXPORT int GetDLCInstalledAppID();
 
 /*
 @desc Posted after the user executes a steam url with query parameters while running.
@@ -586,11 +590,11 @@ extern "C" DLL_EXPORT int GetConnectedControllers();
 
 /*
 @desc Returns the associated input handle for the specified emulated gamepad.
-@param hInput The index of the emulated gamepad you want to get an input handle for.
+@param index The index of the emulated gamepad you want to get an input handle for.
 @return The associated input handle for the specified emulated gamepad.
 @api ISteamController#GetControllerForGamepadIndex
 */
-//extern "C" DLL_EXPORT ControllerHandle_t GetControllerForGamepadIndex(int nIndex);
+extern "C" DLL_EXPORT int GetControllerForGamepadIndex(int index);
 
 /*
 @desc Get the currently active action set for the specified input.
@@ -663,7 +667,7 @@ extern "C" DLL_EXPORT int GetDigitalActionOriginValue(int hInput, int hActionSet
 @return An integer.
 @api ISteamController#GetGamepadIndexForController
 */
-//extern "C" DLL_EXPORT int GetGamepadIndexForController(ControllerHandle_t ulController);
+extern "C" DLL_EXPORT int GetGamepadIndexForController(int hInput);
 
 /*
 @desc Get a local path to art for on-screen glyph for a particular origin.
@@ -955,25 +959,189 @@ The browser will be opened in a special overlay configuration which hides all ot
 */
 extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url);
 
-//ClearRichPresence
-//CloseClanChatWindowInSteam
-//DownloadClanActivityCounts
-//EnumerateFollowingList
-//GetChatMemberByIndex
-//GetClanActivityCounts
-//GetClanByIndex
-//GetClanChatMemberCount
+/*
+@desc Clears all of the current user's Rich Presence key/values.
+@api ISteamFriends#ClearRichPresence
+*/
+extern "C" DLL_EXPORT void ClearRichPresence();
+
+/*
+@desc Closes the specified Steam group chat room in the Steam UI.
+@param hSteamIDClanChat The Steam ID handlle of the Steam group chat room to close.
+@return 1 if the user successfully left the Steam group chat room; 0 if the user is not in the provided Steam group chat room.
+@api ISteamFriends#CloseClanChatWindowInSteam
+*/
+extern "C" DLL_EXPORT int CloseClanChatWindowInSteam(int hSteamIDClanChat);
+
+/*
+@desc Adds clans to be refreshed in the next DownloadClanActivityCounts call.
+@param hSteamIDClan The clan's Steam ID handle.
+@api ISteamFriends#DownloadClanActivityCounts
+*/
+extern "C" DLL_EXPORT void AddDownloadClanActivityClan(int hSteamIDClan);
+
+/*
+@desc Refresh the Steam Group activity data or get the data from groups other than one that the current user is a member.
+
+Add clans to refresh using AddDownloadClanActivityClan.
+
+Use GetCallResultCode to determine when this call succeeds and whether it was successful.
+@callback-type callresult
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+*/
+extern "C" DLL_EXPORT int DownloadClanActivityCounts();
+
+/*
+@desc Gets the list of users that the current user is following.
+@param startIndex The index to start receiving followers from. This should be 0 on the initial call.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+*/
+extern "C" DLL_EXPORT int EnumerateFollowingList(int startIndex);
+
+/*
+@desc Gets the number of results returned by the EnumerateFollowingList call result.
+@param hCallResult An EnumerateFollowingList call result handle.
+@return The number of results returned.
+@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+*/
+extern "C" DLL_EXPORT int GetEnumerateFollowingListResultsReturned(int hCallResult);
+
+/*
+@desc Gets the total number of people the user is following for the EnumerateFollowingList call result.
+
+If this value is greater than the start index for the call + GetEnumerateFollowingListResultsReturned, 
+call EnumerateFollowingList with start index + GetEnumerateFollowingListResultsReturned as the new start index.
+@param hCallResult An EnumerateFollowingList call result handle.
+@return The total number of people we are following.
+@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+*/
+extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallResult);
+
+/*
+@desc Gets a user from the EnumerateFollowingList call result.
+@param hCallResult An EnumerateFollowingList call result handle.
+@param index The index of the followed user to retrieve.
+@return A Steam ID handle.
+@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+*/
+extern "C" DLL_EXPORT int GetEnumerateFollowingListSteamID(int hCallResult, int index);
+
+/*
+@desc Gets the number of users in a Steam group chat.
+
+NOTE: Large steam groups cannot be iterated by the local user.
+@param hSteamIDClan The Steam ID handle of the group to get the user count of.
+@return An integer.
+@api ISteamFriends#GetClanChatMemberCount
+*/
+extern "C" DLL_EXPORT int GetClanChatMemberCount(int hSteamIDClan);
+
+/*
+@desc Gets the users in a Steam group chat.
+
+NOTE: Large steam groups cannot be iterated by the local user.
+@param hSteamIDClan The Steam ID handle of the group to get the users of.
+@return A JSON array of Steam ID handles.
+@api ISteamFriends#GetChatMemberByIndex, ISteamFriends#GetClanChatMemberCount
+*/
+extern "C" DLL_EXPORT char *GetClanChatMemberListJSON(int hSteamIDClan);
+
+/*
+@desc Returns the number of members that are online in a Steam group.
+@param hSteamIDClan The Steam ID handle of the group to get the count for.
+@return The number of members or -1 if there's a problem.
+@api ISteamFriends#GetClanActivityCounts
+*/
+extern "C" DLL_EXPORT int GetClanActivityCountsOnline(int hSteamIDClan);
+
+/*
+@desc Returns the number of members that are in game in a Steam group.
+@param hSteamIDClan The Steam ID handle of the group to get the count for.
+@return The number of members or -1 if there's a problem.
+@api ISteamFriends#GetClanActivityCounts
+*/
+extern "C" DLL_EXPORT int GetClanActivityCountsInGame(int hSteamIDClan);
+
+/*
+@desc Returns the number of members that are chatting in a Steam group.
+@param hSteamIDClan The Steam ID handle of the group to get the count for.
+@return The number of members or -1 if there's a problem.
+@api ISteamFriends#GetClanActivityCounts
+*/
+extern "C" DLL_EXPORT int GetClanActivityCountsChatting(int hSteamIDClan);
+
 //GetClanChatMessage
-//GetClanCount
-//GetClanName
-//GetClanOfficerByIndex
-//GetClanOfficerCount
-//GetClanOwner
-//GetClanTag
+
+/*
+@desc Gets the number of Steam groups that the current user is a member of.
+@return An integer.
+@api ISteamFriends#GetClanCount
+*/
+extern "C" DLL_EXPORT int GetClanCount();
+
+/*
+@desc Gets A JSON array of Steam ID group handles that the current user is a member of.
+@return A JSON array of Steam ID handles.
+@api ISteamFriends#GetClanCount, ISteamFriends#GetClanByIndex
+*/
+extern "C" DLL_EXPORT char *GetClanListJSON();
+
+/*
+@desc Gets the display name for the specified Steam group; if the local client knows about it.
+@param hSteamIDClan The Steam ID handle of the group to get the name for.
+@return The display name for the group or an empty string.
+@api ISteamFriends#GetClanName
+*/
+extern "C" DLL_EXPORT char *GetClanName(int hSteamIDClan);
+
+/*
+@desc Gets the number of officers (administrators and moderators) in a specified Steam group.
+
+_NOTE: You must call RequestClanOfficerList before this to get the required data!_
+@param hSteamIDClan The Steam ID handle of the group to get the officer count for.
+@return An integer.
+@api ISteamFriends#GetClanOfficerCount, ISteamFriends#RequestClanOfficerList
+*/
+extern "C" DLL_EXPORT int GetClanOfficerCount(int hSteamIDClan);
+
+/*
+@desc Gets the Steam ID handles of the officers (administrators and moderators) in a specified Steam group.
+
+_NOTE: You must call RequestClanOfficerList before this to get the required data!_
+@param hSteamIDClan The Steam ID handle of the group to get the officers for.
+@return A JSON array of Steam ID handles.
+@api ISteamFriends#GetClanOfficerCount, ISteamFriends#GetClanOfficerByIndex, ISteamFriends#RequestClanOfficerList
+*/
+extern "C" DLL_EXPORT char *GetClanOfficerListJSON(int hSteamIDClan);
+
+/*
+@desc Gets the owner of a Steam Group.
+
+_NOTE: You must call RequestClanOfficerList before this to get the required data!_
+@param hSteamIDClan The Steam ID handle of the group to get the owner for.
+@return A Steam ID handle.
+@api ISteamFriends#GetClanOwner, ISteamFriends#RequestClanOfficerList
+*/
+extern "C" DLL_EXPORT int GetClanOwner(int hSteamIDClan);
+
+/*
+@desc Gets the unique tag (abbreviation) for the specified Steam group; If the local client knows about it.
+@param hSteamIDClan The Steam ID handle of the group to get the tag for.
+@return The tag or an empty string if the user doesn't know about the group.
+@api ISteamFriends#GetClanTag
+*/
+extern "C" DLL_EXPORT char *GetClanTag(int hSteamIDClan);
+
 //GetCoplayFriend
-//GetCoplayFriendCount
+
+/*
+@desc Gets the number of players that the current users has recently played with, across all games.
+*/
+extern "C" DLL_EXPORT int GetCoplayFriendCount();
+
 //GetFollowerCount
-//GetFriendByIndex
 //GetFriendCoplayGame
 //GetFriendCoplayTime
 
@@ -2209,6 +2377,7 @@ extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, i
 @desc Returns the file name for the CloudFileReadAsync call.
 @param hCallResult A CloudFileReadAsync call result handle.
 @return The file name.
+@api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult);
 
@@ -2218,10 +2387,35 @@ extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult);
 A call result will delete its memblock in DeleteCallResult() so calling code does not need to do so.
 @param hCallResult A CloudFileReadAsync call result handle.
 @return A memblock ID.
+@api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(int hCallResult);
 
-//extern "C" DLL_EXPORT SteamAPICall_t CloudFileShare(const char *filename);
+/*
+@desc Shares a file with users and features.
+@param filename The file to share.
+@callback-type callresult
+@callback-getters GetCloudFileShareUGCHandle, GetCloudFileShareFileName
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamRemoteStorage#FileShare, ISteamRemoteStorage#RemoteStorageFileShareResult_t
+*/
+extern "C" DLL_EXPORT int CloudFileShare(const char *filename);
+
+/*
+@desc Returns the UGC handle for the CloudFileShare call.
+@param hCallResult A CloudFileShare call result handle.
+@return A UGC handle.
+@api ISteamRemoteStorage#FileShare, ISteamRemoteStorage#RemoteStorageFileShareResult_t
+*/
+extern "C" DLL_EXPORT int GetCloudFileShareUGCHandle(int hCallResult);
+
+/*
+@desc Returns the file name for the CloudFileShare call.
+@param hCallResult A CloudFileShare call result handle.
+@return The file name.
+@api ISteamRemoteStorage#FileShare, ISteamRemoteStorage#RemoteStorageFileShareResult_t
+*/
+extern "C" DLL_EXPORT char *GetCloudFileShareFileName(int hCallResult);
 
 /*
 @desc
@@ -2316,7 +2510,8 @@ Data size is restricted to 100 * 1024 * 1024 bytes.
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunk(int writeHandle, int memblockID);
 
-//extern "C" DLL_EXPORT int GetCachedUGCCount();
+extern "C" DLL_EXPORT int GetCloudCachedUGCCount();
+extern "C" DLL_EXPORT int GetCloudCachedUGCHandle(int index);
 
 /*
 @desc Gets the total number of local files synchronized by Steam Cloud.
@@ -2358,9 +2553,6 @@ extern "C" DLL_EXPORT int GetCloudFileSize(const char *filename);
 */
 extern "C" DLL_EXPORT int GetCloudFileTimestamp(const char *filename);
 
-//GetPublishedFileDetails
-//GetPublishedItemVoteDetails
-
 /*
 @desc Gets the number of bytes available in the user's Steam Cloud storage.
 @return An integer.
@@ -2383,9 +2575,12 @@ extern "C" DLL_EXPORT int GetCloudQuotaTotal();
 */
 extern "C" DLL_EXPORT int GetCloudFileSyncPlatforms(const char *filename);
 
-//GetUGCDetails
-//GetUGCDownloadProgress
-//GetUserPublishedItemVoteDetails
+extern "C" DLL_EXPORT int GetCloudUGCDetailsAppID(int hUGC);
+extern "C" DLL_EXPORT char *GetCloudUGCDetailsFileName(int hUGC);
+extern "C" DLL_EXPORT int GetCloudUGCDetailsFileSize(int hUGC);
+extern "C" DLL_EXPORT int GetCloudUGCDetailsOwner(int hUGC);
+extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesDownloaded(int hUGC);
+extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesExpected(int hUGC);
 
 /*
 @desc
@@ -2414,10 +2609,6 @@ It's generally recommended that you allow the user to toggle this setting within
 ISteamRemoteStorage#IsCloudEnabledForApp
 */
 extern "C" DLL_EXPORT int IsCloudEnabledForApp();
-
-//PublishVideo
-//PublishWorkshopFile
-//ResetFileRequestState
 
 /*
 @desc
@@ -2448,22 +2639,13 @@ Files default to k_ERemoteStoragePlatformAll when they are first created. You ca
 */
 extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform);
 
-//SetUserPublishedFileAction
-//SubscribePublishedFile
-//SynchronizeToClient
-//SynchronizeToServer
-//UGCDownload
-//UGCDownloadToLocation
-//UGCRead
-//UnsubscribePublishedFile
-//UpdatePublishedFileDescription
-//UpdatePublishedFileFile
-//UpdatePublishedFilePreviewFile
-//UpdatePublishedFileSetChangeDescription
-//UpdatePublishedFileTags
-//UpdatePublishedFileTitle
-//UpdatePublishedFileVisibility
-//UpdateUserPublishedItemVote
+extern "C" DLL_EXPORT int CloudUGCDownload(int hUGC, int priority);
+extern "C" DLL_EXPORT int CloudUGCDownloadToLocation(int hUGC, const char *location, int priority);
+/*
+@plugin-name CloudUGCRead
+*/
+extern "C" DLL_EXPORT int CloudUGCReadEx(int hUGC, int memblockID, int dstOffset, int length, int srcOffset, int eAction);
+extern "C" DLL_EXPORT int CloudUGCRead(int hUGC, int memblockID, int srcOffset, int eAction);
 #pragma endregion
 
 #pragma region ISteamScreenshots
@@ -2637,7 +2819,17 @@ extern "C" DLL_EXPORT int GetHandleFromSteamID64(const char *steamID64);
 
 #pragma region ISteamUserStats
 /* @page ISteamUserStats */
-//AttachLeaderboardUGC
+/*
+@desc Attaches a piece of user generated content the current user's entry on a leaderboard.
+
+Use GetCallResultCode to determine whether this call was successful.
+@param hLeaderboard A leaderboard handle.
+@param hUGC Handle to a piece of user generated content that was shared using CloudFileShare or CreateUGCItem.
+@callback-type callresult
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api ISteamUserStats#AttachLeaderboardUGC
+*/
+extern "C" DLL_EXPORT int AttachLeaderboardUGC(int hLeaderboard, int hUGC);
 
 /*
 @desc Removes an achievement from the user.
@@ -2709,6 +2901,23 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult,
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int index);
 
+/*
+@desc Returns a JSON array of integers for the details of an entry for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@param index The entry index.
+@return A JSON array of integers.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
+extern "C" DLL_EXPORT char *GetDownloadLeaderboardEntryDetails(int hCallResult, int index);
+
+/*
+@desc Returns the UGC handle for the details of an entry for the DownloadLeaderboardEntries call.
+@param hCallResult A DownloadLeaderboardEntries call result handle.
+@param index The entry index.
+@return A UGC handle or 0.
+@api ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
+extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUGC(int hCallResult, int index);
 /*
 @desc Sends a request to find the handle for a leaderboard.
 @param leaderboardName The name of the leaderboard to find.
@@ -3175,6 +3384,15 @@ extern "C" DLL_EXPORT int IsStoringStats();
 @api ISteamUserStats#UpdateAvgRateStat
 */
 extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLength);
+
+/*
+@desc Adds a detail to be sent in the next UploadLeaderboardScore call.  A maximum of 64 details can be added.
+Details are optional.
+@param detail The detail element to add.
+@return 1 if the detail was successfully added; otherwise 0 meaning that the maximum number of details has been reached.
+@api ISteamUserStats#UploadLeaderboardScore
+*/
+extern "C" DLL_EXPORT int AddUploadLeaderboardScoreDetail(int detail);
 
 /*
 @desc Uploads a score to a leaderboard.  The leaderboard will keep the user's best score.

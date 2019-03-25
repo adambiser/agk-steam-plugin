@@ -58,23 +58,238 @@ void ActivateGameOverlayToWebPageModal(const char *url)
 	SteamFriends()->ActivateGameOverlayToWebPage(url, k_EActivateGameOverlayToWebPageMode_Modal);
 }
 
-//ClearRichPresence
-//CloseClanChatWindowInSteam
-//DownloadClanActivityCounts - DownloadClanActivityCountsResult_t
-//EnumerateFollowingList - FriendsEnumerateFollowingList_t
-//GetChatMemberByIndex
-//GetClanActivityCounts
-//GetClanByIndex
-//GetClanChatMemberCount
-//GetClanChatMessage
-//GetClanCount
-//GetClanName
-//GetClanOfficerByIndex
-//GetClanOfficerCount
-//GetClanOwner
-//GetClanTag
-//GetCoplayFriend
-//GetCoplayFriendCount
+void ClearRichPresence()
+{
+	SteamFriends()->ClearRichPresence();
+}
+
+int CloseClanChatWindowInSteam(int hSteamIDClanChat)
+{
+	return SteamFriends()->CloseClanChatWindowInSteam(SteamHandles()->GetSteamHandle(hSteamIDClanChat));
+}
+
+#pragma region CDownloadClanActivityCountsResultCallResult
+struct PluginDownloadClanActivityCountsResult_t : DownloadClanActivityCountsResult_t
+{
+	EResult m_eResult;
+
+	PluginDownloadClanActivityCountsResult_t& operator=(const DownloadClanActivityCountsResult_t &from)
+	{
+		m_bSuccess = from.m_bSuccess;
+		m_eResult = from.m_bSuccess ? k_EResultOK : k_EResultFail;
+		return *this;
+	}
+};
+
+class CDownloadClanActivityCountsResultCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, PluginDownloadClanActivityCountsResult_t>
+{
+public:
+	CDownloadClanActivityCountsResultCallResult()
+	{
+		m_CallResultName = "DownloadClanActivityCounts(" + std::to_string(s_Clans.size()) + " clans)";
+		if (s_Clans.size() == 0)
+		{
+			m_hSteamAPICall = k_uAPICallInvalid;
+			agk::PluginError("DownloadClanActivityCounts: No clans to refresh.");
+			return;
+		}
+		m_hSteamAPICall = SteamFriends()->DownloadClanActivityCounts(s_Clans.data(), (int)s_Clans.size());
+		if (m_hSteamAPICall != k_uAPICallInvalid)
+		{
+			s_Clans.clear();
+		}
+	}
+	static void AddClan(CSteamID steamIDClan)
+	{
+		s_Clans.push_back(steamIDClan);
+	}
+protected:
+	static std::vector<CSteamID> s_Clans;
+};
+std::vector<CSteamID> CDownloadClanActivityCountsResultCallResult::s_Clans;
+#pragma endregion
+
+void AddDownloadClanActivityClan(int hSteamIDClan)
+{
+	CDownloadClanActivityCountsResultCallResult::AddClan(SteamHandles()->GetSteamHandle(hSteamIDClan));
+}
+
+int DownloadClanActivityCounts()
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CDownloadClanActivityCountsResultCallResult());
+}
+
+#pragma region CFriendsEnumerateFollowingListCallResult
+class CFriendsEnumerateFollowingListCallResult : public CCallResultItem<FriendsEnumerateFollowingList_t>
+{
+public:
+	CFriendsEnumerateFollowingListCallResult(uint32 unStartIndex)
+	{
+		m_CallResultName = "EnumerateFollowingList(" + std::to_string(unStartIndex) + ")";
+		m_hSteamAPICall = SteamFriends()->EnumerateFollowingList(unStartIndex);
+	}
+	bool IsValidIndex(int index) { return index >= 0 && index < m_Response.m_nResultsReturned; }
+	CSteamID GetSteamID(int index) { return m_Response.m_rgSteamID[index]; }
+	int GetResultsReturned() { return m_Response.m_nResultsReturned; }
+	int GetTotalResultCount() { return m_Response.m_nTotalResultCount; }
+};
+#pragma endregion
+
+int EnumerateFollowingList(int startIndex)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CFriendsEnumerateFollowingListCallResult(startIndex));
+}
+
+int GetEnumerateFollowingListResultsReturned(int hCallResult)
+{
+	return GetCallResultValue<CFriendsEnumerateFollowingListCallResult>(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetResultsReturned);
+}
+
+int GetEnumerateFollowingListTotalResultCount(int hCallResult)
+{
+	return GetCallResultValue<CFriendsEnumerateFollowingListCallResult>(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetTotalResultCount);
+}
+
+int GetEnumerateFollowingListSteamID(int hCallResult, int index)
+{
+	return GetCallResultValue<CFriendsEnumerateFollowingListCallResult>(hCallResult, index, &CFriendsEnumerateFollowingListCallResult::GetSteamID, __FUNCTION__);
+}
+
+//GetChatMemberByIndex - see GetChatMemberListJSON
+
+int GetClanActivityCountsOnline(int hSteamIDClan)
+{
+	int nOnline;
+	int nInGame;
+	int nChatting;
+	if (SteamFriends()->GetClanActivityCounts(SteamHandles()->GetSteamHandle(hSteamIDClan), &nOnline, &nInGame, &nChatting))
+	{
+		return nOnline;
+	}
+	return -1;
+}
+
+int GetClanActivityCountsInGame(int hSteamIDClan)
+{
+	int nOnline;
+	int nInGame;
+	int nChatting;
+	if (SteamFriends()->GetClanActivityCounts(SteamHandles()->GetSteamHandle(hSteamIDClan), &nOnline, &nInGame, &nChatting))
+	{
+		return nInGame;
+	}
+	return -1;
+}
+
+int GetClanActivityCountsChatting(int hSteamIDClan)
+{
+	int nOnline;
+	int nInGame;
+	int nChatting;
+	if (SteamFriends()->GetClanActivityCounts(SteamHandles()->GetSteamHandle(hSteamIDClan), &nOnline, &nInGame, &nChatting))
+	{
+		return nChatting;
+	}
+	return -1;
+}
+
+//GetClanByIndex - see GetClanListJSON
+
+int GetClanChatMemberCount(int hSteamIDClan)
+{
+	CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
+	return SteamFriends()->GetClanChatMemberCount(steamIDClan);
+}
+
+// This is an array of integers.  Speed is not important.  Returning JSON seems easiest.
+char *GetClanChatMemberListJSON(int hSteamIDClan)
+{
+	std::string json("[");
+	CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
+	for (int index = 0; index < SteamFriends()->GetClanChatMemberCount(steamIDClan); index++)
+	{
+		if (index > 0)
+		{
+			json += ", ";
+		}
+		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetChatMemberByIndex(steamIDClan, index)));
+	}
+	json += "]";
+	return utils::CreateString(json);
+}
+
+//GetClanChatMessage - used in GameConnectedClanChatMsg_t 
+
+int GetClanCount()
+{
+	return SteamFriends()->GetClanCount();
+}
+
+char *GetClanListJSON()
+{
+	std::string json("[");
+	for (int index = 0; index < SteamFriends()->GetClanCount(); index++)
+	{
+		if (index > 0)
+		{
+			json += ", ";
+		}
+		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetClanByIndex(index)));
+	}
+	json += "]";
+	return utils::CreateString(json);
+}
+
+char *GetClanName(int hSteamIDClan)
+{
+	CheckInitialized(NULL_STRING);
+	return utils::CreateString(SteamFriends()->GetClanName(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+}
+
+//GetClanOfficerByIndex - see GetClanOfficerListJSON
+
+int GetClanOfficerCount(int hSteamIDClan)
+{
+	return SteamFriends()->GetClanOfficerCount(SteamHandles()->GetSteamHandle(hSteamIDClan));
+}
+
+char *GetClanOfficerListJSON(int hSteamIDClan)
+{
+	std::string json("[");
+	CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
+	for (int index = 0; index < SteamFriends()->GetClanOfficerCount(steamIDClan); index++)
+	{
+		if (index > 0)
+		{
+			json += ", ";
+		}
+		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetClanOfficerByIndex(steamIDClan, index)));
+	}
+	json += "]";
+	return utils::CreateString(json);
+}
+
+int GetClanOwner(int hSteamIDClan)
+{
+	return SteamHandles()->GetPluginHandle(SteamFriends()->GetClanOwner(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+}
+
+char *GetClanTag(int hSteamIDClan)
+{
+	return utils::CreateString(SteamFriends()->GetClanTag(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+}
+
+int GetCoplayFriend(int index)
+{
+	return SteamHandles()->GetPluginHandle(SteamFriends()->GetCoplayFriend(index));
+}
+
+int GetCoplayFriendCount()
+{
+	return SteamFriends()->GetCoplayFriendCount();
+}
 //GetFollowerCount - FriendsGetFollowerCount_t
 //GetFriendByIndex - see GetFriendListJSON
 //GetFriendCoplayGame

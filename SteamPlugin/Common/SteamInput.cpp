@@ -150,7 +150,18 @@ int GetConnectedControllers()
 	return g_InputCount;
 }
 
-//GetControllerForGamepadIndex
+int GetControllerForGamepadIndex(int index)
+{
+	ControllerHandle_t handle = SteamInput()->GetControllerForGamepadIndex(index);
+	for (int x = 0; x < g_InputCount; x++)
+	{
+		if (g_InputHandles[x] == handle)
+		{
+			return x + 1; // Input handles are 1-based!
+		}
+	}
+	return 0;
+}
 
 int GetCurrentActionSet(int hInput)
 {
@@ -204,7 +215,11 @@ int GetDigitalActionOriginValue(int hInput, int hActionSet, int hDigitalAction, 
 	return 0;
 }
 
-//GetGamepadIndexForController
+int GetGamepadIndexForController(int hInput)
+{
+	ValidateInputHandle(hInput, 0);
+	return SteamInput()->GetGamepadIndexForController(g_InputHandles[hInput]);
+}
 
 char *GetGlyphForActionOrigin(int eOrigin)
 {

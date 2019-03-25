@@ -38,12 +38,23 @@ if Steam.CloudFileExists(TEST_FILE_NAME)
 	AddStatus(TEST_FILE_NAME + " persisted: " + TF(Steam.CloudFilePersisted(TEST_FILE_NAME)))
 	AddStatus(TEST_FILE_NAME + " platforms: " + GetSyncPlatformList(Steam.GetCloudFileSyncPlatforms(TEST_FILE_NAME)))
 endif
-//~ AddStatus("GetCachedUGCCount: " + str(Steam.GetCachedUGCCount()))
 
 AddStatus("Files:")
 for x = 0 to Steam.GetCloudFileCount() - 1
 	AddStatus("> " + Steam.GetCloudFileName(x) + " - size: " + str(Steam.GetCloudFileSize(x)))
 next
+
+Function DisplayUGCInfo()
+	x as integer
+	AddStatus("GetCachedUGCCount: " + str(Steam.GetCloudCachedUGCCount()))
+	for x = 0 to Steam.GetCloudCachedUGCCount() - 1
+		hUGC as integer
+		hUGC = Steam.GetCloudCachedUGCHandle(x)
+		AddStatus("UGC " + str(x) + ": Handle = " + str(hUGC) + ", AppID = " + str(Steam.GetCloudUGCDetailsAppID(hUGC)) + ", File Name = " + Steam.GetCloudUGCDetailsFileName(hUGC) + ", Size = " + str(Steam.GetCloudUGCDetailsFileSize(hUGC)) + ", Owner = " + Steam.GetFriendPersonaName(Steam.GetCloudUGCDetailsOwner(hUGC)))
+	next	
+EndFunction
+
+DisplayUGCInfo()
 
 //
 // The main loop
