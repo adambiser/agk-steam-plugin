@@ -46,7 +46,7 @@ EndType
 
 CreateFriendListUI()
 
-//~ AddStatus("Your persona history: " + Steam.GetFriendPersonaNameHistoryJSON(Steam.GetSteamID()))
+AddStatus("Your persona history: " + Steam.GetFriendPersonaNameHistoryJSON(Steam.GetSteamID()))
 
 //~ groups as integer[]
 //~ groups.fromjson(Steam.GetClanListJSON())
@@ -63,8 +63,8 @@ do
 	Sync()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
-	//~ Steam.RunCallbacks()
-	//~ ProcessCallbacks()
+	Steam.RunCallbacks()
+	ProcessCallbacks()
 	if GetRawKeyPressed(KEY_ESCAPE) 
 		exit
 	endif
