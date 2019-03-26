@@ -21,7 +21,6 @@ THE SOFTWARE.
 */
 
 #include "DllMain.h"
-#include "SteamApps.h"
 
 /* @page ISteamApps */
 
@@ -327,6 +326,21 @@ extern "C" DLL_EXPORT int GetEarliestPurchaseUnixTime(int appID)
 	CheckInitialized(0);
 	return SteamApps()->GetEarliestPurchaseUnixTime(appID);
 }
+
+#pragma region CFileDetailsResultCallResult
+class CFileDetailsResultCallResult : public CCallResultItem<FileDetailsResult_t>
+{
+public:
+	CFileDetailsResultCallResult(const char *pszFileName)
+	{
+		m_CallResultName = "GetFileDetails('" + std::string(pszFileName) + "')";
+		m_hSteamAPICall = SteamApps()->GetFileDetails(pszFileName);
+	}
+	std::string GetFileSHA1() { return utils::GetSHA1(m_Response.m_FileSHA); }
+	int GetFileSize() { return (int)m_Response.m_ulFileSize; }
+	int GetFileFlags() { return m_Response.m_unFlags; }
+};
+#pragma endregion
 
 /*
 @desc Asynchronously retrieves metadata details about a specific file in the depot manifest.

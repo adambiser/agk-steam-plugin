@@ -21,7 +21,6 @@ THE SOFTWARE.
 */
 
 #include "DllMain.h"
-#include "SteamRemoteStorage.h"
 
 /* @page ISteamRemoteStorage */
 
@@ -128,6 +127,61 @@ extern "C" DLL_EXPORT int CloudFileRead(const char *filename)
 	return 0;
 }
 
+#pragma region CFileReadAsyncCallResult
+class CFileReadAsyncCallResult : public CCallResultItem<RemoteStorageFileReadAsyncComplete_t>
+{
+public:
+	CFileReadAsyncCallResult(const char *pchFile, uint32 nOffset, uint32 cubToRead) :
+		m_FileName(pchFile)
+	{
+		m_CallResultName = "FileReadAsync('" + std::string(pchFile) + "', " + std::to_string(nOffset) + ", " + std::to_string(cubToRead) + ")";
+		// Check for file existence because calling FileReadAsync() on files that have been FileDeleted()
+		// will cause Steamworks report an error in the callback, but subsequent FileReadAsync() attempts
+		// when the file exists again will return k_uAPICallInvalid until the user logs out and back into 
+		// the Steam client.  FileRead() does not have this issue.
+		if (!SteamRemoteStorage()->FileExists(pchFile))
+		{
+			utils::Log(GetName() + ": File does not exist.");
+			return;
+		}
+		m_hSteamAPICall = SteamRemoteStorage()->FileReadAsync(pchFile, nOffset, cubToRead);
+	}
+	virtual ~CFileReadAsyncCallResult()
+	{
+		if (m_MemblockID)
+		{
+			if (agk::GetMemblockExists(m_MemblockID))
+			{
+				agk::DeleteMemblock(m_MemblockID);
+			}
+			m_MemblockID = 0;
+		}
+	}
+	std::string GetFileName() { return m_FileName; }
+	int GetMemblockID() { return m_MemblockID; }
+protected:
+	int m_MemblockID;
+	void OnResponse(RemoteStorageFileReadAsyncComplete_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		if (m_Response.m_eResult == k_EResultOK)
+		{
+			m_MemblockID = agk::CreateMemblock(m_Response.m_cubRead);
+			if (!SteamRemoteStorage()->FileReadAsyncComplete(m_Response.m_hFileReadAsync, agk::GetMemblockPtr(m_MemblockID), m_Response.m_cubRead))
+			{
+				agk::DeleteMemblock(m_MemblockID);
+				m_MemblockID = 0;
+				utils::Log(GetName() + ": FileReadAsyncComplete failed.");
+				SetResultCode(k_EResultFail);
+			}
+		}
+	}
+private:
+	std::string m_FileName;
+};
+#pragma endregion
+
+
 /*
 @desc Starts an asynchronous read from a file.
 
@@ -182,6 +236,20 @@ extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
 	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
+
+#pragma region CFileShareCallResult
+class CFileShareCallResult : public CCallResultItem<RemoteStorageFileShareResult_t>
+{
+public:
+	CFileShareCallResult(const char *pchFile)
+	{
+		m_CallResultName = "FileShare('" + std::string(pchFile) + "')";
+		m_hSteamAPICall = SteamRemoteStorage()->FileShare(pchFile);
+	}
+	UGCHandle_t GetUGCHandle() { return m_Response.m_hFile; }
+	char *GetFileName() { return m_Response.m_rgchFilename; }
+};
+#pragma endregion
 
 /*
 @desc Shares a file with users and features.
@@ -247,6 +315,22 @@ extern "C" DLL_EXPORT int CloudFileWrite(const char *filename, int memblockID)
 	}
 	return false;
 }
+
+#pragma region CFileWriteAsyncCallResult
+class CFileWriteAsyncCallResult : public CCallResultItem<RemoteStorageFileWriteAsyncComplete_t>
+{
+public:
+	CFileWriteAsyncCallResult(const char *pchFile, const void *pvData, uint32 cubData) :
+		m_FileName(pchFile)
+	{
+		m_CallResultName = "FileWriteAsync('" + std::string(pchFile) + "', *data, " + std::to_string(cubData) + ")";
+		m_hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(pchFile, pvData, cubData);
+	}
+	std::string GetFileName() { return m_FileName; }
+private:
+	std::string m_FileName;
+};
+#pragma endregion
 
 /*
 @desc Creates a new file and asynchronously writes the raw byte data to the Steam Cloud, and then closes the file. If the target file already exists, it is overwritten.
@@ -662,6 +746,29 @@ extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eR
 //SubscribePublishedFile - deprecated
 //SynchronizeToClient - deprecated
 //SynchronizeToServer - deprecated
+
+#pragma region CDownloadUGCResult
+class CDownloadUGCResult : public CCallResultItem<RemoteStorageDownloadUGCResult_t>
+{
+public:
+	CDownloadUGCResult(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority)
+	{
+		if (pchLocation == NULL)
+		{
+			m_CallResultName = "UGCDownload(" + std::to_string(hContent) + ", " + std::to_string(unPriority) + ")";
+			m_hSteamAPICall = SteamRemoteStorage()->UGCDownload(hContent, unPriority);
+		}
+		else
+		{
+			m_CallResultName = "UGCDownloadToLocation("
+				+ std::to_string(hContent) + ", "
+				"'" + pchLocation + "', "
+				+ std::to_string(unPriority) + ")";
+			m_hSteamAPICall = SteamRemoteStorage()->UGCDownloadToLocation(hContent, pchLocation, unPriority);
+		}
+	}
+};
+#pragma endregion
 
 extern "C" DLL_EXPORT int CloudUGCDownload(int hUGC, int priority)
 {

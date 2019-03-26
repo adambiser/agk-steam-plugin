@@ -21,7 +21,6 @@ THE SOFTWARE.
 */
 
 #include "DllMain.h"
-#include "SteamUserStats.h"
 
 /* @page ISteamUserStats */
 
@@ -40,6 +39,20 @@ void ClearMostAchievedAchievementInfo()
 	g_MostAchievedAchievementInfoUnlocked = false;
 	g_MostAchievedAchievementInfoIterator = -1;
 }
+
+#pragma region CAttachLeaderboardUGCCallResult
+class CAttachLeaderboardUGCCallResult : public CCallResultItem<LeaderboardUGCSet_t>
+{
+public:
+	CAttachLeaderboardUGCCallResult(SteamLeaderboard_t hSteamLeaderboard, UGCHandle_t hUGC)
+	{
+		m_CallResultName = "AttachLeaderboardUGC("
+			+ std::to_string(hSteamLeaderboard) + ", "
+			+ std::to_string(hUGC) + ")";
+		m_hSteamAPICall = SteamUserStats()->AttachLeaderboardUGC(hSteamLeaderboard, hUGC);
+	}
+};
+#pragma endregion
 
 /*
 @desc Attaches a piece of user generated content the current user's entry on a leaderboard.
@@ -84,6 +97,64 @@ extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 	Callbacks()->RegisterUserAchievementStoredCallback();
 	return SteamUserStats()->ClearAchievement(name);
 }
+
+#pragma region CLeaderboardScoresDownloadedCallResult
+class CLeaderboardScoresDownloadedCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, WrappedResponse<LeaderboardScoresDownloaded_t, SteamLeaderboard_t, &LeaderboardScoresDownloaded_t::m_hSteamLeaderboard>>
+{
+public:
+	CLeaderboardScoresDownloadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
+	{
+		m_CallResultName = "DownloadLeaderboardEntries("
+			+ std::to_string(hLeaderboard) + ", "
+			+ std::to_string(eLeaderboardDataRequest) + ", "
+			+ std::to_string(nRangeStart) + ", "
+			+ std::to_string(nRangeEnd) + ")";
+		m_hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+	}
+	uint64 GetLeaderboardID() { return m_Response.m_hSteamLeaderboard; }
+	int GetLeaderboardEntryCount() { return (int)m_Entries.size(); }
+	bool IsValidIndex(int index) { return (index >= 0) && (index < (int)m_Entries.size()); }
+	uint64 GetLeaderboardEntryUser(int index) { return m_Entries[index].m_steamIDUser.ConvertToUint64(); }
+	int GetLeaderboardEntryGlobalRank(int index) { return m_Entries[index].m_nGlobalRank; }
+	int GetLeaderboardEntryScore(int index) { return m_Entries[index].m_nScore; }
+	int GetLeaderboardEntryDetailsCount(int index) { return m_Entries[index].m_cDetails; }
+	int32 GetLeaderboardEntryDetails(int index, int detailIndex) { return m_Entries[index].m_Details[detailIndex]; }
+	uint64 GetLeaderboardEntryUGCHandle(int index) { return m_Entries[index].m_hUGC; }
+protected:
+	struct PluginLeaderboardEntry_t : LeaderboardEntry_t
+	{
+		int32 m_Details[k_cLeaderboardDetailsMax];
+		PluginLeaderboardEntry_t() {}
+		PluginLeaderboardEntry_t(LeaderboardEntry_t from) : LeaderboardEntry_t(from) {}
+	};
+	std::vector<PluginLeaderboardEntry_t> m_Entries;
+	void OnResponse(LeaderboardScoresDownloaded_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		if (pCallResult->m_hSteamLeaderboardEntries != 0)
+		{
+			for (int index = 0; index < pCallResult->m_cEntryCount; index++)
+			{
+				LeaderboardEntry_t tempEntry;
+				int32 details[k_cLeaderboardDetailsMax];
+				if (SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &tempEntry, details, k_cLeaderboardDetailsMax))
+				{
+					PluginLeaderboardEntry_t entry(tempEntry);
+					memcpy_s(entry.m_Details, k_cLeaderboardDetailsMax, details, k_cLeaderboardDetailsMax);
+					m_Entries.push_back(entry);
+				}
+				else
+				{
+					// Report error.
+					utils::Log(GetName() + ": GetDownloadedLeaderboardEntry failed for index " + std::to_string(index) + ".");
+					SetResultCode(k_EResultFail);
+					break;
+				}
+			}
+		}
+	}
+};
+#pragma endregion
 
 /*
 @desc Downloads entries from a leaderboard.
@@ -214,6 +285,31 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUGC(int hCallResult, int in
 {
 	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
 }
+
+#pragma region CLeaderboardFindCallResult
+class CLeaderboardFindCallResult : public CCallResultItem<LeaderboardFindResult_t, AlwaysOKResponse<LeaderboardFindResult_t>>
+{
+public:
+	CLeaderboardFindCallResult(const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod = k_ELeaderboardSortMethodNone, ELeaderboardDisplayType eLeaderboardDisplayType = k_ELeaderboardDisplayTypeNone)
+	{
+		// No sort and/or no display type = find only.
+		if (eLeaderboardSortMethod == k_ELeaderboardSortMethodNone || eLeaderboardDisplayType == k_ELeaderboardDisplayTypeNone)
+		{
+			m_CallResultName = "FindLeaderboard('" + std::string(pchLeaderboardName) + "')";
+			m_hSteamAPICall = SteamUserStats()->FindLeaderboard(pchLeaderboardName);
+		}
+		else
+		{
+			m_CallResultName = "FindOrCreateLeaderboard('" + std::string(pchLeaderboardName) + "', "
+				+ std::to_string(eLeaderboardSortMethod) + ", "
+				+ std::to_string(eLeaderboardDisplayType) + ")";
+			m_hSteamAPICall = SteamUserStats()->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
+		}
+	}
+	int GetLeaderboardFindResultFound() { return m_Response.m_bLeaderboardFound; }
+	SteamLeaderboard_t GetLeaderboardFindResultHandle() { return m_Response.m_hSteamLeaderboard; }
+};
+#pragma endregion
 
 /*
 @desc Sends a request to find the handle for a leaderboard.
@@ -674,6 +770,19 @@ extern "C" DLL_EXPORT int GetNumAchievements()
 	return SteamUserStats()->GetNumAchievements();
 }
 
+#pragma region CNumberOfCurrentPlayersCallResult
+class CNumberOfCurrentPlayersCallResult : public CCallResultItem<NumberOfCurrentPlayers_t, SuccessResponse<NumberOfCurrentPlayers_t>>
+{
+public:
+	CNumberOfCurrentPlayersCallResult()
+	{
+		m_CallResultName = "GetNumberOfCurrentPlayers()";
+		m_hSteamAPICall = SteamUserStats()->GetNumberOfCurrentPlayers();
+	}
+	int GetNumberOfPlayers() { return m_Response.m_cPlayers; }
+};
+#pragma endregion
+
 /*
 @desc Asynchronously retrieves the total number of players currently playing the current game. Both online and in offline mode.
 @callback-type callresult
@@ -860,6 +969,28 @@ extern "C" DLL_EXPORT int RequestCurrentStats()
 	return SteamUserStats()->RequestCurrentStats();
 }
 
+#pragma region CRequestGlobalAchievementPercentagesCallResult
+class CRequestGlobalAchievementPercentagesCallResult : public CCallResultItem<GlobalAchievementPercentagesReady_t>
+{
+public:
+	CRequestGlobalAchievementPercentagesCallResult()
+	{
+		m_CallResultName = "RequestGlobalAchievementPercentages()";
+		m_hSteamAPICall = SteamUserStats()->RequestGlobalAchievementPercentages();
+	}
+protected:
+	void OnResponse(GlobalAchievementPercentagesReady_t *pCallResult, bool bFailure)
+	{
+		if (pCallResult->m_nGameID != g_AppID)
+		{
+			utils::Log(GetName() + ":  Received result for another app id: " + std::to_string(pCallResult->m_nGameID));
+			return;
+		}
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+	}
+};
+#pragma endregion
+
 /*
 @desc Asynchronously fetch the data for the percentage of players who have received each achievement for the current game globally.
 @callback-type callresult
@@ -872,6 +1003,28 @@ extern "C" DLL_EXPORT int RequestGlobalAchievementPercentages()
 	CheckInitialized(0);
 	return CallResults()->Add(new CRequestGlobalAchievementPercentagesCallResult());
 }
+
+#pragma region CGlobalStatsReceivedCallResult
+class CGlobalStatsReceivedCallResult : public CCallResultItem<GlobalStatsReceived_t>
+{
+public:
+	CGlobalStatsReceivedCallResult(int nHistoryDays)
+	{
+		m_CallResultName = "RequestGlobalStats(" + std::to_string(nHistoryDays) + ")";
+		m_hSteamAPICall = SteamUserStats()->RequestGlobalStats(nHistoryDays);
+	}
+protected:
+	void OnResponse(GlobalStatsReceived_t *pCallResult, bool bFailure)
+	{
+		if (pCallResult->m_nGameID != g_AppID)
+		{
+			utils::Log(GetName() + ":  Received result for another app id: " + std::to_string(pCallResult->m_nGameID));
+			return;
+		}
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+	}
+};
+#pragma endregion
 
 /*
 @desc Asynchronously fetches global stats data, which is available for stats marked as "aggregated" in the App Admin panel of the Steamworks website.
@@ -1005,6 +1158,48 @@ extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSes
 	CheckInitialized(false);
 	return SteamUserStats()->UpdateAvgRateStat(name, countThisSession, (double)sessionLength);
 }
+
+#pragma region CLeaderboardScoreUploadedCallResult
+class CLeaderboardScoreUploadedCallResult : public CCallResultItem<LeaderboardScoreUploaded_t, SuccessResponse<LeaderboardScoreUploaded_t>>
+{
+public:
+	CLeaderboardScoreUploadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int nScore)
+	{
+		m_CallResultName = "UploadLeaderboardScore("
+			+ std::to_string(hLeaderboard) + ", "
+			+ std::to_string(eLeaderboardUploadScoreMethod) + ", "
+			+ std::to_string(nScore) + ")";
+		m_hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(hLeaderboard, eLeaderboardUploadScoreMethod, nScore, s_Details, s_DetailCount);
+		// If the call succeeds, clear the details.
+		if (m_hSteamAPICall != k_uAPICallInvalid)
+		{
+			s_DetailCount = 0;
+		}
+	}
+	int GetLeaderboardScoreUploadedSuccess() { return m_Response.m_bSuccess; }
+	uint64 GetLeaderboardScoreUploadedHandle() { return m_Response.m_hSteamLeaderboard; }
+	int GetLeaderboardScoreUploadedScore() { return m_Response.m_nScore; }
+	int GetLeaderboardScoreUploadedScoreChanged() { return m_Response.m_bScoreChanged; }
+	int GetLeaderboardScoreUploadedRankNew() { return m_Response.m_nGlobalRankNew; }
+	int GetLeaderboardScoreUploadedRankPrevious() { return m_Response.m_nGlobalRankPrevious; }
+	static bool AddDetail(int32 detail)
+	{
+		if (s_DetailCount == k_cLeaderboardDetailsMax)
+		{
+			return false;
+		}
+		s_Details[s_DetailCount] = detail;
+		s_DetailCount++;
+		return true;
+	}
+protected:
+	static int32 s_Details[k_cLeaderboardDetailsMax];
+	static int32 s_DetailCount;
+};
+
+int32 CLeaderboardScoreUploadedCallResult::s_Details[k_cLeaderboardDetailsMax];
+int32 CLeaderboardScoreUploadedCallResult::s_DetailCount = 0;
+#pragma endregion
 
 /*
 @desc Adds a detail to be sent in the next UploadLeaderboardScore call.  A maximum of 64 details can be added.

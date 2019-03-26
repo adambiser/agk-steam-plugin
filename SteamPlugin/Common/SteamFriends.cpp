@@ -118,19 +118,7 @@ extern "C" DLL_EXPORT int CloseClanChatWindowInSteam(int hSteamIDClanChat)
 }
 
 #pragma region CDownloadClanActivityCountsResultCallResult
-struct PluginDownloadClanActivityCountsResult_t : DownloadClanActivityCountsResult_t
-{
-	EResult m_eResult;
-
-	PluginDownloadClanActivityCountsResult_t& operator=(const DownloadClanActivityCountsResult_t &from)
-	{
-		m_bSuccess = from.m_bSuccess;
-		m_eResult = from.m_bSuccess ? k_EResultOK : k_EResultFail;
-		return *this;
-	}
-};
-
-class CDownloadClanActivityCountsResultCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, PluginDownloadClanActivityCountsResult_t>
+class CDownloadClanActivityCountsResultCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, SuccessResponse<DownloadClanActivityCountsResult_t>>
 {
 public:
 	CDownloadClanActivityCountsResultCallResult()
@@ -1293,7 +1281,26 @@ extern "C" DLL_EXPORT int IsClanChatWindowOpenInSteam(int hSteamIDClan)
 //LeaveClanChatRoom - GameConnectedChatLeave_t
 //OpenClanChatWindowInSteam
 //ReplyToFriendMessage
-//RequestClanOfficerList - ClanOfficerListResponse_t
+
+class CClanOfficerListResponse : public CCallResultItem<ClanOfficerListResponse_t, SuccessResponse<ClanOfficerListResponse_t>>
+{
+public:
+	CClanOfficerListResponse(CSteamID steamIDClan)
+	{
+		m_CallResultName = "RequestClanOfficerList(" + std::to_string(steamIDClan.ConvertToUint64()) + ")";
+		m_hSteamAPICall = SteamFriends()->RequestClanOfficerList(steamIDClan);
+	}
+	CSteamID GetSteamIDClan() { return m_Response.m_steamIDClan; }
+	int GetOfficerCount() { return m_Response.m_cOfficers; }
+
+};
+
+extern "C" DLL_EXPORT int RequestClanOfficerList(int hSteamIDClan)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CClanOfficerListResponse(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+}
+
 //RequestFriendRichPresence - FriendRichPresenceUpdate_t
 
 /*

@@ -132,6 +132,7 @@ IsClanChatAdmin,I,II,IsClanChatAdmin,0,0,0,0,IsClanChatAdmin
 IsClanPublic,I,I,IsClanPublic,0,0,0,0,IsClanPublic
 IsClanOfficialGameGroup,I,I,IsClanOfficialGameGroup,0,0,0,0,IsClanOfficialGameGroup
 IsClanChatWindowOpenInSteam,I,I,IsClanChatWindowOpenInSteam,0,0,0,0,IsClanChatWindowOpenInSteam
+RequestClanOfficerList,I,I,RequestClanOfficerList,0,0,0,0,RequestClanOfficerList
 RequestUserInformation,I,II,RequestUserInformation,0,0,0,0,RequestUserInformation
 HasAvatarImageLoadedResponse,I,0,HasAvatarImageLoadedResponse,0,0,0,0,HasAvatarImageLoadedResponse
 GetAvatarImageLoadedUser,I,0,GetAvatarImageLoadedUser,0,0,0,0,GetAvatarImageLoadedUser

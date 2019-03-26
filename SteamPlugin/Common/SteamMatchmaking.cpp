@@ -21,7 +21,6 @@ THE SOFTWARE.
 */
 
 #include "DllMain.h"
-#include "SteamMatchmaking.h"
 
 /* @page ISteamMatchmaking */
 
@@ -136,6 +135,21 @@ extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatc
 }
 
 //CheckForPSNGameBootInvite - deprecated
+
+#pragma region CLobbyCreatedCallResult
+class CLobbyCreatedCallResult : public CCallResultItem<LobbyCreated_t>
+{
+public:
+	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers)
+	{
+		m_CallResultName = "CreateLobby("
+			+ std::to_string(eLobbyType) + ", "
+			+ std::to_string(cMaxMembers) + ")";
+		m_hSteamAPICall = SteamMatchmaking()->CreateLobby(eLobbyType, cMaxMembers);
+	}
+	uint64 GetLobbyCreatedHandle() { return m_Response.m_ulSteamIDLobby; }
+};
+#pragma endregion
 
 /*
 @desc Creates a new matchmaking lobby.  The lobby is joined once it is created.
@@ -530,6 +544,22 @@ extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteam
 	return SteamMatchmaking()->InviteUserToLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hInviteeSteamID));
 }
 
+#pragma region CLobbyEnterCallResult
+class CLobbyEnterCallResult : public CCallResultItem<LobbyEnter_t, WrappedResponse <LobbyEnter_t, uint64, &LobbyEnter_t::m_ulSteamIDLobby>>
+{
+public:
+	CLobbyEnterCallResult(CSteamID steamIDLobby)
+	{
+		m_CallResultName = "JoinLobby(" + std::to_string(steamIDLobby.ConvertToUint64()) + ")";
+		m_hSteamAPICall = SteamMatchmaking()->JoinLobby(steamIDLobby);
+	}
+	uint64 GetLobbyEnterHandle() { return m_Response.m_ulSteamIDLobby; }
+	int GetLobbyEnterChatPermissions() { return (int)m_Response.m_rgfChatPermissions; }
+	int GetLobbyEnterLocked() { return (int)m_Response.m_bLocked; }
+	int GetLobbyEnterChatRoomEnterResponse() { return (int)m_Response.m_EChatRoomEnterResponse; }
+};
+#pragma endregion
+
 /*
 @desc Joins an existing lobby.
 @param hLobbySteamID The Steam ID handle of the lobby
@@ -658,6 +688,31 @@ extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID)
 	CheckInitialized(false);
 	return SteamMatchmaking()->RequestLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
+
+#pragma region CLobbyMatchListCallResult
+class CLobbyMatchListCallResult : public CCallResultItem<LobbyMatchList_t, AlwaysOKResponse<LobbyMatchList_t>>
+{
+public:
+	CLobbyMatchListCallResult()
+	{
+		m_CallResultName = "RequestLobbyList()";
+		m_hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
+	}
+	int GetLobbyCount() { return (int)m_Lobbies.size(); }
+	bool IsValidIndex(int index) { return index >= 0 && index < (int)m_Lobbies.size(); }
+	uint64 GetLobby(int index) { return m_Lobbies[index].ConvertToUint64(); }
+protected:
+	std::vector<CSteamID> m_Lobbies;
+	void OnResponse(LobbyMatchList_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		for (int index = 0; index < (int)m_Response.m_nLobbiesMatching; index++)
+		{
+			m_Lobbies.push_back(SteamMatchmaking()->GetLobbyByIndex(index));
+		}
+	}
+};
+#pragma endregion
 
 /*
 @desc Request a filtered list of relevant lobbies.

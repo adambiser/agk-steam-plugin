@@ -218,4 +218,38 @@ char *GetCallResultValue(int hCallResult, char *(CR::*function)(void))
 	return agk::CreateString(0);
 }
 
+// Used to wrap Steamworks structs that don't have an m_eResult member.
+// Check m_bSuccess for the eResult value.
+template <class T>
+struct SuccessResponse : T
+{
+	EResult m_eResult;
+
+	SuccessResponse<T>() : m_eResult((EResult)0) {}
+
+	SuccessResponse<T>(T &from) : T(from), m_eResult(from.m_bSuccess ? k_EResultOK : k_EResultFail) {}
+};
+
+// Check <member_name> for the eResult value.
+template <class T, class member_type, member_type T::*member_name>
+struct WrappedResponse : T
+{
+	EResult m_eResult;
+
+	WrappedResponse<T, member_type, member_name>() : m_eResult((EResult)0) {}
+
+	WrappedResponse<T, member_type, member_name>(T &from) : T(from), m_eResult((from.*member_name != 0) ? k_EResultOK : k_EResultFail) {}
+};
+
+// eResult is always k_EResultOK.
+template <class T>
+struct AlwaysOKResponse : T
+{
+	EResult m_eResult;
+
+	AlwaysOKResponse<T>() : m_eResult((EResult)0) {}
+
+	AlwaysOKResponse<T>(T &from) : T(from), m_eResult(k_EResultOK) {}
+};
+
 #endif // _CCALLRESULTITEM_H_

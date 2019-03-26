@@ -346,13 +346,13 @@ extern "C" DLL_EXPORT void Shutdown()
 // ISteamNetworking
 //	TODO: Research this.
 
-// ISteamNetworkingSockets
+// ISteamNetworkingSockets - New to SDK v1.44
 //	TODO: Research this.
 
-// ISteamNetworkingUtils
+// ISteamNetworkingUtils - New to SDK v1.44
 //	TODO: Research this.
 
-// ISteamParties
+// ISteamParties - New to SDK v1.43
 //	TODO: Research this.
 
 // ISteamScreenshots

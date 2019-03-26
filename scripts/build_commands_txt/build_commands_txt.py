@@ -14,10 +14,10 @@ error_count = 0
 #  Handle this?
 #  [Downloadable Content (DLC)](https://partner.steamgames.com/doc/store/application/dlc) -> Downloadable Content (DLC)
 
-def log(text):
+def report_error(text):
     global error_count
     error_count += 1
-    print(text)
+    print("ERROR: " + text)
 
 
 class ExportedMethodLoader:
@@ -36,6 +36,7 @@ class ExportedMethodLoader:
         for (root, _, filenames) in os.walk(path):
             for filename in [f for f in filenames if f.endswith('.cpp') or f.endswith('.h')]:
                 with open(os.path.join(root, filename), 'r') as f:
+                    print("Reading {}...".format(filename))
                     lines = ''.join(f.readlines())
                     pages = self._get_page_tags(lines)
                     methods = self._get_methods(lines)
@@ -110,7 +111,7 @@ class ExportedMethodLoader:
     @classmethod
     def _load_method_tags(cls, method, comment):
         if not comment:
-            log('{} has no documentation.'.format(method['name']))
+            report_error('{} has no documentation.'.format(method['name']))
             return True
 
         if '@ignore' in comment:
@@ -136,10 +137,10 @@ class ExportedMethodLoader:
         def process_param_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
             if not tag_text:
-                log('{} has an empty description for parameter: {}'.format(method['name'], param_name))
+                report_error('{} has an empty description for parameter: {}'.format(method['name'], param_name))
             index = get_param_index(method['params'], param_name)
             if index is None:
-                log('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
+                report_error('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
             else:
                 method['params'][index]['desc'] = tag_text
 
@@ -147,10 +148,10 @@ class ExportedMethodLoader:
             # TODO remove
             param_name, sep, tag_text = tag_text.partition(' ')
             if not tag_text:
-                log('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
+                report_error('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
             index = get_param_index(method['params'], param_name)
             if index is None:
-                log('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
+                report_error('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
             else:
                 method['params'][index]['api'] = tag_text
 
@@ -170,7 +171,7 @@ class ExportedMethodLoader:
 
         def process_callback_type_tag(tag_text):
             if tag_text not in ['list', 'bool', 'callresult']:
-                log("{} has an unknown callback type: {}".format(method['name'], tag_text))
+                report_error("{} has an unknown callback type: {}".format(method['name'], tag_text))
             else:
                 method['callback-type'] = tag_text
 
@@ -188,19 +189,19 @@ class ExportedMethodLoader:
             if process_function:
                 process_function(tag['text'].strip())
             else:
-                log('{} has an unknown tag: {}'.format(method['name'], tag_name))
+                report_error('{} has an unknown tag: {}'.format(method['name'], tag_name))
         # Final validation checks
         if 'desc' not in method:
-            log("{} has no description.".format(method['name']))
+            report_error("{} has no description.".format(method['name']))
         if method['return_type']:
             if 'return_desc' not in method:
-                log("{} has a return type without a return description.".format(method['name']))
+                report_error("{} has a return type without a return description.".format(method['name']))
         else:
             if 'return_desc' in method:
-                log("{} has a return description without a return type.".format(method['name']))
+                report_error("{} has a return description without a return type.".format(method['name']))
         for param in method['params']:
             if 'desc' not in param:
-                log("{} has a parameter without a description: {}".format(method['name'], param['name']))
+                report_error("{} has a parameter without a description: {}".format(method['name'], param['name']))
         return True
 
     @classmethod
@@ -208,11 +209,11 @@ class ExportedMethodLoader:
         for method in methods:
             if 'callback-getters' in method:
                 if 'callback-type' not in method:
-                    log('{} does not have a callback type.'.format(method['name']))
+                    report_error('{} does not have a callback type.'.format(method['name']))
                 for getter in method['callback-getters']:
                     method_index = next((i for i, m in enumerate(methods) if m["name"] == getter), None)
                     if method_index is None:
-                        log('{} has an unknown callback getter method: {}'.format(method['name'], getter))
+                        report_error('{} has an unknown callback getter method: {}'.format(method['name'], getter))
                     else:
                         methods[method_index]['callback-parent'] = method['name']
 
@@ -225,7 +226,7 @@ class ExportedMethodLoader:
                 page = [p for p in pages if p['start'] <= method['start']][-1]
                 page['methods'].append(method)
             except IndexError as e:
-                log("Could not find page for method: {}".format(method['name']))
+                report_error("Could not find page for method: {}".format(method['name']))
 
     def write_commands_txt(self, out_file: str):
         var_type_letter = {
