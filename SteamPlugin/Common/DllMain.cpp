@@ -222,6 +222,7 @@ extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult)
 
 #pragma region steam_api.h
 /* @page steam_api.h */
+
 /*
 @desc
 Initializes the Steam API.  This method should be called before attempting to do anything else with this plugin.
