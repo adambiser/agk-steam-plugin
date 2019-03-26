@@ -34,6 +34,7 @@ THE SOFTWARE.
 */
 extern "C" DLL_EXPORT int IsBehindNAT()
 {
+	CheckInitialized(false);
 	return SteamUser()->BIsBehindNAT();
 }
 
@@ -44,6 +45,7 @@ extern "C" DLL_EXPORT int IsBehindNAT()
 */
 extern "C" DLL_EXPORT int IsPhoneIdentifying()
 {
+	CheckInitialized(false);
 	return SteamUser()->BIsPhoneIdentifying();
 }
 
@@ -54,6 +56,7 @@ extern "C" DLL_EXPORT int IsPhoneIdentifying()
 */
 extern "C" DLL_EXPORT int IsPhoneRequiringVerification()
 {
+	CheckInitialized(false);
 	return SteamUser()->BIsPhoneRequiringVerification();
 }
 
@@ -64,6 +67,7 @@ extern "C" DLL_EXPORT int IsPhoneRequiringVerification()
 */
 extern "C" DLL_EXPORT int IsPhoneVerified()
 {
+	CheckInitialized(false);
 	return SteamUser()->BIsPhoneVerified();
 }
 
@@ -74,6 +78,7 @@ extern "C" DLL_EXPORT int IsPhoneVerified()
 */
 extern "C" DLL_EXPORT int IsTwoFactorEnabled()
 {
+	CheckInitialized(false);
 	return SteamUser()->BIsTwoFactorEnabled();
 }
 
@@ -84,6 +89,7 @@ extern "C" DLL_EXPORT int IsTwoFactorEnabled()
 */
 extern "C" DLL_EXPORT int LoggedOn()
 {
+	CheckInitialized(false);
 	return SteamUser()->BLoggedOn();
 }
 
@@ -104,6 +110,7 @@ The user can have two different badges for a series; the regular badge (max leve
 */
 extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil)
 {
+	CheckInitialized(0);
 	return SteamUser()->GetGameBadgeLevel(series, foil != 0);
 }
 
@@ -115,6 +122,7 @@ extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil)
 */
 extern "C" DLL_EXPORT int GetPlayerSteamLevel()
 {
+	CheckInitialized(0);
 	return SteamUser()->GetPlayerSteamLevel();
 }
 

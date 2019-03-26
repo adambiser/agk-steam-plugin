@@ -42,10 +42,10 @@ global statusArea as ScrollableTextArea
 CreateUI()
 
 // Note: RequestStats is called within Init().
-if not Steam.Init()
-	Message("Could not initialize Steam API.  Closing.")
-	Quit()
-endif
+//~ if not Steam.Init()
+	//~ Message("Could not initialize Steam API.  Closing.")
+	//~ Quit()
+//~ endif
 
 // Show general information
 CreateTextEx(0, 00, "AppID: " + str(Steam.GetAppID()))

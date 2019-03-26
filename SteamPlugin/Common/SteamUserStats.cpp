@@ -510,7 +510,7 @@ extern "C" DLL_EXPORT char *GetGlobalStatHistoryDoubleJSON(const char *name, int
 			{
 				json << ", ";
 			}
-			json << "'" << std::fixed << std::setprecision(precision) << pData[index] << "'";
+			json << "\"" << std::fixed << std::setprecision(precision) << pData[index] << "\"";
 		}
 	}
 	json << "]";
@@ -617,6 +617,7 @@ endif
 */
 extern "C" DLL_EXPORT int GetNextMostAchievedAchievementInfo()
 {
+	CheckInitialized(false);
 	if (g_MostAchievedAchievementInfoIterator == -1)
 	{
 		return false;

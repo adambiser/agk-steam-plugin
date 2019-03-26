@@ -32,7 +32,7 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 
 // GLOBALS!
 // Move into Callbacks().
-uint64 g_AppID = 0;
+uint32 g_AppID = 0;
 bool g_SteamInitialized;
 bool g_StoringStats;
 std::mutex g_JoinedLobbiesMutex;

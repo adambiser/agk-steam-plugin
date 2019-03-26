@@ -38,6 +38,10 @@ THE SOFTWARE.
 public:																			\
 	void Register##func##Callback()												\
 	{																			\
+		if (!g_SteamInitialized)												\
+		{																		\
+			return;																\
+		}																		\
 		if (!m_b##func##Enabled)												\
 		{																		\
 			m_b##func##Enabled = true;											\
@@ -46,6 +50,10 @@ public:																			\
 	}																			\
 	void Unregister##func##Callback()											\
 	{																			\
+		if (!g_SteamInitialized)												\
+		{																		\
+			return;																\
+		}																		\
 		if (m_b##func##Enabled)													\
 		{																		\
 			m_b##func##Enabled = false;											\

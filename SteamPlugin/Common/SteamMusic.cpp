@@ -31,7 +31,7 @@ THE SOFTWARE.
 */
 extern "C" DLL_EXPORT int IsMusicEnabled()
 {
-	CheckInitialized(0);
+	CheckInitialized(false);
 	return SteamMusic()->BIsEnabled();
 }
 
@@ -42,7 +42,7 @@ extern "C" DLL_EXPORT int IsMusicEnabled()
 */
 extern "C" DLL_EXPORT int IsMusicPlaying()
 {
-	CheckInitialized(0);
+	CheckInitialized(false);
 	return SteamMusic()->BIsPlaying();
 }
 

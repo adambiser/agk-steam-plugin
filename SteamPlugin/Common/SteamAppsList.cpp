@@ -34,6 +34,7 @@ This is a restricted interface that can only be used by approved apps.
 */
 extern "C" DLL_EXPORT char *GetAppName(int appID)
 {
+	CheckInitialized(NULL_STRING);
 	char name[256];
 	// Note: This does not behave how the SDK says it does.  See comments in the code below.
 	int length = SteamAppList()->GetAppName(appID, name, sizeof(name));

@@ -190,6 +190,7 @@ _Note: You must call GetFavoriteGameCount before calling this._
 */
 extern "C" DLL_EXPORT int GetFavoriteGameAppID(int index)
 {
+	CheckInitialized(0);
 	//TODO? Will this need a GetFavoriteGame call to load the data and then these methods to get each piece?  Would be faster...
 	AppId_t nAppID;
 	uint32 nIP;
@@ -214,6 +215,7 @@ _Note: You must call GetFavoriteGameCount before calling this._
 */
 extern "C" DLL_EXPORT char *GetFavoriteGameIP(int index)
 {
+	CheckInitialized(NULL_STRING);
 	AppId_t nAppID;
 	uint32 nIP;
 	uint16 nConnPort;
@@ -237,6 +239,7 @@ _Note: You must call GetFavoriteGameCount before calling this._
 */
 extern "C" DLL_EXPORT int GetFavoriteGameConnectionPort(int index)
 {
+	CheckInitialized(0);
 	AppId_t nAppID;
 	uint32 nIP;
 	uint16 nConnPort;
@@ -260,6 +263,7 @@ _Note: You must call GetFavoriteGameCount before calling this._
 */
 extern "C" DLL_EXPORT int GetFavoriteGameQueryPort(int index)
 {
+	CheckInitialized(0);
 	AppId_t nAppID;
 	uint32 nIP;
 	uint16 nConnPort;
@@ -283,6 +287,7 @@ _Note: You must call GetFavoriteGameCount before calling this._
 */
 extern "C" DLL_EXPORT int GetFavoriteGameFlags(int index)
 {
+	CheckInitialized(0);
 	AppId_t nAppID;
 	uint32 nIP;
 	uint16 nConnPort;
@@ -306,6 +311,7 @@ _Note: You must call GetFavoriteGameCount before calling this._
 */
 extern "C" DLL_EXPORT int GetFavoriteGameUnixTimeLastPlayedOnServer(int index)
 {
+	CheckInitialized(0);
 	AppId_t nAppID;
 	uint32 nIP;
 	uint16 nConnPort;
@@ -399,6 +405,7 @@ extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID)
 */
 extern "C" DLL_EXPORT char *GetLobbyGameServerIP(int hLobbySteamID)
 {
+	CheckInitialized(NULL_STRING);
 	uint32 nIP;
 	uint16 nPort;
 	CSteamID ulSteamID;
@@ -417,6 +424,7 @@ extern "C" DLL_EXPORT char *GetLobbyGameServerIP(int hLobbySteamID)
 */
 extern "C" DLL_EXPORT int GetLobbyGameServerPort(int hLobbySteamID)
 {
+	CheckInitialized(0);
 	uint32 nIP;
 	uint16 nPort;
 	CSteamID ulSteamID;
@@ -435,6 +443,7 @@ extern "C" DLL_EXPORT int GetLobbyGameServerPort(int hLobbySteamID)
 */
 extern "C" DLL_EXPORT int GetLobbyGameServerSteamID(int hLobbySteamID)
 {
+	CheckInitialized(0);
 	uint32 nIP;
 	uint16 nPort;
 	CSteamID ulSteamID;

@@ -51,6 +51,7 @@ Returns the AppID or 0 if the Steam API has not been not initialized or the AppI
 */
 extern "C" DLL_EXPORT int GetAppID()
 {
+	CheckInitialized(0);
 	return SteamUtils()->GetAppID();
 }
 

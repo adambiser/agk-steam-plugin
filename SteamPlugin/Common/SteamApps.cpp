@@ -33,6 +33,7 @@ THE SOFTWARE.
 */
 extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index)
 {
+	CheckInitialized(0);
 	AppId_t appID;
 	bool available;
 	char name[128];
@@ -51,6 +52,7 @@ extern "C" DLL_EXPORT int GetDLCDataByIndexAppID(int index)
 */
 extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index)
 {
+	CheckInitialized(0);
 	AppId_t appID;
 	bool available;
 	char name[128];
@@ -69,6 +71,7 @@ extern "C" DLL_EXPORT int GetDLCDataByIndexAvailable(int index)
 */
 extern "C" DLL_EXPORT char *GetDLCDataByIndexName(int index)
 {
+	CheckInitialized(NULL_STRING);
 	AppId_t appID;
 	bool available;
 	char name[128];
@@ -283,6 +286,7 @@ _Note: Steamworks returns an unsigned 64-bit integer, but AppGameKit only suppor
 */
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesDownloaded(int appID)
 {
+	CheckInitialized(0);
 	uint64 bytesDownloaded;
 	uint64 bytesTotal;
 	if (SteamApps()->GetDlcDownloadProgress(appID, &bytesDownloaded, &bytesTotal))
@@ -302,6 +306,7 @@ _Note: Steamworks returns an unsigned 64-bit integer, but AppGameKit only suppor
 */
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesTotal(int appID)
 {
+	CheckInitialized(0);
 	uint64 bytesDownloaded;
 	uint64 bytesTotal;
 	if (SteamApps()->GetDlcDownloadProgress(appID, &bytesDownloaded, &bytesTotal))
@@ -319,7 +324,7 @@ extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesTotal(int appID)
 */
 extern "C" DLL_EXPORT int GetEarliestPurchaseUnixTime(int appID)
 {
-	CheckInitialized(false);
+	CheckInitialized(0);
 	return SteamApps()->GetEarliestPurchaseUnixTime(appID);
 }
 
@@ -345,6 +350,7 @@ extern "C" DLL_EXPORT int GetFileDetails(const char *filename)
 */
 extern "C" DLL_EXPORT char *GetFileDetailsSHA1(int hCallResult)
 {
+	CheckInitialized(NULL_STRING);
 	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSHA1);
 }
 
@@ -356,6 +362,7 @@ extern "C" DLL_EXPORT char *GetFileDetailsSHA1(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult)
 {
+	CheckInitialized(0);
 	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSize);
 }
 
@@ -379,19 +386,22 @@ extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult)
 */
 extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {
-	DepotId_t *depots = new DepotId_t[maxDepots];
-	int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
 	std::string json("[");
-	for (int index = 0; index < count; index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		DepotId_t *depots = new DepotId_t[maxDepots];
+		int count = SteamApps()->GetInstalledDepots(appID, depots, maxDepots);
+		for (int index = 0; index < count; index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(depots[index]);
 		}
-		json += std::to_string(depots[index]);
+		delete[] depots;
 	}
 	json += "]";
-	delete[] depots;
 	return utils::CreateString(json);
 }
 

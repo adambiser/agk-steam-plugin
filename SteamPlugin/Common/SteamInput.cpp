@@ -272,6 +272,7 @@ extern "C" DLL_EXPORT int GetConnectedControllers()
 */
 extern "C" DLL_EXPORT int GetControllerForGamepadIndex(int index)
 {
+	CheckInitialized(0);
 	ControllerHandle_t handle = SteamInput()->GetControllerForGamepadIndex(index);
 	for (int x = 0; x < g_InputCount; x++)
 	{
@@ -572,6 +573,7 @@ This is performed automatically by RunCallbacks, but for the absolute lowest pos
 */
 extern "C" DLL_EXPORT void RunFrame()
 {
+	CheckInitialized(NORETURN);
 	SteamInput()->RunFrame();
 }
 

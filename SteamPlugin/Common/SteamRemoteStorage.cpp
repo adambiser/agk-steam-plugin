@@ -290,6 +290,7 @@ This trashes all of the data written and closes the write stream, but if there w
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamCancel(int writeHandle)
 {
+	CheckInitialized(0);
 	return SteamRemoteStorage()->FileWriteStreamCancel(SteamHandles()->GetSteamHandle(writeHandle));
 }
 
@@ -303,6 +304,7 @@ This flushes the stream to the disk, overwriting the existing file if there was 
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamClose(int writeHandle)
 {
+	CheckInitialized(0);
 	return SteamRemoteStorage()->FileWriteStreamClose(SteamHandles()->GetSteamHandle(writeHandle));
 }
 
@@ -315,6 +317,7 @@ If the target file already exists, it is not overwritten until FileWriteStreamCl
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamOpen(const char *filename)
 {
+	CheckInitialized(-1);
 	return SteamHandles()->GetPluginHandle(SteamRemoteStorage()->FileWriteStreamOpen(filename));
 }
 
@@ -331,6 +334,7 @@ Data size is restricted to 100 * 1024 * 1024 bytes.
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunkEx(int writeHandle, int memblockID, int offset, int length)
 {
+	CheckInitialized(false);
 	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
 	{
 		agk::PluginError("CloudFileWriteStreamWriteChunk: Invalid memblock.");
@@ -491,6 +495,7 @@ extern "C" DLL_EXPORT int GetCloudFileSyncPlatforms(const char *filename)
 
 extern "C" DLL_EXPORT int GetCloudUGCDetailsAppID(int hUGC) // no info
 {
+	CheckInitialized(0);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
 	AppId_t nAppID;
 	char *pchName = NULL;
@@ -505,6 +510,7 @@ extern "C" DLL_EXPORT int GetCloudUGCDetailsAppID(int hUGC) // no info
 
 extern "C" DLL_EXPORT char *GetCloudUGCDetailsFileName(int hUGC) // no info
 {
+	CheckInitialized(NULL_STRING);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
 	AppId_t nAppID;
 	char *pchName = NULL;
@@ -519,6 +525,7 @@ extern "C" DLL_EXPORT char *GetCloudUGCDetailsFileName(int hUGC) // no info
 
 extern "C" DLL_EXPORT int GetCloudUGCDetailsFileSize(int hUGC) // no info
 {
+	CheckInitialized(0);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
 	AppId_t nAppID;
 	char *pchName = NULL;
@@ -533,6 +540,7 @@ extern "C" DLL_EXPORT int GetCloudUGCDetailsFileSize(int hUGC) // no info
 
 extern "C" DLL_EXPORT int GetCloudUGCDetailsOwner(int hUGC) // no info
 {
+	CheckInitialized(0);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
 	AppId_t nAppID;
 	char *pchName = NULL;
@@ -547,6 +555,7 @@ extern "C" DLL_EXPORT int GetCloudUGCDetailsOwner(int hUGC) // no info
 
 extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesDownloaded(int hUGC) // no info
 {
+	CheckInitialized(0);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
 	int nBytesDownloaded;
 	int nBytesExpected;
@@ -559,6 +568,7 @@ extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesDownloaded(int hUGC) /
 
 extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesExpected(int hUGC) // no info
 {
+	CheckInitialized(0);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
 	int nBytesDownloaded;
 	int nBytesExpected;

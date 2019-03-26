@@ -101,6 +101,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url)
 */
 extern "C" DLL_EXPORT void ClearRichPresence()
 {
+	CheckInitialized(NORETURN);
 	SteamFriends()->ClearRichPresence();
 }
 
@@ -112,6 +113,7 @@ extern "C" DLL_EXPORT void ClearRichPresence()
 */
 extern "C" DLL_EXPORT int CloseClanChatWindowInSteam(int hSteamIDClanChat)
 {
+	CheckInitialized(0);
 	return SteamFriends()->CloseClanChatWindowInSteam(SteamHandles()->GetSteamHandle(hSteamIDClanChat));
 }
 
@@ -258,6 +260,7 @@ _NOTE: You must call GetClanChatMemberCount before calling this._
 */
 extern "C" DLL_EXPORT int GetChatMemberByIndex(int hSteamIDClan, int index)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetChatMemberByIndex(SteamHandles()->GetSteamHandle(hSteamIDClan), index));
 }
 
@@ -269,6 +272,7 @@ extern "C" DLL_EXPORT int GetChatMemberByIndex(int hSteamIDClan, int index)
 */
 extern "C" DLL_EXPORT int GetClanActivityCountsOnline(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	int nOnline;
 	int nInGame;
 	int nChatting;
@@ -287,6 +291,7 @@ extern "C" DLL_EXPORT int GetClanActivityCountsOnline(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT int GetClanActivityCountsInGame(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	int nOnline;
 	int nInGame;
 	int nChatting;
@@ -305,6 +310,7 @@ extern "C" DLL_EXPORT int GetClanActivityCountsInGame(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT int GetClanActivityCountsChatting(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	int nOnline;
 	int nInGame;
 	int nChatting;
@@ -325,6 +331,7 @@ _NOTE: You must call GetClanCount before calling this._
 */
 extern "C" DLL_EXPORT int GetClanByIndex(int index)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetClanByIndex(index));
 }
 
@@ -338,6 +345,7 @@ NOTE: Large steam groups cannot be iterated by the local user.
 */
 extern "C" DLL_EXPORT int GetClanChatMemberCount(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
 	return SteamFriends()->GetClanChatMemberCount(steamIDClan);
 }
@@ -353,14 +361,17 @@ NOTE: Large steam groups cannot be iterated by the local user.
 extern "C" DLL_EXPORT char *GetClanChatMemberListJSON(int hSteamIDClan)
 {
 	std::string json("[");
-	CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
-	for (int index = 0; index < SteamFriends()->GetClanChatMemberCount(steamIDClan); index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
+		for (int index = 0; index < SteamFriends()->GetClanChatMemberCount(steamIDClan); index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetChatMemberByIndex(steamIDClan, index)));
 		}
-		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetChatMemberByIndex(steamIDClan, index)));
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -375,6 +386,7 @@ extern "C" DLL_EXPORT char *GetClanChatMemberListJSON(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT int GetClanCount()
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetClanCount();
 }
 
@@ -386,13 +398,16 @@ extern "C" DLL_EXPORT int GetClanCount()
 extern "C" DLL_EXPORT char *GetClanListJSON()
 {
 	std::string json("[");
-	for (int index = 0; index < SteamFriends()->GetClanCount(); index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		for (int index = 0; index < SteamFriends()->GetClanCount(); index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetClanByIndex(index)));
 		}
-		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetClanByIndex(index)));
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -421,6 +436,7 @@ _NOTE: You must call GetClanOfficerCount before calling this._
 */
 extern "C" DLL_EXPORT int GetClanOfficerByIndex(int hSteamIDClan, int index)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetClanOfficerByIndex(SteamHandles()->GetSteamHandle(hSteamIDClan), index));
 }
 
@@ -434,6 +450,7 @@ _NOTE: You must call RequestClanOfficerList before this to get the required data
 */
 extern "C" DLL_EXPORT int GetClanOfficerCount(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetClanOfficerCount(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
@@ -448,14 +465,17 @@ _NOTE: You must call RequestClanOfficerList before this to get the required data
 extern "C" DLL_EXPORT char *GetClanOfficerListJSON(int hSteamIDClan)
 {
 	std::string json("[");
-	CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
-	for (int index = 0; index < SteamFriends()->GetClanOfficerCount(steamIDClan); index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		CSteamID steamIDClan = SteamHandles()->GetSteamHandle(hSteamIDClan);
+		for (int index = 0; index < SteamFriends()->GetClanOfficerCount(steamIDClan); index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetClanOfficerByIndex(steamIDClan, index)));
 		}
-		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetClanOfficerByIndex(steamIDClan, index)));
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -471,6 +491,7 @@ _NOTE: You must call RequestClanOfficerList before this to get the required data
 */
 extern "C" DLL_EXPORT int GetClanOwner(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetClanOwner(SteamHandles()->GetSteamHandle(hSteamIDClan)));
 }
 
@@ -482,6 +503,7 @@ extern "C" DLL_EXPORT int GetClanOwner(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT char *GetClanTag(int hSteamIDClan)
 {
+	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamFriends()->GetClanTag(SteamHandles()->GetSteamHandle(hSteamIDClan)));
 }
 
@@ -493,6 +515,7 @@ extern "C" DLL_EXPORT char *GetClanTag(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT int GetCoplayFriend(int index)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetCoplayFriend(index));
 }
 
@@ -503,6 +526,7 @@ extern "C" DLL_EXPORT int GetCoplayFriend(int index)
 */
 extern "C" DLL_EXPORT int GetCoplayFriendCount()
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetCoplayFriendCount();
 }
 
@@ -514,13 +538,16 @@ extern "C" DLL_EXPORT int GetCoplayFriendCount()
 extern "C" DLL_EXPORT char *GetCoplayFriendListJSON()
 {
 	std::string json("[");
-	for (int index = 0; index < SteamFriends()->GetCoplayFriendCount(); index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		for (int index = 0; index < SteamFriends()->GetCoplayFriendCount(); index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetCoplayFriend(index)));
 		}
-		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetCoplayFriend(index)));
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -551,6 +578,7 @@ Use GetFollowerCountValue to get the value once the call result completes.
 */
 extern "C" DLL_EXPORT int GetFollowerCount(int hSteamID)
 {
+	CheckInitialized(0);
 	return CallResults()->Add(new CFriendsGetFollowerCountCallResult(SteamHandles()->GetSteamHandle(hSteamID)));
 }
 
@@ -587,6 +615,7 @@ _NOTE: You must call GetFriendCount before calling this._
 */
 extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendByIndex(index, (EFriendFlags)friendFlags));
 }
 
@@ -598,6 +627,7 @@ extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags)
 */
 extern "C" DLL_EXPORT int GetFriendCoplayGame(int hSteamID)
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetFriendCoplayGame(SteamHandles()->GetSteamHandle(hSteamID));
 }
 
@@ -609,6 +639,7 @@ extern "C" DLL_EXPORT int GetFriendCoplayGame(int hSteamID)
 */
 extern "C" DLL_EXPORT int GetFriendCoplayTime(int hSteamID)
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetFriendCoplayTime(SteamHandles()->GetSteamHandle(hSteamID));
 }
 
@@ -621,6 +652,7 @@ extern "C" DLL_EXPORT int GetFriendCoplayTime(int hSteamID)
 */
 extern "C" DLL_EXPORT int GetFriendCount(int friendFlags)
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetFriendCount((EFriendFlags)friendFlags);
 }
 
@@ -634,13 +666,16 @@ extern "C" DLL_EXPORT int GetFriendCount(int friendFlags)
 extern "C" DLL_EXPORT char *GetFriendListJSON(int friendFlags)
 {
 	std::string json("[");
-	for (int index = 0; index < SteamFriends()->GetFriendCount((EFriendFlags)friendFlags); index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		for (int index = 0; index < SteamFriends()->GetFriendCount((EFriendFlags)friendFlags); index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendByIndex(index, (EFriendFlags)friendFlags)));
 		}
-		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendByIndex(index, (EFriendFlags)friendFlags)));
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -656,6 +691,7 @@ _NOTE: Large Steam groups cannot be iterated by the local user._
 */
 extern "C" DLL_EXPORT int GetFriendCountFromSource(int hSteamIDSource)
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetFriendCountFromSource(SteamHandles()->GetSteamHandle(hSteamIDSource));
 }
 
@@ -670,6 +706,7 @@ _NOTE: You must call GetFriendCountFromSource before calling this._
 */
 extern "C" DLL_EXPORT int GetFriendFromSourceByIndex(int hSteamIDSource, int index)
 {
+	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendFromSourceByIndex(SteamHandles()->GetSteamHandle(hSteamIDSource), index));
 }
 
@@ -684,14 +721,17 @@ _NOTE: Large Steam groups cannot be iterated by the local user._
 extern "C" DLL_EXPORT char *GetFriendFromSourceListJSON(int hSteamIDSource)
 {
 	std::string json("[");
-	CSteamID steamIDSource = SteamHandles()->GetSteamHandle(hSteamIDSource);
-	for (int index = 0; index < SteamFriends()->GetFriendCountFromSource(steamIDSource); index++)
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		CSteamID steamIDSource = SteamHandles()->GetSteamHandle(hSteamIDSource);
+		for (int index = 0; index < SteamFriends()->GetFriendCountFromSource(steamIDSource); index++)
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendFromSourceByIndex(steamIDSource, index)));
 		}
-		json += std::to_string(SteamHandles()->GetPluginHandle(SteamFriends()->GetFriendFromSourceByIndex(steamIDSource, index)));
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -705,6 +745,7 @@ extern "C" DLL_EXPORT char *GetFriendFromSourceListJSON(int hSteamIDSource)
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hSteamIDUser)
 {
+	CheckInitialized(0);
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hSteamIDUser), &pFriendGameInfo))
 	{
@@ -721,6 +762,7 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hSteamIDUser)
 */
 extern "C" DLL_EXPORT char *GetFriendGamePlayedIP(int hSteamIDUser)
 {
+	CheckInitialized(NULL_STRING);
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hSteamIDUser), &pFriendGameInfo))
 	{
@@ -737,6 +779,7 @@ extern "C" DLL_EXPORT char *GetFriendGamePlayedIP(int hSteamIDUser)
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedConnectionPort(int hSteamIDUser)
 {
+	CheckInitialized(0);
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hSteamIDUser), &pFriendGameInfo))
 	{
@@ -753,6 +796,7 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedConnectionPort(int hSteamIDUser)
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hSteamIDUser)
 {
+	CheckInitialized(0);
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hSteamIDUser), &pFriendGameInfo))
 	{
@@ -769,6 +813,7 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hSteamIDUser)
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hSteamIDUser)
 {
+	CheckInitialized(0);
 	FriendGameInfo_t pFriendGameInfo;
 	if (SteamFriends()->GetFriendGamePlayed(SteamHandles()->GetSteamHandle(hSteamIDUser), &pFriendGameInfo))
 	{
@@ -803,6 +848,7 @@ This only works for display names that the current user has seen on the local co
 */
 extern "C" DLL_EXPORT char *GetFriendPersonaNameHistory(int hSteamIDFriend, int index)
 {
+	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamFriends()->GetFriendPersonaNameHistory(SteamHandles()->GetSteamHandle(hSteamIDFriend), index));
 }
 
@@ -816,19 +862,22 @@ This only works for display names that the current user has seen on the local co
 */
 extern "C" DLL_EXPORT char *GetFriendPersonaNameHistoryJSON(int hSteamIDFriend)
 {
-	CSteamID steamIDFriend = SteamHandles()->GetSteamHandle(hSteamIDFriend);
-	int index = 0;
-	const char *name = SteamFriends()->GetFriendPersonaNameHistory(steamIDFriend, index);
 	std::string json("[");
-	while ((strnlen_s(name, k_cchPersonaNameMax) > 0))
+	if (g_SteamInitialized)
 	{
-		if (index > 0)
+		CSteamID steamIDFriend = SteamHandles()->GetSteamHandle(hSteamIDFriend);
+		int index = 0;
+		const char *name = SteamFriends()->GetFriendPersonaNameHistory(steamIDFriend, index);
+		while ((strnlen_s(name, k_cchPersonaNameMax) > 0))
 		{
-			json += ", ";
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += "\"" + utils::EscapeJSON(name) + "\"";
+			index++;
+			name = SteamFriends()->GetFriendPersonaNameHistory(steamIDFriend, index);
 		}
-		json += "\"" + utils::EscapeJSON(name) + "\"";
-		index++;
-		name = SteamFriends()->GetFriendPersonaNameHistory(steamIDFriend, index);
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -868,6 +917,7 @@ extern "C" DLL_EXPORT int GetFriendRelationship(int hSteamIDUser)
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresence(int hSteamIDFriend, const char *key)
 {
+	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamFriends()->GetFriendRichPresence(SteamHandles()->GetSteamHandle(hSteamIDFriend), key));
 }
 
@@ -884,6 +934,7 @@ _This is typically only ever used for debugging purposes._
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresenceKeyByIndex(int hSteamIDFriend, int index)
 {
+	CheckInitialized(NULL_STRING);
 	return utils::CreateString(SteamFriends()->GetFriendRichPresenceKeyByIndex(SteamHandles()->GetSteamHandle(hSteamIDFriend), index));
 }
 
@@ -897,6 +948,7 @@ _This is typically only ever used for debugging purposes._
 */
 extern "C" DLL_EXPORT int GetFriendRichPresenceKeyCount(int hSteamIDFriend)
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetFriendRichPresenceKeyCount(SteamHandles()->GetSteamHandle(hSteamIDFriend));
 }
 
@@ -910,16 +962,19 @@ _This is typically only ever used for debugging purposes._
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresenceKeyListJSON(int hSteamIDFriend)
 {
-	CSteamID steamIDFriend = SteamHandles()->GetSteamHandle(hSteamIDFriend);
 	std::string json("[");
-	for (int index = 0; index < SteamFriends()->GetFriendRichPresenceKeyCount(steamIDFriend); index++)
+	if (g_SteamInitialized)
 	{
-		
-		if (index > 0)
+		CSteamID steamIDFriend = SteamHandles()->GetSteamHandle(hSteamIDFriend);
+		for (int index = 0; index < SteamFriends()->GetFriendRichPresenceKeyCount(steamIDFriend); index++)
 		{
-			json += ", ";
+
+			if (index > 0)
+			{
+				json += ", ";
+			}
+			json += "\"" + utils::EscapeJSON(SteamFriends()->GetFriendRichPresenceKeyByIndex(steamIDFriend, index)) + "\"";
 		}
-		json += "\"" + utils::EscapeJSON(SteamFriends()->GetFriendRichPresenceKeyByIndex(steamIDFriend, index)) + "\"";
 	}
 	json += "]";
 	return utils::CreateString(json);
@@ -1117,6 +1172,7 @@ To get the state of other users use GetFriendPersonaState.
 */
 extern "C" DLL_EXPORT int GetPersonaState()
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetPersonaState();
 }
 
@@ -1151,6 +1207,7 @@ extern "C" DLL_EXPORT int GetSmallFriendAvatar(int hSteamIDUser)
 */
 extern "C" DLL_EXPORT int GetUserRestrictions()
 {
+	CheckInitialized(0);
 	return SteamFriends()->GetUserRestrictions();
 }
 
@@ -1177,6 +1234,7 @@ extern "C" DLL_EXPORT int HasFriend(int hSteamIDUser, int friendFlags)
 */
 extern "C" DLL_EXPORT int InviteUserToGame(int hSteamIDFriend, const char *connectString) //Fires GameRichPresenceJoinRequested_t for other user
 {
+	CheckInitialized(0);
 	return SteamFriends()->InviteUserToGame(SteamHandles()->GetSteamHandle(hSteamIDFriend), connectString);
 }
 
@@ -1189,6 +1247,7 @@ extern "C" DLL_EXPORT int InviteUserToGame(int hSteamIDFriend, const char *conne
 */
 extern "C" DLL_EXPORT int IsClanChatAdmin(int hSteamIDClanChat, int hSteamIDUser)
 {
+	CheckInitialized(0);
 	return SteamFriends()->IsClanChatAdmin(SteamHandles()->GetSteamHandle(hSteamIDClanChat), SteamHandles()->GetSteamHandle(hSteamIDUser));
 }
 
@@ -1200,6 +1259,7 @@ extern "C" DLL_EXPORT int IsClanChatAdmin(int hSteamIDClanChat, int hSteamIDUser
 */
 extern "C" DLL_EXPORT int IsClanPublic(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	return SteamFriends()->IsClanPublic(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
@@ -1211,6 +1271,7 @@ extern "C" DLL_EXPORT int IsClanPublic(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT int IsClanOfficialGameGroup(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	return SteamFriends()->IsClanOfficialGameGroup(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
@@ -1222,6 +1283,7 @@ extern "C" DLL_EXPORT int IsClanOfficialGameGroup(int hSteamIDClan)
 */
 extern "C" DLL_EXPORT int IsClanChatWindowOpenInSteam(int hSteamIDClan)
 {
+	CheckInitialized(0);
 	return SteamFriends()->IsClanChatWindowOpenInSteam(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
@@ -1323,7 +1385,6 @@ extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby()
 */
 extern "C" DLL_EXPORT int IsGameOverlayActive()
 {
-	CheckInitialized(false);
 	return Callbacks()->IsGameOverlayActive();
 }
 
@@ -1340,7 +1401,6 @@ extern "C" DLL_EXPORT int IsGameOverlayActive()
 */
 extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 {
-	CheckInitialized(false);
 	return Callbacks()->HasPersonaStateChangeResponse();
 }
 
@@ -1351,7 +1411,6 @@ extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 {
-	CheckInitialized(0);
 	return Callbacks()->GetPersonaStateChange().m_nChangeFlags;
 }
 
@@ -1362,7 +1421,6 @@ extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID()
 {
-	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(Callbacks()->GetPersonaStateChange().m_ulSteamID);
 }
 

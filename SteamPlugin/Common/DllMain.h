@@ -35,6 +35,8 @@ THE SOFTWARE.
 #endif
 #include "steam_api.h"
 
+extern bool g_SteamInitialized;
+
 #include "CCallbacks.h"
 #include "CCallResultItem.h"
 #include "CSteamHandleVector.h"
@@ -49,8 +51,7 @@ THE SOFTWARE.
 #define AVATAR_MEDIUM	1 // 64x64
 #define AVATAR_LARGE	2 // 128x128
 
-extern uint64 g_AppID;
-extern bool g_SteamInitialized;
+extern uint32 g_AppID;
 extern bool g_StoringStats;
 extern std::mutex g_JoinedLobbiesMutex;
 extern std::vector<CSteamID> g_JoinedLobbies;
