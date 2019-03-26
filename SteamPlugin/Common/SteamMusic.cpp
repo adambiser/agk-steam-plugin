@@ -22,68 +22,124 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-int IsMusicEnabled()
+/* @page ISteamMusic */
+
+/*
+@desc Checks if Steam Music is enabled.
+@return 1 if Steam Music is enabled; otherwise 0.
+@api ISteamMusic#BIsEnabled
+*/
+extern "C" DLL_EXPORT int IsMusicEnabled()
 {
 	CheckInitialized(0);
 	return SteamMusic()->BIsEnabled();
 }
 
-int IsMusicPlaying()
+/*
+@desc Checks if Steam Music is active. This does not necessarily mean that a song is currently playing, it may be paused.
+@return 1 if Steam Music is active; otherwise 0.
+@api ISteamMusic#BIsPlaying
+*/
+extern "C" DLL_EXPORT int IsMusicPlaying()
 {
 	CheckInitialized(0);
 	return SteamMusic()->BIsPlaying();
 }
 
-int GetMusicPlaybackStatus()
+/*
+@desc Gets the current status of the Steam Music player.
+@return An AudioPlayback_Status value
+@return-url https://partner.steamgames.com/doc/api/ISteamMusic#AudioPlayback_Status
+@api ISteamMusic#GetPlaybackStatus
+*/
+extern "C" DLL_EXPORT int GetMusicPlaybackStatus()
 {
 	CheckInitialized(AudioPlayback_Undefined);
 	return SteamMusic()->GetPlaybackStatus();
 }
 
-float GetMusicVolume()
+/*
+@desc Gets the current volume of the Steam Music player.
+@return The volume is returned as a percentage between 0.0 and 1.0.
+@api ISteamMusic#GetVolume
+*/
+extern "C" DLL_EXPORT float GetMusicVolume()
 {
 	CheckInitialized(0.0);
 	return SteamMusic()->GetVolume();
 }
 
-void PauseMusic()
+/*
+@desc Pause the Steam Music player.
+@api ISteamMusic#Pause
+*/
+extern "C" DLL_EXPORT void PauseMusic()
 {
 	CheckInitialized(NORETURN);
 	SteamMusic()->Pause();
 }
 
-void PlayMusic()
+/*
+@desc Have the Steam Music player resume playing.
+@api ISteamMusic#Play
+*/
+extern "C" DLL_EXPORT void PlayMusic()
 {
 	CheckInitialized(NORETURN);
 	SteamMusic()->Play();
 }
 
-void PlayNextSong()
+/*
+@desc Have the Steam Music player skip to the next song.
+@api ISteamMusic#PlayNext
+*/
+extern "C" DLL_EXPORT void PlayNextSong()
 {
 	CheckInitialized(NORETURN);
 	SteamMusic()->PlayNext();
 }
 
-void PlayPreviousSong()
+/*
+@desc Have the Steam Music player play the previous song.
+@api ISteamMusic#PlayPrevious
+*/
+extern "C" DLL_EXPORT void PlayPreviousSong()
 {
 	CheckInitialized(NORETURN);
 	SteamMusic()->PlayPrevious();
 }
 
-void SetMusicVolume(float volume)
+/*
+@desc Sets the volume of the Steam Music player.
+@param volume The volume percentage to set from 0.0 to 1.0.
+@api ISteamMusic#SetVolume
+*/
+extern "C" DLL_EXPORT void SetMusicVolume(float volume)
 {
 	CheckInitialized(NORETURN);
 	SteamMusic()->SetVolume(volume);
 }
 
 //Callbacks
-int HasMusicPlaybackStatusChangedResponse()
+/*
+@desc Notifies the caller that the music playback status has changed since the last call.
+@callback-type bool
+@return 1 when a change has occurred; otherwise 0.
+@api ISteamMusic#PlaybackStatusHasChanged_t
+*/
+extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 {
 	CheckInitialized(0);
 	return Callbacks()->HasPlaybackStatusHasChangedResponse();
 }
 
-int HasMusicVolumeChangedResponse()
+/*
+@desc Notifies the caller that the music volume has changed since the last call.
+@callback-type bool
+@return 1 when a change has occurred; otherwise 0.
+@api ISteamMusic#VolumeHasChanged_t
+*/
+extern "C" DLL_EXPORT int HasMusicVolumeChangedResponse()
 {
 	CheckInitialized(0);
 	return Callbacks()->HasVolumeHasChangedResponse();

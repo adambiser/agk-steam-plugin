@@ -22,9 +22,17 @@ THE SOFTWARE.
 
 #include "Common.h"
 
-// NOTE: This is a restricted interface that can only be used by previously approved apps...
+/* @page ISteamAppsList
+This is a restricted interface that can only be used by approved apps.
+*/
 
-char *GetAppName(int appID)
+/*
+@desc Returns the app name for the given appid.
+@param appID The AppID to get the name for.
+@return The app name or an empty string if the app has not been approved for this method.
+@api ISteamAppList#GetAppName
+*/
+extern "C" DLL_EXPORT char *GetAppName(int appID)
 {
 	char name[256];
 	// Note: This does not behave how the SDK says it does.  See comments in the code below.

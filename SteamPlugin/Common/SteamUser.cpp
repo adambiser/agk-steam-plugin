@@ -22,35 +22,67 @@ THE SOFTWARE.
 
 #include "Common.h"
 
+/* @page ISteamUser */
+
 //AdvertiseGame - game server stuff
 //BeginAuthSession - game server stuff
 
-int IsBehindNAT()
+/*
+@desc Checks if the current users looks like they are behind a NAT device.
+@return 1 if the current user is behind a NAT, otherwise 0.
+@api ISteamUser#BIsBehindNAT
+*/
+extern "C" DLL_EXPORT int IsBehindNAT()
 {
 	return SteamUser()->BIsBehindNAT();
 }
 
-int IsPhoneIdentifying()
+/*
+@desc Checks whether the user's phone number is used to uniquely identify them.
+@return 1 f the current user's phone uniquely verifies their identity; otherwise, 0.
+@api ISteamUser#BIsPhoneIdentifying
+*/
+extern "C" DLL_EXPORT int IsPhoneIdentifying()
 {
 	return SteamUser()->BIsPhoneIdentifying();
 }
 
-int IsPhoneRequiringVerification()
+/*
+@desc Checks whether the current user's phone number is awaiting (re)verification.
+@return 1 if the it is requiring verification; otherwise, 0.
+@api ISteamUser#BIsPhoneRequiringVerification
+*/
+extern "C" DLL_EXPORT int IsPhoneRequiringVerification()
 {
 	return SteamUser()->BIsPhoneRequiringVerification();
 }
 
-int IsPhoneVerified()
+/*
+@desc Checks whether the current user has verified their phone number.
+@return 1 if the current user has phone verification enabled; otherwise, 0.
+@api ISteamUser#BIsTwoFactorEnabled
+*/
+extern "C" DLL_EXPORT int IsPhoneVerified()
 {
 	return SteamUser()->BIsPhoneVerified();
 }
 
-int IsTwoFactorEnabled()
+/*
+@desc Checks whether the current user has Steam Guard two factor authentication enabled on their account.
+@return 1 if the current user has two factor authentication enabled; otherwise, 0.
+@api ISteamUser#IsPhoneVerified
+*/
+extern "C" DLL_EXPORT int IsTwoFactorEnabled()
 {
 	return SteamUser()->BIsTwoFactorEnabled();
 }
 
-int LoggedOn()
+/*
+@desc Checks to see whether the user is logged on to Steam.
+@return 1 when the user is logged on; otherwise 0.
+@api ISteamUser#BLoggedOn
+*/
+extern "C" DLL_EXPORT int LoggedOn()
 {
 	return SteamUser()->BLoggedOn();
 }
@@ -62,26 +94,48 @@ int LoggedOn()
 //GetAvailableVoice - voice stuff
 //GetEncryptedAppTicket - encrypted app ticket stuff
 
-int GetGameBadgeLevel(int series, int foil)
+/*
+@desc Gets the level of the users Steam badge for your game.
+The user can have two different badges for a series; the regular badge (max level 5) and the foil badge (max level 1).
+@param series If you only have one set of cards, the series will be 1.
+@param foil Check if they have received the foil badge.
+@return The user's badge level.
+@api ISteamUser#GetGameBadgeLevel
+*/
+extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil)
 {
 	return SteamUser()->GetGameBadgeLevel(series, foil != 0);
 }
 
 //GetHSteamUser - internal use
 
-int GetPlayerSteamLevel()
+/*
+@desc Gets the Steam level of the user, as shown on their Steam community profile.
+@return The level of the current user.
+*/
+extern "C" DLL_EXPORT int GetPlayerSteamLevel()
 {
 	return SteamUser()->GetPlayerSteamLevel();
 }
 
-int GetSteamID()
+/*
+@desc Gets a handle to the Steam ID of the account currently logged into the Steam client.
+@return A SteamID handle
+@api ISteamUser#GetSteamID
+*/
+extern "C" DLL_EXPORT int GetSteamID()
 {
 	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(SteamUser()->GetSteamID());
 }
 
 // Not in the API, but grouping this near GetSteamID().
-int IsSteamIDValid(int hSteamID)
+/*
+@desc Checks to see if a Steam ID handle is valid.
+@param hSteamID The Steam ID handle to check.
+@return 1 when the Steam ID handle is valid; otherwise 0.
+*/
+extern "C" DLL_EXPORT int IsSteamIDValid(int hSteamID)
 {
 	CheckInitialized(false);
 	CSteamID steamID = SteamHandles()->GetSteamHandle(hSteamID);
@@ -89,10 +143,15 @@ int IsSteamIDValid(int hSteamID)
 }
 
 // Not in the API, but grouping this near GetSteamID().
-int GetAccountID(int hUserSteamID)
+/*
+@desc Gets the the account ID (profile number) for the given Steam ID handle.
+@param hSteamIDUser A user Steam ID handle.
+@return The account ID.
+*/
+extern "C" DLL_EXPORT int GetAccountID(int hSteamIDUser)
 {
 	CheckInitialized(0);
-	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hSteamIDUser);
 	if (steamID != k_steamIDNil)
 	{
 		return steamID.GetAccountID();
@@ -101,10 +160,15 @@ int GetAccountID(int hUserSteamID)
 }
 
 // Not in the API, but grouping this near GetSteamID().
-char *GetSteamID3(int hUserSteamID)
+/*
+@desc Gets the the SteamID3 for the given Steam ID handle.
+@param hSteamIDUser A user Steam ID handle.
+@return A string containing the SteamID3.
+*/
+extern "C" DLL_EXPORT char *GetSteamID3(int hSteamIDUser)
 {
 	CheckInitialized(NULL_STRING);
-	CSteamID steamID = SteamHandles()->GetSteamHandle(hUserSteamID);
+	CSteamID steamID = SteamHandles()->GetSteamHandle(hSteamIDUser);
 	if (steamID != k_steamIDNil)
 	{
 		std::string steam3("[");
@@ -143,16 +207,26 @@ char *GetSteamID3(int hUserSteamID)
 }
 
 // Not in the API, but grouping this near GetSteamID().
-char *GetSteamID64(int hUserSteamID)
+/*
+@desc Gets the the SteamID64 (profile number) for the given Steam ID handle.
+@param hSteamIDUser A user Steam ID handle.
+@return A string containing the 64-bit SteamID64 in base 10.
+*/
+extern "C" DLL_EXPORT char *GetSteamID64(int hSteamIDUser)
 {
 	CheckInitialized(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
-	_i64toa(SteamHandles()->GetSteamHandle(hUserSteamID), id64, 10);
+	_i64toa(SteamHandles()->GetSteamHandle(hSteamIDUser), id64, 10);
 	return utils::CreateString(id64);
 }
 
 // Not in the API, but grouping this near GetSteamID().
-int GetHandleFromSteamID64(const char *steamID64)
+/*
+@desc Returns the handle for the given SteamID64 string.
+@param steamID64 A SteamID64 string.
+@return A Steam ID handle or 0.
+*/
+extern "C" DLL_EXPORT int GetHandleFromSteamID64(const char *steamID64)
 {
 	CheckInitialized(0);
 	uint64 id = _atoi64(steamID64);
