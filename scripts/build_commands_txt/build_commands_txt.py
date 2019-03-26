@@ -103,15 +103,19 @@ class ExportedMethodLoader:
                         'type': cls._get_tier_1_var_type(param_match['type'])
                     })
             # Parse comment tags
-            cls._load_method_tags(method, match['comment'])
-            methods.append(method)
+            if cls._load_method_tags(method, match['comment']):
+                methods.append(method)
         return methods
 
     @classmethod
     def _load_method_tags(cls, method, comment):
         if not comment:
             log('{} has no documentation.'.format(method['name']))
-            return
+            return True
+
+        if '@ignore' in comment:
+            # ignored export.
+            return False
 
         def get_param_index(params, name):
             return next((i for i, p in enumerate(params) if p["name"] == name), None)
@@ -197,6 +201,7 @@ class ExportedMethodLoader:
         for param in method['params']:
             if 'desc' not in param:
                 log("{} has a parameter without a description: {}".format(method['name'], param['name']))
+        return True
 
     @classmethod
     def _validate_callback_tags(cls, methods):
@@ -216,8 +221,11 @@ class ExportedMethodLoader:
         for page in pages:
             page['methods'] = []
         for method in methods:
-            page = [p for p in pages if p['start'] <= method['start']][-1]
-            page['methods'].append(method)
+            try:
+                page = [p for p in pages if p['start'] <= method['start']][-1]
+                page['methods'].append(method)
+            except IndexError as e:
+                log("Could not find page for method: {}".format(method['name']))
 
     def write_commands_txt(self, out_file: str):
         var_type_letter = {
@@ -254,4 +262,5 @@ class ExportedMethodLoader:
 loader = ExportedMethodLoader('../../SteamPlugin/Common/')
 loader.write_commands_txt('../../AGKPlugin/SteamPlugin/Commands.txt')
 print("Error count: {}".format(error_count))
+print("Page count: {}".format(len(loader.pages)))
 print("Method count: {}".format(loader.method_count))

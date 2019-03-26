@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "PluginTypes.h"
 #include "StructClear.h"
 #include <steam_api.h>
-#include "Utils.h"
 #include <list>
 #include <map>
 #include <mutex>

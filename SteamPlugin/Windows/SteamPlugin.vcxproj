@@ -219,13 +219,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
-    <ClInclude Include="..\Common\Common.h" />
     <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\SteamApps.h" />
     <ClInclude Include="..\Common\SteamMatchmaking.h" />
     <ClInclude Include="..\Common\SteamRemoteStorage.h" />
     <ClInclude Include="..\Common\SteamUserStats.h" />
-    <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
     <ClInclude Include="..\Common\DllMain.h" />
     <ClInclude Include="..\Common\PluginTypes.h" />

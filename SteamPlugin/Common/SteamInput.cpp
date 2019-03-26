@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "Common.h"
+#include "DllMain.h"
 
 /* @page ISteamInput
 See the [Steam Input](https://partner.steamgames.com/doc/features/steam_input) documentation for more information.

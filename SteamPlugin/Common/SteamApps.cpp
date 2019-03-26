@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "Common.h"
+#include "DllMain.h"
 #include "SteamApps.h"
 
 /* @page ISteamApps */

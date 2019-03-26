@@ -24,8 +24,7 @@ THE SOFTWARE.
 #define _CCALLRESULTITEM_H_
 #pragma once
 
-#include <steam_api.h>
-#include "Utils.h"
+#include "DllMain.h"
 #include <map>
 
 class CCallResultItemBase
