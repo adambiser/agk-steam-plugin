@@ -63,13 +63,15 @@ template <class callback_type, class response_type = callback_type>
 class CCallResultItem : public CCallResultItemBase
 {
 public:
-	CCallResultItem() {}
+	CCallResultItem() : iCallback(callback_type::k_iCallback){}
 	virtual ~CCallResultItem(void)
 	{
 		m_CallResult.Cancel();
 	}
-	//response_type GetResponse() { return m_Response; };
+	int GetCallResultType() { return iCallback; }
 protected:
+	response_type m_Response;
+	int iCallback;
 	void Register()
 	{
 		if (m_hSteamAPICall == k_uAPICallInvalid)
@@ -84,7 +86,6 @@ protected:
 		SetResultCode(m_Response.m_eResult, bFailure);
 		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
 	}
-	response_type m_Response;
 private:
 	CCallResult<CCallResultItem<callback_type, response_type>, callback_type> m_CallResult;
 };
@@ -126,20 +127,20 @@ private:
 // Use this to access the call result map.
 CCallResultMap *CallResults();
 
-template <typename CR>
-int GetCallResultValue(int hCallResult, int(CR::*function)(void))
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int(callresult_type::*function)(void))
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		return (callResult->*function)();
 	}
 	return 0;
 }
 
-template <typename CR>
-int GetCallResultValue(int hCallResult, int index, int(CR::*function)(int), char *functionName)
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, int(callresult_type::*function)(int), char *functionName)
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		if (callResult->IsValidIndex(index))
 		{
@@ -150,30 +151,30 @@ int GetCallResultValue(int hCallResult, int index, int(CR::*function)(int), char
 	return 0;
 }
 
-template <typename CR>
-int GetCallResultValue(int hCallResult, uint64(CR::*function)(void))
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, uint64(callresult_type::*function)(void))
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		return SteamHandles()->GetPluginHandle((callResult->*function)());
 	}
 	return 0;
 }
 
-template <typename CR>
-int GetCallResultValue(int hCallResult, CSteamID(CR::*function)(void))
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, CSteamID(callresult_type::*function)(void))
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		return SteamHandles()->GetPluginHandle((callResult->*function)());
 	}
 	return 0;
 }
 
-template <typename CR>
-int GetCallResultValue(int hCallResult, int index, uint64(CR::*function)(int), char *functionName)
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, uint64(callresult_type::*function)(int), char *functionName)
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		if (callResult->IsValidIndex(index))
 		{
@@ -184,10 +185,10 @@ int GetCallResultValue(int hCallResult, int index, uint64(CR::*function)(int), c
 	return 0;
 }
 
-template <typename CR>
-int GetCallResultValue(int hCallResult, int index, CSteamID(CR::*function)(int), char *functionName)
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, CSteamID(callresult_type::*function)(int), char *functionName)
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		if (callResult->IsValidIndex(index))
 		{
@@ -198,20 +199,20 @@ int GetCallResultValue(int hCallResult, int index, CSteamID(CR::*function)(int),
 	return 0;
 }
 
-template <typename CR>
-char *GetCallResultValue(int hCallResult, std::string(CR::*function)(void))
+template <typename callresult_type>
+char *GetCallResultValue(int hCallResult, std::string(callresult_type::*function)(void))
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		return utils::CreateString((callResult->*function)());
 	}
 	return agk::CreateString(0);
 }
 
-template <typename CR>
-char *GetCallResultValue(int hCallResult, char *(CR::*function)(void))
+template <typename callresult_type>
+char *GetCallResultValue(int hCallResult, char *(callresult_type::*function)(void))
 {
-	if (auto *callResult = CallResults()->Get<CR>(hCallResult))
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		return utils::CreateString((callResult->*function)());
 	}
@@ -224,9 +225,7 @@ template <class T>
 struct SuccessResponse : T
 {
 	EResult m_eResult;
-
 	SuccessResponse<T>() : m_eResult((EResult)0) {}
-
 	SuccessResponse<T>(T &from) : T(from), m_eResult(from.m_bSuccess ? k_EResultOK : k_EResultFail) {}
 };
 
@@ -235,9 +234,7 @@ template <class T, class member_type, member_type T::*member_name>
 struct WrappedResponse : T
 {
 	EResult m_eResult;
-
 	WrappedResponse<T, member_type, member_name>() : m_eResult((EResult)0) {}
-
 	WrappedResponse<T, member_type, member_name>(T &from) : T(from), m_eResult((from.*member_name != 0) ? k_EResultOK : k_EResultFail) {}
 };
 
@@ -246,9 +243,7 @@ template <class T>
 struct AlwaysOKResponse : T
 {
 	EResult m_eResult;
-
 	AlwaysOKResponse<T>() : m_eResult((EResult)0) {}
-
 	AlwaysOKResponse<T>(T &from) : T(from), m_eResult(k_EResultOK) {}
 };
 

@@ -208,7 +208,7 @@ extern "C" DLL_EXPORT int EnumerateFollowingList(int startIndex)
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListResultsReturned(int hCallResult)
 {
-	return GetCallResultValue<CFriendsEnumerateFollowingListCallResult>(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetResultsReturned);
+	return GetCallResultValue(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetResultsReturned);
 }
 
 /*
@@ -222,7 +222,7 @@ call EnumerateFollowingList with start index + GetEnumerateFollowingListResultsR
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallResult)
 {
-	return GetCallResultValue<CFriendsEnumerateFollowingListCallResult>(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetTotalResultCount);
+	return GetCallResultValue(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetTotalResultCount);
 }
 
 /*
@@ -234,7 +234,7 @@ extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallRes
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListSteamID(int hCallResult, int index)
 {
-	return GetCallResultValue<CFriendsEnumerateFollowingListCallResult>(hCallResult, index, &CFriendsEnumerateFollowingListCallResult::GetSteamID, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CFriendsEnumerateFollowingListCallResult::GetSteamID, __FUNCTION__);
 }
 
 /*
@@ -578,7 +578,7 @@ extern "C" DLL_EXPORT int GetFollowerCount(int hSteamID)
 */
 extern "C" DLL_EXPORT int GetFollowerCountValue(int hCallResult)
 {
-	return GetCallResultValue<CFriendsGetFollowerCountCallResult>(hCallResult, &CFriendsGetFollowerCountCallResult::GetCount);
+	return GetCallResultValue(hCallResult, &CFriendsGetFollowerCountCallResult::GetCount);
 }
 
 /*
@@ -589,7 +589,7 @@ extern "C" DLL_EXPORT int GetFollowerCountValue(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetFollowerCountSteamID(int hCallResult)
 {
-	return GetCallResultValue<CFriendsGetFollowerCountCallResult>(hCallResult, &CFriendsGetFollowerCountCallResult::GetSteamID);
+	return GetCallResultValue(hCallResult, &CFriendsGetFollowerCountCallResult::GetSteamID);
 }
 
 /*
@@ -1275,6 +1275,20 @@ extern "C" DLL_EXPORT int IsClanChatWindowOpenInSteam(int hSteamIDClan)
 	return SteamFriends()->IsClanChatWindowOpenInSteam(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
+#pragma region CFriendsIsFollowingCallResult
+class CFriendsIsFollowingCallResult : public CCallResultItem<FriendsIsFollowing_t>
+{
+public:
+	CFriendsIsFollowingCallResult(CSteamID steamID)
+	{
+		m_CallResultName = "IsFollowing(" + std::to_string(steamID.ConvertToUint64()) + ")";
+		m_hSteamAPICall = SteamFriends()->IsFollowing(steamID);
+	}
+	CSteamID GetSteamID() { return m_Response.m_steamID; }
+	bool IsFollowing() { return m_Response.m_bIsFollowing; }
+};
+#pragma endregion
+
 //IsFollowing - FriendsIsFollowing_t
 //IsUserInSource
 //JoinClanChatRoom - JoinClanChatRoomCompletionResult_t (cr) GameConnectedChatJoin_t, GameConnectedClanChatMsg_t, GameConnectedChatLeave_t
@@ -1282,23 +1296,54 @@ extern "C" DLL_EXPORT int IsClanChatWindowOpenInSteam(int hSteamIDClan)
 //OpenClanChatWindowInSteam
 //ReplyToFriendMessage
 
-class CClanOfficerListResponse : public CCallResultItem<ClanOfficerListResponse_t, SuccessResponse<ClanOfficerListResponse_t>>
+#pragma region CClanOfficerListResponseCallResult
+class CClanOfficerListResponseCallResult : public CCallResultItem<ClanOfficerListResponse_t, SuccessResponse<ClanOfficerListResponse_t>>
 {
 public:
-	CClanOfficerListResponse(CSteamID steamIDClan)
+	CClanOfficerListResponseCallResult(CSteamID steamIDClan)
 	{
 		m_CallResultName = "RequestClanOfficerList(" + std::to_string(steamIDClan.ConvertToUint64()) + ")";
 		m_hSteamAPICall = SteamFriends()->RequestClanOfficerList(steamIDClan);
 	}
 	CSteamID GetSteamIDClan() { return m_Response.m_steamIDClan; }
 	int GetOfficerCount() { return m_Response.m_cOfficers; }
-
 };
+#pragma endregion
 
+/*
+@desc Requests information about a Steam group officers (administrators and moderators).
+@param hSteamIDClan The Steam group to get the officers list for.
+@return @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@api https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+*/
 extern "C" DLL_EXPORT int RequestClanOfficerList(int hSteamIDClan)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CClanOfficerListResponse(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+	return CallResults()->Add(new CClanOfficerListResponseCallResult(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+}
+
+/*
+@desc Gets the number of officers in the group from the call result response. This is the same as GetClanOfficerCount.
+@param hCallResult An RequestClanOfficerList call result handle.
+@return An integer.
+@api https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
+*/
+extern "C" DLL_EXPORT int GetRequestClanOfficerListOfficerCount(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CClanOfficerListResponseCallResult::GetOfficerCount);
+}
+
+/*
+@desc Gets the Steam group that the call result just got the officer list for.
+@param hCallResult An RequestClanOfficerList call result handle.
+@return A Steam ID handle.  0 if there was a problem.
+@api https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
+*/
+extern "C" DLL_EXPORT int GetRequestClanOfficerListClan(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CClanOfficerListResponseCallResult::GetSteamIDClan);
 }
 
 //RequestFriendRichPresence - FriendRichPresenceUpdate_t

@@ -221,7 +221,7 @@ extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, i
 */
 extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
-	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetFileName);
+	return GetCallResultValue(hCallResult, &CFileReadAsyncCallResult::GetFileName);
 }
 
 /*
@@ -234,7 +234,7 @@ A call result will delete its memblock in DeleteCallResult() so calling code doe
 */
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
-	return GetCallResultValue<CFileReadAsyncCallResult>(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
+	return GetCallResultValue(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
 
 #pragma region CFileShareCallResult
@@ -273,7 +273,7 @@ extern "C" DLL_EXPORT int CloudFileShare(const char *filename)
 */
 extern "C" DLL_EXPORT int GetCloudFileShareUGCHandle(int hCallResult)
 {
-	return GetCallResultValue<CFileShareCallResult>(hCallResult, &CFileShareCallResult::GetUGCHandle);
+	return GetCallResultValue(hCallResult, &CFileShareCallResult::GetUGCHandle);
 }
 
 /*
@@ -284,7 +284,7 @@ extern "C" DLL_EXPORT int GetCloudFileShareUGCHandle(int hCallResult)
 */
 extern "C" DLL_EXPORT char *GetCloudFileShareFileName(int hCallResult)
 {
-	return GetCallResultValue<CFileShareCallResult>(hCallResult, &CFileShareCallResult::GetFileName);
+	return GetCallResultValue(hCallResult, &CFileShareCallResult::GetFileName);
 }
 
 /*
@@ -361,7 +361,7 @@ extern "C" DLL_EXPORT int CloudFileWriteAsync(const char *filename, int memblock
 */
 extern "C" DLL_EXPORT char *GetCloudFileWriteAsyncFileName(int hCallResult)
 {
-	return GetCallResultValue<CFileWriteAsyncCallResult>(hCallResult, &CFileWriteAsyncCallResult::GetFileName);
+	return GetCallResultValue(hCallResult, &CFileWriteAsyncCallResult::GetFileName);
 }
 
 /*

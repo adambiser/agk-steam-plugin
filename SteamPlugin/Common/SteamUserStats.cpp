@@ -99,7 +99,9 @@ extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 }
 
 #pragma region CLeaderboardScoresDownloadedCallResult
-class CLeaderboardScoresDownloadedCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, WrappedResponse<LeaderboardScoresDownloaded_t, SteamLeaderboard_t, &LeaderboardScoresDownloaded_t::m_hSteamLeaderboard>>
+typedef WrappedResponse<LeaderboardScoresDownloaded_t, SteamLeaderboard_t, &LeaderboardScoresDownloaded_t::m_hSteamLeaderboard> WrappedLeaderboardScoresDownloaded_t;
+
+class CLeaderboardScoresDownloadedCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, WrappedLeaderboardScoresDownloaded_t>
 {
 public:
 	CLeaderboardScoresDownloadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
@@ -190,7 +192,7 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardHandle(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardID);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardID);
 }
 
 /*
@@ -201,7 +203,7 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardHandle(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryCount);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryCount);
 }
 
 /*
@@ -213,7 +215,7 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int index)
 {
-	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUser, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUser, __FUNCTION__);
 }
 
 /*
@@ -225,7 +227,7 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int i
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index)
 {
-	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryGlobalRank, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryGlobalRank, __FUNCTION__);
 }
 
 /*
@@ -237,7 +239,7 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult,
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
 {
-	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryScore, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryScore, __FUNCTION__);
 }
 
 /*
@@ -283,7 +285,7 @@ extern "C" DLL_EXPORT char *GetDownloadLeaderboardEntryDetails(int hCallResult, 
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
 {
-	return GetCallResultValue<CLeaderboardScoresDownloadedCallResult>(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
 }
 
 #pragma region CLeaderboardFindCallResult
@@ -360,7 +362,7 @@ extern "C" DLL_EXPORT int FindOrCreateLeaderboard(const char *leaderboardName, i
 */
 extern "C" DLL_EXPORT int GetFindLeaderboardFound(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardFindCallResult>(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultFound);
+	return GetCallResultValue(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultFound);
 }
 
 /*
@@ -371,7 +373,7 @@ extern "C" DLL_EXPORT int GetFindLeaderboardFound(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetFindLeaderboardHandle(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardFindCallResult>(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultHandle);
+	return GetCallResultValue(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultHandle);
 }
 
 /*
@@ -804,7 +806,7 @@ extern "C" DLL_EXPORT int GetNumberOfCurrentPlayers()
 */
 extern "C" DLL_EXPORT int GetNumberOfCurrentPlayersResult(int hCallResult)
 {
-	return GetCallResultValue<CNumberOfCurrentPlayersCallResult>(hCallResult, &CNumberOfCurrentPlayersCallResult::GetNumberOfPlayers);
+	return GetCallResultValue(hCallResult, &CNumberOfCurrentPlayersCallResult::GetNumberOfPlayers);
 }
 
 /*
@@ -1263,7 +1265,7 @@ extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, in
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreSuccess(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedSuccess);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedSuccess);
 }
 
 /*
@@ -1274,7 +1276,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreSuccess(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreHandle(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedHandle);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedHandle);
 }
 
 /*
@@ -1285,7 +1287,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreHandle(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreValue(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScore);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScore);
 }
 
 /*
@@ -1296,7 +1298,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreValue(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreChanged(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScoreChanged);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScoreChanged);
 }
 
 /*
@@ -1307,7 +1309,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreChanged(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankNew(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankNew);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankNew);
 }
 
 /*
@@ -1318,7 +1320,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankNew(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
 {
-	return GetCallResultValue<CLeaderboardScoreUploadedCallResult>(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankPrevious);
+	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankPrevious);
 }
 
 //Callbacks

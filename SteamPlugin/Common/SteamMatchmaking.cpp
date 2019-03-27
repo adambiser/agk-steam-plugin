@@ -176,7 +176,7 @@ extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers)
 */
 extern "C" DLL_EXPORT int GetCreateLobbyHandle(int hCallResult)
 {
-	return GetCallResultValue<CLobbyCreatedCallResult>(hCallResult, &CLobbyCreatedCallResult::GetLobbyCreatedHandle);
+	return GetCallResultValue(hCallResult, &CLobbyCreatedCallResult::GetLobbyCreatedHandle);
 }
 
 /*
@@ -578,7 +578,7 @@ extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID)
 // Unused - always 0
 //int GetJoinLobbyChatPermissions(int hCallResult)
 //{
-//	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatPermissions);
+//	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatPermissions);
 //}
 
 /*
@@ -590,7 +590,7 @@ extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID)
 */
 extern "C" DLL_EXPORT int GetJoinLobbyChatRoomEnterResponse(int hCallResult)
 {
-	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatRoomEnterResponse);
+	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatRoomEnterResponse);
 }
 
 /*
@@ -601,7 +601,7 @@ extern "C" DLL_EXPORT int GetJoinLobbyChatRoomEnterResponse(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetJoinLobbyHandle(int hCallResult)
 {
-	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterHandle);
+	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterHandle);
 }
 
 /*
@@ -612,7 +612,7 @@ extern "C" DLL_EXPORT int GetJoinLobbyHandle(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetJoinLobbyLocked(int hCallResult)
 {
-	return GetCallResultValue<CLobbyEnterCallResult>(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterLocked);
+	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterLocked);
 }
 
 /*
@@ -735,7 +735,7 @@ extern "C" DLL_EXPORT int RequestLobbyList()
 */
 extern "C" DLL_EXPORT int GetRequestLobbyListCount(int hCallResult)
 {
-	return GetCallResultValue<CLobbyMatchListCallResult>(hCallResult, &CLobbyMatchListCallResult::GetLobbyCount);
+	return GetCallResultValue(hCallResult, &CLobbyMatchListCallResult::GetLobbyCount);
 }
 
 /*
@@ -747,7 +747,7 @@ extern "C" DLL_EXPORT int GetRequestLobbyListCount(int hCallResult)
 */
 extern "C" DLL_EXPORT int GetRequestLobbyListHandle(int hCallResult, int index)
 {
-	return GetCallResultValue<CLobbyMatchListCallResult>(hCallResult, index, &CLobbyMatchListCallResult::GetLobby, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CLobbyMatchListCallResult::GetLobby, __FUNCTION__);
 }
 
 /*

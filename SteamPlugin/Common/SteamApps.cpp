@@ -365,7 +365,7 @@ extern "C" DLL_EXPORT int GetFileDetails(const char *filename)
 extern "C" DLL_EXPORT char *GetFileDetailsSHA1(int hCallResult)
 {
 	CheckInitialized(NULL_STRING);
-	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSHA1);
+	return GetCallResultValue(hCallResult, &CFileDetailsResultCallResult::GetFileSHA1);
 }
 
 /*
@@ -377,7 +377,7 @@ extern "C" DLL_EXPORT char *GetFileDetailsSHA1(int hCallResult)
 extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult)
 {
 	CheckInitialized(0);
-	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileSize);
+	return GetCallResultValue(hCallResult, &CFileDetailsResultCallResult::GetFileSize);
 }
 
 // Not explained in the documentation.  Assuming flags are unused.
@@ -389,7 +389,7 @@ extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult)
 //*/
 //extern "C" DLL_EXPORT int GetFileDetailsFlags(int hCallResult)
 //{
-//	return GetCallResultValue<CFileDetailsResultCallResult>(hCallResult, &CFileDetailsResultCallResult::GetFileFlags);
+//	return GetCallResultValue(hCallResult, &CFileDetailsResultCallResult::GetFileFlags);
 //}
 
 /*
