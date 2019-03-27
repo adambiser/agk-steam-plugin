@@ -132,6 +132,9 @@ IsClanChatAdmin,I,II,IsClanChatAdmin,0,0,0,0,IsClanChatAdmin
 IsClanPublic,I,I,IsClanPublic,0,0,0,0,IsClanPublic
 IsClanOfficialGameGroup,I,I,IsClanOfficialGameGroup,0,0,0,0,IsClanOfficialGameGroup
 IsClanChatWindowOpenInSteam,I,I,IsClanChatWindowOpenInSteam,0,0,0,0,IsClanChatWindowOpenInSteam
+IsFollowing,I,I,IsFollowing,0,0,0,0,IsFollowing
+GetIsFollowingSteamID,I,I,GetIsFollowingSteamID,0,0,0,0,GetIsFollowingSteamID
+GetIsFollowingResult,I,I,GetIsFollowingResult,0,0,0,0,GetIsFollowingResult
 RequestClanOfficerList,I,I,RequestClanOfficerList,0,0,0,0,RequestClanOfficerList
 GetRequestClanOfficerListOfficerCount,I,I,GetRequestClanOfficerListOfficerCount,0,0,0,0,GetRequestClanOfficerListOfficerCount
 GetRequestClanOfficerListClan,I,I,GetRequestClanOfficerListClan,0,0,0,0,GetRequestClanOfficerListClan
@@ -339,6 +342,11 @@ SetCloudEnabledForApp,0,I,SetCloudEnabledForApp,0,0,0,0,SetCloudEnabledForApp
 SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,SetCloudFileSyncPlatforms
 CloudUGCDownload,I,II,CloudUGCDownload,0,0,0,0,CloudUGCDownload
 CloudUGCDownloadToLocation,I,ISI,CloudUGCDownloadToLocation,0,0,0,0,CloudUGCDownloadToLocation
+GetCloudUGCDownloadFileHandle,I,I,GetCloudUGCDownloadFileHandle,0,0,0,0,GetCloudUGCDownloadFileHandle
+GetCloudUGCDownloadAppID,I,I,GetCloudUGCDownloadAppID,0,0,0,0,GetCloudUGCDownloadAppID
+GetCloudUGCDownloadSizeInBytes,I,I,GetCloudUGCDownloadSizeInBytes,0,0,0,0,GetCloudUGCDownloadSizeInBytes
+GetCloudUGCDownloadFileName,S,I,GetCloudUGCDownloadFileName,0,0,0,0,GetCloudUGCDownloadFileName
+GetCloudUGCDownloadOwnerID,I,I,GetCloudUGCDownloadOwnerID,0,0,0,0,GetCloudUGCDownloadOwnerID
 CloudUGCRead,I,IIIIII,CloudUGCReadEx,0,0,0,0,CloudUGCReadEx
 CloudUGCRead,I,IIII,CloudUGCRead,0,0,0,0,CloudUGCRead
 #
@@ -362,6 +370,7 @@ GetHandleFromSteamID64,I,S,GetHandleFromSteamID64,0,0,0,0,GetHandleFromSteamID64
 # ISteamUserStats
 #
 AttachLeaderboardUGC,I,II,AttachLeaderboardUGC,0,0,0,0,AttachLeaderboardUGC
+GetAttachLeaderboardUGCLeaderboard,I,I,GetAttachLeaderboardUGCLeaderboard,0,0,0,0,GetAttachLeaderboardUGCLeaderboard
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
 GetDownloadLeaderboardHandle,I,I,GetDownloadLeaderboardHandle,0,0,0,0,GetDownloadLeaderboardHandle

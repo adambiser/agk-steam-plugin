@@ -52,7 +52,7 @@ InputMotionData_t g_InputMotionData;
 This is cheap, and can be safely called repeatedly. It's often easier to repeatedly call it in your state loops, instead of trying to place it in all of your state transitions.
 @param hInput The handle of the input you want to activate an action set for.
 @param hActionSet The handle of the action set you want to activate.
-@api ISteamController#ActivateActionSet
+@url https://partner.steamgames.com/doc/api/ISteamController#ActivateActionSet
 */
 extern "C" DLL_EXPORT void ActivateActionSet(int hInput, int hActionSet)
 {
@@ -64,7 +64,7 @@ extern "C" DLL_EXPORT void ActivateActionSet(int hInput, int hActionSet)
 @desc Reconfigure the input to use the specified action set layer.
 @param hInput The handle of the input you want to activate an action set layer for.
 @param hActionSetLayer The handle of the action set layer you want to activate.
-@api ISteamController#ActivateActionSetLayer
+@url https://partner.steamgames.com/doc/api/ISteamController#ActivateActionSetLayer
 */
 extern "C" DLL_EXPORT void ActivateActionSetLayer(int hInput, int hActionSetLayer)
 {
@@ -76,7 +76,7 @@ extern "C" DLL_EXPORT void ActivateActionSetLayer(int hInput, int hActionSetLaye
 @desc Reconfigure the input to stop using the specified action set layer.
 @param hInput The handle of the input you want to deactivate an action set layer for.
 @param hActionSetLayer The handle of the action set layer you want to deactivate.
-@api ISteamController#DeactivateActionSetLayer
+@url https://partner.steamgames.com/doc/api/ISteamController#DeactivateActionSetLayer
 */
 extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hInput, int hActionSetLayer)
 {
@@ -87,7 +87,7 @@ extern "C" DLL_EXPORT void DeactivateActionSetLayer(int hInput, int hActionSetLa
 /*
 @desc Reconfigure the input to stop using all action set layers.
 @param hInput The handle of the input you want to deactivate all action set layers for.
-@api ISteamController#DeactivateAllActionSetLayers
+@url https://partner.steamgames.com/doc/api/ISteamController#DeactivateAllActionSetLayers
 */
 extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput)
 {
@@ -99,7 +99,7 @@ extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput)
 @desc Gets the active action set layers for the given input.
 @param hInput The handle of the input you want to get active action set layers for.
 @return The number of active action set layers.
-@api ISteamController#GetActiveActionSetLayers
+@url https://partner.steamgames.com/doc/api/ISteamController#GetActiveActionSetLayers
 */
 extern "C" DLL_EXPORT int GetActiveActionSetLayerCount(int hInput)
 {
@@ -113,7 +113,7 @@ extern "C" DLL_EXPORT int GetActiveActionSetLayerCount(int hInput)
 @param hInput The handle of the input you want to get active action set layers for.
 @param index The index to get.
 @return The active action set layer handle.
-@api ISteamController#GetActiveActionSetLayers
+@url https://partner.steamgames.com/doc/api/ISteamController#GetActiveActionSetLayers
 */
 extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index)
 {
@@ -131,7 +131,7 @@ extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index)
 @desc Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
 @param actionSetName The string identifier of an action set defined in the game's VDF file.
 @return The handle of the specified action set.
-@api ISteamController#GetActionSetHandle
+@url https://partner.steamgames.com/doc/api/ISteamController#GetActionSetHandle
 */
 extern "C" DLL_EXPORT int GetActionSetHandle(const char *actionSetName)
 {
@@ -145,7 +145,8 @@ Also returns whether or not this action is currently available to be bound in th
 @param hInput The handle of the input you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
 @return 1 if available; otherwise 0.
-@api ISteamController#GetAnalogActionData, ISteamController#ControllerAnalogActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#GetAnalogActionData
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerAnalogActionData_t
 */
 extern "C" DLL_EXPORT int GetAnalogActionData(int hInput, int hAnalogAction)
 {
@@ -157,7 +158,7 @@ extern "C" DLL_EXPORT int GetAnalogActionData(int hInput, int hAnalogAction)
 /*
 @desc Returns whether or not this action is currently available to be bound in the active action set as of the last GetAnalogActionData call.
 @return 1 if available; otherwise 0.
-@api ISteamController#ControllerAnalogActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerAnalogActionData_t
 */
 extern "C" DLL_EXPORT int GetAnalogActionDataActive()
 {
@@ -167,7 +168,8 @@ extern "C" DLL_EXPORT int GetAnalogActionDataActive()
 /*
 @desc Returns the type of data coming from this action as of the last GetAnalogActionData call
 @return The type of data coming from this action, this will match what was specified in the action set's VDF definition.
-@api ISteamController#ControllerAnalogActionData_t, ISteamController#EControllerSourceMode
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerAnalogActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#EControllerSourceMode
 */
 extern "C" DLL_EXPORT int GetAnalogActionDataMode()
 {
@@ -177,7 +179,7 @@ extern "C" DLL_EXPORT int GetAnalogActionDataMode()
 /*
 @desc Returns the state of this action on the horizontal axis as of the last GetAnalogActionData call
 @return The current state of this action on the horizontal axis.
-@api ISteamController#ControllerAnalogActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerAnalogActionData_t
 */
 extern "C" DLL_EXPORT float GetAnalogActionDataX()
 {
@@ -187,7 +189,7 @@ extern "C" DLL_EXPORT float GetAnalogActionDataX()
 /*
 @desc Returns the state of this action on the vertical axis as of the last GetAnalogActionData call
 @return The current state of this action on the vertical axis.
-@api ISteamController#ControllerAnalogActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerAnalogActionData_t
 */
 extern "C" DLL_EXPORT float GetAnalogActionDataY()
 {
@@ -201,7 +203,7 @@ extern "C" DLL_EXPORT float GetAnalogActionDataY()
 In other words, if you use an action called "up" in two different action sets, this method will only ever return one of them and the other will be ignored.
 @param actionName The string identifier of the analog action defined in the game's VDF file.
 @return The analog action handle.
-@api ISteamController#GetAnalogActionHandle
+@url https://partner.steamgames.com/doc/api/ISteamController#GetAnalogActionHandle
 */
 extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName)
 {
@@ -215,7 +217,7 @@ extern "C" DLL_EXPORT int GetAnalogActionHandle(const char *actionName)
 @param hActionSet The handle of the action set you want to query.
 @param hAnalogAction The handle of the analog action you want to query.
 @return The number of origins.
-@api ISteamController#GetAnalogActionOrigins
+@url https://partner.steamgames.com/doc/api/ISteamController#GetAnalogActionOrigins
 */
 extern "C" DLL_EXPORT int GetAnalogActionOriginCount(int hInput, int hActionSet, int hAnalogAction)
 {
@@ -234,7 +236,8 @@ Use this to display the appropriate on-screen prompt for the action.
 @param hAnalogAction The handle of the analog action you want to query.
 @param index The index of the origin.
 @return The origin.
-@api ISteamController#GetAnalogActionOrigins, ISteamController#EControllerActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamController#GetAnalogActionOrigins
+@url https://partner.steamgames.com/doc/api/ISteamController#EControllerActionOrigin
 */
 extern "C" DLL_EXPORT int GetAnalogActionOriginValue(int hInput, int hActionSet, int hAnalogAction, int index)
 {
@@ -255,7 +258,7 @@ extern "C" DLL_EXPORT int GetAnalogActionOriginValue(int hInput, int hActionSet,
 
 Must be called before controllers can be used because it loads the internal input handles.
 @return The number of inputs found.
-@api ISteamController#GetConnectedControllers
+@url https://partner.steamgames.com/doc/api/ISteamController#GetConnectedControllers
 */
 extern "C" DLL_EXPORT int GetConnectedControllers()
 {
@@ -268,7 +271,7 @@ extern "C" DLL_EXPORT int GetConnectedControllers()
 @desc Returns the associated input handle for the specified emulated gamepad.
 @param index The index of the emulated gamepad you want to get an input handle for.
 @return The associated input handle for the specified emulated gamepad.
-@api ISteamController#GetControllerForGamepadIndex
+@url https://partner.steamgames.com/doc/api/ISteamController#GetControllerForGamepadIndex
 */
 extern "C" DLL_EXPORT int GetControllerForGamepadIndex(int index)
 {
@@ -288,7 +291,7 @@ extern "C" DLL_EXPORT int GetControllerForGamepadIndex(int index)
 @desc Get the currently active action set for the specified input.
 @param hInput The handle of the input you want to query.
 @return The handle of the action set activated for the specified input.
-@api ISteamController#GetCurrentActionSet
+@url https://partner.steamgames.com/doc/api/ISteamController#GetCurrentActionSet
 */
 extern "C" DLL_EXPORT int GetCurrentActionSet(int hInput)
 {
@@ -302,7 +305,8 @@ Also returns whether or not this action is currently available to be bound in th
 @param hInput The handle of the input you want to query.
 @param hDigitalAction The handle of the digital action you want to query.
 @return 1 if this action is currently available; otherwise 0.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionData
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT int GetDigitalActionData(int hInput, int hDigitalAction)
 {
@@ -314,7 +318,8 @@ extern "C" DLL_EXPORT int GetDigitalActionData(int hInput, int hDigitalAction)
 /*
 @desc Returns whether or not this action is currently available to be bound in the active action set.
 @return 1 if this action is currently available; otherwise 0.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionData
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT int GetDigitalActionDataActive()
 {
@@ -324,7 +329,8 @@ extern "C" DLL_EXPORT int GetDigitalActionDataActive()
 /*
 @desc Returns the current state of the digital game action read by the last GetDigitalActionData call.
 @return The current state of this action; 1 if the action is currently pressed, otherwise 0.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionData
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT int GetDigitalActionDataState()
 {
@@ -338,7 +344,7 @@ extern "C" DLL_EXPORT int GetDigitalActionDataState()
 In other words, if you use an action called "up" in two different action sets, this method will only ever return one of them and the other will be ignored.
 @param actionName The string identifier of the digital action defined in the game's VDF file.
 @return The handle of the specified digital action.
-@api ISteamController#GetDigitalActionHandle
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionHandle
 */
 extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName)
 {
@@ -352,8 +358,8 @@ extern "C" DLL_EXPORT int GetDigitalActionHandle(const char *actionName)
 @param hActionSet The handle of the action set you want to query.
 @param hDigitalAction The handle of the digital aciton you want to query.
 @return A JSON integer array of the action origins.
-@api ISteamController#GetDigitalActionOrigins
-ISteamController#EControllerActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionOrigins
+@url https://partner.steamgames.com/doc/api/ISteamController#EControllerActionOrigin
 */
 extern "C" DLL_EXPORT int GetDigitalActionOriginCount(int hInput, int hActionSet, int hDigitalAction)
 {
@@ -372,7 +378,8 @@ Use this to display the appropriate on-screen prompt for the action.
 @param hDigitalAction The handle of the digital aciton you want to query.
 @param index The index of the origin.
 @return A JSON integer array of the action origins.
-@api ISteamController#GetDigitalActionOrigins, ISteamController#EControllerActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionOrigins
+@url https://partner.steamgames.com/doc/api/ISteamController#EControllerActionOrigin
 */
 extern "C" DLL_EXPORT int GetDigitalActionOriginValue(int hInput, int hActionSet, int hDigitalAction, int index)
 {
@@ -392,7 +399,7 @@ extern "C" DLL_EXPORT int GetDigitalActionOriginValue(int hInput, int hActionSet
 @desc Returns the associated gamepad index for the specified input, if emulating a gamepad.
 @param hInput The handle of the input you want to get a gamepad index for.
 @return An integer.
-@api ISteamController#GetGamepadIndexForController
+@url https://partner.steamgames.com/doc/api/ISteamController#GetGamepadIndexForController
 */
 extern "C" DLL_EXPORT int GetGamepadIndexForController(int hInput)
 {
@@ -403,9 +410,9 @@ extern "C" DLL_EXPORT int GetGamepadIndexForController(int hInput)
 /*
 @desc Get a local path to art for on-screen glyph for a particular origin.
 @param eOrigin The origin you want to get the glyph for.
-@param-api eOrigin ISteamController#EControllerActionOrigin
+@param-url eOrigin https://partner.steamgames.com/doc/api/ISteamController#EControllerActionOrigin
 @return The path to the png file for the glyph.
-@api ISteamController#GetGlyphForActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamController#GetGlyphForActionOrigin
 */
 extern "C" DLL_EXPORT char *GetGlyphForActionOrigin(int eOrigin)
 {
@@ -417,7 +424,7 @@ extern "C" DLL_EXPORT char *GetGlyphForActionOrigin(int eOrigin)
 @desc Returns the input type (device model) for the specified input. This tells you if a given input is a Steam controller, XBox 360 controller, PS4 controller, etc.
 @param hInput The handle of the input.
 @return Returns the input type (device model) for the specified input.
-@api ISteamController#GetInputTypeForHandle
+@url https://partner.steamgames.com/doc/api/ISteamController#GetInputTypeForHandle
 */
 extern "C" DLL_EXPORT int GetInputTypeForHandle(int hInput)
 {
@@ -428,7 +435,8 @@ extern "C" DLL_EXPORT int GetInputTypeForHandle(int hInput)
 /*
 @desc Reads the raw motion data for the specified input;
 @param hInput The handle of the input you want to get motion data for.
-@api ISteamController#GetDigitalActionData, ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#GetDigitalActionData
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT void GetMotionData(int hInput)
 {
@@ -439,7 +447,7 @@ extern "C" DLL_EXPORT void GetMotionData(int hInput)
 /*
 @desc Returns the positional acceleration, x axis for the last GetMotionData call.
 @return Positional acceleration, x axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelX()
 {
@@ -449,7 +457,7 @@ extern "C" DLL_EXPORT float GetMotionDataPosAccelX()
 /*
 @desc Returns the positional acceleration, y axis for the last GetMotionData call
 @return Positional acceleration, y axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelY()
 {
@@ -459,7 +467,7 @@ extern "C" DLL_EXPORT float GetMotionDataPosAccelY()
 /*
 @desc Returns the positional acceleration, z axis for the last GetMotionData call
 @return Positional acceleration, z axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataPosAccelZ()
 {
@@ -470,7 +478,7 @@ extern "C" DLL_EXPORT float GetMotionDataPosAccelZ()
 @desc Returns the sensor-fused absolute rotation (will drift in heading), w axis for the last GetMotionData call
 GetMotionData MUST be called in order to populate the value returned by this method.
 @return Sensor-fused absolute rotation (will drift in heading), w axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatW()
 {
@@ -480,7 +488,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotQuatW()
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), x axis for the last GetMotionData call
 @return Sensor-fused absolute rotation (will drift in heading), x axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatX()
 {
@@ -490,7 +498,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotQuatX()
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), y axis for the last GetMotionData call
 @return Sensor-fused absolute rotation (will drift in heading), y axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatY()
 {
@@ -500,7 +508,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotQuatY()
 /*
 @desc Returns the sensor-fused absolute rotation (will drift in heading), z axis for the last GetMotionData call
 @return Sensor-fused absolute rotation (will drift in heading), z axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotQuatZ()
 {
@@ -510,7 +518,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotQuatZ()
 /*
 @desc Returns the angular velocity, x axis for the last GetMotionData call
 @return Angular velocity, x axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelX()
 {
@@ -520,7 +528,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotVelX()
 /*
 @desc Returns the angular velocity, y axis for the last GetMotionData call
 @return Angular velocity, y axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelY()
 {
@@ -530,7 +538,7 @@ extern "C" DLL_EXPORT float GetMotionDataRotVelY()
 /*
 @desc Returns the angular velocity, z axis for the last GetMotionData call
 @return Angular velocity, z axis.
-@api ISteamController#ControllerDigitalActionData_t
+@url https://partner.steamgames.com/doc/api/ISteamController#ControllerDigitalActionData_t
 */
 extern "C" DLL_EXPORT float GetMotionDataRotVelZ()
 {
@@ -541,7 +549,8 @@ extern "C" DLL_EXPORT float GetMotionDataRotVelZ()
 @desc Returns a localized string (from Steam's language setting) for the specified origin.
 @param eOrigin The origin you want to get the string for.
 @return The localized string for the specified origin.
-@api ISteamController#GetStringForActionOrigin, ISteamController#EControllerActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamController#GetStringForActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamController#EControllerActionOrigin
 */
 extern "C" DLL_EXPORT char *GetStringForActionOrigin(int eOrigin)
 {
@@ -552,7 +561,7 @@ extern "C" DLL_EXPORT char *GetStringForActionOrigin(int eOrigin)
 /*
 @desc Must be called when starting use of the ISteamInput interface.
 @return Always 1 if the Steam plugin has been initialized; otherwise 0.
-@api ISteamController#Init
+@url https://partner.steamgames.com/doc/api/ISteamController#Init
 */
 extern "C" DLL_EXPORT int InitSteamInput()
 {
@@ -569,7 +578,7 @@ extern "C" DLL_EXPORT int InitSteamInput()
 /*
 @desc Synchronize API state with the latest Steam Input inputs available.
 This is performed automatically by RunCallbacks, but for the absolute lowest possible latency, you can call this directly before reading input state.
-@api ISteamController#RunFrame
+@url https://partner.steamgames.com/doc/api/ISteamController#RunFrame
 */
 extern "C" DLL_EXPORT void RunFrame()
 {
@@ -583,7 +592,8 @@ extern "C" DLL_EXPORT void RunFrame()
 @param red The red component of the color to set (0-255).
 @param green The green component of the color to set (0-255).
 @param blue The blue component of the color to set (0-255).
-@api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
+@url https://partner.steamgames.com/doc/api/ISteamController#SetLEDColor
+@url https://partner.steamgames.com/doc/api/ISteamController#ESteamControllerLEDFlag
 */
 extern "C" DLL_EXPORT void SetInputLEDColor(int hInput, int red, int green, int blue)
 {
@@ -597,7 +607,8 @@ extern "C" DLL_EXPORT void SetInputLEDColor(int hInput, int red, int green, int 
 /*
 @desc Set the input LED color back to the default (out-of-game) settings.
 @param hInput The handle of the input to affect.
-@api ISteamController#SetLEDColor, ISteamController#ESteamControllerLEDFlag
+@url https://partner.steamgames.com/doc/api/ISteamController#SetLEDColor
+@url https://partner.steamgames.com/doc/api/ISteamController#ESteamControllerLEDFlag
 */
 extern "C" DLL_EXPORT void ResetInputLEDColor(int hInput)
 {
@@ -611,7 +622,7 @@ extern "C" DLL_EXPORT void ResetInputLEDColor(int hInput)
 @desc Invokes the Steam overlay and brings up the binding screen.
 @param hInput The handle of the input you want to bring up the binding screen for.
 @return 1 for success; 0 if overlay is disabled/unavailable, or the user is not in Big Picture Mode.
-@api ISteamController#ShowBindingPanel
+@url https://partner.steamgames.com/doc/api/ISteamController#ShowBindingPanel
 */
 extern "C" DLL_EXPORT int ShowBindingPanel(int hInput)
 {
@@ -626,7 +637,7 @@ extern "C" DLL_EXPORT int ShowBindingPanel(int hInput)
 
 This is called within Shutdown and also while unloading the plugin, so calling it explictly should not be necessary.
 @return Always 1 if the Steam plugin has been initialized; otherwise 0.
-@api ISteamController#Shutdown
+@url https://partner.steamgames.com/doc/api/ISteamController#Shutdown
 */
 extern "C" DLL_EXPORT int ShutdownSteamInput()
 {
@@ -638,7 +649,7 @@ extern "C" DLL_EXPORT int ShutdownSteamInput()
 @desc Stops the momentum of an analog action (where applicable, ie a touchpad w/ virtual trackball settings).
 @param hInput The handle of the input to affect.
 @param hAnalogAction The analog action handle to stop momentum for.
-@api ISteamController#StopAnalogActionMomentum
+@url https://partner.steamgames.com/doc/api/ISteamController#StopAnalogActionMomentum
 */
 extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hInput, int hAnalogAction)
 {
@@ -655,9 +666,9 @@ extern "C" DLL_EXPORT void StopAnalogActionMomentum(int hInput, int hAnalogActio
 Currently only the VSC supports haptic pulses.  This API call will be ignored for all other input models.
 @param hInput The handle of the input to affect.
 @param eTargetPad Which haptic touch pad to affect.
-@param-api eTargetPad ISteamController#ESteamControllerPad
+@param-url eTargetPad https://partner.steamgames.com/doc/api/ISteamController#ESteamControllerPad
 @param duration Duration of the pulse, in microseconds (1/1,000,000th of a second)
-@api ISteamController#TriggerHapticPulse
+@url https://partner.steamgames.com/doc/api/ISteamController#TriggerHapticPulse
 */
 extern "C" DLL_EXPORT void TriggerInputHapticPulse(int hInput, int eTargetPad, int duration)
 {
@@ -675,11 +686,11 @@ This API call will be ignored for incompatible input models.
 This is a more user-friendly function to call than TriggerHapticPulse as it can generate pulse patterns long enough to be actually noticed by the user.
 @param hInput The handle of the input to affect.
 @param eTargetPad Which haptic touch pad to affect.
-@param-api eTargetPad ISteamController#ESteamControllerPad
+@param-url eTargetPad https://partner.steamgames.com/doc/api/ISteamController#ESteamControllerPad
 @param onDuration Duration of the pulse, in microseconds (1/1,000,000th of a second).
 @param offDuration Duration of the pause between pulses, in microseconds.
 @param repeat Number of times to repeat the onDuration / offDuration duty cycle.
-@api ISteamController#TriggerRepeatedHapticPulse
+@url https://partner.steamgames.com/doc/api/ISteamController#TriggerRepeatedHapticPulse
 */
 extern "C" DLL_EXPORT void TriggerInputRepeatedHapticPulse(int hInput, int eTargetPad, int onDuration, int offDuration, int repeat)
 {
@@ -697,7 +708,7 @@ This API call will be ignored for incompatible input models.
 @param hInput The handle of the input to affect.
 @param leftSpeed The period of the left rumble motor's vibration, in microseconds.
 @param rightSpeed The period of the right rumble motor's vibration, in microseconds.
-@api ISteamController#TriggerVibration
+@url https://partner.steamgames.com/doc/api/ISteamController#TriggerVibration
 */
 extern "C" DLL_EXPORT void TriggerInputVibration(int hInput, int leftSpeed, int rightSpeed)
 {
@@ -715,9 +726,10 @@ This can be chained with GetGlyphForActionOrigin to provide future proof glyphs 
 Note - this only translates the buttons directly and doesn't take into account any remapping a user has made in their configuration
 @param hInput The handle of the input you want to query.
 @param eOrigin The Xbox controller origin.
-@param-api eOrigin ISteamInput#EXboxOrigin
+@param-url eOrigin https://partner.steamgames.com/doc/api/ISteamInput#EXboxOrigin
 @return The ActionOrigin for a given Xbox controller origin.
-@api ISteamInput#GetActionOriginFromXboxOrigin, ISteamInput#EInputActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamInput#GetActionOriginFromXboxOrigin
+@url https://partner.steamgames.com/doc/api/ISteamInput#EInputActionOrigin
 */
 extern "C" DLL_EXPORT int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 {
@@ -728,9 +740,9 @@ extern "C" DLL_EXPORT int GetActionOriginFromXboxOrigin(int hInput, int eOrigin)
 /*
 @desc Returns a localized string (from Steam's language setting) for the specified Xbox controller origin.
 @param eOrigin The Xbox controller origin.
-@param-api eOrigin ISteamInput#EXboxOrigin
+@param-url eOrigin https://partner.steamgames.com/doc/api/ISteamInput#EXboxOrigin
 @return The localized string for the specified Xbox controller origin.
-@api ISteamInput#GetStringForXboxOrigin
+@url https://partner.steamgames.com/doc/api/ISteamInput#GetStringForXboxOrigin
 */
 extern "C" DLL_EXPORT char *GetStringForXboxOrigin(int eOrigin)
 {
@@ -741,9 +753,9 @@ extern "C" DLL_EXPORT char *GetStringForXboxOrigin(int eOrigin)
 /*
 @desc Returns the local path to art for the on-screen glyph for a particular Xbox controller origin.
 @param eOrigin The Xbox controller origin.
-@param-api eOrigin ISteamInput#EXboxOrigin
+@param-url eOrigin ISteamInput#EXboxOrigin
 @return The path to art for the on-screen glyph for a particular Xbox controller origin.
-@api ISteamInput#GetGlyphForXboxOrigin
+@url https://partner.steamgames.com/doc/api/ISteamInput#GetGlyphForXboxOrigin
 */
 extern "C" DLL_EXPORT char *GetGlyphForXboxOrigin(int eOrigin)
 {
@@ -754,11 +766,12 @@ extern "C" DLL_EXPORT char *GetGlyphForXboxOrigin(int eOrigin)
 /*
 @desc Convert an origin to another controller type.
 @param eDestinationInputType The input type to convert from.
-@param-api eDestinationInputType ISteamInput#ESteamInputType
+@param-url eDestinationInputType ISteamInput#ESteamInputType
 @param eSourceOrigin The action origin to convert from.
-@param-api eSourceOrigin ISteamInput#EInputActionOrigin
+@param-url eSourceOrigin ISteamInput#EInputActionOrigin
 @return The action origin for the destination input type.
-@api ISteamInput#TranslateActionOrigin, ISteamInput#EInputActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamInput#TranslateActionOrigin
+@url https://partner.steamgames.com/doc/api/ISteamInput#EInputActionOrigin
 */
 extern "C" DLL_EXPORT int TranslateActionOrigin(int eDestinationInputType, int eSourceOrigin)
 {

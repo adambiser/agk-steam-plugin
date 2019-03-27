@@ -30,7 +30,7 @@ THE SOFTWARE.
 /*
 @desc Checks if the current users looks like they are behind a NAT device.
 @return 1 if the current user is behind a NAT, otherwise 0.
-@api ISteamUser#BIsBehindNAT
+@url https://partner.steamgames.com/doc/api/ISteamUser#BIsBehindNAT
 */
 extern "C" DLL_EXPORT int IsBehindNAT()
 {
@@ -41,7 +41,7 @@ extern "C" DLL_EXPORT int IsBehindNAT()
 /*
 @desc Checks whether the user's phone number is used to uniquely identify them.
 @return 1 f the current user's phone uniquely verifies their identity; otherwise, 0.
-@api ISteamUser#BIsPhoneIdentifying
+@url https://partner.steamgames.com/doc/api/ISteamUser#BIsPhoneIdentifying
 */
 extern "C" DLL_EXPORT int IsPhoneIdentifying()
 {
@@ -52,7 +52,7 @@ extern "C" DLL_EXPORT int IsPhoneIdentifying()
 /*
 @desc Checks whether the current user's phone number is awaiting (re)verification.
 @return 1 if the it is requiring verification; otherwise, 0.
-@api ISteamUser#BIsPhoneRequiringVerification
+@url https://partner.steamgames.com/doc/api/ISteamUser#BIsPhoneRequiringVerification
 */
 extern "C" DLL_EXPORT int IsPhoneRequiringVerification()
 {
@@ -63,7 +63,7 @@ extern "C" DLL_EXPORT int IsPhoneRequiringVerification()
 /*
 @desc Checks whether the current user has verified their phone number.
 @return 1 if the current user has phone verification enabled; otherwise, 0.
-@api ISteamUser#BIsTwoFactorEnabled
+@url https://partner.steamgames.com/doc/api/ISteamUser#BIsTwoFactorEnabled
 */
 extern "C" DLL_EXPORT int IsPhoneVerified()
 {
@@ -74,7 +74,7 @@ extern "C" DLL_EXPORT int IsPhoneVerified()
 /*
 @desc Checks whether the current user has Steam Guard two factor authentication enabled on their account.
 @return 1 if the current user has two factor authentication enabled; otherwise, 0.
-@api ISteamUser#IsPhoneVerified
+@url https://partner.steamgames.com/doc/api/ISteamUser#IsPhoneVerified
 */
 extern "C" DLL_EXPORT int IsTwoFactorEnabled()
 {
@@ -85,7 +85,7 @@ extern "C" DLL_EXPORT int IsTwoFactorEnabled()
 /*
 @desc Checks to see whether the user is logged on to Steam.
 @return 1 when the user is logged on; otherwise 0.
-@api ISteamUser#BLoggedOn
+@url https://partner.steamgames.com/doc/api/ISteamUser#BLoggedOn
 */
 extern "C" DLL_EXPORT int LoggedOn()
 {
@@ -106,7 +106,7 @@ The user can have two different badges for a series; the regular badge (max leve
 @param series If you only have one set of cards, the series will be 1.
 @param foil Check if they have received the foil badge.
 @return The user's badge level.
-@api ISteamUser#GetGameBadgeLevel
+@url https://partner.steamgames.com/doc/api/ISteamUser#GetGameBadgeLevel
 */
 extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil)
 {
@@ -129,7 +129,7 @@ extern "C" DLL_EXPORT int GetPlayerSteamLevel()
 /*
 @desc Gets a handle to the Steam ID of the account currently logged into the Steam client.
 @return A SteamID handle
-@api ISteamUser#GetSteamID
+@url https://partner.steamgames.com/doc/api/ISteamUser#GetSteamID
 */
 extern "C" DLL_EXPORT int GetSteamID()
 {

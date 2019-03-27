@@ -17,7 +17,7 @@ error_count = 0
 def report_error(text):
     global error_count
     error_count += 1
-    print("ERROR: " + text)
+    print("ERROR:\t" + text)
 
 
 class ExportedMethodLoader:
@@ -36,14 +36,15 @@ class ExportedMethodLoader:
         for (root, _, filenames) in os.walk(path):
             for filename in [f for f in filenames if f.endswith('.cpp') or f.endswith('.h')]:
                 with open(os.path.join(root, filename), 'r') as f:
-                    print("Reading {}...".format(filename))
+                    print("Loading {}...".format(filename))
                     lines = ''.join(f.readlines())
                     pages = self._get_page_tags(lines)
                     methods = self._get_methods(lines)
-                    self.method_count += len(methods)
-                    self._validate_callback_tags(methods)
-                    self._assign_methods_to_pages(pages, methods)
-                    self._merge_page_list(pages)
+                    if len(methods):
+                        self.method_count += len(methods)
+                        self._validate_callback_tags(methods)
+                        self._assign_methods_to_pages(pages, methods)
+                        self._merge_page_list(pages)
         self.page_count = len(self.pages)
         # Alphabetize the pages
         self.pages.sort(key=lambda page: page['name'])
@@ -127,42 +128,46 @@ class ExportedMethodLoader:
         def process_return_tag(tag_text):
             method['return_desc'] = tag_text
 
-        def process_return_api_tag(tag_text):
-            # TODO remove
-            method['return_api'] = tag_text
-
+        # def process_return_api_tag(tag_text):
+        #     # TODO remove
+        #     method['return_api'] = tag_text
+        #
         def process_return_url_tag(tag_text):
             method['return_url'] = tag_text
 
         def process_param_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
-            if not tag_text:
+            if tag_text:
+                index = get_param_index(method['params'], param_name)
+                if index is None:
+                    report_error('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
+                else:
+                    method['params'][index]['desc'] = tag_text
+            else:
                 report_error('{} has an empty description for parameter: {}'.format(method['name'], param_name))
-            index = get_param_index(method['params'], param_name)
-            if index is None:
-                report_error('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
-            else:
-                method['params'][index]['desc'] = tag_text
 
-        def process_param_api_tag(tag_text):
-            # TODO remove
-            param_name, sep, tag_text = tag_text.partition(' ')
-            if not tag_text:
-                report_error('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
-            index = get_param_index(method['params'], param_name)
-            if index is None:
-                report_error('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
-            else:
-                method['params'][index]['api'] = tag_text
+        # def process_param_api_tag(tag_text):
+        #     # TODO remove
+        #     param_name, sep, tag_text = tag_text.partition(' ')
+        #     if not tag_text:
+        #         report_error('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
+        #     index = get_param_index(method['params'], param_name)
+        #     if index is None:
+        #         report_error('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
+        #     else:
+        #         method['params'][index]['api'] = tag_text
 
         def process_param_url_tag(tag_text):
             # TODO
             pass
 
-        def process_api_tag(tag_text):
-            method['api'] = [api.strip() for api in tag_text.split(',')]
+        # def process_api_tag(tag_text):
+        #     method['api'] = [api.strip() for api in tag_text.split(',')]
 
         def process_url_tag(tag_text):
+            if ',' in tag_text or '\n' in tag_text:
+                report_error('{} had a url tag with multiple urls.'.format(method['name']))
+                return
             # TODO
             pass
 

@@ -33,9 +33,12 @@ _The plugin sets the API call's rTime32LastPlayedOnServer parameter internally t
 @param connectPort The port used to connect to the server.
 @param queryPort The port used to query the server, in host order.
 @param flags Sets the whether the server should be added to the favorites list or history list.
-@param-api flags ISteamMatchmaking#k_unFavoriteFlagNone
+@param-url flags https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagNone
 @return An integer.  This appears to be an index position, but is not defined by the API.
-@api ISteamMatchmaking#AddFavoriteGame, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagNone
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagFavorite
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagHistory
 */
 extern "C" DLL_EXPORT int AddFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags) //, int time32LastPlayedOnServer)
 {
@@ -63,8 +66,8 @@ extern "C" DLL_EXPORT int AddFavoriteGame(int appID, const char *ipv4, int conne
 /*
 @desc Sets the physical distance for which we should search for lobbies, this is based on the users IP address and a IP location map on the Steam backend.
 @param eLobbyDistanceFilter Specifies the maximum distance.
-@param-api eLobbyDistanceFilter ISteamMatchmaking#ELobbyDistanceFilter
-@api ISteamMatchmaking#AddRequestLobbyListDistanceFilter
+@param-url eLobbyDistanceFilter https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyDistanceFilter
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddRequestLobbyListDistanceFilter
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListDistanceFilter(int eLobbyDistanceFilter)
 {
@@ -75,7 +78,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListDistanceFilter(int eLobbyDistanceF
 /*
 @desc Filters to only return lobbies with the specified number of open slots available.
 @param slotsAvailable The number of open slots that must be open.
-@api ISteamMatchmaking#AddRequestLobbyListFilterSlotsAvailable
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddRequestLobbyListFilterSlotsAvailable
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int slotsAvailable)
 {
@@ -87,7 +90,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListFilterSlotsAvailable(int slotsAvai
 @desc Sorts the results closest to the specified value.
 @param keyToMatch The filter key name to match.
 @param valueToBeCloseTo The value that lobbies will be sorted on.
-@api ISteamMatchmaking#AddRequestLobbyListNearValueFilter
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddRequestLobbyListNearValueFilter
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(const char *keyToMatch, int valueToBeCloseTo)
 {
@@ -100,8 +103,8 @@ extern "C" DLL_EXPORT void AddRequestLobbyListNearValueFilter(const char *keyToM
 @param keyToMatch The filter key name to match.
 @param valueToMatch The number to match.
 @param eComparisonType The type of comparison to make.
-@param-api eComparisonType ISteamMatchmaking#ELobbyComparison
-@api ISteamMatchmaking#AddRequestLobbyListNumericalFilter
+@param-url eComparisonType https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyComparison
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddRequestLobbyListNumericalFilter
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(const char *keyToMatch, int valueToMatch, int eComparisonType)
 {
@@ -112,7 +115,7 @@ extern "C" DLL_EXPORT void AddRequestLobbyListNumericalFilter(const char *keyToM
 /*
 @desc Sets the maximum number of lobbies to return.
 @param maxResults The maximum number of lobbies to return.
-@api ISteamMatchmaking#AddRequestLobbyListResultCountFilter
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddRequestLobbyListResultCountFilter
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults)
 {
@@ -125,8 +128,8 @@ extern "C" DLL_EXPORT void AddRequestLobbyListResultCountFilter(int maxResults)
 @param keyToMatch The filter key name to match.
 @param valueToMatch The string to match.
 @param eComparisonType The type of comparison to make.
-@param-api eComparisonType ISteamMatchmaking#ELobbyComparison
-@api ISteamMatchmaking#AddRequestLobbyListStringFilter
+@param-url eComparisonType https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyComparison
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#AddRequestLobbyListStringFilter
 */
 extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatch, const char *valueToMatch, int eComparisonType)
 {
@@ -136,11 +139,10 @@ extern "C" DLL_EXPORT void AddRequestLobbyListStringFilter(const char *keyToMatc
 
 //CheckForPSNGameBootInvite - deprecated
 
-#pragma region CLobbyCreatedCallResult
-class CLobbyCreatedCallResult : public CCallResultItem<LobbyCreated_t>
+class CCreateLobbyCallResult : public CCallResultItem<LobbyCreated_t>
 {
 public:
-	CLobbyCreatedCallResult(ELobbyType eLobbyType, int cMaxMembers)
+	CCreateLobbyCallResult(ELobbyType eLobbyType, int cMaxMembers)
 	{
 		m_CallResultName = "CreateLobby("
 			+ std::to_string(eLobbyType) + ", "
@@ -149,34 +151,34 @@ public:
 	}
 	uint64 GetLobbyCreatedHandle() { return m_Response.m_ulSteamIDLobby; }
 };
-#pragma endregion
 
 /*
 @desc Creates a new matchmaking lobby.  The lobby is joined once it is created.
 @param eLobbyType The type and visibility of this lobby. This can be changed later via SetLobbyType.
-@param-api eLobbyType ISteamMatchmaking#ELobbyType
+@param-url eLobbyType https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyType
 @param maxMembers The maximum number of players that can join this lobby. This can not be above 250.
 @callback-type callresult
 @callback-getters GetCreateLobbyHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamMatchmaking#CreateLobby
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#CreateLobby
 */
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitialized(0);
 	Callbacks()->RegisterLobbyEnterCallback();
-	return CallResults()->Add(new CLobbyCreatedCallResult((ELobbyType)eLobbyType, maxMembers));
+	return CallResults()->Add(new CCreateLobbyCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
 /*
 @desc Returns the lobby handle for the CreateLobby call.
 @param hCallResult A CreateLobby call result handle.
 @return A lobby SteamID handle or 0 if the call failed.
-@api ISteamMatchmaking#CreateLobby, ISteamMatchmaking#LobbyCreated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#CreateLobby
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyCreated_t
 */
 extern "C" DLL_EXPORT int GetCreateLobbyHandle(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLobbyCreatedCallResult::GetLobbyCreatedHandle);
+	return GetCallResultValue(hCallResult, &CCreateLobbyCallResult::GetLobbyCreatedHandle);
 }
 
 /*
@@ -186,7 +188,7 @@ _This can only be set by the owner of the lobby._
 @param hLobbySteamID The Steam ID of the lobby to delete the metadata for.
 @param key The key to delete the data for.
 @return 1 when the request succeeds; otherwise 0.
-@api ISteamMatchmaking#DeleteLobbyData
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#DeleteLobbyData
 */
 extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, const char *key)
 {
@@ -200,7 +202,7 @@ extern "C" DLL_EXPORT int DeleteLobbyData(int hLobbySteamID, const char *key)
 _Note: You must call GetFavoriteGameCount before calling this._
 @param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
 @return An App ID.
-@api ISteamMatchmaking#GetFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGame
 */
 extern "C" DLL_EXPORT int GetFavoriteGameAppID(int index)
 {
@@ -225,7 +227,7 @@ extern "C" DLL_EXPORT int GetFavoriteGameAppID(int index)
 _Note: You must call GetFavoriteGameCount before calling this._
 @param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
 @return An IP address.
-@api ISteamMatchmaking#GetFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGame
 */
 extern "C" DLL_EXPORT char *GetFavoriteGameIP(int index)
 {
@@ -249,7 +251,7 @@ extern "C" DLL_EXPORT char *GetFavoriteGameIP(int index)
 _Note: You must call GetFavoriteGameCount before calling this._
 @param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
 @return A port number.
-@api ISteamMatchmaking#GetFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGame
 */
 extern "C" DLL_EXPORT int GetFavoriteGameConnectionPort(int index)
 {
@@ -273,7 +275,7 @@ extern "C" DLL_EXPORT int GetFavoriteGameConnectionPort(int index)
 _Note: You must call GetFavoriteGameCount before calling this._
 @param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
 @return A port number.
-@api ISteamMatchmaking#GetFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGame
 */
 extern "C" DLL_EXPORT int GetFavoriteGameQueryPort(int index)
 {
@@ -297,7 +299,7 @@ extern "C" DLL_EXPORT int GetFavoriteGameQueryPort(int index)
 _Note: You must call GetFavoriteGameCount before calling this._
 @param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
 @return 0 = FavoriteFlagNone, 1 = FavoriteFlagFavorite, or 2 = FavoriteFlagHistory
-@api ISteamMatchmaking#GetFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGame
 */
 extern "C" DLL_EXPORT int GetFavoriteGameFlags(int index)
 {
@@ -321,7 +323,7 @@ extern "C" DLL_EXPORT int GetFavoriteGameFlags(int index)
 _Note: You must call GetFavoriteGameCount before calling this._
 @param index The index of the favorite game server to get the details of. This must be between 0 and GetFavoriteGameCount() - 1
 @return Time in Unix epoch format.
-@api ISteamMatchmaking#GetFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGame
 */
 extern "C" DLL_EXPORT int GetFavoriteGameUnixTimeLastPlayedOnServer(int index)
 {
@@ -342,7 +344,7 @@ extern "C" DLL_EXPORT int GetFavoriteGameUnixTimeLastPlayedOnServer(int index)
 /*
 @desc Gets the number of favorite and recent game servers the user has stored locally.
 @return An integer.
-@api ISteamMatchmaking#GetFavoriteGameCount
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetFavoriteGameCount
 */
 extern "C" DLL_EXPORT int GetFavoriteGameCount()
 {
@@ -358,7 +360,7 @@ extern "C" DLL_EXPORT int GetFavoriteGameCount()
 @param hLobbySteamID The Steam ID of the lobby to get the metadata from.
 @param key The key to get the value of.
 @return The value for the given key or an empty string if the key or lobby doesn't exist.
-@api ISteamMatchmaking#GetLobbyData
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyData
 */
 extern "C" DLL_EXPORT char *GetLobbyData(int hLobbySteamID, const char *key)
 {
@@ -415,7 +417,7 @@ extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID)
 @desc Gets the IP address of a game server set in a lobby.
 @param hLobbySteamID The Steam ID of the lobby to get the game server information from.
 @return The IP address for the lobby game server.
-@api ISteamMatchmaking#GetLobbyGameServer
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyGameServer
 */
 extern "C" DLL_EXPORT char *GetLobbyGameServerIP(int hLobbySteamID)
 {
@@ -434,7 +436,7 @@ extern "C" DLL_EXPORT char *GetLobbyGameServerIP(int hLobbySteamID)
 @desc Gets the connection port of a game server set in a lobby.
 @param hLobbySteamID The Steam ID of the lobby to get the game server information from.
 @return The connection port for the lobby game server.
-@api ISteamMatchmaking#GetLobbyGameServer
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyGameServer
 */
 extern "C" DLL_EXPORT int GetLobbyGameServerPort(int hLobbySteamID)
 {
@@ -453,7 +455,7 @@ extern "C" DLL_EXPORT int GetLobbyGameServerPort(int hLobbySteamID)
 @desc Gets the Steam ID handle of a game server set in a lobby.
 @param hLobbySteamID The Steam ID of the lobby to get the game server information from.
 @return The Steam ID handle for the lobby game server.
-@api ISteamMatchmaking#GetLobbyGameServer
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyGameServer
 */
 extern "C" DLL_EXPORT int GetLobbyGameServerSteamID(int hLobbySteamID)
 {
@@ -473,7 +475,7 @@ extern "C" DLL_EXPORT int GetLobbyGameServerSteamID(int hLobbySteamID)
 @param hLobbySteamID This MUST be the same lobby used in the previous call to GetNumLobbyMembers!
 @param index An index between 0 and GetNumLobbyMembers.
 @return A Steam ID handle.
-@api ISteamMatchmaking#GetLobbyMemberByIndex
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyMemberByIndex
 */
 extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 {
@@ -487,7 +489,7 @@ extern "C" DLL_EXPORT int GetLobbyMemberByIndex(int hLobbySteamID, int index)
 @param hSteamIDUser The Steam ID handle of the player to get the metadata from.
 @param key The key to get the value of.
 @return The value for the given key or an empty string if the key, member, or lobby doesn't exist.
-@api ISteamMatchmaking#GetLobbyMemberData
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyMemberData
 */
 extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hSteamIDUser, const char *key)
 {
@@ -499,7 +501,7 @@ extern "C" DLL_EXPORT char *GetLobbyMemberData(int hLobbySteamID, int hSteamIDUs
 @desc The current limit on the number of users who can join the lobby.
 @param hLobbySteamID The Steam ID handle of the lobby to get the member limit of.
 @return A positive integer or 0 if no limit.
-@api ISteamMatchmaking#GetLobbyMemberLimit
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyMemberLimit
 */
 extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID)
 {
@@ -511,7 +513,7 @@ extern "C" DLL_EXPORT int GetLobbyMemberLimit(int hLobbySteamID)
 @desc Returns the current lobby owner.
 @param hLobbySteamID The Steam ID handle of the lobby to get the owner of.
 @return A steam ID handle or 0.
-@api ISteamMatchmaking#GetLobbyOwner
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyOwner
 */
 extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID)
 {
@@ -523,7 +525,7 @@ extern "C" DLL_EXPORT int GetLobbyOwner(int hLobbySteamID)
 @desc Gets the number of users in a lobby.
 @param hLobbySteamID The Steam ID handle of the lobby to get the number of members of.
 @return The number of members in the lobby, 0 if the current user has no data from the lobby.
-@api ISteamMatchmaking#GetNumLobbyMembers
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetNumLobbyMembers
 */
 extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID)
 {
@@ -536,7 +538,7 @@ extern "C" DLL_EXPORT int GetNumLobbyMembers(int hLobbySteamID)
 @param hLobbySteamID The Steam ID handle of the lobby to invite the user to.
 @param hInviteeSteamID The Steam ID handle of the person who will be invited.
 @return 1 when the invitation was sent successfully; otherwise 0.
-@api ISteamMatchmaking#InviteUserToLobby
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#InviteUserToLobby
 */
 extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteamID)
 {
@@ -544,11 +546,10 @@ extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteam
 	return SteamMatchmaking()->InviteUserToLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hInviteeSteamID));
 }
 
-#pragma region CLobbyEnterCallResult
-class CLobbyEnterCallResult : public CCallResultItem<LobbyEnter_t, WrappedResponse <LobbyEnter_t, uint64, &LobbyEnter_t::m_ulSteamIDLobby>>
+class CJoinLobbyCallResult : public CCallResultItem<LobbyEnter_t, WrappedResponse <LobbyEnter_t, uint64, &LobbyEnter_t::m_ulSteamIDLobby>>
 {
 public:
-	CLobbyEnterCallResult(CSteamID steamIDLobby)
+	CJoinLobbyCallResult(CSteamID steamIDLobby)
 	{
 		m_CallResultName = "JoinLobby(" + std::to_string(steamIDLobby.ConvertToUint64()) + ")";
 		m_hSteamAPICall = SteamMatchmaking()->JoinLobby(steamIDLobby);
@@ -558,7 +559,6 @@ public:
 	int GetLobbyEnterLocked() { return (int)m_Response.m_bLocked; }
 	int GetLobbyEnterChatRoomEnterResponse() { return (int)m_Response.m_EChatRoomEnterResponse; }
 };
-#pragma endregion
 
 /*
 @desc Joins an existing lobby.
@@ -566,59 +566,59 @@ public:
 @callback-type callresult
 @callback-getters GetJoinLobbyChatRoomEnterResponse, GetJoinLobbyHandle, GetJoinLobbyLocked
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamMatchmaking#JoinLobby
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#JoinLobby
 */
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
 	Callbacks()->RegisterLobbyEnterCallback();
-	return CallResults()->Add(new CLobbyEnterCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
+	return CallResults()->Add(new CJoinLobbyCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
 // Unused - always 0
 //int GetJoinLobbyChatPermissions(int hCallResult)
 //{
-//	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatPermissions);
+//	return GetCallResultValue(hCallResult, &CJoinLobbyCallResult::GetLobbyEnterChatPermissions);
 //}
 
 /*
 @desc Returns the EChatRoomEnterResponse for the JoinLobby call.
 @param hCallResult A JoinLobby call result handle.
 @return An EChatRoomEnterResponse value.
-@return-api steam_api#EChatRoomEnterResponse
-@api ISteamMatchmaking#LobbyEnter_t
+@return-url https://partner.steamgames.com/doc/api/steam_api#EChatRoomEnterResponse
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int GetJoinLobbyChatRoomEnterResponse(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterChatRoomEnterResponse);
+	return GetCallResultValue(hCallResult, &CJoinLobbyCallResult::GetLobbyEnterChatRoomEnterResponse);
 }
 
 /*
 @desc Returns the lobby Steam ID handle for the JoinLobby call.
 @param hCallResult A JoinLobby call result handle.
 @return The lobby Steam ID handle.
-@api ISteamMatchmaking#LobbyEnter_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int GetJoinLobbyHandle(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterHandle);
+	return GetCallResultValue(hCallResult, &CJoinLobbyCallResult::GetLobbyEnterHandle);
 }
 
 /*
 @desc Returns whether the lobby is locked for the JoinLobby call.
 @param hCallResult A JoinLobby call result handle.
 @return 1 if only invited users can join the lobby; otherwise 0.
-@api ISteamMatchmaking#LobbyEnter_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int GetJoinLobbyLocked(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLobbyEnterCallResult::GetLobbyEnterLocked);
+	return GetCallResultValue(hCallResult, &CJoinLobbyCallResult::GetLobbyEnterLocked);
 }
 
 /*
 @desc Leave a lobby that the user is currently in; this will take effect immediately on the client side, other users in the lobby will be notified by a LobbyChatUpdate_t callback.
 @param hLobbySteamID The Steam ID handle of the lobby to leave.
-@api ISteamMatchmaking#LeaveLobby
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LeaveLobby
 */
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID)
 {
@@ -652,9 +652,12 @@ extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID)
 @param connectPort The port used to connect to the server, in host order.
 @param queryPort The port used to query the server, in host order.
 @param flags Whether the server is on the favorites list or history list. See k_unFavoriteFlagNone for more information.
-@param-api flags ISteamMatchmaking#k_unFavoriteFlagNone
+@param-url flags https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagNone
 @return 1 if the server was removed; otherwise, 0 if the specified server was not on the users local favorites list.
-@api ISteamMatchmaking#RemoveFavoriteGame, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#RemoveFavoriteGame
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagNone
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagFavorite
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagHistory
 */
 extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, const char *ipv4, int connectPort, int queryPort, int flags)
 {
@@ -681,7 +684,8 @@ extern "C" DLL_EXPORT int RemoveFavoriteGame(int appID, const char *ipv4, int co
 @desc Refreshes all of the metadata for a lobby that you're not in right now.
 @param hLobbySteamID The Steam ID of the lobby to refresh the metadata of.
 @return 1 when the request for lobby data succeeds will be reported by the LobbyDataUpdate_t callback. 0 when the request fails.
-@api ISteamMatchmaking#RequestLobbyData, ISteamMatchmaking#LobbyDataUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#RequestLobbyData
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID)
 {
@@ -689,11 +693,10 @@ extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID)
 	return SteamMatchmaking()->RequestLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
-#pragma region CLobbyMatchListCallResult
-class CLobbyMatchListCallResult : public CCallResultItem<LobbyMatchList_t, AlwaysOKResponse<LobbyMatchList_t>>
+class CRequestLobbyListCallResult : public CCallResultItem<LobbyMatchList_t, AlwaysOKResponse<LobbyMatchList_t>>
 {
 public:
-	CLobbyMatchListCallResult()
+	CRequestLobbyListCallResult()
 	{
 		m_CallResultName = "RequestLobbyList()";
 		m_hSteamAPICall = SteamMatchmaking()->RequestLobbyList();
@@ -712,30 +715,29 @@ protected:
 		}
 	}
 };
-#pragma endregion
 
 /*
 @desc Request a filtered list of relevant lobbies.
 @callback-type callresult
 @callback-getters GetRequestLobbyListCount, GetRequestLobbyListHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamMatchmaking#RequestLobbyList
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#RequestLobbyList
 */
 extern "C" DLL_EXPORT int RequestLobbyList()
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CLobbyMatchListCallResult());
+	return CallResults()->Add(new CRequestLobbyListCallResult());
 }
 
 /*
 @desc Gets the number of lobbies returned by the RequestLobbyList call.
 @param hCallResult A RequestLobbyList call result handle.
 @return The list count.
-@api ISteamMatchmaking#LobbyMatchList_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyMatchList_t
 */
 extern "C" DLL_EXPORT int GetRequestLobbyListCount(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLobbyMatchListCallResult::GetLobbyCount);
+	return GetCallResultValue(hCallResult, &CRequestLobbyListCallResult::GetLobbyCount);
 }
 
 /*
@@ -743,11 +745,11 @@ extern "C" DLL_EXPORT int GetRequestLobbyListCount(int hCallResult)
 @param hCallResult A RequestLobbyList call result handle.
 @param index The lobby index.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyMatchList_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyMatchList_t
 */
 extern "C" DLL_EXPORT int GetRequestLobbyListHandle(int hCallResult, int index)
 {
-	return GetCallResultValue(hCallResult, index, &CLobbyMatchListCallResult::GetLobby, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CRequestLobbyListCallResult::GetLobby, __FUNCTION__);
 }
 
 /*
@@ -755,7 +757,7 @@ extern "C" DLL_EXPORT int GetRequestLobbyListHandle(int hCallResult, int index)
 @param hLobbySteamID The Steam ID handle of the lobby to send the chat message to.
 @param memblockID A memblock containing the message to send.
 @return 1 when the send succeeds; otherwise 0.
-@api ISteamMatchmaking#SendLobbyChatMessage
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SendLobbyChatMessage
 @plugin-name SendLobbyChatMessage
 */
 extern "C" DLL_EXPORT int SendLobbyChatMessageMemblock(int hLobbySteamID, int memblockID)
@@ -769,7 +771,7 @@ extern "C" DLL_EXPORT int SendLobbyChatMessageMemblock(int hLobbySteamID, int me
 @param hLobbySteamID The Steam ID handle of the lobby to send the chat message to.
 @param message The message to send.
 @return 1 when the send succeeds; otherwise 0.
-@api ISteamMatchmaking#SendLobbyChatMessage
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SendLobbyChatMessage
 */
 extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, const char *message)
 {
@@ -786,7 +788,7 @@ _This can only be set by the owner of the lobby._
 @param hLobbySteamID The Steam ID of the lobby to set the metadata for.
 @param key The key to set the data for.
 @param value The value to set.
-@api ISteamMatchmaking#SetLobbyData
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyData
 */
 extern "C" DLL_EXPORT void SetLobbyData(int hLobbySteamID, const char *key, const char *value)
 {
@@ -804,7 +806,7 @@ _This can only be set by the owner of the lobby._
 @param gameServerPort Sets the connection port of the game server.
 @param hGameServerSteamID Sets the Steam ID handle of the game server.
 @return 1 when the call succeeds; otherwise 0.
-@api ISteamMatchmaking#SetLobbyGameServer
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyGameServer
 */
 extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
 {
@@ -831,7 +833,7 @@ _This can only be set by the owner of the lobby._
 @param hLobbySteamID The Steam ID handle of the lobby
 @param lobbyJoinable 1 to allow or 0 to disallow users to join this lobby.
 @return 1 when the call succeeds; otherwise 0.
-@api ISteamMatchmaking#SetLobbyJoinable
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyJoinable
 */
 extern "C" DLL_EXPORT int SetLobbyJoinable(int hLobbySteamID, int lobbyJoinable)
 {
@@ -846,7 +848,7 @@ Each user in the lobby will be receive notification of the lobby data change via
 @param hLobbySteamID The Steam ID of the lobby to set our metadata in.
 @param key The key to set the data for.
 @param value The value to set.
-@api ISteamMatchmaking#SetLobbyMemberData
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyMemberData
 */
 extern "C" DLL_EXPORT void SetLobbyMemberData(int hLobbySteamID, const char *key, const char *value)
 {
@@ -861,7 +863,7 @@ _This can only be set by the owner of the lobby._
 @param hLobbySteamID The Steam ID handle of the lobby to set the member limit for.
 @param maxMembers The maximum number of players allowed in this lobby. This can not be above 250.
 @return 1 if the limit was successfully set; otherwise 0.
-@api ISteamMatchmaking#SetLobbyMemberLimit
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyMemberLimit
 */
 extern "C" DLL_EXPORT int SetLobbyMemberLimit(int hLobbySteamID, int maxMembers)
 {
@@ -877,7 +879,7 @@ _This can only be set by the owner of the lobby._
 @param hLobbySteamID The Steam ID handle of the lobby where the owner change will take place.
 @param hNewOwnerSteamID The Steam ID handle of the user that will be the new owner of the lobby, they must be in the lobby.
 @return 1 if the owner is successfully changed; otherwise 0.
-@api ISteamMatchmaking#SetLobbyOwner
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyOwner
 */
 extern "C" DLL_EXPORT int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID)
 {
@@ -891,9 +893,9 @@ extern "C" DLL_EXPORT int SetLobbyOwner(int hLobbySteamID, int hNewOwnerSteamID)
 _This can only be set by the owner of the lobby._
 @param hLobbySteamID The Steam ID handle of the lobby
 @param eLobbyType The new lobby type to that will be set.
-@param-api eLobbyType ISteamMatchmaking#ELobbyType
+@param-url eLobbyType https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyType
 @return 1 when the call succeeds; otherwise 0.
-@api ISteamMatchmaking#SetLobbyType
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#SetLobbyType
 */
 extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType)
 {
@@ -908,7 +910,7 @@ extern "C" DLL_EXPORT int SetLobbyType(int hLobbySteamID, int eLobbyType)
 @callback-getters	GetFavoritesListChangedIP, GetFavoritesListChangedQueryPort, GetFavoritesListChangedConnectionPort, GetFavoritesListChangedAppID,
 GetFavoritesListChangedFlags, GetFavoritesListChangedIsAdd, GetFavoritesListChangedAccountID
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT int HasFavoritesListChangedResponse()
 {
@@ -920,7 +922,7 @@ extern "C" DLL_EXPORT int HasFavoritesListChangedResponse()
 @desc Gets the IP of the current FavoritesListAccountsUpdated_t callback reponse.
 When an empty string, reload the entire list; otherwise it means just one server.
 @return An IP address or empty string.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT char *GetFavoritesListChangedIP()
 {
@@ -930,7 +932,7 @@ extern "C" DLL_EXPORT char *GetFavoritesListChangedIP()
 /*
 @desc Gets the query port of the current FavoritesListAccountsUpdated_t callback reponse.
 @return An integer.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedQueryPort()
 {
@@ -940,7 +942,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedQueryPort()
 /*
 @desc Gets the connection port of the current FavoritesListAccountsUpdated_t callback reponse.
 @return An integer.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedConnectionPort()
 {
@@ -950,7 +952,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedConnectionPort()
 /*
 @desc Gets the App ID of the game server for the current FavoritesListAccountsUpdated_t callback reponse.
 @return An integer.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedAppID()
 {
@@ -960,7 +962,10 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedAppID()
 /*
 @desc Gets the query port of the current FavoritesListAccountsUpdated_t callback reponse.
 @return Whether the server is on the favorites list or history list. See k_unFavoriteFlagNone for more information.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t, ISteamMatchmaking#k_unFavoriteFlagNone, ISteamMatchmaking#k_unFavoriteFlagFavorite, ISteamMatchmaking#k_unFavoriteFlagHistory
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagNone
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagFavorite
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#k_unFavoriteFlagHistory
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedFlags()
 {
@@ -970,7 +975,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedFlags()
 /*
 @desc Gets whether the game server was added (1) or removed (0) from the list for the current FavoritesListAccountsUpdated_t callback reponse.
 @return 1 if added, 0 if removed.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedIsAdd()
 {
@@ -980,7 +985,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedIsAdd()
 /*
 @desc Gets the account ID of the current FavoritesListAccountsUpdated_t callback reponse.
 @return An integer.
-@api ISteamMatchmaking#FavoritesListAccountsUpdated_t, steam_api#AccountID_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#FavoritesListAccountsUpdated_t
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedAccountID()
 {
@@ -992,7 +997,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedAccountID()
 @callback-type list
 @callback-getters	GetLobbyChatMessageLobby, GetLobbyChatMessageUser, GetLobbyChatMessageText
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamMatchmaking#LobbyChatMsg_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int HasLobbyChatMessageResponse()
 {
@@ -1003,7 +1008,7 @@ extern "C" DLL_EXPORT int HasLobbyChatMessageResponse()
 /*
 @desc Gets the lobby for the current LobbyChatMsg_t callback response.
 @return A lobby Steam ID handle.
-@api ISteamMatchmaking#LobbyChatMsg_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageLobby()
 {
@@ -1014,7 +1019,8 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageLobby()
 /*
 @desc Gets the Steam ID handle of the user for the current LobbyChatMsg_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyChatEntry
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser()
 {
@@ -1026,7 +1032,8 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageUser()
 ///*
 //@desc Gets the chat entry type for the current LobbyChatMsg_t callback response.
 //@return An EChatEntryType value.
-//@api ISteamMatchmaking#LobbyChatMsg_t, steam_api#EChatEntryType
+//@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatMsg_t
+//@url https://partner.steamgames.com/doc/api/steam_api#EChatEntryType
 //*/
 //extern "C" DLL_EXPORT int GetLobbyChatMessageEntryType()
 //{
@@ -1038,7 +1045,8 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageUser()
 @desc Gets the chat message in a memblock for the current LobbyChatMsg_t callback response.
 The memblock will be deleted the next time HasLobbyChatMessageResponse is called.
 @return A memblock containing the contents of the chat message.
-@api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyChatEntry
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock()
 {
@@ -1048,7 +1056,8 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock()
 /*
 @desc Gets the chat message as text for the current LobbyChatMsg_t callback response.
 @return The contents of the chat message.
-@api ISteamMatchmaking#GetLobbyChatEntry, ISteamMatchmaking#LobbyChatMsg_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyChatEntry
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatMsg_t
 */
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText()
 {
@@ -1066,7 +1075,7 @@ extern "C" DLL_EXPORT char *GetLobbyChatMessageText()
 @callback-type list
 @callback-getters GetLobbyChatUpdateLobby, GetLobbyChatUpdateUserChanged, GetLobbyChatUpdateUserState, GetLobbyChatUpdateUserMakingChange
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamMatchmaking#LobbyChatUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int HasLobbyChatUpdateResponse()
 {
@@ -1077,7 +1086,7 @@ extern "C" DLL_EXPORT int HasLobbyChatUpdateResponse()
 /*
 @desc The lobby for the current LobbyChatUpdate_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyChatUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateLobby()
 {
@@ -1088,7 +1097,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateLobby()
 /*
 @desc The user whose status in the lobby has changed for the current LobbyChatUpdate_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyChatUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged()
 {
@@ -1099,8 +1108,8 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged()
 /*
 @desc The new user state for the user whose status changed for the current LobbyChatUpdate_t callback response.
 @return EChatMemberStateChange bit data
-@return-api ISteamMatchmaking#EChatMemberStateChange
-@api ISteamMatchmaking#LobbyChatUpdate_t
+@return-url https://partner.steamgames.com/doc/api/ISteamMatchmaking#EChatMemberStateChange
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState()
 {
@@ -1111,7 +1120,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState()
 /*
 @desc Chat member who made the change for the current LobbyChatUpdate_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyChatUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyChatUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange()
 {
@@ -1124,7 +1133,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange()
 @callback-type list
 @callback-getters GetLobbyDataUpdateLobby, GetLobbyDataUpdateMember, GetLobbyDataUpdateSuccess
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamMatchmaking#LobbyDataUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse()
 {
@@ -1135,7 +1144,7 @@ extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse()
 /*
 @desc Returns the lobby whose metadata has changed for the current LobbyDataUpdate_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyDataUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateLobby()
 {
@@ -1147,7 +1156,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateLobby()
 If this value is a user in the lobby, then use GetLobbyMemberData to access per-user details;
 otherwise, if GetLobbyDataUpdateMember == GetLobbyDataUpdateLobby, use GetLobbyData to access the lobby metadata.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyDataUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateMember()
 {
@@ -1157,7 +1166,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateMember()
 /*
 @desc Returns the success of the lobby data update for the current LobbyDataUpdate_t callback response.
 @return 1 if the lobby data was successfully changed, otherwise 0.
-@api ISteamMatchmaking#LobbyDataUpdate_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyDataUpdate_t
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess()
 {
@@ -1169,7 +1178,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess()
 @callback-type list
 @callback-getters GetLobbyEnterChatRoomEnterResponse, GetLobbyEnterLobby, GetLobbyEnterLocked
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamMatchmaking#LobbyEnter_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int HasLobbyEnterResponse()
 {
@@ -1186,8 +1195,8 @@ extern "C" DLL_EXPORT int HasLobbyEnterResponse()
 /*
 @desc Gets EChatRoomEnterResponse for the current LobbyEnter_t callback response.
 @return An EChatRoomEnterResponse value.
-@return-api steam_api#EChatRoomEnterResponse
-@api ISteamMatchmaking#LobbyEnter_t
+@return-url https://partner.steamgames.com/doc/api/steam_api#EChatRoomEnterResponse
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse()
 {
@@ -1197,7 +1206,7 @@ extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse()
 /*
 @desc Returns the lobby for the current LobbyEnter_t callback response.
 @return The lobby Steam ID handle.
-@api ISteamMatchmaking#LobbyEnter_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int GetLobbyEnterLobby()
 {
@@ -1207,7 +1216,7 @@ extern "C" DLL_EXPORT int GetLobbyEnterLobby()
 /*
 @desc Returns the locked value for the current LobbyEnter_t callback response.
 @return 1 if only invited users can join the lobby; otherwise 0.
-@api ISteamMatchmaking#LobbyEnter_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyEnter_t
 */
 extern "C" DLL_EXPORT int GetLobbyEnterLocked()
 {
@@ -1220,7 +1229,7 @@ _This can only be read once per lobby game creation!_
 @callback-type list
 @callback-getters GetLobbyGameCreatedGameServer, GetLobbyGameCreatedLobby, GetLobbyGameCreatedIP, GetLobbyGameCreatedPort
 @return 1 when a lobby game was created; otherwise 0.
-@api ISteamMatchmaking#LobbyGameCreated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyGameCreated_t
 */
 extern "C" DLL_EXPORT int HasLobbyGameCreatedResponse()
 {
@@ -1230,7 +1239,7 @@ extern "C" DLL_EXPORT int HasLobbyGameCreatedResponse()
 /*
 @desc Returns the current game server Steam ID handle for the LobbyGameCreated_t callback.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyGameCreated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyGameCreated_t
 */
 extern "C" DLL_EXPORT int GetLobbyGameCreatedGameServer()
 {
@@ -1240,7 +1249,7 @@ extern "C" DLL_EXPORT int GetLobbyGameCreatedGameServer()
 /*
 @desc Returns the Steam ID handle of the lobby that set the game server for the current LobbyGameCreated_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyGameCreated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyGameCreated_t
 */
 extern "C" DLL_EXPORT int GetLobbyGameCreatedLobby()
 {
@@ -1250,7 +1259,7 @@ extern "C" DLL_EXPORT int GetLobbyGameCreatedLobby()
 /*
 @desc Returns the IP address of the game server for the current LobbyGameCreated_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyGameCreated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyGameCreated_t
 */
 extern "C" DLL_EXPORT char *GetLobbyGameCreatedIP()
 {
@@ -1260,7 +1269,7 @@ extern "C" DLL_EXPORT char *GetLobbyGameCreatedIP()
 /*
 @desc Returns the connection port of the game server for the current LobbyGameCreated_t callback response.
 @return A Steam ID handle.
-@api ISteamMatchmaking#LobbyGameCreated_t
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#LobbyGameCreated_t
 */
 extern "C" DLL_EXPORT int GetLobbyGameCreatedPort()
 {

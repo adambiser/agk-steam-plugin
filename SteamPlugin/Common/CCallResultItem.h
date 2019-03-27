@@ -138,15 +138,21 @@ int GetCallResultValue(int hCallResult, int(callresult_type::*function)(void))
 }
 
 template <typename callresult_type>
-int GetCallResultValue(int hCallResult, int index, int(callresult_type::*function)(int), char *functionName)
+int GetCallResultValue(int hCallResult, bool(callresult_type::*function)(void))
 {
 	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
-		if (callResult->IsValidIndex(index))
-		{
-			return (callResult->*function)(index);
-		}
-		utils::PluginError(functionName + std::string(": Index out of range."));
+		return (callResult->*function)();
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, uint32(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
 	}
 	return 0;
 }
@@ -167,6 +173,41 @@ int GetCallResultValue(int hCallResult, CSteamID(callresult_type::*function)(voi
 	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
 		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+char *GetCallResultValue(int hCallResult, std::string(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
+
+template <typename callresult_type>
+char *GetCallResultValue(int hCallResult, char *(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
+
+// Indexes result values
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, int(callresult_type::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return (callResult->*function)(index);
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
 	}
 	return 0;
 }
@@ -197,26 +238,6 @@ int GetCallResultValue(int hCallResult, int index, CSteamID(callresult_type::*fu
 		utils::PluginError(functionName + std::string(": Index out of range."));
 	}
 	return 0;
-}
-
-template <typename callresult_type>
-char *GetCallResultValue(int hCallResult, std::string(callresult_type::*function)(void))
-{
-	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
-	{
-		return utils::CreateString((callResult->*function)());
-	}
-	return agk::CreateString(0);
-}
-
-template <typename callresult_type>
-char *GetCallResultValue(int hCallResult, char *(callresult_type::*function)(void))
-{
-	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
-	{
-		return utils::CreateString((callResult->*function)());
-	}
-	return agk::CreateString(0);
 }
 
 // Used to wrap Steamworks structs that don't have an m_eResult member.

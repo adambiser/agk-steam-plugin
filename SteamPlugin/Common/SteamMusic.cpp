@@ -27,7 +27,7 @@ THE SOFTWARE.
 /*
 @desc Checks if Steam Music is enabled.
 @return 1 if Steam Music is enabled; otherwise 0.
-@api ISteamMusic#BIsEnabled
+@url https://partner.steamgames.com/doc/api/ISteamMusic#BIsEnabled
 */
 extern "C" DLL_EXPORT int IsMusicEnabled()
 {
@@ -38,7 +38,7 @@ extern "C" DLL_EXPORT int IsMusicEnabled()
 /*
 @desc Checks if Steam Music is active. This does not necessarily mean that a song is currently playing, it may be paused.
 @return 1 if Steam Music is active; otherwise 0.
-@api ISteamMusic#BIsPlaying
+@url https://partner.steamgames.com/doc/api/ISteamMusic#BIsPlaying
 */
 extern "C" DLL_EXPORT int IsMusicPlaying()
 {
@@ -50,7 +50,7 @@ extern "C" DLL_EXPORT int IsMusicPlaying()
 @desc Gets the current status of the Steam Music player.
 @return An AudioPlayback_Status value
 @return-url https://partner.steamgames.com/doc/api/ISteamMusic#AudioPlayback_Status
-@api ISteamMusic#GetPlaybackStatus
+@url https://partner.steamgames.com/doc/api/ISteamMusic#GetPlaybackStatus
 */
 extern "C" DLL_EXPORT int GetMusicPlaybackStatus()
 {
@@ -61,7 +61,7 @@ extern "C" DLL_EXPORT int GetMusicPlaybackStatus()
 /*
 @desc Gets the current volume of the Steam Music player.
 @return The volume is returned as a percentage between 0.0 and 1.0.
-@api ISteamMusic#GetVolume
+@url https://partner.steamgames.com/doc/api/ISteamMusic#GetVolume
 */
 extern "C" DLL_EXPORT float GetMusicVolume()
 {
@@ -71,7 +71,7 @@ extern "C" DLL_EXPORT float GetMusicVolume()
 
 /*
 @desc Pause the Steam Music player.
-@api ISteamMusic#Pause
+@url https://partner.steamgames.com/doc/api/ISteamMusic#Pause
 */
 extern "C" DLL_EXPORT void PauseMusic()
 {
@@ -81,7 +81,7 @@ extern "C" DLL_EXPORT void PauseMusic()
 
 /*
 @desc Have the Steam Music player resume playing.
-@api ISteamMusic#Play
+@url https://partner.steamgames.com/doc/api/ISteamMusic#Play
 */
 extern "C" DLL_EXPORT void PlayMusic()
 {
@@ -91,7 +91,7 @@ extern "C" DLL_EXPORT void PlayMusic()
 
 /*
 @desc Have the Steam Music player skip to the next song.
-@api ISteamMusic#PlayNext
+@url https://partner.steamgames.com/doc/api/ISteamMusic#PlayNext
 */
 extern "C" DLL_EXPORT void PlayNextSong()
 {
@@ -101,7 +101,7 @@ extern "C" DLL_EXPORT void PlayNextSong()
 
 /*
 @desc Have the Steam Music player play the previous song.
-@api ISteamMusic#PlayPrevious
+@url https://partner.steamgames.com/doc/api/ISteamMusic#PlayPrevious
 */
 extern "C" DLL_EXPORT void PlayPreviousSong()
 {
@@ -112,7 +112,7 @@ extern "C" DLL_EXPORT void PlayPreviousSong()
 /*
 @desc Sets the volume of the Steam Music player.
 @param volume The volume percentage to set from 0.0 to 1.0.
-@api ISteamMusic#SetVolume
+@url https://partner.steamgames.com/doc/api/ISteamMusic#SetVolume
 */
 extern "C" DLL_EXPORT void SetMusicVolume(float volume)
 {
@@ -125,7 +125,7 @@ extern "C" DLL_EXPORT void SetMusicVolume(float volume)
 @desc Notifies the caller that the music playback status has changed since the last call.
 @callback-type bool
 @return 1 when a change has occurred; otherwise 0.
-@api ISteamMusic#PlaybackStatusHasChanged_t
+@url https://partner.steamgames.com/doc/api/ISteamMusic#PlaybackStatusHasChanged_t
 */
 extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 {
@@ -137,7 +137,7 @@ extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 @desc Notifies the caller that the music volume has changed since the last call.
 @callback-type bool
 @return 1 when a change has occurred; otherwise 0.
-@api ISteamMusic#VolumeHasChanged_t
+@url https://partner.steamgames.com/doc/api/ISteamMusic#VolumeHasChanged_t
 */
 extern "C" DLL_EXPORT int HasMusicVolumeChangedResponse()
 {

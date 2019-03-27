@@ -42,7 +42,7 @@ This is meant to be used when a user actively deletes a file. Use FileForget if 
 When a file has been deleted it can be re-written with FileWrite to reupload it to the Steam Cloud.
 @param filename The name of the file that will be deleted.
 @return 1 if the file exists and has been successfully deleted; otherwise, 0 if the file did not exist.
-@api ISteamRemoteStorage#FileDelete
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileDelete
 */
 extern "C" DLL_EXPORT int CloudFileDelete(const char *filename)
 {
@@ -54,7 +54,7 @@ extern "C" DLL_EXPORT int CloudFileDelete(const char *filename)
 @desc Checks whether the specified file exists.
 @param filename The name of the file.
 @return 1 if the file exists; otherwise, 0.
-@api ISteamRemoteStorage#FileExists
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileExists
 */
 extern "C" DLL_EXPORT int CloudFileExists(const char *filename)
 {
@@ -78,7 +78,7 @@ For instance, "Which file would you like to delete so that you may store this ne
 Once a file has been deleted or forgotten, calling FileWrite will resynchronize it in the Cloud. Rewriting a forgotten file is the only way to make it persisted again.
 @param filename The name of the file that will be forgotten.
 @return	1 if the file exists and has been successfully forgotten; otherwise, 0.
-@api ISteamRemoteStorage#FileForget
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileForget
 */
 extern "C" DLL_EXPORT int CloudFileForget(const char *filename)
 {
@@ -94,7 +94,7 @@ extern "C" DLL_EXPORT int CloudFileForget(const char *filename)
 @return
 1 if the file exists and the file is persisted in the Steam Cloud.
 0 if FileForget was called on it and is only available locally.
-@api ISteamRemoteStorage#FilePersisted
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FilePersisted
 */
 extern "C" DLL_EXPORT int CloudFilePersisted(const char *filename)
 {
@@ -112,7 +112,7 @@ the asynchronous version of this API is recommended.
 @return
 A memblock ID containing the data read from the file.
 Returns 0 if the file doesn't exist or the read fails.
-@api ISteamRemoteStorage#FileRead
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileRead
 */
 extern "C" DLL_EXPORT int CloudFileRead(const char *filename)
 {
@@ -127,7 +127,6 @@ extern "C" DLL_EXPORT int CloudFileRead(const char *filename)
 	return 0;
 }
 
-#pragma region CFileReadAsyncCallResult
 class CFileReadAsyncCallResult : public CCallResultItem<RemoteStorageFileReadAsyncComplete_t>
 {
 public:
@@ -179,8 +178,6 @@ protected:
 private:
 	std::string m_FileName;
 };
-#pragma endregion
-
 
 /*
 @desc Starts an asynchronous read from a file.
@@ -192,7 +189,8 @@ The offset and amount to read should be valid for the size of the file, as indic
 @callback-type callresult
 @callback-getters GetCloudFileReadAsyncFileName, GetCloudFileReadAsyncMemblock
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileReadAsync
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, int length)
 {
@@ -217,7 +215,8 @@ extern "C" DLL_EXPORT int CloudFileReadAsync(const char *filename, int offset, i
 @desc Returns the file name for the CloudFileReadAsync call.
 @param hCallResult A CloudFileReadAsync call result handle.
 @return The file name.
-@api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileReadAsync
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult)
 {
@@ -230,14 +229,14 @@ extern "C" DLL_EXPORT char *GetCloudFileReadAsyncFileName(int hCallResult)
 A call result will delete its memblock in DeleteCallResult() so calling code does not need to do so.
 @param hCallResult A CloudFileReadAsync call result handle.
 @return A memblock ID.
-@api ISteamRemoteStorage#FileReadAsync, ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileReadAsync
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileReadAsyncComplete_t
 */
 extern "C" DLL_EXPORT int GetCloudFileReadAsyncMemblock(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CFileReadAsyncCallResult::GetMemblockID);
 }
 
-#pragma region CFileShareCallResult
 class CFileShareCallResult : public CCallResultItem<RemoteStorageFileShareResult_t>
 {
 public:
@@ -249,7 +248,6 @@ public:
 	UGCHandle_t GetUGCHandle() { return m_Response.m_hFile; }
 	char *GetFileName() { return m_Response.m_rgchFilename; }
 };
-#pragma endregion
 
 /*
 @desc Shares a file with users and features.
@@ -257,7 +255,8 @@ public:
 @callback-type callresult
 @callback-getters GetCloudFileShareUGCHandle, GetCloudFileShareFileName
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamRemoteStorage#FileShare, ISteamRemoteStorage#RemoteStorageFileShareResult_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileShare
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileShareResult_t
 */
 extern "C" DLL_EXPORT int CloudFileShare(const char *filename)
 {
@@ -269,7 +268,8 @@ extern "C" DLL_EXPORT int CloudFileShare(const char *filename)
 @desc Returns the UGC handle for the CloudFileShare call.
 @param hCallResult A CloudFileShare call result handle.
 @return A UGC handle.
-@api ISteamRemoteStorage#FileShare, ISteamRemoteStorage#RemoteStorageFileShareResult_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileShare
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileShareResult_t
 */
 extern "C" DLL_EXPORT int GetCloudFileShareUGCHandle(int hCallResult)
 {
@@ -280,7 +280,8 @@ extern "C" DLL_EXPORT int GetCloudFileShareUGCHandle(int hCallResult)
 @desc Returns the file name for the CloudFileShare call.
 @param hCallResult A CloudFileShare call result handle.
 @return The file name.
-@api ISteamRemoteStorage#FileShare, ISteamRemoteStorage#RemoteStorageFileShareResult_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileShare
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileShareResult_t
 */
 extern "C" DLL_EXPORT char *GetCloudFileShareFileName(int hCallResult)
 {
@@ -304,7 +305,7 @@ Otherwise, 0 under the following conditions:
 * You tried to write to an invalid path or filename.
 * The current user's Steam Cloud storage quota has been exceeded. They may have run out of space, or have too many files.
 * Steam could not write to the disk, the location might be read-only.
-@api ISteamRemoteStorage#FileWrite
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWrite
 */
 extern "C" DLL_EXPORT int CloudFileWrite(const char *filename, int memblockID)
 {
@@ -316,7 +317,6 @@ extern "C" DLL_EXPORT int CloudFileWrite(const char *filename, int memblockID)
 	return false;
 }
 
-#pragma region CFileWriteAsyncCallResult
 class CFileWriteAsyncCallResult : public CCallResultItem<RemoteStorageFileWriteAsyncComplete_t>
 {
 public:
@@ -330,7 +330,6 @@ public:
 private:
 	std::string m_FileName;
 };
-#pragma endregion
 
 /*
 @desc Creates a new file and asynchronously writes the raw byte data to the Steam Cloud, and then closes the file. If the target file already exists, it is overwritten.
@@ -341,7 +340,8 @@ The data in memblock is copied and the memblock can be deleted immediately after
 @callback-type callresult
 @callback-getters GetCloudFileWriteAsyncFileName
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamRemoteStorage#FileWriteAsync, ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWriteAsync
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageFileWriteAsyncComplete_t
 */
 extern "C" DLL_EXPORT int CloudFileWriteAsync(const char *filename, int memblockID)
 {
@@ -370,7 +370,7 @@ extern "C" DLL_EXPORT char *GetCloudFileWriteAsyncFileName(int hCallResult)
 This trashes all of the data written and closes the write stream, but if there was an existing file with this name, it remains untouched.
 @param writeHandle The file write stream to cancel.
 @return 1 or 0.  Steamworks SDK docs don't explain.
-@api ISteamRemoteStorage#FileWriteStreamCancel
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWriteStreamCancel
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamCancel(int writeHandle)
 {
@@ -384,7 +384,7 @@ extern "C" DLL_EXPORT int CloudFileWriteStreamCancel(int writeHandle)
 This flushes the stream to the disk, overwriting the existing file if there was one.
 @param writeHandle The file write stream to close.
 @return 1 if the file write stream was successfully closed; otherwise 0.
-@api ISteamRemoteStorage#FileWriteStreamClose
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWriteStreamClose
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamClose(int writeHandle)
 {
@@ -397,7 +397,7 @@ extern "C" DLL_EXPORT int CloudFileWriteStreamClose(int writeHandle)
 If the target file already exists, it is not overwritten until FileWriteStreamClose has been called.
 @param filename The name of the file to write to.
 @return A file write stream handle or -1 if there's a problem.
-@api ISteamRemoteStorage#FileWriteStreamOpen
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWriteStreamOpen
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamOpen(const char *filename)
 {
@@ -413,7 +413,7 @@ Data size is restricted to 100 * 1024 * 1024 bytes.
 @param offset The offset within the memblock of the data to write.
 @param length The length of the data to write.
 @return 1 if the data was successfully written to the file write stream; otherwise 0;
-@api ISteamRemoteStorage#FileWriteStreamWriteChunk
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWriteStreamWriteChunk
 @plugin-name CloudFileWriteStreamWriteChunk
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunkEx(int writeHandle, int memblockID, int offset, int length)
@@ -438,7 +438,7 @@ Data size is restricted to 100 * 1024 * 1024 bytes.
 @param writeHandle The file write stream to write to.
 @param memblockID A memblock containing the data to write.
 @return 1 if the data was successfully written to the file write stream; otherwise 0;
-@api ISteamRemoteStorage#FileWriteStreamWriteChunk
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#FileWriteStreamWriteChunk
 */
 extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunk(int writeHandle, int memblockID)
 {
@@ -460,7 +460,7 @@ extern "C" DLL_EXPORT int GetCloudCachedUGCHandle(int index) // no information o
 /*
 @desc Gets the total number of local files synchronized by Steam Cloud.
 @return The number of files present for the current user, including files in subfolders.
-@api ISteamRemoteStorage#GetFileCount
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileCount
 */
 extern "C" DLL_EXPORT int GetCloudFileCount()
 {
@@ -474,7 +474,8 @@ extern "C" DLL_EXPORT int GetCloudFileCount()
 @desc Gets the file name at the given index
 @param index The index of the file, this should be between 0 and GetFileCount.
 @return The name of the file at the given index.  An empty string if the file doesn't exist.
-@api ISteamRemoteStorage#GetFileCount, ISteamRemoteStorage#GetFileNameAndSize
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileNameAndSize
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileCount
 */
 extern "C" DLL_EXPORT char *GetCloudFileName(int index)
 {
@@ -487,7 +488,8 @@ extern "C" DLL_EXPORT char *GetCloudFileName(int index)
 @desc Gets the file size at the given index
 @param index The index of the file, this should be between 0 and GetFileCount.
 @return The name of the file at the given index.  An empty string if the file doesn't exist.
-@api ISteamRemoteStorage#GetFileCount, ISteamRemoteStorage#GetFileNameAndSize
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileNameAndSize
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileCount
 @plugin-name GetCloudFileSize
 */
 extern "C" DLL_EXPORT int GetCloudFileSizeByIndex(int index)
@@ -505,7 +507,7 @@ extern "C" DLL_EXPORT int GetCloudFileSizeByIndex(int index)
 @desc Gets the specified file's size in bytes.
 @param filename 	The name of the file.
 @return The size of the file in bytes. Returns 0 if the file does not exist.
-@api ISteamRemoteStorage#GetFileSize
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileSize
 */
 extern "C" DLL_EXPORT int GetCloudFileSize(const char *filename)
 {
@@ -517,7 +519,7 @@ extern "C" DLL_EXPORT int GetCloudFileSize(const char *filename)
 @desc Gets the specified file's last modified timestamp in Unix epoch format (seconds since Jan 1st 1970).
 @param filename The name of the file.
 @return The last modified timestamp in Unix epoch format.
-@api ISteamRemoteStorage#GetFileTimestamp
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetFileTimestamp
 */
 extern "C" DLL_EXPORT int GetCloudFileTimestamp(const char *filename)
 {
@@ -532,7 +534,7 @@ extern "C" DLL_EXPORT int GetCloudFileTimestamp(const char *filename)
 /*
 @desc Gets the number of bytes available in the user's Steam Cloud storage.
 @return An integer.
-@api ISteamRemoteStorage#GetQuota
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetQuota
 */
 extern "C" DLL_EXPORT int GetCloudQuotaAvailable()
 {
@@ -550,7 +552,7 @@ extern "C" DLL_EXPORT int GetCloudQuotaAvailable()
 /*
 @desc Gets the total amount of bytes the user has access to in the user's Steam Cloud storage.
 @return An integer.
-@api ISteamRemoteStorage#GetQuota
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetQuota
 */
 extern "C" DLL_EXPORT int GetCloudQuotaTotal()
 {
@@ -569,7 +571,8 @@ extern "C" DLL_EXPORT int GetCloudQuotaTotal()
 @desc Obtains the platforms that the specified file will syncronize to.
 @param filename The name of the file.
 @return Bitfield containing the platforms that the file was set to with SetSyncPlatforms.
-@api ISteamRemoteStorage#GetSyncPlatforms, ISteamRemoteStorage#ERemoteStoragePlatform
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetSyncPlatforms
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#ERemoteStoragePlatform
 */
 extern "C" DLL_EXPORT int GetCloudFileSyncPlatforms(const char *filename)
 {
@@ -666,16 +669,11 @@ extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesExpected(int hUGC) // 
 //GetUserPublishedItemVoteDetails - deprecated
 
 /*
-@desc
-Checks if the account wide Steam Cloud setting is enabled for this user; or if they disabled it in the Settings->Cloud dialog.
+@desc Checks if the account wide Steam Cloud setting is enabled for this user; or if they disabled it in the Settings->Cloud dialog.
 
 Ensure that you are also checking IsCloudEnabledForApp, as these two options are mutually exclusive.
-@return
-1 if Steam Cloud is enabled for this account; otherwise, 0.
-@api
-ISteamRemoteStorage#IsCloudEnabledForAccount
-
-https://partner.steamgames.com/doc/api/ISteamRemoteStorage#IsCloudEnabledForAccount
+@return 1 if Steam Cloud is enabled for this account; otherwise, 0.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#IsCloudEnabledForAccount
 */
 extern "C" DLL_EXPORT int IsCloudEnabledForAccount()
 {
@@ -684,16 +682,13 @@ extern "C" DLL_EXPORT int IsCloudEnabledForAccount()
 }
 
 /*
-@desc
-Checks if the per game Steam Cloud setting is enabled for this user; or if they disabled it in the Game Properties->Update dialog.
+@desc Checks if the per game Steam Cloud setting is enabled for this user; or if they disabled it in the Game Properties->Update dialog.
 
 Ensure that you are also checking IsCloudEnabledForAccount, as these two options are mutually exclusive.
 
 It's generally recommended that you allow the user to toggle this setting within your in-game options, you can toggle it with SetCloudEnabledForApp.
-@return
-1 if Steam Cloud is enabled for this app; otherwise, 0.
-@api
-ISteamRemoteStorage#IsCloudEnabledForApp
+@return 1 if Steam Cloud is enabled for this app; otherwise, 0.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#IsCloudEnabledForApp
 */
 extern "C" DLL_EXPORT int IsCloudEnabledForApp()
 {
@@ -706,16 +701,14 @@ extern "C" DLL_EXPORT int IsCloudEnabledForApp()
 //ResetFileRequestState - deprecated
 
 /*
-@desc
-Toggles whether the Steam Cloud is enabled for your application.
+@desc Toggles whether the Steam Cloud is enabled for your application.
 
 This setting can be queried with IsCloudEnabledForApp.
 
 **NOTE:** This must only ever be called as the direct result of the user explicitly requesting that it's enabled or not.
 This is typically accomplished with a checkbox within your in-game options.
 @param enabled 1 to enabled or 0 to disable the Steam Cloud for this application.
-@api
-ISteamRemoteStorage#SetCloudEnabledForApp
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#SetCloudEnabledForApp
 */
 extern "C" DLL_EXPORT void SetCloudEnabledForApp(int enabled)
 {
@@ -724,17 +717,16 @@ extern "C" DLL_EXPORT void SetCloudEnabledForApp(int enabled)
 }
 
 /*
-@desc
-Allows you to specify which operating systems a file will be synchronized to.
+@desc Allows you to specify which operating systems a file will be synchronized to.
 
 Use this if you have a multiplatform game but have data which is incompatible between platforms.
 
 Files default to k_ERemoteStoragePlatformAll when they are first created. You can use the bitwise OR operator to specify multiple platforms.
 @param filename The name of the file.
 @param eRemoteStoragePlatform The platforms that the file will be syncronized to.
-@param-api eRemoteStoragePlatform ISteamRemoteStorage#ERemoteStoragePlatform
+@param-url eRemoteStoragePlatform https://partner.steamgames.com/doc/api/ISteamRemoteStorage#ERemoteStoragePlatform
 @return 1 if the file exists, otherwise 0.
-@api ISteamRemoteStorage#SetSyncPlatforms
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#SetSyncPlatforms
 */
 extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eRemoteStoragePlatform)
 {
@@ -747,11 +739,10 @@ extern "C" DLL_EXPORT int SetCloudFileSyncPlatforms(const char *filename, int eR
 //SynchronizeToClient - deprecated
 //SynchronizeToServer - deprecated
 
-#pragma region CDownloadUGCResult
-class CDownloadUGCResult : public CCallResultItem<RemoteStorageDownloadUGCResult_t>
+class CUGCDownloadCallResult : public CCallResultItem<RemoteStorageDownloadUGCResult_t>
 {
 public:
-	CDownloadUGCResult(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority)
+	CUGCDownloadCallResult(UGCHandle_t hContent, const char *pchLocation, uint32 unPriority)
 	{
 		if (pchLocation == NULL)
 		{
@@ -767,19 +758,48 @@ public:
 			m_hSteamAPICall = SteamRemoteStorage()->UGCDownloadToLocation(hContent, pchLocation, unPriority);
 		}
 	}
+	UGCHandle_t GetFileHandle() { return m_Response.m_hFile; }			// The handle to the file that was attempted to be downloaded.
+	AppId_t GetAppID() { return m_Response.m_nAppID; }				// ID of the app that created this file.
+	int32 GetSizeInBytes() { return m_Response.m_nSizeInBytes; }			// The size of the file that was downloaded, in bytes.
+	std::string GetFileName() { return std::string(m_Response.m_pchFileName); }		// The name of the file that was downloaded. 
+	uint64 GetOwnerID() { return m_Response.m_ulSteamIDOwner; }		// Steam ID of the user who created this content.
 };
-#pragma endregion
 
 extern "C" DLL_EXPORT int CloudUGCDownload(int hUGC, int priority)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CDownloadUGCResult(SteamHandles()->GetSteamHandle(hUGC), NULL, priority));
+	return CallResults()->Add(new CUGCDownloadCallResult(SteamHandles()->GetSteamHandle(hUGC), NULL, priority));
 }
 
 extern "C" DLL_EXPORT int CloudUGCDownloadToLocation(int hUGC, const char *location, int priority)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CDownloadUGCResult(SteamHandles()->GetSteamHandle(hUGC), location, priority));
+	return CallResults()->Add(new CUGCDownloadCallResult(SteamHandles()->GetSteamHandle(hUGC), location, priority));
+}
+
+extern "C" DLL_EXPORT int GetCloudUGCDownloadFileHandle(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetFileHandle);
+}
+
+extern "C" DLL_EXPORT int GetCloudUGCDownloadAppID(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetAppID);
+}
+
+extern "C" DLL_EXPORT int GetCloudUGCDownloadSizeInBytes(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetSizeInBytes);
+}
+
+extern "C" DLL_EXPORT char *GetCloudUGCDownloadFileName(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetFileName);
+}
+
+extern "C" DLL_EXPORT int GetCloudUGCDownloadOwnerID(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetOwnerID);
 }
 
 /*

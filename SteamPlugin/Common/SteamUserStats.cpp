@@ -40,7 +40,6 @@ void ClearMostAchievedAchievementInfo()
 	g_MostAchievedAchievementInfoIterator = -1;
 }
 
-#pragma region CAttachLeaderboardUGCCallResult
 class CAttachLeaderboardUGCCallResult : public CCallResultItem<LeaderboardUGCSet_t>
 {
 public:
@@ -51,8 +50,8 @@ public:
 			+ std::to_string(hUGC) + ")";
 		m_hSteamAPICall = SteamUserStats()->AttachLeaderboardUGC(hSteamLeaderboard, hUGC);
 	}
+	SteamLeaderboard_t GetLeaderboard() { return m_Response.m_hSteamLeaderboard; }
 };
-#pragma endregion
 
 /*
 @desc Attaches a piece of user generated content the current user's entry on a leaderboard.
@@ -62,7 +61,7 @@ Use GetCallResultCode to determine whether this call was successful.
 @param hUGC Handle to a piece of user generated content that was shared using CloudFileShare or CreateUGCItem.
 @callback-type callresult
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#AttachLeaderboardUGC
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#AttachLeaderboardUGC
 */
 extern "C" DLL_EXPORT int AttachLeaderboardUGC(int hLeaderboard, int hUGC)
 {
@@ -83,13 +82,21 @@ extern "C" DLL_EXPORT int AttachLeaderboardUGC(int hLeaderboard, int hUGC)
 }
 
 /*
+
+*/
+extern "C" DLL_EXPORT int GetAttachLeaderboardUGCLeaderboard(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CAttachLeaderboardUGCCallResult::GetLeaderboard);
+}
+
+/*
 @desc Removes an achievement from the user.
 Call StoreStats afterward to upload the stats to the server.
 
 _This method is generally just for testing purposes._
 @param name The 'API Name' of the achievement.
 @return int: 1 when the call succeeds; otherwise 0.
-@api ISteamUserStats#ClearAchievement
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#ClearAchievement
 */
 extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 {
@@ -98,13 +105,12 @@ extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 	return SteamUserStats()->ClearAchievement(name);
 }
 
-#pragma region CLeaderboardScoresDownloadedCallResult
 typedef WrappedResponse<LeaderboardScoresDownloaded_t, SteamLeaderboard_t, &LeaderboardScoresDownloaded_t::m_hSteamLeaderboard> WrappedLeaderboardScoresDownloaded_t;
 
-class CLeaderboardScoresDownloadedCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, WrappedLeaderboardScoresDownloaded_t>
+class CDownloadLeaderboardEntriesCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, WrappedLeaderboardScoresDownloaded_t>
 {
 public:
-	CLeaderboardScoresDownloadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
+	CDownloadLeaderboardEntriesCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 	{
 		m_CallResultName = "DownloadLeaderboardEntries("
 			+ std::to_string(hLeaderboard) + ", "
@@ -156,19 +162,18 @@ protected:
 		}
 	}
 };
-#pragma endregion
 
 /*
 @desc Downloads entries from a leaderboard.
 @param hLeaderboard A leaderboard handle.
 @param eLeaderboardDataRequest The type of data request to make.
-@param-api eLeaderboardDataRequest ISteamUserStats#ELeaderboardDataRequest
+@param-url eLeaderboardDataRequest https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDataRequest
 @param rangeStart The index to start downloading entries relative to eLeaderboardDataRequest.
 @param rangeEnd The last index to retrieve entries for relative to eLeaderboardDataRequest.
 @callback-type callresult
 @callback-getters GetDownloadLeaderboardHandle, GetDownloadLeaderboardEntryCount, GetDownloadLeaderboardEntryUser, GetDownloadLeaderboardEntryGlobalRank, GetDownloadLeaderboardEntryScore
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#DownloadLeaderboardEntries
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#DownloadLeaderboardEntries
 */
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd)
 {
@@ -179,7 +184,7 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 		agk::PluginError("DownloadLeaderboardEntries: Invalid leaderboard handle.");
 		return 0;
 	}
-	return CallResults()->Add(new CLeaderboardScoresDownloadedCallResult(leaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, rangeStart, rangeEnd));
+	return CallResults()->Add(new CDownloadLeaderboardEntriesCallResult(leaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, rangeStart, rangeEnd));
 }
 
 //TODO DownloadLeaderboardEntriesForUsers
@@ -188,22 +193,22 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 @desc Returns the handle to the leaderboard for the DownloadLeaderboardEntries call.
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @return A Steam ID handle.
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardHandle(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardID);
+	return GetCallResultValue(hCallResult, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardID);
 }
 
 /*
 @desc Returns the entry count for the DownloadLeaderboardEntries call.
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @return The number of entries.
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryCount);
+	return GetCallResultValue(hCallResult, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryCount);
 }
 
 /*
@@ -211,11 +216,11 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult)
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A Steam ID handle.
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int index)
 {
-	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUser, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryUser, __FUNCTION__);
 }
 
 /*
@@ -223,11 +228,11 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int i
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A Steam ID handle.
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index)
 {
-	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryGlobalRank, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryGlobalRank, __FUNCTION__);
 }
 
 /*
@@ -235,11 +240,11 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult,
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return An integer
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
 {
-	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryScore, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryScore, __FUNCTION__);
 }
 
 /*
@@ -247,13 +252,13 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int 
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A JSON array of integers.
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT char *GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
 {
 	std::ostringstream json;
 	json << "[";
-	if (auto *callResult = CallResults()->Get<CLeaderboardScoresDownloadedCallResult>(hCallResult))
+	if (auto *callResult = CallResults()->Get<CDownloadLeaderboardEntriesCallResult>(hCallResult))
 	{
 		if (callResult->IsValidIndex(index))
 		{
@@ -281,18 +286,17 @@ extern "C" DLL_EXPORT char *GetDownloadLeaderboardEntryDetails(int hCallResult, 
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A UGC handle or 0.
-@api ISteamUserStats#LeaderboardScoresDownloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
 {
-	return GetCallResultValue(hCallResult, index, &CLeaderboardScoresDownloadedCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
 }
 
-#pragma region CLeaderboardFindCallResult
-class CLeaderboardFindCallResult : public CCallResultItem<LeaderboardFindResult_t, AlwaysOKResponse<LeaderboardFindResult_t>>
+class CFindLeaderboardCallResult : public CCallResultItem<LeaderboardFindResult_t, AlwaysOKResponse<LeaderboardFindResult_t>>
 {
 public:
-	CLeaderboardFindCallResult(const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod = k_ELeaderboardSortMethodNone, ELeaderboardDisplayType eLeaderboardDisplayType = k_ELeaderboardDisplayTypeNone)
+	CFindLeaderboardCallResult(const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod = k_ELeaderboardSortMethodNone, ELeaderboardDisplayType eLeaderboardDisplayType = k_ELeaderboardDisplayTypeNone)
 	{
 		// No sort and/or no display type = find only.
 		if (eLeaderboardSortMethod == k_ELeaderboardSortMethodNone || eLeaderboardDisplayType == k_ELeaderboardDisplayTypeNone)
@@ -311,7 +315,6 @@ public:
 	int GetLeaderboardFindResultFound() { return m_Response.m_bLeaderboardFound; }
 	SteamLeaderboard_t GetLeaderboardFindResultHandle() { return m_Response.m_hSteamLeaderboard; }
 };
-#pragma endregion
 
 /*
 @desc Sends a request to find the handle for a leaderboard.
@@ -319,12 +322,12 @@ public:
 @callback-type callresult
 @callback-getters GetFindLeaderboardFound, GetFindLeaderboardHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#FindLeaderboard
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#FindLeaderboard
 */
 extern "C" DLL_EXPORT int FindLeaderboard(const char *leaderboardName)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CLeaderboardFindCallResult(leaderboardName));
+	return CallResults()->Add(new CFindLeaderboardCallResult(leaderboardName));
 }
 
 /*
@@ -335,13 +338,13 @@ You must manually set the Community Name field in the App Admin panel of the Ste
 _Note: If either eLeaderboardSortMethod OR eLeaderboardDisplayType are 0 (none), an error is raised.
 @param leaderboardName The name of the leaderboard to find.
 @param eLeaderboardSortMethod The sort order of the new leaderboard if it's created.
-@param-api eLeaderboardSortMethod ISteamUserStats#ELeaderboardSortMethod
+@param-url eLeaderboardSortMethod https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardSortMethod
 @param eLeaderboardDisplayType The display type (used by the Steam Community web site) of the new leaderboard if it's created.
-@param-api eLeaderboardDisplayType ISteamUserStats#ELeaderboardDisplayType
+@param-url eLeaderboardDisplayType https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDisplayType
 @callback-type callresult
 @callback-getters GetFindLeaderboardFound, GetFindLeaderboardHandle
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#FindOrCreateLeaderboard
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#FindOrCreateLeaderboard
 */
 extern "C" DLL_EXPORT int FindOrCreateLeaderboard(const char *leaderboardName, int eLeaderboardSortMethod, int eLeaderboardDisplayType)
 {
@@ -351,36 +354,36 @@ extern "C" DLL_EXPORT int FindOrCreateLeaderboard(const char *leaderboardName, i
 		agk::PluginError("FindOrCreateLeaderboard: eLeaderboardSortMethod and eLeaderboardDisplayType cannot be 0.");
 		return 0;
 	}
-	return CallResults()->Add(new CLeaderboardFindCallResult(leaderboardName, (ELeaderboardSortMethod)eLeaderboardSortMethod, (ELeaderboardDisplayType) eLeaderboardDisplayType));
+	return CallResults()->Add(new CFindLeaderboardCallResult(leaderboardName, (ELeaderboardSortMethod)eLeaderboardSortMethod, (ELeaderboardDisplayType) eLeaderboardDisplayType));
 }
 
 /*
 @desc Returns whether the leaderboard was found for the FindLeaderboard call.
 @param hCallResult A FindLeaderboard call result handle.
 @return 1 if found; otherwise 0.
-@api ISteamUserStats#LeaderboardFindResult_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardFindResult_t
 */
 extern "C" DLL_EXPORT int GetFindLeaderboardFound(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultFound);
+	return GetCallResultValue(hCallResult, &CFindLeaderboardCallResult::GetLeaderboardFindResultFound);
 }
 
 /*
 @desc Returns the found leaderboard for the FindLeaderboard call.
 @param hCallResult A FindLeaderboard call result handle.
 @return A Steam ID handle.
-@api ISteamUserStats#LeaderboardFindResult_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardFindResult_t
 */
 extern "C" DLL_EXPORT int GetFindLeaderboardHandle(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardFindCallResult::GetLeaderboardFindResultHandle);
+	return GetCallResultValue(hCallResult, &CFindLeaderboardCallResult::GetLeaderboardFindResultHandle);
 }
 
 /*
 @desc Gets whether the user has achieved this achievement.
 @param name The 'API Name' of the achievement.
 @return 1 when the user has achieved this achievement; otherwise 0.
-@api ISteamUserStats#GetAchievement
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievement
 */
 extern "C" DLL_EXPORT int GetAchievement(const char *name)
 {
@@ -402,7 +405,7 @@ You must have called RequestGlobalAchievementPercentages and it needs to return 
 _If RequestGlobalAchievementPercentages has not been called or if the specified 'API Name' does not exist in the global achievement percentages, an error will be raised._
 @param name The 'API Name' of the achievement.
 @return The percentage of people that have unlocked this achievement from 0 to 100 or -1 if there is an error.
-@api ISteamUserStats#GetAchievementAchievedPercent
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementAchievedPercent
 */
 extern "C" DLL_EXPORT float GetAchievementAchievedPercent(const char *name)
 {
@@ -420,7 +423,7 @@ extern "C" DLL_EXPORT float GetAchievementAchievedPercent(const char *name)
 @desc Gets the time at which an achievement was unlocked, if ever.
 @param name The 'API Name' of the achievement.
 @return The unload time in Unix time.
-@api ISteamUserStats#GetAchievementAndUnlockTime
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementAndUnlockTime
 */
 extern "C" DLL_EXPORT int GetAchievementUnlockTime(const char *name)
 {
@@ -441,7 +444,7 @@ extern "C" DLL_EXPORT int GetAchievementUnlockTime(const char *name)
 @desc Gets the localized achievement name.
 @param name The 'API Name' of the achievement.
 @return The localized achievement name.
-@api ISteamUserStats#GetAchievementDisplayAttribute
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementDisplayAttribute
 */
 extern "C" DLL_EXPORT char *GetAchievementDisplayName(const char *name)
 {
@@ -453,7 +456,7 @@ extern "C" DLL_EXPORT char *GetAchievementDisplayName(const char *name)
 @desc Gets the localized achievement description.
 @param name The 'API Name' of the achievement.
 @return The localized achievement description.
-@api ISteamUserStats#GetAchievementDisplayAttribute
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementDisplayAttribute
 */
 extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *name)
 {
@@ -465,7 +468,7 @@ extern "C" DLL_EXPORT char *GetAchievementDisplayDesc(const char *name)
 @desc Gets whether an achievement is hidden.
 @param name The 'API Name' of the achievement.
 @return 1 when the achievement is hidden, 0 when it is not hidden.
-@api ISteamUserStats#GetAchievementDisplayAttribute
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementDisplayAttribute
 */
 extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *name)
 {
@@ -477,7 +480,7 @@ extern "C" DLL_EXPORT int GetAchievementDisplayHidden(const char *name)
 @desc Gets the achievement icon for the current user's current achievement state.
 @param name The 'API Name' of the achievement.
 @return 0 when no icon is set, -1 when the icon needs to download via callback, or an image handle. [Similar to how avatars work.](Avatars)
-@api ISteamUserStats#GetAchievementIcon
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementIcon
 */
 extern "C" DLL_EXPORT int GetAchievementIcon(const char *name)
 {
@@ -485,14 +488,13 @@ extern "C" DLL_EXPORT int GetAchievementIcon(const char *name)
 	return Callbacks()->GetAchievementIcon(name);
 }
 
-#pragma region ISteamUserStats
 /*
 @desc Gets the achievement ID for the achievement index.
 
 _This method is generally just for testing purposes since the app should already know the achievement IDs._
 @param index Index of the achievement.
 @return Gets the 'API name' for an achievement index between 0 and GetNumAchievements.
-@api ISteamUserStats#GetAchievementName
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementName
 */
 extern "C" DLL_EXPORT char *GetAchievementAPIName(int index)
 {
@@ -510,7 +512,7 @@ _Note: Since AppGameKit is limited to 32-bit integers, this value is returned as
 _If there is a problem getting the value, an error is raised._
 @param name The 'API Name' of the stat.
 @return The lifetime totals for a stat.
-@api ISteamUserStats#GetGlobalStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetGlobalStat
 */
 extern "C" DLL_EXPORT char *GetGlobalStatInt64AsString(const char *name)
 {
@@ -535,7 +537,7 @@ _If there is a problem getting the value, an error is raised._
 @param name The 'API Name' of the stat.
 @param precision The precision of the returned string.
 @return The lifetime totals for a stat.
-@api ISteamUserStats#GetGlobalStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetGlobalStat
 */
 extern "C" DLL_EXPORT char *GetGlobalStatDoubleAsString(const char *name, int precision)
 {
@@ -562,7 +564,7 @@ extern "C" DLL_EXPORT char *GetGlobalStatDoubleAsString(const char *name, int pr
 Returned as a JSON array of strings, starting with today's value.
 @param name The 'API Name' of the stat.
 @return A JSON array of int64 values as strings.
-@api ISteamUserStats#GetGlobalStatHistory
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetGlobalStatHistory
 */
 extern "C" DLL_EXPORT char *GetGlobalStatHistoryInt64JSON(const char *name)
 {
@@ -592,7 +594,7 @@ Returned as a JSON array of strings, starting with today's value.
 @param name The 'API Name' of the stat.
 @param precision The precision of the returned string.
 @return A JSON array of double values as strings.
-@api ISteamUserStats#GetGlobalStatHistory
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetGlobalStatHistory
 */
 extern "C" DLL_EXPORT char *GetGlobalStatHistoryDoubleJSON(const char *name, int precision)
 {
@@ -619,7 +621,8 @@ extern "C" DLL_EXPORT char *GetGlobalStatHistoryDoubleJSON(const char *name, int
 @desc Returns the display type of a leaderboard.
 @param hLeaderboard A leaderboard handle.
 @return An ELeaderboardDisplayType value.
-@api ISteamUserStats#GetLeaderboardDisplayType, ISteamUserStats#ELeaderboardDisplayType
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetLeaderboardDisplayType
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardDisplayType
 */
 extern "C" DLL_EXPORT int GetLeaderboardDisplayType(int hLeaderboard)
 {
@@ -631,7 +634,7 @@ extern "C" DLL_EXPORT int GetLeaderboardDisplayType(int hLeaderboard)
 @desc Returns the total number of entries in a leaderboard.
 @param hLeaderboard A leaderboard handle.
 @return The number of entries in the leaderboard.
-@api ISteamUserStats#GetLeaderboardEntryCount
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetLeaderboardEntryCount
 */
 extern "C" DLL_EXPORT int GetLeaderboardEntryCount(int hLeaderboard)
 {
@@ -643,7 +646,7 @@ extern "C" DLL_EXPORT int GetLeaderboardEntryCount(int hLeaderboard)
 @desc Returns the leaderboard name.
 @param hLeaderboard A leaderboard handle.
 @return The leaderboard name.
-@api ISteamUserStats#GetLeaderboardName
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetLeaderboardName
 */
 extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard)
 {
@@ -655,7 +658,8 @@ extern "C" DLL_EXPORT char *GetLeaderboardName(int hLeaderboard)
 @desc Returns the sort order of a leaderboard.
 @param hLeaderboard A leaderboard handle.
 @return ELeaderboardSortMethod value.
-@api ISteamUserStats#GetLeaderboardSortMethod, ISteamUserStats#ELeaderboardSortMethod
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetLeaderboardSortMethod
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardSortMethod
 */
 extern "C" DLL_EXPORT int GetLeaderboardSortMethod(int hLeaderboard)
 {
@@ -680,7 +684,7 @@ until not Steam.GetNextMostAchievedAchievementInfo()
 endif
 ```
 @return 1 If achievement info was loaded; otherwise 0.
-@api ISteamUserStats#GetMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT int GetMostAchievedAchievementInfo()
 {
@@ -711,7 +715,7 @@ until not Steam.GetNextMostAchievedAchievementInfo()
 endif
 ```
 @return 1 If achievement info was loaded; otherwise 0.
-@api ISteamUserStats#GetNextMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT int GetNextMostAchievedAchievementInfo()
 {
@@ -732,7 +736,8 @@ extern "C" DLL_EXPORT int GetNextMostAchievedAchievementInfo()
 /*
 @desc Returns the 'API Name' of the achievement as loaded by GetMostAchievedAchievementInfo or GetNextMostAchievedAchievementInfo.
 @return 'API Name' of an achievement or an empty string.
-@api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT char *GetMostAchievedAchievementInfoName()
 {
@@ -742,7 +747,8 @@ extern "C" DLL_EXPORT char *GetMostAchievedAchievementInfoName()
 /*
 @desc Returns the percentage of people that have unlocked this achievement from 0 to 100 as loaded by GetMostAchievedAchievementInfo or GetNextMostAchievedAchievementInfo.
 @return A float.
-@api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT float GetMostAchievedAchievementInfoPercent()
 {
@@ -752,7 +758,8 @@ extern "C" DLL_EXPORT float GetMostAchievedAchievementInfoPercent()
 /*
 @desc Returns an integer indicating whether the current user has unlocked this achievement as loaded by GetMostAchievedAchievementInfo or GetNextMostAchievedAchievementInfo.
 @return 1 if the current user has unlocked this achievement; otherwise 0;
-@api ISteamUserStats#GetMostAchievedAchievementInfo, ISteamUserStats#GetNextMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetMostAchievedAchievementInfo
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNextMostAchievedAchievementInfo
 */
 extern "C" DLL_EXPORT int GetMostAchievedAchievementInfoUnlocked()
 {
@@ -764,7 +771,7 @@ extern "C" DLL_EXPORT int GetMostAchievedAchievementInfoUnlocked()
 
 _This method is generally just for testing purposes since the app should already know what the achievements are._
 @return The number of achievements.
-@api ISteamUserStats#GetNumAchievements
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNumAchievements
 */
 extern "C" DLL_EXPORT int GetNumAchievements()
 {
@@ -772,41 +779,41 @@ extern "C" DLL_EXPORT int GetNumAchievements()
 	return SteamUserStats()->GetNumAchievements();
 }
 
-#pragma region CNumberOfCurrentPlayersCallResult
-class CNumberOfCurrentPlayersCallResult : public CCallResultItem<NumberOfCurrentPlayers_t, SuccessResponse<NumberOfCurrentPlayers_t>>
+class CGetNumberOfCurrentPlayersCallResult : public CCallResultItem<NumberOfCurrentPlayers_t, SuccessResponse<NumberOfCurrentPlayers_t>>
 {
 public:
-	CNumberOfCurrentPlayersCallResult()
+	CGetNumberOfCurrentPlayersCallResult()
 	{
 		m_CallResultName = "GetNumberOfCurrentPlayers()";
 		m_hSteamAPICall = SteamUserStats()->GetNumberOfCurrentPlayers();
 	}
 	int GetNumberOfPlayers() { return m_Response.m_cPlayers; }
 };
-#pragma endregion
 
 /*
 @desc Asynchronously retrieves the total number of players currently playing the current game. Both online and in offline mode.
 @callback-type callresult
 @callback-getters GetNumberOfCurrentPlayersResult
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#GetNumberOfCurrentPlayers, ISteamUserStats#NumberOfCurrentPlayers_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNumberOfCurrentPlayers
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#NumberOfCurrentPlayers_t
 */
 extern "C" DLL_EXPORT int GetNumberOfCurrentPlayers()
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CNumberOfCurrentPlayersCallResult());
+	return CallResults()->Add(new CGetNumberOfCurrentPlayersCallResult());
 }
 
 /*
 @desc Returns the number of current players returned by the GetNumberOfCurrentPlayers call.
 @param hCallResult A GetNumberOfCurrentPlayers call result.
 @return An integer.
-@api ISteamUserStats#GetNumberOfCurrentPlayers, ISteamUserStats#NumberOfCurrentPlayers_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetNumberOfCurrentPlayers
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#NumberOfCurrentPlayers_t
 */
 extern "C" DLL_EXPORT int GetNumberOfCurrentPlayersResult(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CNumberOfCurrentPlayersCallResult::GetNumberOfPlayers);
+	return GetCallResultValue(hCallResult, &CGetNumberOfCurrentPlayersCallResult::GetNumberOfPlayers);
 }
 
 /*
@@ -814,7 +821,7 @@ extern "C" DLL_EXPORT int GetNumberOfCurrentPlayersResult(int hCallResult)
 If the stat is not defined as an integer, an error will be raised.
 @param name The 'API Name' of the stat.
 @return The value of the stat.
-@api ISteamUserStats#GetStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetStat
 */
 extern "C" DLL_EXPORT int GetStatInt(const char *name)
 {
@@ -833,7 +840,7 @@ extern "C" DLL_EXPORT int GetStatInt(const char *name)
 If the stat is not defined as a float, an error will be raised.
 @param name The 'API Name' of the stat.
 @return The value of the stat.
-@api ISteamUserStats#GetStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetStat
 */
 extern "C" DLL_EXPORT float GetStatFloat(const char *name)
 {
@@ -854,7 +861,7 @@ extern "C" DLL_EXPORT float GetStatFloat(const char *name)
 @param hSteamID The Steam ID handle of the user.
 @param name The 'API Name' of the achievement.
 @return 1 when the user has achieved this achievement; otherwise 0.
-@api ISteamUserStats#GetUserAchievement
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetUserAchievement
 */
 extern "C" DLL_EXPORT int GetUserAchievement(int hSteamID, const char *name)
 {
@@ -873,7 +880,7 @@ extern "C" DLL_EXPORT int GetUserAchievement(int hSteamID, const char *name)
 @param hSteamID The Steam ID handle of the user.
 @param name The 'API Name' of the achievement.
 @return The unload time in Unix time.
-@api ISteamUserStats#GetUserAchievementAndUnlockTime
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetUserAchievementAndUnlockTime
 */
 extern "C" DLL_EXPORT int GetUserAchievementUnlockTime(int hSteamID, const char *name)
 {
@@ -896,7 +903,7 @@ If the stat is not defined as an integer, an error will be raised.
 @param hSteamID The Steam ID handle of the user.
 @param name The 'API Name' of the stat.
 @return The value of the stat.
-@api ISteamUserStats#GetUserStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetUserStat
 */
 extern "C" DLL_EXPORT int GetUserStatInt(int hSteamID, const char *name)
 {
@@ -916,7 +923,7 @@ If the stat is not defined as a float, an error will be raised.
 @param hSteamID The Steam ID handle of the user.
 @param name The 'API Name' of the stat.
 @return The value of the stat.
-@api ISteamUserStats#GetUserStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetUserStat
 */
 extern "C" DLL_EXPORT float GetUserStatFloat(int hSteamID, const char *name)
 {
@@ -945,7 +952,7 @@ ie: Every 25 wins out of 100.
 @param maxProgress The progress required to unlock the achievement.
 @callbacks HasUserAchievementStoredResponse
 @return 1 when the call succeeds; otherwise 0.
-@api ISteamUserStats#IndicateAchievementProgress
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#IndicateAchievementProgress
 */
 extern "C" DLL_EXPORT int IndicateAchievementProgress(const char *name, int curProgress, int maxProgress)
 {
@@ -962,7 +969,7 @@ Sends a request for current user's stats to Steam.
 
 _This command is called within Init so AppGameKit code will likely never need to call this command explicitly._
 @return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
-@api ISteamUserStats#RequestCurrentStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestCurrentStats
 */
 extern "C" DLL_EXPORT int RequestCurrentStats()
 {
@@ -971,7 +978,6 @@ extern "C" DLL_EXPORT int RequestCurrentStats()
 	return SteamUserStats()->RequestCurrentStats();
 }
 
-#pragma region CRequestGlobalAchievementPercentagesCallResult
 class CRequestGlobalAchievementPercentagesCallResult : public CCallResultItem<GlobalAchievementPercentagesReady_t>
 {
 public:
@@ -991,14 +997,14 @@ protected:
 		CCallResultItem::OnResponse(pCallResult, bFailure);
 	}
 };
-#pragma endregion
 
 /*
 @desc Asynchronously fetch the data for the percentage of players who have received each achievement for the current game globally.
 @callback-type callresult
 @callback-getters GetCallResultCode
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#RequestGlobalAchievementPercentages, ISteamUserStats#GlobalAchievementPercentagesReady_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestGlobalAchievementPercentages
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GlobalAchievementPercentagesReady_t
 */
 extern "C" DLL_EXPORT int RequestGlobalAchievementPercentages()
 {
@@ -1006,11 +1012,10 @@ extern "C" DLL_EXPORT int RequestGlobalAchievementPercentages()
 	return CallResults()->Add(new CRequestGlobalAchievementPercentagesCallResult());
 }
 
-#pragma region CGlobalStatsReceivedCallResult
-class CGlobalStatsReceivedCallResult : public CCallResultItem<GlobalStatsReceived_t>
+class CRequestGlobalStatsCallResult : public CCallResultItem<GlobalStatsReceived_t>
 {
 public:
-	CGlobalStatsReceivedCallResult(int nHistoryDays)
+	CRequestGlobalStatsCallResult(int nHistoryDays)
 	{
 		m_CallResultName = "RequestGlobalStats(" + std::to_string(nHistoryDays) + ")";
 		m_hSteamAPICall = SteamUserStats()->RequestGlobalStats(nHistoryDays);
@@ -1026,7 +1031,6 @@ protected:
 		CCallResultItem::OnResponse(pCallResult, bFailure);
 	}
 };
-#pragma endregion
 
 /*
 @desc Asynchronously fetches global stats data, which is available for stats marked as "aggregated" in the App Admin panel of the Steamworks website.
@@ -1034,12 +1038,13 @@ protected:
 @callback-type callresult
 @callback-getters GetCallResultCode
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#RequestGlobalStats, ISteamUserStats#GlobalStatsReceived_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestGlobalStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GlobalStatsReceived_t
 */
 extern "C" DLL_EXPORT int RequestGlobalStats(int historyDays)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CGlobalStatsReceivedCallResult(historyDays));
+	return CallResults()->Add(new CRequestGlobalStatsCallResult(historyDays));
 }
 
 /*
@@ -1048,7 +1053,7 @@ extern "C" DLL_EXPORT int RequestGlobalStats(int historyDays)
 Sends a request for another user's stats to Steam.
 @param hSteamID The Steam ID handle of the user to load stats for.
 @return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
-@api ISteamUserStats#RequestCurrentStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestCurrentStats
 */
 extern "C" DLL_EXPORT int RequestUserStats(int hSteamID)
 {
@@ -1066,7 +1071,7 @@ extern "C" DLL_EXPORT int RequestUserStats(int hSteamID)
 Resets user stats and optionally all achievements (when bAchievementsToo is 1).  This command also triggers the StoreStats callback.
 @param achievementsToo When 1 then achievements are also cleared.
 @return 1 when sending the request to clear user stats succeeds; otherwise 0.
-@api ISteamUserStats#ResetAllStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#ResetAllStats
 */
 extern "C" DLL_EXPORT int ResetAllStats(int achievementsToo)
 {
@@ -1082,7 +1087,7 @@ extern "C" DLL_EXPORT int ResetAllStats(int achievementsToo)
 Call StoreStats afterward to notify the user of the achievement.  Otherwise, they will be notified after the game exits.
 @param name The 'API Name' of the achievement.
 @return 1 when the call succeeds; otherwise 0.
-@api ISteamUserStats#SetAchievement
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#SetAchievement
 */
 extern "C" DLL_EXPORT int SetAchievement(const char *name)
 {
@@ -1096,7 +1101,7 @@ extern "C" DLL_EXPORT int SetAchievement(const char *name)
 @param name The 'API Name' of the stat.
 @param value The new value of the stat. This must be an absolute value, it will not increment or decrement for you.
 @return 1 if setting the value succeeds; otherwise 0.
-@api ISteamUserStats#SetStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#SetStat
 */
 extern "C" DLL_EXPORT int SetStatInt(const char *name, int value)
 {
@@ -1109,7 +1114,7 @@ extern "C" DLL_EXPORT int SetStatInt(const char *name, int value)
 @param name The 'API Name' of the stat.
 @param value The new value of the stat. This must be an absolute value, it will not increment or decrement for you.
 @return 1 if setting the value succeeds; otherwise 0.
-@api ISteamUserStats#SetStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#SetStat
 */
 extern "C" DLL_EXPORT int SetStatFloat(const char *name, float value)
 {
@@ -1123,7 +1128,7 @@ extern "C" DLL_EXPORT int SetStatFloat(const char *name, float value)
 @desc Stores user stats online.
 @callbacks HasUserAchievementStoredResponse, HasUserStatsReceivedResponse
 @return 1 when sending the request to store user stats succeeds; otherwise 0.
-@api ISteamUserStats#StoreStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#StoreStats
 */
 extern "C" DLL_EXPORT int StoreStats()
 {
@@ -1140,7 +1145,7 @@ extern "C" DLL_EXPORT int StoreStats()
 /*
 @desc Returns whether stats are currently being stored.
 @return 1 while stats are being stored; otherwise 0.
-@api ISteamUserStats#StoreStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#StoreStats
 */
 extern "C" DLL_EXPORT int IsStoringStats()
 {
@@ -1153,7 +1158,7 @@ extern "C" DLL_EXPORT int IsStoringStats()
 @param countThisSession The value accumulation since the last call to this method.
 @param sessionLength The amount of time in seconds since the last call to this method.
 @return 1 if setting the stat succeeds; otherwise 0.
-@api ISteamUserStats#UpdateAvgRateStat
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UpdateAvgRateStat
 */
 extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSession, float sessionLength)
 {
@@ -1161,11 +1166,10 @@ extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSes
 	return SteamUserStats()->UpdateAvgRateStat(name, countThisSession, (double)sessionLength);
 }
 
-#pragma region CLeaderboardScoreUploadedCallResult
-class CLeaderboardScoreUploadedCallResult : public CCallResultItem<LeaderboardScoreUploaded_t, SuccessResponse<LeaderboardScoreUploaded_t>>
+class CUploadLeaderboardScoreCallResult : public CCallResultItem<LeaderboardScoreUploaded_t, SuccessResponse<LeaderboardScoreUploaded_t>>
 {
 public:
-	CLeaderboardScoreUploadedCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int nScore)
+	CUploadLeaderboardScoreCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int nScore)
 	{
 		m_CallResultName = "UploadLeaderboardScore("
 			+ std::to_string(hLeaderboard) + ", "
@@ -1199,20 +1203,19 @@ protected:
 	static int32 s_DetailCount;
 };
 
-int32 CLeaderboardScoreUploadedCallResult::s_Details[k_cLeaderboardDetailsMax];
-int32 CLeaderboardScoreUploadedCallResult::s_DetailCount = 0;
-#pragma endregion
+int32 CUploadLeaderboardScoreCallResult::s_Details[k_cLeaderboardDetailsMax];
+int32 CUploadLeaderboardScoreCallResult::s_DetailCount = 0;
 
 /*
 @desc Adds a detail to be sent in the next UploadLeaderboardScore call.  A maximum of 64 details can be added.
 Details are optional.
 @param detail The detail element to add.
 @return 1 if the detail was successfully added; otherwise 0 meaning that the maximum number of details has been reached.
-@api ISteamUserStats#UploadLeaderboardScore
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UploadLeaderboardScore
 */
 extern "C" DLL_EXPORT int AddUploadLeaderboardScoreDetail(int detail)
 {
-	return CLeaderboardScoreUploadedCallResult::AddDetail(detail);
+	return CUploadLeaderboardScoreCallResult::AddDetail(detail);
 }
 
 int UploadLeaderboardScore(int hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int score)
@@ -1224,7 +1227,7 @@ int UploadLeaderboardScore(int hLeaderboard, ELeaderboardUploadScoreMethod eLead
 		agk::PluginError("UploadLeaderboardScore: Invalid leaderboard handle.");
 		return 0;
 	}
-	return CallResults()->Add(new CLeaderboardScoreUploadedCallResult(leaderboard, eLeaderboardUploadScoreMethod, score));
+	return CallResults()->Add(new CUploadLeaderboardScoreCallResult(leaderboard, eLeaderboardUploadScoreMethod, score));
 }
 
 /*
@@ -1235,7 +1238,8 @@ int UploadLeaderboardScore(int hLeaderboard, ELeaderboardUploadScoreMethod eLead
 @callback-getters GetUploadLeaderboardScoreSuccess, GetUploadLeaderboardScoreHandle, GetUploadLeaderboardScoreValue,
 GetUploadLeaderboardScoreChanged, GetUploadLeaderboardScoreRankNew, GetUploadLeaderboardScoreRankPrevious
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UploadLeaderboardScore
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardUploadScoreMethod
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score)
 {
@@ -1250,7 +1254,8 @@ extern "C" DLL_EXPORT int UploadLeaderboardScore(int hLeaderboard, int score)
 @callback-getters GetUploadLeaderboardScoreSuccess, GetUploadLeaderboardScoreHandle, GetUploadLeaderboardScoreValue,
 GetUploadLeaderboardScoreChanged, GetUploadLeaderboardScoreRankNew, GetUploadLeaderboardScoreRankPrevious
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamUserStats#UploadLeaderboardScore, ISteamUserStats#ELeaderboardUploadScoreMethod
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UploadLeaderboardScore
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#ELeaderboardUploadScoreMethod
 */
 extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, int score)
 {
@@ -1261,66 +1266,66 @@ extern "C" DLL_EXPORT int UploadLeaderboardScoreForceUpdate(int hLeaderboard, in
 @desc Returns the success of the UploadLeaderboardScore call.
 @param hCallResult A UploadLeaderboardScore call result.
 @return 1 on success; otherwise 0.
-@api ISteamUserStats#LeaderboardScoreUploaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreSuccess(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedSuccess);
+	return GetCallResultValue(hCallResult, &CUploadLeaderboardScoreCallResult::GetLeaderboardScoreUploadedSuccess);
 }
 
 /*
 @desc Returns the leaderboard handle of the UploadLeaderboardScore call.
 @param hCallResult A UploadLeaderboardScore call result.
 @return A Steam ID handle.
-@api ISteamUserStats#LeaderboardScoreUploaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreHandle(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedHandle);
+	return GetCallResultValue(hCallResult, &CUploadLeaderboardScoreCallResult::GetLeaderboardScoreUploadedHandle);
 }
 
 /*
 @desc Returns the score of the UploadLeaderboardScore call.
 @param hCallResult A UploadLeaderboardScore call result.
 @return An integer.
-@api ISteamUserStats#LeaderboardScoreUploaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreValue(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScore);
+	return GetCallResultValue(hCallResult, &CUploadLeaderboardScoreCallResult::GetLeaderboardScoreUploadedScore);
 }
 
 /*
 @desc Returns whether the score on the leaderboard changed for the UploadLeaderboardScore call.
 @param hCallResult A UploadLeaderboardScore call result.
 @return 1 if the score on the leaderboard changed; otherwise 0.
-@api ISteamUserStats#LeaderboardScoreUploaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreChanged(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedScoreChanged);
+	return GetCallResultValue(hCallResult, &CUploadLeaderboardScoreCallResult::GetLeaderboardScoreUploadedScoreChanged);
 }
 
 /*
 @desc Returns the new rank of the user on the leaderboard for the UploadLeaderboardScore call.
 @param hCallResult A UploadLeaderboardScore call result.
 @return The user's new rank.
-@api ISteamUserStats#LeaderboardScoreUploaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankNew(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankNew);
+	return GetCallResultValue(hCallResult, &CUploadLeaderboardScoreCallResult::GetLeaderboardScoreUploadedRankNew);
 }
 
 /*
 @desc Returns the previous rank of the user on the leaderboard of the UploadLeaderboardScore call.
 @param hCallResult A UploadLeaderboardScore call result.
 @return The user's previous rank or 0 if the user had no previous rank.
-@api ISteamUserStats#LeaderboardScoreUploaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoreUploaded_t
 */
 extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CLeaderboardScoreUploadedCallResult::GetLeaderboardScoreUploadedRankPrevious);
+	return GetCallResultValue(hCallResult, &CUploadLeaderboardScoreCallResult::GetLeaderboardScoreUploadedRankPrevious);
 }
 
 //Callbacks
@@ -1338,7 +1343,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
 @callback-type list
 @callback-getters GetUserAchievementStoredName, GetUserAchievementStoredCurrentProgress, GetUserAchievementStoredMaxProgress
 @return 1 when achievements have been stored online; otherwise 0.
-@api ISteamUserStats#UserAchievementStored_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserAchievementStored_t
 */
 extern "C" DLL_EXPORT int HasUserAchievementStoredResponse()
 {
@@ -1354,7 +1359,7 @@ extern "C" DLL_EXPORT int HasUserAchievementStoredResponse()
 /*
 @desc Returns the name of the achievement for the current UserAchievementStored_t callback response.
 @return The achievement name.
-@api ISteamUserStats#UserAchievementStored_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserAchievementStored_t
 */
 extern "C" DLL_EXPORT char *GetUserAchievementStoredName()
 {
@@ -1364,7 +1369,7 @@ extern "C" DLL_EXPORT char *GetUserAchievementStoredName()
 /*
 @desc Returns the current progress of the achievement for the current UserAchievementStored_t callback response.
 @return An integer.
-@api ISteamUserStats#UserAchievementStored_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserAchievementStored_t
 */
 extern "C" DLL_EXPORT int GetUserAchievementStoredCurrentProgress()
 {
@@ -1374,7 +1379,7 @@ extern "C" DLL_EXPORT int GetUserAchievementStoredCurrentProgress()
 /*
 @desc Returns the maximum progress of the achievement for the current UserAchievementStored_t callback response.
 @return An integer.
-@api ISteamUserStats#UserAchievementStored_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserAchievementStored_t
 */
 extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress()
 {
@@ -1386,7 +1391,7 @@ extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress()
 @return 1 when the callback has more responses to process; otherwise 0.
 @callback-type list
 @callback-getters GetUserStatsReceivedResult, GetUserStatsReceivedUser
-@api ISteamUserStats#UserStatsReceived_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsReceived_t
 */
 extern "C" DLL_EXPORT int HasUserStatsReceivedResponse()
 {
@@ -1402,7 +1407,7 @@ extern "C" DLL_EXPORT int HasUserStatsReceivedResponse()
 /*
 @desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
 @return 1 when the call is successful; otherwise 0.
-@api ISteamUserStats#UserStatsReceived_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsReceived_t
 */
 extern "C" DLL_EXPORT int GetUserStatsReceivedResult()
 {
@@ -1412,7 +1417,7 @@ extern "C" DLL_EXPORT int GetUserStatsReceivedResult()
 /*
 @desc Returns the user whose stats were retrieved for the current UserStatsReceived_t callback response.
 @return A Steam ID handle.
-@api ISteamUserStats#UserStatsReceived_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsReceived_t
 */
 extern "C" DLL_EXPORT int GetUserStatsReceivedUser()
 {
@@ -1444,7 +1449,7 @@ extern "C" DLL_EXPORT int StatsInitializedForUser(int hSteamID)
 @return 1 when the callback has more responses to process; otherwise 0.
 @callback-type list
 @callback-getters GetUserStatsUnloadedUser
-@api ISteamUserStats#UserStatsUnloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsUnloaded_t
 */
 extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse()
 {
@@ -1454,7 +1459,7 @@ extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse()
 /*
 @desc Returns the user whose stats were unloaded for the current UserStatsUnloaded_t callback response.
 @return A Steam ID handle.
-@api ISteamUserStats#UserStatsUnloaded_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsUnloaded_t
 */
 extern "C" DLL_EXPORT int GetUserStatsUnloadedUser()
 {
@@ -1466,7 +1471,7 @@ extern "C" DLL_EXPORT int GetUserStatsUnloadedUser()
 @callback-type list
 @callback-getters GetUserStatsStoredResult
 @return 1 when users stats have been stored online; otherwise 0.
-@api ISteamUserStats#UserStatsStored_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsStored_t
 */
 extern "C" DLL_EXPORT int HasUserStatsStoredResponse()
 {
@@ -1481,7 +1486,7 @@ extern "C" DLL_EXPORT int HasUserStatsStoredResponse()
 /*
 @desc Returns whether the call was successful for the current UserStatsStored_t callback response.
 @return 1 when the call is successful; otherwise 0.
-@api ISteamUserStats#UserStatsStored_t
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsStored_t
 */
 extern "C" DLL_EXPORT int GetUserStatsStoredResult()
 {

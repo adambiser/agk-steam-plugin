@@ -30,7 +30,7 @@ This is a restricted interface that can only be used by approved apps.
 @desc Returns the app name for the given appid.
 @param appID The AppID to get the name for.
 @return The app name or an empty string if the app has not been approved for this method.
-@api ISteamAppList#GetAppName
+@url https://partner.steamgames.com/doc/api/ISteamAppList#GetAppName
 */
 extern "C" DLL_EXPORT char *GetAppName(int appID)
 {

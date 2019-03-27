@@ -28,7 +28,7 @@ THE SOFTWARE.
 @desc Activates the Steam Overlay to a specific dialog.
 @param dialogName The dialog to open.
 Valid options are: "friends", "community", "players", "settings", "officialgamegroup", "stats", "achievements".
-@api ISteamFriends#ActivateGameOverlay
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlay
 */
 extern "C" DLL_EXPORT void ActivateGameOverlay(const char *dialogName)
 {
@@ -39,7 +39,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlay(const char *dialogName)
 /*
 @desc Activates the Steam Overlay to open the invite dialog. Invitations sent from this dialog will be for the provided lobby.
 @param hLobbySteamID The Steam ID handle of the lobby that selected users will be invited to.
-@api ISteamFriends#ActivateGameOverlayInviteDialog
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlayInviteDialog
 */
 extern "C" DLL_EXPORT void ActivateGameOverlayInviteDialog(int hLobbySteamID)
 {
@@ -51,8 +51,8 @@ extern "C" DLL_EXPORT void ActivateGameOverlayInviteDialog(int hLobbySteamID)
 @desc Activates the Steam Overlay to the Steam store page for the provided app.
 @param appID The app ID to show the store page of or 0 for the front page of the Steam store.
 @param flag Flags to modify the behavior when the page opens.
-@param-api flag ISteamFriends#EOverlayToStoreFlag
-@api ISteamFriends#ActivateGameOverlayToStore
+@param-url flag https://partner.steamgames.com/doc/api/ISteamFriends#EOverlayToStoreFlag
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlayToStore
 */
 extern "C" DLL_EXPORT void ActivateGameOverlayToStore(int appID, int flag)
 {
@@ -64,7 +64,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToStore(int appID, int flag)
 @desc Activates Steam Overlay to a specific dialog.
 @param dialogName The dialog to open. Valid options are: "steamid", "chat", "jointrade", "stats", "achievements", "friendadd", "friendremove", "friendrequestaccept", "friendrequestignore".
 @param hSteamID The Steam ID handle of the context to open this dialog to.
-@api ISteamFriends#ActivateGameOverlayToUser
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlayToUser
 */
 extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *dialogName, int hSteamID)
 {
@@ -75,7 +75,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToUser(const char *dialogName, int
 /*
 @desc Activates Steam Overlay web browser directly to the specified URL.
 @param url The webpage to open. (A fully qualified address with the protocol is required.)
-@api ISteamFriends#ActivateGameOverlayToWebPage
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlayToWebPage
 */
 extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url)
 {
@@ -87,7 +87,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToWebPage(const char *url)
 @desc Activates Steam Overlay web browser directly to the specified URL.
 The browser will be opened in a special overlay configuration which hides all other windows that the user has open in the overlay.
 @param url The webpage to open. (A fully qualified address with the protocol is required.)
-@api ISteamFriends#ActivateGameOverlayToWebPage
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlayToWebPage
 */
 extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url)
 {
@@ -97,7 +97,7 @@ extern "C" DLL_EXPORT void ActivateGameOverlayToWebPageModal(const char *url)
 
 /*
 @desc Clears all of the current user's Rich Presence key/values.
-@api ISteamFriends#ClearRichPresence
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ClearRichPresence
 */
 extern "C" DLL_EXPORT void ClearRichPresence()
 {
@@ -109,7 +109,7 @@ extern "C" DLL_EXPORT void ClearRichPresence()
 @desc Closes the specified Steam group chat room in the Steam UI.
 @param hSteamIDClanChat The Steam ID handlle of the Steam group chat room to close.
 @return 1 if the user successfully left the Steam group chat room; 0 if the user is not in the provided Steam group chat room.
-@api ISteamFriends#CloseClanChatWindowInSteam
+@url https://partner.steamgames.com/doc/api/ISteamFriends#CloseClanChatWindowInSteam
 */
 extern "C" DLL_EXPORT int CloseClanChatWindowInSteam(int hSteamIDClanChat)
 {
@@ -117,11 +117,10 @@ extern "C" DLL_EXPORT int CloseClanChatWindowInSteam(int hSteamIDClanChat)
 	return SteamFriends()->CloseClanChatWindowInSteam(SteamHandles()->GetSteamHandle(hSteamIDClanChat));
 }
 
-#pragma region CDownloadClanActivityCountsResultCallResult
-class CDownloadClanActivityCountsResultCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, SuccessResponse<DownloadClanActivityCountsResult_t>>
+class CDownloadClanActivityCountsCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, SuccessResponse<DownloadClanActivityCountsResult_t>>
 {
 public:
-	CDownloadClanActivityCountsResultCallResult()
+	CDownloadClanActivityCountsCallResult()
 	{
 		m_CallResultName = "DownloadClanActivityCounts(" + std::to_string(s_Clans.size()) + " clans)";
 		if (s_Clans.size() == 0)
@@ -143,17 +142,16 @@ public:
 protected:
 	static std::vector<CSteamID> s_Clans;
 };
-std::vector<CSteamID> CDownloadClanActivityCountsResultCallResult::s_Clans;
-#pragma endregion
+std::vector<CSteamID> CDownloadClanActivityCountsCallResult::s_Clans;
 
 /*
 @desc Adds clans to be refreshed in the next DownloadClanActivityCounts call.
 @param hSteamIDClan The clan's Steam ID handle.
-@api ISteamFriends#DownloadClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
 */
 extern "C" DLL_EXPORT void AddDownloadClanActivityClan(int hSteamIDClan)
 {
-	CDownloadClanActivityCountsResultCallResult::AddClan(SteamHandles()->GetSteamHandle(hSteamIDClan));
+	CDownloadClanActivityCountsCallResult::AddClan(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
 /*
@@ -164,19 +162,19 @@ Add clans to refresh using AddDownloadClanActivityClan.
 Use GetCallResultCode to determine when this call succeeds and whether it was successful.
 @callback-type callresult
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int DownloadClanActivityCounts()
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CDownloadClanActivityCountsResultCallResult());
+	return CallResults()->Add(new CDownloadClanActivityCountsCallResult());
 }
 
-#pragma region CFriendsEnumerateFollowingListCallResult
-class CFriendsEnumerateFollowingListCallResult : public CCallResultItem<FriendsEnumerateFollowingList_t>
+class CEnumerateFollowingListCallResult : public CCallResultItem<FriendsEnumerateFollowingList_t>
 {
 public:
-	CFriendsEnumerateFollowingListCallResult(uint32 unStartIndex)
+	CEnumerateFollowingListCallResult(uint32 unStartIndex)
 	{
 		m_CallResultName = "EnumerateFollowingList(" + std::to_string(unStartIndex) + ")";
 		m_hSteamAPICall = SteamFriends()->EnumerateFollowingList(unStartIndex);
@@ -186,29 +184,30 @@ public:
 	int GetResultsReturned() { return m_Response.m_nResultsReturned; }
 	int GetTotalResultCount() { return m_Response.m_nTotalResultCount; }
 };
-#pragma endregion
 
 /*
 @desc Gets the list of users that the current user is following.
 @param startIndex The index to start receiving followers from. This should be 0 on the initial call.
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int EnumerateFollowingList(int startIndex)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CFriendsEnumerateFollowingListCallResult(startIndex));
+	return CallResults()->Add(new CEnumerateFollowingListCallResult(startIndex));
 }
 
 /*
 @desc Gets the number of results returned by the EnumerateFollowingList call result.
 @param hCallResult An EnumerateFollowingList call result handle.
 @return The number of results returned.
-@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListResultsReturned(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetResultsReturned);
+	return GetCallResultValue(hCallResult, &CEnumerateFollowingListCallResult::GetResultsReturned);
 }
 
 /*
@@ -218,11 +217,12 @@ If this value is greater than the start index for the call + GetEnumerateFollowi
 call EnumerateFollowingList with start index + GetEnumerateFollowingListResultsReturned as the new start index.
 @param hCallResult An EnumerateFollowingList call result handle.
 @return The total number of people we are following.
-@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CFriendsEnumerateFollowingListCallResult::GetTotalResultCount);
+	return GetCallResultValue(hCallResult, &CEnumerateFollowingListCallResult::GetTotalResultCount);
 }
 
 /*
@@ -230,11 +230,12 @@ extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallRes
 @param hCallResult An EnumerateFollowingList call result handle.
 @param index The index of the followed user to retrieve.
 @return A Steam ID handle.
-@api ISteamFriends#DownloadClanActivityCounts, ISteamFriends#DownloadClanActivityCountsResult_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListSteamID(int hCallResult, int index)
 {
-	return GetCallResultValue(hCallResult, index, &CFriendsEnumerateFollowingListCallResult::GetSteamID, __FUNCTION__);
+	return GetCallResultValue(hCallResult, index, &CEnumerateFollowingListCallResult::GetSteamID, __FUNCTION__);
 }
 
 /*
@@ -244,7 +245,7 @@ _NOTE: You must call GetClanChatMemberCount before calling this._
 @param hSteamIDClan This MUST be the same source used in the previous call to GetClanChatMemberCount!
 @param index The index.
 @return A Steam ID handle.  Invalid indices return 0.
-@api ISteamFriends#GetChatMemberByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetChatMemberByIndex
 */
 extern "C" DLL_EXPORT int GetChatMemberByIndex(int hSteamIDClan, int index)
 {
@@ -256,7 +257,7 @@ extern "C" DLL_EXPORT int GetChatMemberByIndex(int hSteamIDClan, int index)
 @desc Returns the number of members that are online in a Steam group.
 @param hSteamIDClan The Steam ID handle of the group to get the count for.
 @return The number of members or -1 if there's a problem.
-@api ISteamFriends#GetClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanActivityCounts
 */
 extern "C" DLL_EXPORT int GetClanActivityCountsOnline(int hSteamIDClan)
 {
@@ -275,7 +276,7 @@ extern "C" DLL_EXPORT int GetClanActivityCountsOnline(int hSteamIDClan)
 @desc Returns the number of members that are in game in a Steam group.
 @param hSteamIDClan The Steam ID handle of the group to get the count for.
 @return The number of members or -1 if there's a problem.
-@api ISteamFriends#GetClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanActivityCounts
 */
 extern "C" DLL_EXPORT int GetClanActivityCountsInGame(int hSteamIDClan)
 {
@@ -294,7 +295,7 @@ extern "C" DLL_EXPORT int GetClanActivityCountsInGame(int hSteamIDClan)
 @desc Returns the number of members that are chatting in a Steam group.
 @param hSteamIDClan The Steam ID handle of the group to get the count for.
 @return The number of members or -1 if there's a problem.
-@api ISteamFriends#GetClanActivityCounts
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanActivityCounts
 */
 extern "C" DLL_EXPORT int GetClanActivityCountsChatting(int hSteamIDClan)
 {
@@ -315,7 +316,7 @@ extern "C" DLL_EXPORT int GetClanActivityCountsChatting(int hSteamIDClan)
 _NOTE: You must call GetClanCount before calling this._
 @param index The index.
 @return A Steam ID handle.  Invalid indices return 0.
-@api ISteamFriends#GetClanByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanByIndex
 */
 extern "C" DLL_EXPORT int GetClanByIndex(int index)
 {
@@ -329,7 +330,7 @@ extern "C" DLL_EXPORT int GetClanByIndex(int index)
 NOTE: Large steam groups cannot be iterated by the local user.
 @param hSteamIDClan The Steam ID handle of the group to get the user count of.
 @return An integer.
-@api ISteamFriends#GetClanChatMemberCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanChatMemberCount
 */
 extern "C" DLL_EXPORT int GetClanChatMemberCount(int hSteamIDClan)
 {
@@ -344,7 +345,8 @@ extern "C" DLL_EXPORT int GetClanChatMemberCount(int hSteamIDClan)
 NOTE: Large steam groups cannot be iterated by the local user.
 @param hSteamIDClan The Steam ID handle of the group to get the users of.
 @return A JSON array of Steam ID handles.
-@api ISteamFriends#GetChatMemberByIndex, ISteamFriends#GetClanChatMemberCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetChatMemberByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanChatMemberCount
 */
 extern "C" DLL_EXPORT char *GetClanChatMemberListJSON(int hSteamIDClan)
 {
@@ -370,7 +372,7 @@ extern "C" DLL_EXPORT char *GetClanChatMemberListJSON(int hSteamIDClan)
 /*
 @desc Gets the number of Steam groups that the current user is a member of.
 @return An integer.
-@api ISteamFriends#GetClanCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanCount
 */
 extern "C" DLL_EXPORT int GetClanCount()
 {
@@ -381,7 +383,8 @@ extern "C" DLL_EXPORT int GetClanCount()
 /*
 @desc Gets A JSON array of Steam ID group handles that the current user is a member of.
 @return A JSON array of Steam ID handles.
-@api ISteamFriends#GetClanCount, ISteamFriends#GetClanByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanByIndex
 */
 extern "C" DLL_EXPORT char *GetClanListJSON()
 {
@@ -405,7 +408,7 @@ extern "C" DLL_EXPORT char *GetClanListJSON()
 @desc Gets the display name for the specified Steam group; if the local client knows about it.
 @param hSteamIDClan The Steam ID handle of the group to get the name for.
 @return The display name for the group or an empty string.
-@api ISteamFriends#GetClanName
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanName
 */
 extern "C" DLL_EXPORT char *GetClanName(int hSteamIDClan)
 {
@@ -420,7 +423,8 @@ _NOTE: You must call GetClanOfficerCount before calling this._
 @param hSteamIDClan This must be the same steam group used in the previous call to GetClanOfficerCount!
 @param index The index.
 @return A Steam ID handle.  0 if the call is invalid.
-@api ISteamFriends#GetClanOfficerByIndex, ISteamFriends#GetClanOfficerCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanOfficerByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanOfficerCount
 */
 extern "C" DLL_EXPORT int GetClanOfficerByIndex(int hSteamIDClan, int index)
 {
@@ -434,7 +438,8 @@ extern "C" DLL_EXPORT int GetClanOfficerByIndex(int hSteamIDClan, int index)
 _NOTE: You must call RequestClanOfficerList before this to get the required data!_
 @param hSteamIDClan The Steam ID handle of the group to get the officer count for.
 @return An integer.
-@api ISteamFriends#GetClanOfficerCount, ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanOfficerCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
 */
 extern "C" DLL_EXPORT int GetClanOfficerCount(int hSteamIDClan)
 {
@@ -448,7 +453,9 @@ extern "C" DLL_EXPORT int GetClanOfficerCount(int hSteamIDClan)
 _NOTE: You must call RequestClanOfficerList before this to get the required data!_
 @param hSteamIDClan The Steam ID handle of the group to get the officers for.
 @return A JSON array of Steam ID handles.
-@api ISteamFriends#GetClanOfficerCount, ISteamFriends#GetClanOfficerByIndex, ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanOfficerCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanOfficerByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
 */
 extern "C" DLL_EXPORT char *GetClanOfficerListJSON(int hSteamIDClan)
 {
@@ -475,7 +482,8 @@ extern "C" DLL_EXPORT char *GetClanOfficerListJSON(int hSteamIDClan)
 _NOTE: You must call RequestClanOfficerList before this to get the required data!_
 @param hSteamIDClan The Steam ID handle of the group to get the owner for.
 @return A Steam ID handle.
-@api ISteamFriends#GetClanOwner, ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanOwner
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
 */
 extern "C" DLL_EXPORT int GetClanOwner(int hSteamIDClan)
 {
@@ -487,7 +495,7 @@ extern "C" DLL_EXPORT int GetClanOwner(int hSteamIDClan)
 @desc Gets the unique tag (abbreviation) for the specified Steam group; If the local client knows about it.
 @param hSteamIDClan The Steam ID handle of the group to get the tag for.
 @return The tag or an empty string if the user doesn't know about the group.
-@api ISteamFriends#GetClanTag
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetClanTag
 */
 extern "C" DLL_EXPORT char *GetClanTag(int hSteamIDClan)
 {
@@ -499,7 +507,7 @@ extern "C" DLL_EXPORT char *GetClanTag(int hSteamIDClan)
 @desc Gets the Steam ID of the recently played with user at the given index.
 @param index The index.
 @return A Steam ID Handle.  Invalid indices return 0.
-@api ISteamFriends#GetCoplayFriend
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetCoplayFriend
 */
 extern "C" DLL_EXPORT int GetCoplayFriend(int index)
 {
@@ -510,7 +518,7 @@ extern "C" DLL_EXPORT int GetCoplayFriend(int index)
 /*
 @desc Gets the number of players that the current users has recently played with, across all games.
 @return The number of users that the current user has recently played with.
-@api ISteamFriends#GetCoplayFriendCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetCoplayFriendCount
 */
 extern "C" DLL_EXPORT int GetCoplayFriendCount()
 {
@@ -521,7 +529,7 @@ extern "C" DLL_EXPORT int GetCoplayFriendCount()
 /*
 @desc Returns a JSON array of Steam ID handles of the players that the current users has recently played with, across all games.
 @return A JSON array of Steam ID handles.
-@api ISteamFriends#GetCoplayFriendCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetCoplayFriendCount
 */
 extern "C" DLL_EXPORT char *GetCoplayFriendListJSON()
 {
@@ -541,11 +549,10 @@ extern "C" DLL_EXPORT char *GetCoplayFriendListJSON()
 	return utils::CreateString(json);
 }
 
-#pragma region CFriendsEnumerateFollowingListCallResult
-class CFriendsGetFollowerCountCallResult : public CCallResultItem<FriendsGetFollowerCount_t>
+class CGetFollowerCountCallResult : public CCallResultItem<FriendsGetFollowerCount_t>
 {
 public:
-	CFriendsGetFollowerCountCallResult(CSteamID steamID)
+	CGetFollowerCountCallResult(CSteamID steamID)
 	{
 		m_CallResultName = "GetFollowerCount(" + std::to_string(steamID.ConvertToUint64()) + ")";
 		m_hSteamAPICall = SteamFriends()->GetFollowerCount(steamID);
@@ -553,7 +560,6 @@ public:
 	int GetCount() { return m_Response.m_nCount; }
 	CSteamID GetSteamID() { return m_Response.m_steamID; }
 };
-#pragma endregion
 
 /*
 @desc Gets the number of users following the specified user.
@@ -562,34 +568,35 @@ Use GetFollowerCountValue to get the value once the call result completes.
 @callback-type callresult
 @callback-getters GetFollowerCountValue, GetFollowerCountSteamID
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api ISteamFriends#GetFollowerCount, ISteamFriends#FriendsGetFollowerCount_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFollowerCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t
 */
 extern "C" DLL_EXPORT int GetFollowerCount(int hSteamID)
 {
 	CheckInitialized(0);
-	return CallResults()->Add(new CFriendsGetFollowerCountCallResult(SteamHandles()->GetSteamHandle(hSteamID)));
+	return CallResults()->Add(new CGetFollowerCountCallResult(SteamHandles()->GetSteamHandle(hSteamID)));
 }
 
 /*
 @desc Gets the number of users following the user for the GetFollowerCount call result.
 @param hCallResult A GetFollowerCount call result handle.
 @return An integer.
-@api ISteamFriends#FriendsGetFollowerCount_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t
 */
 extern "C" DLL_EXPORT int GetFollowerCountValue(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CFriendsGetFollowerCountCallResult::GetCount);
+	return GetCallResultValue(hCallResult, &CGetFollowerCountCallResult::GetCount);
 }
 
 /*
 @desc Gets the user's Steam ID handle for the GetFollowerCount call result.
 @param hCallResult A GetFollowerCount call result handle.
 @return A Steam ID handle.
-@api ISteamFriends#FriendsGetFollowerCount_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t
 */
 extern "C" DLL_EXPORT int GetFollowerCountSteamID(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CFriendsGetFollowerCountCallResult::GetSteamID);
+	return GetCallResultValue(hCallResult, &CGetFollowerCountCallResult::GetSteamID);
 }
 
 /*
@@ -599,7 +606,7 @@ _NOTE: You must call GetFriendCount before calling this._
 @param index The index.
 @param friendFlags A combined union (binary "or") of EFriendFlags. This must be the same value as used in the previous call to GetFriendCount.
 @return A Steam ID handle.  Invalid indices return 0.
-@api ISteamFriends#GetFriendByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendByIndex
 */
 extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags)
 {
@@ -611,7 +618,7 @@ extern "C" DLL_EXPORT int GetFriendByIndex(int index, int friendFlags)
 @desc Gets the app ID of the game that user played with someone on their recently-played-with list.
 @param hSteamID The Steam ID handle of the user on the recently-played-with list to get the game played.
 @return A game App ID.  0 if not on the recently-played-with-list.
-@api ISteamFriends#GetFriendCoplayGame
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendCoplayGame
 */
 extern "C" DLL_EXPORT int GetFriendCoplayGame(int hSteamID)
 {
@@ -623,7 +630,7 @@ extern "C" DLL_EXPORT int GetFriendCoplayGame(int hSteamID)
 @desc Gets the timestamp of when the user played with someone on their recently-played-with list.
 @param hSteamID The Steam ID handle of the user on the recently-played-with list to get the timestamp for.
 @return The time in Unix epoch format.  0 if not on the recently-played-with-list.
-@api ISteamFriends#GetFriendCoplayTime
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendCoplayTime
 */
 extern "C" DLL_EXPORT int GetFriendCoplayTime(int hSteamID)
 {
@@ -634,9 +641,9 @@ extern "C" DLL_EXPORT int GetFriendCoplayTime(int hSteamID)
 /*
 @desc Gets the number of users the client knows about who meet a specified criteria.
 @param friendFlags A combined union (binary "or") of one or more EFriendFlags.
-@param-api friendFlags ISteamFriends#EFriendFlags
+@param-url friendFlags https://partner.steamgames.com/doc/api/ISteamFriends#EFriendFlags
 @return The number of friends matching the given criteria.
-@api ISteamFriends#GetFriendCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendCount
 */
 extern "C" DLL_EXPORT int GetFriendCount(int friendFlags)
 {
@@ -647,9 +654,10 @@ extern "C" DLL_EXPORT int GetFriendCount(int friendFlags)
 /*
 @desc Returns an integer array as JSON that combines the GetFriendCount and GetFriendByIndex calls.
 @param friendFlags A combined union (binary "or") of EFriendFlags.
-@param-api friendFlags ISteamFriends#EFriendFlags
+@param-url friendFlags https://partner.steamgames.com/doc/api/ISteamFriends#EFriendFlags
 @return An integer array of Steam ID handles as a JSON string.
-@api ISteamFriends#GetFriendCount, ISteamFriends#GetFriendByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendByIndex
 */
 extern "C" DLL_EXPORT char *GetFriendListJSON(int friendFlags)
 {
@@ -675,7 +683,7 @@ extern "C" DLL_EXPORT char *GetFriendListJSON(int friendFlags)
 _NOTE: Large Steam groups cannot be iterated by the local user._
 @param hSteamIDSource The Steam group, chat room, lobby or game server to get the user count of.
 @return An integer.
-@api ISteamFriends#GetFriendCountFromSource
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendCountFromSource
 */
 extern "C" DLL_EXPORT int GetFriendCountFromSource(int hSteamIDSource)
 {
@@ -690,7 +698,7 @@ _NOTE: You must call GetFriendCountFromSource before calling this._
 @param hSteamIDSource The Steam group, chat room, lobby or game server to get the user count of.
 @param index The index.
 @return A Steam ID handle.  Invalid indices return 0.
-@api ISteamFriends#GetFriendFromSourceByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendFromSourceByIndex
 */
 extern "C" DLL_EXPORT int GetFriendFromSourceByIndex(int hSteamIDSource, int index)
 {
@@ -704,7 +712,8 @@ extern "C" DLL_EXPORT int GetFriendFromSourceByIndex(int hSteamIDSource, int ind
 _NOTE: Large Steam groups cannot be iterated by the local user._
 @param hSteamIDSource The Steam group, chat room, lobby or game server to get the user count of.
 @return A JSON array of Steam ID handles.
-@api ISteamFriends#GetFriendCountFromSource, ISteamFriends#GetFriendFromSourceByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendCountFromSource
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendFromSourceByIndex
 */
 extern "C" DLL_EXPORT char *GetFriendFromSourceListJSON(int hSteamIDSource)
 {
@@ -729,7 +738,8 @@ extern "C" DLL_EXPORT char *GetFriendFromSourceListJSON(int hSteamIDSource)
 @desc Returns the game App ID that the friend is playing.
 @param hSteamIDUser A user Steam ID handle.
 @return The game App ID if the friend is playing a game; otherwise 0.
-@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendGamePlayed
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendGameInfo_t
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hSteamIDUser)
 {
@@ -746,7 +756,8 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedGameAppID(int hSteamIDUser)
 @desc Returns the IP of the server the friend is playing on.
 @param hSteamIDUser A user Steam ID handle.
 @return The IP address if the friend is playing a game; otherwise an empty string.
-@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendGamePlayed
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendGameInfo_t
 */
 extern "C" DLL_EXPORT char *GetFriendGamePlayedIP(int hSteamIDUser)
 {
@@ -763,7 +774,8 @@ extern "C" DLL_EXPORT char *GetFriendGamePlayedIP(int hSteamIDUser)
 @desc Returns the game port of the server the friend is playing on.
 @param hSteamIDUser A user Steam ID handle.
 @return The game port if the friend is playing a game; otherwise 0.
-@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendGamePlayed
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendGameInfo_t
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedConnectionPort(int hSteamIDUser)
 {
@@ -780,7 +792,8 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedConnectionPort(int hSteamIDUser)
 @desc Returns the query port of the server the friend is playing on.
 @param hSteamIDUser A user Steam ID handle.
 @return The query port if the friend is playing a game; otherwise 0.
-@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendGamePlayed
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendGameInfo_t
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hSteamIDUser)
 {
@@ -797,7 +810,8 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedQueryPort(int hSteamIDUser)
 @desc Returns the Steam ID handle of lobby the friend is in.
 @param hSteamIDUser A user Steam ID handle.
 @return A Steam ID lobby handle if the friend is in a lobby; otherwise 0.
-@api ISteamFriends#GetFriendGamePlayed, ISteamFriends#FriendGameInfo_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendGamePlayed
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendGameInfo_t
 */
 extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hSteamIDUser)
 {
@@ -816,7 +830,7 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hSteamIDUser)
 @desc Gets the specified user's persona (display) name.
 @param hSteamIDUser A user Steam ID handle.
 @return the user's name.
-@api ISteamFriends#GetFriendPersonaName
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendPersonaName
 */
 extern "C" DLL_EXPORT char *GetFriendPersonaName(int hSteamIDUser)
 {
@@ -832,7 +846,7 @@ This only works for display names that the current user has seen on the local co
 @param hSteamIDFriend The Steam ID handle of the other user.
 @param index The index of the history to receive. 0 is their current persona name, 1 is their most recent before they changed it, etc.
 @return The players old persona name at the given index. Returns an empty string when there are no further items in the history.
-@api ISteamFriends#GetFriendPersonaNameHistory
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendPersonaNameHistory
 */
 extern "C" DLL_EXPORT char *GetFriendPersonaNameHistory(int hSteamIDFriend, int index)
 {
@@ -846,7 +860,7 @@ extern "C" DLL_EXPORT char *GetFriendPersonaNameHistory(int hSteamIDFriend, int 
 This only works for display names that the current user has seen on the local computer.
 @param hSteamIDFriend The Steam ID handle of the other user.
 @return A JSON array of strings.
-@api ISteamFriends#GetFriendPersonaNameHistory
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendPersonaNameHistory
 */
 extern "C" DLL_EXPORT char *GetFriendPersonaNameHistoryJSON(int hSteamIDFriend)
 {
@@ -874,8 +888,9 @@ extern "C" DLL_EXPORT char *GetFriendPersonaNameHistoryJSON(int hSteamIDFriend)
 /*
 @desc Gets the current status of the specified user.
 @param hSteamIDUser A user Steam ID handle.
-@return An [EPersonaState](https://partner.steamgames.com/doc/api/ISteamFriends#EPersonaState) value.
-@api ISteamFriends#EPersonaState, ISteamFriends#GetFriendPersonaState
+@return An EPersonaState value.
+@return-url https://partner.steamgames.com/doc/api/ISteamFriends#EPersonaState
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendPersonaState
 */
 extern "C" DLL_EXPORT int GetFriendPersonaState(int hSteamIDUser)
 {
@@ -887,8 +902,9 @@ extern "C" DLL_EXPORT int GetFriendPersonaState(int hSteamIDUser)
 /*
 @desc Gets a relationship to a specified user.
 @param hSteamIDUser A user Steam ID handle.
-@return An [EFriendRelationship](https://partner.steamgames.com/doc/api/ISteamFriends#EFriendRelationship) value.
-@api ISteamFriends#GetFriendRelationship
+@return An EFriendRelationship value.
+@return-url https://partner.steamgames.com/doc/api/ISteamFriends#EFriendRelationship
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRelationship
 */
 extern "C" DLL_EXPORT int GetFriendRelationship(int hSteamIDUser)
 {
@@ -901,7 +917,7 @@ extern "C" DLL_EXPORT int GetFriendRelationship(int hSteamIDUser)
 @param hSteamIDFriend The friend to get the Rich Presence value for.
 @param key The Rich Presence key to request.
 @return The value.  An empty string if the specified key is not set.
-@api ISteamFriends#GetFriendRichPresence
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRichPresence
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresence(int hSteamIDFriend, const char *key)
 {
@@ -918,7 +934,7 @@ _This is typically only ever used for debugging purposes._
 @param hSteamIDFriend This should be the same user provided to the previous call to GetFriendRichPresenceKeyCount!
 @param index The index
 @return A key name.  An empty string if the index is invalid.
-@api ISteamFriends#GetFriendRichPresenceKeyByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRichPresenceKeyByIndex
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresenceKeyByIndex(int hSteamIDFriend, int index)
 {
@@ -932,7 +948,7 @@ extern "C" DLL_EXPORT char *GetFriendRichPresenceKeyByIndex(int hSteamIDFriend, 
 _This is typically only ever used for debugging purposes._
 @param hSteamIDFriend The Steam ID of the user to get the Rich Presence Key Count of.
 @return An integer.
-@api ISteamFriends#GetFriendRichPresenceKeyCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRichPresenceKeyCount
 */
 extern "C" DLL_EXPORT int GetFriendRichPresenceKeyCount(int hSteamIDFriend)
 {
@@ -946,7 +962,8 @@ extern "C" DLL_EXPORT int GetFriendRichPresenceKeyCount(int hSteamIDFriend)
 _This is typically only ever used for debugging purposes._
 @param hSteamIDFriend The Steam ID of the user to get the Rich Presence Keys for.
 @return A JSON array of strings.
-@api ISteamFriends#GetFriendRichPresenceKeyCount, ISteamFriends#GetFriendRichPresenceKeyByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRichPresenceKeyCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRichPresenceKeyByIndex
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresenceKeyListJSON(int hSteamIDFriend)
 {
@@ -971,7 +988,7 @@ extern "C" DLL_EXPORT char *GetFriendRichPresenceKeyListJSON(int hSteamIDFriend)
 /*
 @desc Gets the number of friends groups (tags) the user has created.
 @return The number of friends groups for the current user.
-@api ISteamFriends#GetFriendsGroupCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendsGroupCount
 */
 extern "C" DLL_EXPORT int GetFriendsGroupCount()
 {
@@ -983,7 +1000,7 @@ extern "C" DLL_EXPORT int GetFriendsGroupCount()
 @desc Gets the friends group ID for the given index.
 @param index An index between 0 and GetFriendsGroupCount.
 @return The friends group Steam ID handle.
-@api ISteamFriends#GetFriendsGroupIDByIndex
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendsGroupIDByIndex
 */
 extern "C" DLL_EXPORT int GetFriendsGroupIDByIndex(int index)
 {
@@ -995,7 +1012,7 @@ extern "C" DLL_EXPORT int GetFriendsGroupIDByIndex(int index)
 @desc Gets the number of friends in a given friends group.
 @param hFriendsGroupID The friends group ID handle to get the number of friends in.
 @return The number of friends in a friends group.
-@api ISteamFriends#GetFriendsGroupMembersCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendsGroupMembersCount
 */
 extern "C" DLL_EXPORT int GetFriendsGroupMembersCount(int hFriendsGroupID)
 {
@@ -1037,7 +1054,7 @@ extern "C" DLL_EXPORT char *GetFriendsGroupMembersListJSON(int hFriendsGroupID)
 @desc Gets the name for the given friends group.
 @param hFriendsGroupID The friends group ID handle to get the name of.
 @return The name of the friends group.
-@api ISteamFriends#GetFriendsGroupName
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendsGroupName
 */
 extern "C" DLL_EXPORT char *GetFriendsGroupName(int hFriendsGroupID)
 {
@@ -1051,7 +1068,7 @@ extern "C" DLL_EXPORT char *GetFriendsGroupName(int hFriendsGroupID)
 _This will return 0 unless the level has been cached by the API.  Despite how it appears that it should behave, the Steam API does not seem to fire the PersonaStateChange_t callback when Steam levels cache._
 @param hSteamIDUser A user Steam ID handle.
 @return the user's Steam level or 0 if not loaded.
-@api ISteamFriends#GetFriendSteamLevel
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendSteamLevel
 */
 extern "C" DLL_EXPORT int GetFriendSteamLevel(int hSteamIDUser)
 {
@@ -1086,7 +1103,9 @@ Values for the size parameter:
 @param size The size of the avatar to load.
 @return 0 when no avatar is set, -1 when the image needs to be loaded, and a positive number is an image handle.
 Use [LoadImageFromHandle](Image-Loading#loadimagefromhandle) to load the image from the handle.
-@api ISteamFriends#GetSmallFriendAvatar, ISteamFriends#GetMediumFriendAvatar, ISteamFriends#GetLargeFriendAvatar
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetSmallFriendAvatar
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetMediumFriendAvatar
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetLargeFriendAvatar
 */
 extern "C" DLL_EXPORT int GetFriendAvatar(int hSteamIDUser, int size)
 {
@@ -1120,7 +1139,7 @@ extern "C" DLL_EXPORT int GetFriendAvatar(int hSteamIDUser, int size)
 @param hSteamIDUser A user Steam ID handle.
 @return 0 when no avatar is set, -1 when the image needs to be loaded, and a positive number is an image handle.
 Use [LoadImageFromHandle](Image-Loading#loadimagefromhandle) to load the image from the handle.
-@api ISteamFriends#GetLargeFriendAvatar
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetLargeFriendAvatar
 */
 extern "C" DLL_EXPORT int GetLargeFriendAvatar(int hSteamIDUser)
 {
@@ -1132,7 +1151,7 @@ extern "C" DLL_EXPORT int GetLargeFriendAvatar(int hSteamIDUser)
 @param hSteamIDUser A user Steam ID handle.
 @return 0 when no avatar is set, -1 when the image needs to be loaded, and a positive number is an image handle.
 Use [LoadImageFromHandle](Image-Loading#loadimagefromhandle) to load the image from the handle.
-@api ISteamFriends#GetMediumFriendAvatar
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetMediumFriendAvatar
 */
 extern "C" DLL_EXPORT int GetMediumFriendAvatar(int hSteamIDUser)
 {
@@ -1142,7 +1161,7 @@ extern "C" DLL_EXPORT int GetMediumFriendAvatar(int hSteamIDUser)
 /*
 @desc Gets the current users persona (display) name.
 @return the name
-@api ISteamFriends#GetPersonaName
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetPersonaName
 */
 extern "C" DLL_EXPORT char *GetPersonaName()
 {
@@ -1168,7 +1187,7 @@ extern "C" DLL_EXPORT int GetPersonaState()
 @desc Gets the nickname that the current user has set for the specified user.
 @param hSteamIDUser A user Steam ID handle.
 @return The player's nickname.
-@api ISteamFriends#GetPlayerNickname
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetPlayerNickname
 */
 extern "C" DLL_EXPORT char *GetPlayerNickname(int hSteamIDUser)
 {
@@ -1181,7 +1200,7 @@ extern "C" DLL_EXPORT char *GetPlayerNickname(int hSteamIDUser)
 @param hSteamIDUser A user Steam ID handle.
 @return 0 when no avatar is set, -1 when the image needs to be loaded, and a positive number is an image handle.
 Use [LoadImageFromHandle](Image-Loading#loadimagefromhandle) to load the image from the handle.
-@api ISteamFriends#GetMediumFriendAvatar
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetMediumFriendAvatar
 */
 extern "C" DLL_EXPORT int GetSmallFriendAvatar(int hSteamIDUser)
 {
@@ -1203,9 +1222,9 @@ extern "C" DLL_EXPORT int GetUserRestrictions()
 @desc Checks if the user meets the specified criteria.
 @param hSteamIDUser A user Steam ID handle.
 @param friendFlags A combined union (binary "or") of one or more EFriendFlags.
-@param-api friendFlags ISteamFriends#EFriendFlags
+@param-url friendFlags https://partner.steamgames.com/doc/api/ISteamFriends#EFriendFlags
 @return 1 when true, 0 when false.
-@api ISteamFriends#HasFriend
+@url https://partner.steamgames.com/doc/api/ISteamFriends#HasFriend
 */
 extern "C" DLL_EXPORT int HasFriend(int hSteamIDUser, int friendFlags)
 {
@@ -1275,11 +1294,10 @@ extern "C" DLL_EXPORT int IsClanChatWindowOpenInSteam(int hSteamIDClan)
 	return SteamFriends()->IsClanChatWindowOpenInSteam(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
-#pragma region CFriendsIsFollowingCallResult
-class CFriendsIsFollowingCallResult : public CCallResultItem<FriendsIsFollowing_t>
+class CIsFollowingCallResult : public CCallResultItem<FriendsIsFollowing_t>
 {
 public:
-	CFriendsIsFollowingCallResult(CSteamID steamID)
+	CIsFollowingCallResult(CSteamID steamID)
 	{
 		m_CallResultName = "IsFollowing(" + std::to_string(steamID.ConvertToUint64()) + ")";
 		m_hSteamAPICall = SteamFriends()->IsFollowing(steamID);
@@ -1287,7 +1305,34 @@ public:
 	CSteamID GetSteamID() { return m_Response.m_steamID; }
 	bool IsFollowing() { return m_Response.m_bIsFollowing; }
 };
-#pragma endregion
+
+/*
+@url https://partner.steamgames.com/doc/api/ISteamFriends#IsFollowing
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsIsFollowing_t
+*/
+extern "C" DLL_EXPORT int IsFollowing(int hSteamID)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CIsFollowingCallResult(SteamHandles()->GetSteamHandle(hSteamID)));
+}
+
+/*
+@url https://partner.steamgames.com/doc/api/ISteamFriends#IsFollowing
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsIsFollowing_t
+*/
+extern "C" DLL_EXPORT int GetIsFollowingSteamID(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CIsFollowingCallResult::GetSteamID);
+}
+
+/*
+@url https://partner.steamgames.com/doc/api/ISteamFriends#IsFollowing
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsIsFollowing_t
+*/
+extern "C" DLL_EXPORT int GetIsFollowingResult(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CIsFollowingCallResult::IsFollowing);
+}
 
 //IsFollowing - FriendsIsFollowing_t
 //IsUserInSource
@@ -1296,7 +1341,6 @@ public:
 //OpenClanChatWindowInSteam
 //ReplyToFriendMessage
 
-#pragma region CClanOfficerListResponseCallResult
 class CClanOfficerListResponseCallResult : public CCallResultItem<ClanOfficerListResponse_t, SuccessResponse<ClanOfficerListResponse_t>>
 {
 public:
@@ -1308,13 +1352,12 @@ public:
 	CSteamID GetSteamIDClan() { return m_Response.m_steamIDClan; }
 	int GetOfficerCount() { return m_Response.m_cOfficers; }
 };
-#pragma endregion
 
 /*
 @desc Requests information about a Steam group officers (administrators and moderators).
 @param hSteamIDClan The Steam group to get the officers list for.
 @return @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
-@api https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
 */
 extern "C" DLL_EXPORT int RequestClanOfficerList(int hSteamIDClan)
 {
@@ -1326,8 +1369,8 @@ extern "C" DLL_EXPORT int RequestClanOfficerList(int hSteamIDClan)
 @desc Gets the number of officers in the group from the call result response. This is the same as GetClanOfficerCount.
 @param hCallResult An RequestClanOfficerList call result handle.
 @return An integer.
-@api https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
-https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
 */
 extern "C" DLL_EXPORT int GetRequestClanOfficerListOfficerCount(int hCallResult)
 {
@@ -1338,8 +1381,8 @@ extern "C" DLL_EXPORT int GetRequestClanOfficerListOfficerCount(int hCallResult)
 @desc Gets the Steam group that the call result just got the officer list for.
 @param hCallResult An RequestClanOfficerList call result handle.
 @return A Steam ID handle.  0 if there was a problem.
-@api https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
-https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
 */
 extern "C" DLL_EXPORT int GetRequestClanOfficerListClan(int hCallResult)
 {
@@ -1353,7 +1396,7 @@ extern "C" DLL_EXPORT int GetRequestClanOfficerListClan(int hCallResult)
 @param hSteamIDUser A user Steam ID handle.
 @param requireNameOnly When 0 the avatar for the user is also loaded; otherwise only the name is loaded.
 @return 1 when the user data needs to be loaded and will be reported by the PersonaStateChange_t callback.  0 when the user data is already loaded.
-@api ISteamFriends#RequestUserInformation
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestUserInformation
 */
 extern "C" DLL_EXPORT int RequestUserInformation(int hSteamIDUser, int requireNameOnly)
 {
@@ -1376,7 +1419,7 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hSteamIDUser, int requireNa
 @callback-type list
 @callback-getters	GetAvatarImageLoadedUser
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamFriends#AvatarImageLoaded_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#AvatarImageLoaded_t
 */
 extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse()
 {
@@ -1388,7 +1431,7 @@ extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse()
 @desc Returns the Steam ID handle for current AvatarImageLoaded_t callback response.
 Call GetFriendAvatar with the returned user handle to get the image handle
 @return The SteamID handle of the user whose avatar loaded.
-@api ISteamFriends#AvatarImageLoaded_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#AvatarImageLoaded_t
 */
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser()
 {
@@ -1414,7 +1457,7 @@ If the game isn't running yet then the game will be automatically launched with 
 @callback-type list
 @callback-getters GetGameLobbyJoinRequestedLobby
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamFriends#GameLobbyJoinRequested_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameLobbyJoinRequested_t
 */
 extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse()
 {
@@ -1433,7 +1476,7 @@ extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby()
 /*
 @desc Gets whether the Steam Overlay has been activated or deactivated.
 @return 1 when the Steam overlay is active and 0 when it is not.
-@api ISteamFriends#GameOverlayActivated_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameOverlayActivated_t
 */
 extern "C" DLL_EXPORT int IsGameOverlayActive()
 {
@@ -1449,7 +1492,7 @@ extern "C" DLL_EXPORT int IsGameOverlayActive()
 @callback-type list
 @callback-getters	GetPersonaStateChangeFlags, GetPersonaStateChangeSteamID
 @return 1 when the callback has more responses to process; otherwise 0.
-@api ISteamFriends#PersonaStateChange_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#PersonaStateChange_t
 */
 extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 {
@@ -1459,7 +1502,8 @@ extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 /*
 @desc Returns the bit-wise union of EPersonaChange values for the current PersonaStateChange_t callback response.
 @return The EPersonaChange values of the user whose persona state changed.
-@api ISteamFriends#PersonaStateChange_t, ISteamFriends#EPersonaChange
+@url https://partner.steamgames.com/doc/api/ISteamFriends#PersonaStateChange_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#EPersonaChange
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 {
@@ -1469,7 +1513,7 @@ extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 /*
 @desc Returns the SteamID handle of the user whose persona state changed for the current PersonaStateChange_t callback response.
 @return The SteamID handle of the user whose persona state changed.
-@api ISteamFriends#PersonaStateChange_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#PersonaStateChange_t
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID()
 {

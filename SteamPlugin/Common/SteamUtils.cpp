@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 Typically this call is unneeded if your game has a constantly running frame loop that calls Sync() or Swap() every frame.
 @return 1 if the overlay needs you to refresh the screen, otherwise 0.
-@api ISteamUtils#BOverlayNeedsPresent
+@url https://partner.steamgames.com/doc/api/ISteamUtils#BOverlayNeedsPresent
 */
 extern "C" DLL_EXPORT int OverlayNeedsPresent()
 {
@@ -47,7 +47,7 @@ _This method is just for testing purposes since the app should already know its 
 
 Returns the AppID or 0 if the Steam API has not been not initialized or the AppID cannot be found.
 @return The AppID or 0.
-@api ISteamUtils#GetAppID
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetAppID
 */
 extern "C" DLL_EXPORT int GetAppID()
 {
@@ -61,7 +61,7 @@ extern "C" DLL_EXPORT int GetAppID()
 /*
 @desc Gets the current amount of battery power on the computer.
 @return The current batter power as a percentage, from 0 to 100, or 255 when on AC power.
-@api ISteamUtils#GetCurrentBatteryPower
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetCurrentBatteryPower
 */
 extern "C" DLL_EXPORT int GetCurrentBatteryPower()
 {
@@ -121,7 +121,8 @@ int LoadImageFromHandle(int imageID, int hImage)
 @desc Loads an image from an image handle into a new image ID.
 @param hImage The handle to the image that will be obtained.
 @return An image ID containing the loaded image.
-@api SteamUtils#GetImageSize, SteamUtils#GetImageRGBA
+@url https://partner.steamgames.com/doc/api/SteamUtils#GetImageSize
+@url https://partner.steamgames.com/doc/api/SteamUtils#GetImageRGBA
 */
 extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage)
 {
@@ -133,7 +134,8 @@ extern "C" DLL_EXPORT int LoadImageFromHandle(int hImage)
 @desc Loads an image from an image handle into a new image ID.
 @param imageID The image ID into which to load the image.
 @param hImage The handle to the image that will be obtained.
-@api SteamUtils#GetImageSize, SteamUtils#GetImageRGBA
+@url https://partner.steamgames.com/doc/api/SteamUtils#GetImageSize
+@url https://partner.steamgames.com/doc/api/SteamUtils#GetImageRGBA
 @plugin-name LoadImageFromHandle
 */
 extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage)
@@ -148,7 +150,7 @@ extern "C" DLL_EXPORT void LoadImageIDFromHandle(int imageID, int hImage)
 Used for perf debugging so you can determine how many IPC (Inter-Process Communication) calls your game makes per frame
 Every IPC call is at minimum a thread context switch if not a process one so you want to rate control how often you do them.
 @return An integer.
-@api ISteamUtils#GetIPCCallCount
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetIPCCallCount
 */
 extern "C" DLL_EXPORT int GetIPCCallCount()
 {
@@ -159,7 +161,7 @@ extern "C" DLL_EXPORT int GetIPCCallCount()
 /*
 @desc Returns the 2 character ISO 3166-1-alpha-2 format country code which client is running in.
 @return A two character string.
-@api ISteamUtils#GetIPCountry
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetIPCountry
 */
 extern "C" DLL_EXPORT char *GetIPCountry()
 {
@@ -170,7 +172,7 @@ extern "C" DLL_EXPORT char *GetIPCountry()
 /*
 @desc Returns the number of seconds since the application was active.
 @return An integer.
-@api ISteamUtils#GetSecondsSinceAppActive
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetSecondsSinceAppActive
 */
 extern "C" DLL_EXPORT int GetSecondsSinceAppActive()
 {
@@ -181,7 +183,7 @@ extern "C" DLL_EXPORT int GetSecondsSinceAppActive()
 /*
 @desc Returns the number of seconds since the user last moved the mouse.
 @return An integer
-@api ISteamUtils#GetSecondsSinceComputerActive
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetSecondsSinceComputerActive
 */
 extern "C" DLL_EXPORT int GetSecondsSinceComputerActive()
 {
@@ -192,7 +194,7 @@ extern "C" DLL_EXPORT int GetSecondsSinceComputerActive()
 /*
 @desc Returns the Steam server time in Unix epoch format.
 @return An integer.
-@api ISteamUtils#GetServerRealTime
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetServerRealTime
 */
 extern "C" DLL_EXPORT int GetServerRealTime()
 {
@@ -205,7 +207,7 @@ extern "C" DLL_EXPORT int GetServerRealTime()
 
 You probably want GetCurrentGameLanguage instead, this should only be used in very special cases.
 @return A string.
-@api ISteamUtils#GetSteamUILanguage
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetSteamUILanguage
 */
 extern "C" DLL_EXPORT char *GetSteamUILanguage()
 {
@@ -220,7 +222,7 @@ extern "C" DLL_EXPORT char *GetSteamUILanguage()
 
 The overlay process could take a few seconds to start and hook the game process, so this method will initially return 0 while the overlay is loading.
 @return 1 when the overlay is enabled; otherwise 0.
-@api ISteamUtils#IsOverlayEnabled
+@url https://partner.steamgames.com/doc/api/ISteamUtils#IsOverlayEnabled
 */
 extern "C" DLL_EXPORT int IsOverlayEnabled()
 {
@@ -231,7 +233,7 @@ extern "C" DLL_EXPORT int IsOverlayEnabled()
 /*
 @desc Checks if Steam and the Steam Overlay are running in Big Picture mode.
 @return 1 if in Big Picture Mode; otherwise 0.
-@api ISteamUtils#IsSteamInBigPictureMode
+@url https://partner.steamgames.com/doc/api/ISteamUtils#IsSteamInBigPictureMode
 */
 extern "C" DLL_EXPORT int IsSteamInBigPictureMode()
 {
@@ -242,7 +244,7 @@ extern "C" DLL_EXPORT int IsSteamInBigPictureMode()
 /*
 @desc Checks if Steam is running in VR mode.
 @return 1 when Steam is running in VR mode; otherwise 0.
-@api ISteamUtils#IsSteamRunningInVR
+@url https://partner.steamgames.com/doc/api/ISteamUtils#IsSteamRunningInVR
 */
 extern "C" DLL_EXPORT int IsSteamRunningInVR()
 {
@@ -255,7 +257,7 @@ extern "C" DLL_EXPORT int IsSteamRunningInVR()
 
 See API reference for further information.
 @return 1 if streaming is enabled; otherwise 0.
-@api ISteamUtils#IsVRHeadsetStreamingEnabled
+@url https://partner.steamgames.com/doc/api/ISteamUtils#IsVRHeadsetStreamingEnabled
 */
 extern "C" DLL_EXPORT int IsVRHeadsetStreamingEnabled()
 {
@@ -267,7 +269,7 @@ extern "C" DLL_EXPORT int IsVRHeadsetStreamingEnabled()
 @desc Sets the inset of the overlay notification from the corner specified by SetOverlayNotificationPosition.
 @param horizontalInset The horizontal (left-right) distance in pixels from the corner.
 @param verticalInset The vertical (up-down) distance in pixels from the corner.
-@api ISteamUtils#SetOverlayNotificationInset
+@url https://partner.steamgames.com/doc/api/ISteamUtils#SetOverlayNotificationInset
 */
 extern "C" DLL_EXPORT void SetOverlayNotificationInset(int horizontalInset, int verticalInset)
 {
@@ -280,8 +282,8 @@ extern "C" DLL_EXPORT void SetOverlayNotificationInset(int horizontalInset, int 
 
 This position is per-game and is reset each launch.
 @param eNotificationPosition The notification popup position.
-@param-api eNotificationPosition steam_api#ENotificationPosition
-@api ISteamUtils#SetOverlayNotificationPosition
+@param-url eNotificationPosition https://partner.steamgames.com/doc/api/steam_api#ENotificationPosition
+@url https://partner.steamgames.com/doc/api/ISteamUtils#SetOverlayNotificationPosition
 */
 extern "C" DLL_EXPORT void SetOverlayNotificationPosition(int eNotificationPosition)
 {
@@ -294,7 +296,7 @@ extern "C" DLL_EXPORT void SetOverlayNotificationPosition(int eNotificationPosit
 
 See API reference for further information.
 @param enabled Turns VR HMD Streaming on (1) or off (0).
-@api ISteamUtils#SetVRHeadsetStreamingEnabled
+@url https://partner.steamgames.com/doc/api/ISteamUtils#SetVRHeadsetStreamingEnabled
 */
 extern "C" DLL_EXPORT void SetVRHeadsetStreamingEnabled(int enabled)
 {
@@ -320,7 +322,7 @@ extern "C" void __cdecl SteamAPIDebugTextHook(int nSeverity, const char *pchDebu
 @desc Sets a warning message hook within the plugin to receive Steam API warnings and info messages and output them to AGK's Debug Log.
 
 _Note: I have never seen a warning show up and don't know how to force one to fire, so I can only assume the plugin code is correct._
-@api ISteamUtils#SetWarningMessageHook
+@url https://partner.steamgames.com/doc/api/ISteamUtils#SetWarningMessageHook
 */
 extern "C" DLL_EXPORT void SetWarningMessageHook()
 {
@@ -333,14 +335,14 @@ extern "C" DLL_EXPORT void SetWarningMessageHook()
 
 Note: charMax is limited to 512 characters.
 @param eInputMode Selects the input mode to use, either Normal or Password (hidden text).
-@param-api eInputMode ISteamUtils#EGamepadTextInputMode
+@param-url eInputMode https://partner.steamgames.com/doc/api/ISteamUtils#EGamepadTextInputMode
 @param eLineInputMode Controls whether to use single or multi line input.
-@param-api eLineInputMode ISteamUtils#EGamepadTextInputLineMode
+@param-url eLineInputMode https://partner.steamgames.com/doc/api/ISteamUtils#EGamepadTextInputLineMode
 @param description Sets the description that should inform the user what the input dialog is for.
 @param charMax The maximum number of characters that the user can input.
 @param existingText Sets the preexisting text which the user can edit.
 @return 1 if the input overlay opens; otherwise 0.
-@api ISteamUtils#ShowGamepadTextInput
+@url https://partner.steamgames.com/doc/api/ISteamUtils#ShowGamepadTextInput
 */
 extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMode, const char *description, int charMax, const char *existingText)
 {
@@ -356,7 +358,7 @@ extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMod
 
 /*
 @desc Asks Steam to create and render the OpenVR dashboard.
-@api ISteamUtils#StartVRDashboard
+@url https://partner.steamgames.com/doc/api/ISteamUtils#StartVRDashboard
 */
 extern "C" DLL_EXPORT void StartVRDashboard()
 {
@@ -372,7 +374,7 @@ extern "C" DLL_EXPORT void StartVRDashboard()
 @callback-type list
 @callback-getters GetGamepadTextInputDismissedSubmitted, GetGamepadTextInputDismissedSubmittedText
 @return 1 when the big picture gamepad text input has closed; otherwise 0.
-@api ISteamUtils#GamepadTextInputDismissed_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GamepadTextInputDismissed_t
 */
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 {
@@ -383,7 +385,7 @@ extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 /*
 @desc Gets whether the user has entered and accepted text for the current GamepadTextInputDismissed_t call.
 @return 1 if user entered and accepted text; otherwise 0.
-@api ISteamUtils#GamepadTextInputDismissed_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GamepadTextInputDismissed_t
 */
 extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 {
@@ -393,7 +395,7 @@ extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 /*
 @desc Gets the text for the current GamepadTextInputDismissed_t call.
 @return A string.
-@api ISteamUtils#GamepadTextInputDismissed_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GamepadTextInputDismissed_t
 */
 extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 {
@@ -404,7 +406,7 @@ extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 @desc Reports when the country of the user has changed.  Use GetIPCountry to get the new value.
 @callback-type bool
 @return 1 when the country has changed; otherwise 0.
-@api ISteamUtils#IPCountry_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#IPCountry_t
 */
 extern "C" DLL_EXPORT int HasIPCountryChangedResponse()
 {
@@ -418,7 +420,7 @@ This method returns 1 once per warning.  It is not reported as an on going effec
 @callback-type bool
 @callback-getters GetMinutesBatteryLeft
 @return 1 when there is a low battery warning; otherwise 0.
-@api ISteamUtils#LowBatteryPower_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#LowBatteryPower_t
 */
 extern "C" DLL_EXPORT int HasLowBatteryWarningResponse()
 {
@@ -431,7 +433,7 @@ extern "C" DLL_EXPORT int HasLowBatteryWarningResponse()
 
 Reports the estimate battery life in minutes when a low battery warning occurs.
 @return Battery life in minutes.
-@api ISteamUtils#LowBatteryPower_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#LowBatteryPower_t
 */
 extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 {
@@ -445,7 +447,7 @@ extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 @desc Called when Steam wants to shutdown.
 @callback-type bool
 @return 1 when Steam is shutting down; otherwise 0.
-@api ISteamUtils#SteamShutdown_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#SteamShutdown_t
 */
 extern "C" DLL_EXPORT int IsSteamShuttingDown()
 {

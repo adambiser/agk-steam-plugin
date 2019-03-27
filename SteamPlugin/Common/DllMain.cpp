@@ -207,7 +207,7 @@ extern "C" DLL_EXPORT void DeleteCallResult(int hCallResult)
 @desc Returns the result code of the given [call result](Callbacks-and-Call-Results#call-results).
 @param hCallResult The call result handle to check.
 @return An EResult code.
-@api steam_api#EResult
+@url https://partner.steamgames.com/doc/api/steam_api#EResult
 */
 extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult)
 {
@@ -228,7 +228,7 @@ extern "C" DLL_EXPORT int GetCallResultCode(int hCallResult)
 Initializes the Steam API.  This method should be called before attempting to do anything else with this plugin.
 This also calls RequestCurrentStats() internally so calling code does not need to do so. The result of the RequestCurrentStats call has no effect on the return value.
 @return 1 when Steam API initialization succeeds; otherwise 0.
-@api steam_api#SteamAPI_Init
+@url https://partner.steamgames.com/doc/api/steam_api#SteamAPI_Init
 */
 extern "C" DLL_EXPORT int Init()
 {
@@ -271,7 +271,7 @@ Tests to see if the game has been started through the Steam Client.  Effectively
 otherwise 0 when the game is already running from the Steam Client.
 
 0 will also be reported if the steam_appid.txt file exists.
-@api steam_api#SteamAPI_RestartAppIfNecessary
+@url https://partner.steamgames.com/doc/api/steam_api#SteamAPI_RestartAppIfNecessary
 */
 extern "C" DLL_EXPORT int RestartAppIfNecessary(int ownAppID)
 {
@@ -284,7 +284,7 @@ extern "C" DLL_EXPORT int RestartAppIfNecessary(int ownAppID)
 @desc
 Allows asynchronous Steam API calls to handle any new results.
 Should be called each frame sync.
-@api steam_api#SteamAPI_RunCallbacks
+@url https://partner.steamgames.com/doc/api/steam_api#SteamAPI_RunCallbacks
 */
 extern "C" DLL_EXPORT void RunCallbacks()
 {
@@ -296,7 +296,7 @@ extern "C" DLL_EXPORT void RunCallbacks()
 
 /*
 @desc Shuts down the plugin and frees memory.
-@api steam_api#SteamAPI_Shutdown
+@url https://partner.steamgames.com/doc/api/steam_api#SteamAPI_Shutdown
 */
 extern "C" DLL_EXPORT void Shutdown()
 {
