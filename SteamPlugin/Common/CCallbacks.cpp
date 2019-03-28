@@ -86,9 +86,9 @@ void CCallbacks::Reset()
 	// ISteamInventory
 
 	// ISteamMatchmaking
-	ClearLobbyChatMessage();
+	LobbyChatMessage.Reset(); // ClearLobbyChatMessage();
 	ClearLobbyChatUpdate();
-	ClearLobbyDataUpdate();
+	LobbyDataUpdate.Reset(); // ClearLobbyDataUpdate();
 	LobbyEnter.Reset();	//ClearLobbyEnter();
 	ClearLobbyGameCreated();
 
@@ -241,7 +241,8 @@ void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 		info.m_MemblockID = agk::CreateMemblock(length);
 		memcpy_s(agk::GetMemblockPtr(info.m_MemblockID), length, data, length);
 	}
-	STORE_CALLBACK_RESULT(LobbyChatMessage, info);
+	//STORE_CALLBACK_RESULT(LobbyChatMessage, info);
+	LobbyChatMessage.StoreResponse(info);
 }
 
 void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
@@ -253,7 +254,8 @@ void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
 void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 {
 	utils::Log("Callback OnLobbyDataUpdate.  Success: " + std::to_string(pParam->m_bSuccess));
-	STORE_CALLBACK_RESULT(LobbyDataUpdate, *pParam);
+	//STORE_CALLBACK_RESULT(LobbyDataUpdate, *pParam);
+	LobbyDataUpdate.StoreResponse(*pParam);
 }
 
 // Fires from CreateLobby and JoinLobby.
@@ -269,10 +271,12 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 		g_JoinedLobbiesMutex.unlock();
 		// Register the in-lobby callbacks.
 		agk::Log("Registering in-lobby callbacks");
-		Callbacks()->RegisterLobbyChatMessageCallback();
-		Callbacks()->RegisterLobbyChatUpdateCallback();
-		Callbacks()->RegisterLobbyDataUpdateCallback();
-		Callbacks()->RegisterLobbyGameCreatedCallback();
+		//RegisterLobbyChatMessageCallback();
+		LobbyChatMessage.Register();
+		RegisterLobbyChatUpdateCallback();
+		//RegisterLobbyDataUpdateCallback();
+		LobbyDataUpdate.Register();
+		RegisterLobbyGameCreatedCallback();
 	}
 }
 

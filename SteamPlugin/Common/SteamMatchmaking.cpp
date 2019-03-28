@@ -640,9 +640,9 @@ extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID)
 		// Unregister the in-lobby callbacks when leaving the last lobby.
 		// Should be the same callbacks that get registered in CCallbacks::OnLobbyEnter.
 		agk::Log("Unregistering in-lobby callbacks");
-		Callbacks()->UnregisterLobbyChatMessageCallback();
+		Callbacks()->LobbyChatMessage.Unregister();
 		Callbacks()->UnregisterLobbyChatUpdateCallback();
-		Callbacks()->UnregisterLobbyDataUpdateCallback();
+		Callbacks()->LobbyDataUpdate.Unregister();
 		Callbacks()->UnregisterLobbyGameCreatedCallback();
 	}
 }
@@ -1004,7 +1004,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedAccountID()
 extern "C" DLL_EXPORT int HasLobbyChatMessageResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasLobbyChatMessageResponse();
+	return Callbacks()->LobbyChatMessage.HasResponse();
 }
 
 /*
@@ -1015,7 +1015,7 @@ extern "C" DLL_EXPORT int HasLobbyChatMessageResponse()
 extern "C" DLL_EXPORT int GetLobbyChatMessageLobby()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatMessage.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1027,7 +1027,7 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageLobby()
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_ulSteamIDUser);
+	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatMessage.GetCurrent().m_ulSteamIDUser);
 }
 
 // Always k_EChatEntryTypeChatMsg
@@ -1052,7 +1052,7 @@ The memblock will be deleted the next time HasLobbyChatMessageResponse is called
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock()
 {
-	return Callbacks()->GetLobbyChatMessage().m_MemblockID;
+	return Callbacks()->LobbyChatMessage.GetCurrent().m_MemblockID;
 }
 
 /*
@@ -1064,7 +1064,7 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock()
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText()
 {
 	CheckInitialized(NULL_STRING);
-	int memblock = Callbacks()->GetLobbyChatMessage().m_MemblockID;
+	int memblock = Callbacks()->LobbyChatMessage.GetCurrent().m_MemblockID;
 	if (memblock)
 	{
 		return agk::GetMemblockString(memblock, 0, agk::GetMemblockSize(memblock));
@@ -1140,7 +1140,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange()
 extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasLobbyDataUpdateResponse();
+	return Callbacks()->LobbyDataUpdate.HasResponse();
 }
 
 /*
@@ -1150,7 +1150,7 @@ extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyDataUpdate().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyDataUpdate.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1162,7 +1162,7 @@ otherwise, if GetLobbyDataUpdateMember == GetLobbyDataUpdateLobby, use GetLobbyD
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateMember()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyDataUpdate().m_ulSteamIDMember);
+	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyDataUpdate.GetCurrent().m_ulSteamIDMember);
 }
 
 /*
@@ -1172,7 +1172,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateMember()
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyDataUpdate().m_bSuccess);
+	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyDataUpdate.GetCurrent().m_bSuccess);
 }
 
 /*

@@ -278,20 +278,22 @@ public:
 private:
 	// FavoritesListAccountsUpdated_t - no information given about this.
 	LIST_CALLBACK(FavoritesListChanged, FavoritesListChanged_t);
-	LIST_CALLBACK(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t); // While in a lobby
+	//LIST_CALLBACK(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t);
+	void OnLobbyChatMessage(LobbyChatMsg_t *pParam); // While in a lobby
 	LIST_CALLBACK(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 	// LobbyCreated_t - Call result
-	LIST_CALLBACK(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
-	void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam);
-public:
-	ListCallback<LobbyEnter_t, &CCallbacks::OnLobbyEnter> LobbyEnter;
-private:
+	void OnLobbyDataUpdate(LobbyDataUpdate_t *pParam); // While in a lobby
+	void OnLobbyEnter(LobbyEnter_t *pParam); // While in a lobby
 	//LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
 	LIST_CALLBACK(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
 	//TODO LobbyInvite_t - Someone has invited you to join a Lobby. Normally you don't need to do anything with this...
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
 	// PSNGameBootInviteResult_t - deprecated
+public:
+	ListCallback<LobbyChatMsg_t, &CCallbacks::OnLobbyChatMessage, plugin::LobbyChatMsg_t> LobbyChatMessage;
+	ListCallback<LobbyDataUpdate_t, &CCallbacks::OnLobbyDataUpdate> LobbyDataUpdate;
+	ListCallback<LobbyEnter_t, &CCallbacks::OnLobbyEnter> LobbyEnter;
 #pragma endregion
 
 #pragma region ISteamMatchmakingServers
