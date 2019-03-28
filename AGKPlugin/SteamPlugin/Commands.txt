@@ -342,13 +342,14 @@ SetCloudEnabledForApp,0,I,SetCloudEnabledForApp,0,0,0,0,SetCloudEnabledForApp
 SetCloudFileSyncPlatforms,I,SI,SetCloudFileSyncPlatforms,0,0,0,0,SetCloudFileSyncPlatforms
 CloudUGCDownload,I,II,CloudUGCDownload,0,0,0,0,CloudUGCDownload
 CloudUGCDownloadToLocation,I,ISI,CloudUGCDownloadToLocation,0,0,0,0,CloudUGCDownloadToLocation
-GetCloudUGCDownloadFileHandle,I,I,GetCloudUGCDownloadFileHandle,0,0,0,0,GetCloudUGCDownloadFileHandle
+GetCloudUGCDownloadHandle,I,I,GetCloudUGCDownloadHandle,0,0,0,0,GetCloudUGCDownloadHandle
 GetCloudUGCDownloadAppID,I,I,GetCloudUGCDownloadAppID,0,0,0,0,GetCloudUGCDownloadAppID
-GetCloudUGCDownloadSizeInBytes,I,I,GetCloudUGCDownloadSizeInBytes,0,0,0,0,GetCloudUGCDownloadSizeInBytes
+GetCloudUGCDownloadFileSize,I,I,GetCloudUGCDownloadFileSize,0,0,0,0,GetCloudUGCDownloadFileSize
 GetCloudUGCDownloadFileName,S,I,GetCloudUGCDownloadFileName,0,0,0,0,GetCloudUGCDownloadFileName
 GetCloudUGCDownloadOwnerID,I,I,GetCloudUGCDownloadOwnerID,0,0,0,0,GetCloudUGCDownloadOwnerID
-CloudUGCRead,I,IIIIII,CloudUGCReadEx,0,0,0,0,CloudUGCReadEx
-CloudUGCRead,I,IIII,CloudUGCRead,0,0,0,0,CloudUGCRead
+CloudUGCRead,I,IIIII,CloudUGCReadEx,0,0,0,0,CloudUGCReadEx
+CloudUGCRead,I,II,CloudUGCRead,0,0,0,0,CloudUGCRead
+CloudUGCReadClose,0,I,CloudUGCReadClose,0,0,0,0,CloudUGCReadClose
 #
 # ISteamUser
 #

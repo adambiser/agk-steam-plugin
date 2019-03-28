@@ -445,12 +445,27 @@ extern "C" DLL_EXPORT int CloudFileWriteStreamWriteChunk(int writeHandle, int me
 	return CloudFileWriteStreamWriteChunkEx(writeHandle, memblockID, 0, agk::GetMemblockSize(memblockID));
 }
 
-extern "C" DLL_EXPORT int GetCloudCachedUGCCount() // no information on this
+/*
+@desc Gets the number of of UGC files that have finished downloading but has not yet been read via UGCRead().
+
+Steamworks SDK has no information on this method.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetCachedUGCCount
+*/
+extern "C" DLL_EXPORT int GetCloudCachedUGCCount()
 {
 	CheckInitialized(0);
 	return SteamRemoteStorage()->GetCachedUGCCount();
 }
 
+/*
+@desc Gets the UGC handle of the cached UGC files.  GetCloudCachedUGCCount should be called before using this method.
+
+Steamworks SDK has no information on this method.
+@param index The index, from 0 to GetCloudCachedUGCCount - 1.
+@return A UGC handle
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetCachedUGCHandle
+*/
 extern "C" DLL_EXPORT int GetCloudCachedUGCHandle(int index) // no information on this
 {
 	CheckInitialized(0);
@@ -580,7 +595,15 @@ extern "C" DLL_EXPORT int GetCloudFileSyncPlatforms(const char *filename)
 	return SteamRemoteStorage()->GetSyncPlatforms(filename);
 }
 
-extern "C" DLL_EXPORT int GetCloudUGCDetailsAppID(int hUGC) // no info
+/*
+@desc Gets the App ID for a UGC item.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@return An App ID.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetUGCDetails
+*/
+extern "C" DLL_EXPORT int GetCloudUGCDetailsAppID(int hUGC)
 {
 	CheckInitialized(0);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
@@ -595,7 +618,15 @@ extern "C" DLL_EXPORT int GetCloudUGCDetailsAppID(int hUGC) // no info
 	return 0;
 }
 
-extern "C" DLL_EXPORT char *GetCloudUGCDetailsFileName(int hUGC) // no info
+/*
+@desc Gets the file name for a UGC item.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@return A string.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetUGCDetails
+*/
+extern "C" DLL_EXPORT char *GetCloudUGCDetailsFileName(int hUGC)
 {
 	CheckInitialized(NULL_STRING);
 	UGCHandle_t hContent = SteamHandles()->GetSteamHandle(hUGC);
@@ -610,6 +641,14 @@ extern "C" DLL_EXPORT char *GetCloudUGCDetailsFileName(int hUGC) // no info
 	return NULL_STRING;
 }
 
+/*
+@desc Gets the file size of a UGC item.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetUGCDetails
+*/
 extern "C" DLL_EXPORT int GetCloudUGCDetailsFileSize(int hUGC) // no info
 {
 	CheckInitialized(0);
@@ -625,6 +664,14 @@ extern "C" DLL_EXPORT int GetCloudUGCDetailsFileSize(int hUGC) // no info
 	return 0;
 }
 
+/*
+@desc Gets the Steam ID of the ownder of a UGC item.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@return A Steam ID handle.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetUGCDetails
+*/
 extern "C" DLL_EXPORT int GetCloudUGCDetailsOwner(int hUGC) // no info
 {
 	CheckInitialized(0);
@@ -640,6 +687,14 @@ extern "C" DLL_EXPORT int GetCloudUGCDetailsOwner(int hUGC) // no info
 	return 0;
 }
 
+/*
+@desc Gets the progress bytes downloaded for a UGC item.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetUGCDetails
+*/
 extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesDownloaded(int hUGC) // no info
 {
 	CheckInitialized(0);
@@ -653,6 +708,15 @@ extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesDownloaded(int hUGC) /
 	return 0;
 }
 
+/*
+@desc Gets the progress bytes expected for a UGC item.
+Can be 0 if function returns false or if the transfer hasn't started yet, so be careful to check for that before dividing to get a percentage.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#GetUGCDetails
+*/
 extern "C" DLL_EXPORT int GetCloudUGCDownloadProgressBytesExpected(int hUGC) // no info
 {
 	CheckInitialized(0);
@@ -758,54 +822,125 @@ public:
 			m_hSteamAPICall = SteamRemoteStorage()->UGCDownloadToLocation(hContent, pchLocation, unPriority);
 		}
 	}
-	UGCHandle_t GetFileHandle() { return m_Response.m_hFile; }			// The handle to the file that was attempted to be downloaded.
+	UGCHandle_t GetUGCHandle() { return m_Response.m_hFile; }			// The handle to the file that was attempted to be downloaded.
 	AppId_t GetAppID() { return m_Response.m_nAppID; }				// ID of the app that created this file.
 	int32 GetSizeInBytes() { return m_Response.m_nSizeInBytes; }			// The size of the file that was downloaded, in bytes.
 	std::string GetFileName() { return std::string(m_Response.m_pchFileName); }		// The name of the file that was downloaded. 
 	uint64 GetOwnerID() { return m_Response.m_ulSteamIDOwner; }		// Steam ID of the user who created this content.
 };
 
+/*
+@desc Downloads a UGC file.
+A priority value of 0 will download the file immediately, otherwise it will wait to
+download the file until all downloads with a lower priority value are completed.
+Downloads with equal priority will occur simultaneously.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@param priority The download priority.
+@callback-type callresult
+@callback-getters GetCloudUGCDownloadHandle, GetCloudUGCDownloadAppID, GetCloudUGCDownloadFileSize, GetCloudUGCDownloadFileName, GetCloudUGCDownloadOwnerID
+@return An App ID.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#UGCDownload
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageDownloadUGCResult_t
+*/
 extern "C" DLL_EXPORT int CloudUGCDownload(int hUGC, int priority)
 {
 	CheckInitialized(0);
 	return CallResults()->Add(new CUGCDownloadCallResult(SteamHandles()->GetSteamHandle(hUGC), NULL, priority));
 }
 
+/*
+@desc Downloads a UGC file to the given location.
+A priority value of 0 will download the file immediately, otherwise it will wait to
+download the file until all downloads with a lower priority value are completed.
+Downloads with equal priority will occur simultaneously.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@param location The location to download to.
+@param priority The download priority.
+@callback-type callresult
+@callback-getters GetCloudUGCDownloadHandle, GetCloudUGCDownloadAppID, GetCloudUGCDownloadFileSize, GetCloudUGCDownloadFileName, GetCloudUGCDownloadOwnerID
+@return An App ID.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#UGCDownload
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#RemoteStorageDownloadUGCResult_t
+*/
 extern "C" DLL_EXPORT int CloudUGCDownloadToLocation(int hUGC, const char *location, int priority)
 {
 	CheckInitialized(0);
 	return CallResults()->Add(new CUGCDownloadCallResult(SteamHandles()->GetSteamHandle(hUGC), location, priority));
 }
 
-extern "C" DLL_EXPORT int GetCloudUGCDownloadFileHandle(int hCallResult)
+/*
+@desc The UGC handle that was attempted to be downloaded for the CloudUGCDownload call result.
+@param hCallResult A CloudUGCDownload or CloudUGCDownloadToLocation call result handle.
+@return A UGC file handle.
+*/
+extern "C" DLL_EXPORT int GetCloudUGCDownloadHandle(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetFileHandle);
+	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetUGCHandle);
 }
 
+/*
+@desc The App ID that created the file for the CloudUGCDownload call result.
+@param hCallResult A CloudUGCDownload or CloudUGCDownloadToLocation call result handle.
+@return An App ID.
+*/
 extern "C" DLL_EXPORT int GetCloudUGCDownloadAppID(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetAppID);
 }
 
-extern "C" DLL_EXPORT int GetCloudUGCDownloadSizeInBytes(int hCallResult)
+/*
+@desc The size of the file in bytes for the CloudUGCDownload call result.
+@param hCallResult A CloudUGCDownload or CloudUGCDownloadToLocation call result handle.
+@return An integer.
+*/
+extern "C" DLL_EXPORT int GetCloudUGCDownloadFileSize(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetSizeInBytes);
 }
 
+/*
+@desc The name of the UGC file that was downloaded for the CloudUGCDownload call result.
+@param hCallResult A CloudUGCDownload or CloudUGCDownloadToLocation call result handle.
+@return A string.
+*/
 extern "C" DLL_EXPORT char *GetCloudUGCDownloadFileName(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetFileName);
 }
 
+/*
+@desc The Steam ID of the user who created the content for the CloudUGCDownload call result.
+@param hCallResult A CloudUGCDownload or CloudUGCDownloadToLocation call result handle.
+@return A Steam ID handle.
+*/
 extern "C" DLL_EXPORT int GetCloudUGCDownloadOwnerID(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CUGCDownloadCallResult::GetOwnerID);
 }
 
 /*
+@desc After downloading, gets the content of the UGC file.
+Small files can be read all at once by calling this function with dstOffset and srcOffset of 0 and length equal to the size of the file.
+Larger files can be read in chunks to reduce memory usage (since both sides of the IPC client and the game itself must allocate
+enough memory for each chunk).  Once the last byte is read, the file is implicitly closed and further calls to UGCRead will fail
+unless UGCDownload is called again.
+For especially large files (anything over 100MB) it is a requirement that the file is read in chunks.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@param memblockID A memblock ID.
+@param dstOffset The offset to write to within the memblock.
+@param length The length of data to read/write.
+@param srcOffset The offset to read from.
+@return An integer.  The length read?
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#UGCRead
 @plugin-name CloudUGCRead
 */
-extern "C" DLL_EXPORT int CloudUGCReadEx(int hUGC, int memblockID, int dstOffset, int length, int srcOffset, int eAction)
+extern "C" DLL_EXPORT int CloudUGCReadEx(int hUGC, int memblockID, int dstOffset, int length, int srcOffset)
 {
 	CheckInitialized(0);
 	if (memblockID == 0 || !agk::GetMemblockExists(memblockID))
@@ -818,12 +953,37 @@ extern "C" DLL_EXPORT int CloudUGCReadEx(int hUGC, int memblockID, int dstOffset
 		agk::PluginError("CloudUGCRead: Tried to write data beyond memblock bounds.");
 		return 0;
 	}
-	return SteamRemoteStorage()->UGCRead(SteamHandles()->GetSteamHandle(hUGC), agk::GetMemblockPtr(memblockID) + dstOffset, length, srcOffset, (EUGCReadAction)eAction);
+	return SteamRemoteStorage()->UGCRead(SteamHandles()->GetSteamHandle(hUGC), agk::GetMemblockPtr(memblockID) + dstOffset, length, srcOffset, k_EUGCRead_ContinueReading);
 }
 
-extern "C" DLL_EXPORT int CloudUGCRead(int hUGC, int memblockID, int srcOffset, int eAction)
+/*
+@desc After downloading, gets the content of the UGC file.
+This overload should only be used for small files that can be read in one call.
+
+Data is read from offset 0 to memblock offset 0 and the length read is determined by the size of memblock.
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@param memblockID A memblock ID.
+@return An integer.  The length read?
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#UGCRead
+*/
+extern "C" DLL_EXPORT int CloudUGCRead(int hUGC, int memblockID)
 {
-	return CloudUGCReadEx(hUGC, memblockID, 0, agk::GetMemblockSize(memblockID), srcOffset, eAction);
+	return CloudUGCReadEx(hUGC, memblockID, 0, agk::GetMemblockSize(memblockID), 0);
+}
+
+/*
+@desc Explicitly closes the UGC file being read (k_EUGCRead_Close).
+
+Steamworks SDK has no information on this method.
+@param hUGC A UGC handle.
+@url https://partner.steamgames.com/doc/api/ISteamRemoteStorage#UGCRead
+*/
+extern "C" DLL_EXPORT void CloudUGCReadClose(int hUGC)
+{
+	CheckInitialized(NORETURN);
+	SteamRemoteStorage()->UGCRead(SteamHandles()->GetSteamHandle(hUGC), NULL, 0, 0, k_EUGCRead_Close);
 }
 
 //UnsubscribePublishedFile - deprecated

@@ -1307,6 +1307,11 @@ public:
 };
 
 /*
+@desc Checks if the current user is following the specified user.
+@param hSteamID The Steam ID of the check if we are following.
+@callback-type callresult
+@callback-getters GetIsFollowingSteamID, GetIsFollowingResult
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#IsFollowing
 @url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsIsFollowing_t
 */
@@ -1317,8 +1322,9 @@ extern "C" DLL_EXPORT int IsFollowing(int hSteamID)
 }
 
 /*
-@url https://partner.steamgames.com/doc/api/ISteamFriends#IsFollowing
-@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsIsFollowing_t
+@desc Gets the Steam ID that was checked for the IsFollowing call result.
+@param hCallResult An IsFollowing call result handle.
+@return A Steam ID handle.
 */
 extern "C" DLL_EXPORT int GetIsFollowingSteamID(int hCallResult)
 {
@@ -1326,18 +1332,45 @@ extern "C" DLL_EXPORT int GetIsFollowingSteamID(int hCallResult)
 }
 
 /*
-@url https://partner.steamgames.com/doc/api/ISteamFriends#IsFollowing
-@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsIsFollowing_t
+@desc Gets the 'is following' result for the IsFollowing call result.
+@param hCallResult An IsFollowing call result handle.
+@return 1 if following; otherwise 0.
 */
 extern "C" DLL_EXPORT int GetIsFollowingResult(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CIsFollowingCallResult::IsFollowing);
 }
 
-//IsFollowing - FriendsIsFollowing_t
-//IsUserInSource
+/*
+@desc Checks if a specified user is in a source (Steam group, chat room, lobby, or game serve
+@param hSteamIDUser The user to check if they are in the source.
+@param hSteamIDSource The source to check for the user.
+@return 1 if the local user can see that steamIDUser is a member or in steamIDSource; otherwise, 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#IsUserInSource
+*/
+extern "C" DLL_EXPORT int IsUserInSource(int hSteamIDUser, int hSteamIDSource)
+{
+	CheckInitialized(0);
+	return SteamFriends()->IsUserInSource(SteamHandles()->GetSteamHandle(hSteamIDUser), SteamHandles()->GetSteamHandle(hSteamIDSource));
+}
+
 //JoinClanChatRoom - JoinClanChatRoomCompletionResult_t (cr) GameConnectedChatJoin_t, GameConnectedClanChatMsg_t, GameConnectedChatLeave_t
-//LeaveClanChatRoom - GameConnectedChatLeave_t
+//LeaveClanChatRoom - GameConnectedChatLeave_t (on other machines?)
+
+/*
+@desc Leaves a Steam group chat that the user has previously entered with JoinClanChatRoom.
+
+Triggers a GameConnectedChatLeave_t callback for the other members in the group chat.
+@param hSteamIDClan The Steam ID of the Steam group chat to leave.
+@return 1 if user is in the specified chat room, otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#LeaveClanChatRoom
+*/
+extern "C" DLL_EXPORT int LeaveClanChatRoom(int hSteamIDClan)
+{
+	CheckInitialized(0);
+	return SteamFriends()->LeaveClanChatRoom(SteamHandles()->GetSteamHandle(hSteamIDClan));
+}
+
 //OpenClanChatWindowInSteam
 //ReplyToFriendMessage
 

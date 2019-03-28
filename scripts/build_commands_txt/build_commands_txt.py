@@ -36,7 +36,7 @@ class ExportedMethodLoader:
         for (root, _, filenames) in os.walk(path):
             for filename in [f for f in filenames if f.endswith('.cpp') or f.endswith('.h')]:
                 with open(os.path.join(root, filename), 'r') as f:
-                    print("Loading {}...".format(filename))
+                    # print("Loading {}...".format(filename))
                     lines = ''.join(f.readlines())
                     pages = self._get_page_tags(lines)
                     methods = self._get_methods(lines)

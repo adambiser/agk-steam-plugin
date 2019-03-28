@@ -60,8 +60,10 @@ Use GetCallResultCode to determine whether this call was successful.
 @param hLeaderboard A leaderboard handle.
 @param hUGC Handle to a piece of user generated content that was shared using CloudFileShare or CreateUGCItem.
 @callback-type callresult
+@callback-getters GetAttachLeaderboardUGCLeaderboard
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#AttachLeaderboardUGC
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardUGCSet_t
 */
 extern "C" DLL_EXPORT int AttachLeaderboardUGC(int hLeaderboard, int hUGC)
 {
@@ -82,7 +84,9 @@ extern "C" DLL_EXPORT int AttachLeaderboardUGC(int hLeaderboard, int hUGC)
 }
 
 /*
-
+@desc Returns the leaderboard handle for the AttachLeaderboardUGC call result.
+@param hCallResult An AttachLeaderboardUGC call result handle.
+@return A leaderboard handle.
 */
 extern "C" DLL_EXPORT int GetAttachLeaderboardUGCLeaderboard(int hCallResult)
 {
