@@ -32,6 +32,80 @@ THE SOFTWARE.
 #include <map>
 #include <mutex>
 #include <vector>
+//member_type T::*member_name
+class CCallbacks;
+
+template <class callback_type, void(CCallbacks::*callback_function)(callback_type*), class list_type = callback_type>
+struct ListCallback
+{
+	bool m_bEnabled;
+	std::list<list_type> m_List;
+	std::mutex m_Mutex;
+	list_type m_CurrentValue;
+	CCallbackManual<CCallbacks, callback_type> m_Callback;
+
+	void Register()
+	{
+		if (!g_SteamInitialized)
+		{
+			return;
+		}
+		if (!m_bEnabled)
+		{
+			m_bEnabled = true;
+			m_Callback.Register(Callbacks(), callback_function);
+		}
+	}
+	void Unregister()
+	{
+		if (!g_SteamInitialized)
+		{
+			return;
+		}
+		if (m_bEnabled)
+		{
+			m_bEnabled = false;
+			m_Callback.Unregister();
+		}
+	}
+	void StoreResponse(list_type result)
+	{
+		m_Mutex.lock();
+		m_List.push_back(result);
+		m_Mutex.unlock();
+	}
+	bool HasResponse()
+	{
+		m_Mutex.lock();
+		if (m_List.size() > 0)
+		{
+			m_CurrentValue = m_List.front();
+			m_List.pop_front();
+			m_Mutex.unlock();
+			return true;
+		}
+		Clear(m_CurrentValue);
+		m_Mutex.unlock();
+		return false;
+	}
+	list_type GetCurrent()
+	{
+		return m_CurrentValue;
+	}
+	/* Clears the callback list and current value variable. */
+	void Reset()
+	{
+		m_Mutex.lock();
+		Clear(m_CurrentValue);
+		m_List.clear();
+		if (m_bEnabled)
+		{
+			m_bEnabled = false;
+			m_Callback.Unregister();
+		}
+		m_Mutex.unlock();
+	}
+};
 
 #define _LIST_CALLBACK_MAIN(func, callback_type, list_type)						\
 	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
@@ -64,7 +138,6 @@ public:																			\
 	bool Has##func##Response()													\
 	{																			\
 		m_##func##Mutex.lock();													\
-		Clear(m_Current##func##);												\
 		if (m_##func##List.size() > 0)											\
 		{																		\
 			m_Current##func = m_##func##List.front();							\
@@ -72,6 +145,7 @@ public:																			\
 			m_##func##Mutex.unlock();											\
 			return true;														\
 		}																		\
+		Clear(m_Current##func##);												\
 		m_##func##Mutex.unlock();												\
 		return false;															\
 	}																			\
@@ -85,13 +159,14 @@ private:																		\
 	{																			\
 		m_##func##Mutex.lock();													\
 		Clear(m_Current##func##);												\
-		while (m_##func##List.size() > 0)										\
+		m_##func##List.clear();													\
+/*		while (m_##func##List.size() > 0)										\
 		{																		\
 			m_Current##func = m_##func##List.front();							\
 			m_##func##List.pop_front();											\
 			Clear(m_Current##func##);											\
 		}																		\
-		if (m_b##func##Enabled)													\
+*/		if (m_b##func##Enabled)													\
 		{																		\
 			m_b##func##Enabled = false;											\
 			m_Callback##func##.Unregister();									\
@@ -207,7 +282,11 @@ private:
 	LIST_CALLBACK(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
 	// LobbyCreated_t - Call result
 	LIST_CALLBACK(LobbyDataUpdate, LobbyDataUpdate_t); // While in a lobby
-	LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
+	void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam);
+public:
+	ListCallback<LobbyEnter_t, &CCallbacks::OnLobbyEnter> LobbyEnter;
+private:
+	//LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
 	LIST_CALLBACK(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
 	//TODO LobbyInvite_t - Someone has invited you to join a Lobby. Normally you don't need to do anything with this...
 	// LobbyKicked_t - Currently unused!

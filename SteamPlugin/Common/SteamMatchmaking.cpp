@@ -165,7 +165,8 @@ public:
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitialized(0);
-	Callbacks()->RegisterLobbyEnterCallback();
+	//Callbacks()->RegisterLobbyEnterCallback();
+	Callbacks()->LobbyEnter.Register();
 	return CallResults()->Add(new CCreateLobbyCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
@@ -571,7 +572,8 @@ public:
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
-	Callbacks()->RegisterLobbyEnterCallback();
+	//Callbacks()->RegisterLobbyEnterCallback();
+	Callbacks()->LobbyEnter.Register();
 	return CallResults()->Add(new CJoinLobbyCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
@@ -1183,7 +1185,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess()
 extern "C" DLL_EXPORT int HasLobbyEnterResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasLobbyEnterResponse();
+	return Callbacks()->LobbyEnter.HasResponse();
 }
 
 // Unused - always 0
@@ -1200,7 +1202,7 @@ extern "C" DLL_EXPORT int HasLobbyEnterResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse()
 {
-	return Callbacks()->GetLobbyEnter().m_EChatRoomEnterResponse;
+	return Callbacks()->LobbyEnter.GetCurrent().m_EChatRoomEnterResponse;
 }
 
 /*
@@ -1210,7 +1212,7 @@ extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyEnterLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyEnter().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyEnter.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1220,7 +1222,7 @@ extern "C" DLL_EXPORT int GetLobbyEnterLobby()
 */
 extern "C" DLL_EXPORT int GetLobbyEnterLocked()
 {
-	return Callbacks()->GetLobbyEnter().m_bLocked;
+	return Callbacks()->LobbyEnter.GetCurrent().m_bLocked;
 }
 
 /*

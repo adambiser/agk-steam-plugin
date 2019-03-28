@@ -89,7 +89,7 @@ void CCallbacks::Reset()
 	ClearLobbyChatMessage();
 	ClearLobbyChatUpdate();
 	ClearLobbyDataUpdate();
-	ClearLobbyEnter();
+	LobbyEnter.Reset();	//ClearLobbyEnter();
 	ClearLobbyGameCreated();
 
 	// ISteamMatchmakingServers
@@ -260,7 +260,8 @@ void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 {
 	agk::Log("Callback: OnLobbyEnter");
-	STORE_CALLBACK_RESULT(LobbyEnter, *pParam);
+	//STORE_CALLBACK_RESULT(LobbyEnter, *pParam);
+	LobbyEnter.StoreResponse(*pParam);
 	if (pParam->m_ulSteamIDLobby != 0)
 	{
 		g_JoinedLobbiesMutex.lock();
