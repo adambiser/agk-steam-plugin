@@ -105,7 +105,7 @@ _This method is generally just for testing purposes._
 extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 {
 	CheckInitialized(false);
-	Callbacks()->RegisterUserAchievementStoredCallback();
+	Callbacks()->UserAchievementStored.Register();
 	return SteamUserStats()->ClearAchievement(name);
 }
 
@@ -978,7 +978,7 @@ _This command is called within Init so AppGameKit code will likely never need to
 extern "C" DLL_EXPORT int RequestCurrentStats()
 {
 	CheckInitialized(false);
-	Callbacks()->RegisterUserStatsReceivedCallback();
+	Callbacks()->UserStatsReceived.Register();
 	return SteamUserStats()->RequestCurrentStats();
 }
 
@@ -1062,8 +1062,8 @@ Sends a request for another user's stats to Steam.
 extern "C" DLL_EXPORT int RequestUserStats(int hSteamID)
 {
 	CheckInitialized(0);
-	Callbacks()->RegisterUserStatsReceivedCallback();
-	Callbacks()->RegisterUserStatsUnloadedCallback();
+	Callbacks()->UserStatsReceived.Register();
+	Callbacks()->UserStatsUnloaded.Register();
 	// This returns a SteamAPICall_t, but the UserStatsReceived_t callback also reports the result.
 	// Using the existing callback rather than adding another call result to handle this.
 	return SteamUserStats()->RequestUserStats(SteamHandles()->GetSteamHandle(hSteamID)) != k_uAPICallInvalid;
@@ -1080,8 +1080,8 @@ Resets user stats and optionally all achievements (when bAchievementsToo is 1). 
 extern "C" DLL_EXPORT int ResetAllStats(int achievementsToo)
 {
 	CheckInitialized(false);
-	Callbacks()->RegisterUserAchievementStoredCallback();
-	Callbacks()->RegisterUserStatsStoredCallback();
+	Callbacks()->UserAchievementStored.Register();
+	Callbacks()->UserStatsStored.Register();
 	return SteamUserStats()->ResetAllStats(achievementsToo != 0);
 }
 
@@ -1096,7 +1096,7 @@ Call StoreStats afterward to notify the user of the achievement.  Otherwise, the
 extern "C" DLL_EXPORT int SetAchievement(const char *name)
 {
 	CheckInitialized(false);
-	Callbacks()->RegisterUserAchievementStoredCallback();
+	Callbacks()->UserAchievementStored.Register();
 	return SteamUserStats()->SetAchievement(name);
 }
 
@@ -1142,7 +1142,7 @@ extern "C" DLL_EXPORT int StoreStats()
 		return false;
 	}
 	g_StoringStats = true;
-	Callbacks()->RegisterUserStatsStoredCallback();
+	Callbacks()->UserStatsStored.Register();
 	return SteamUserStats()->StoreStats();
 }
 
@@ -1351,7 +1351,7 @@ extern "C" DLL_EXPORT int GetUploadLeaderboardScoreRankPrevious(int hCallResult)
 */
 extern "C" DLL_EXPORT int HasUserAchievementStoredResponse()
 {
-	return Callbacks()->HasUserAchievementStoredResponse();
+	return Callbacks()->UserAchievementStored.HasResponse();
 }
 
 // Unused
@@ -1367,7 +1367,7 @@ extern "C" DLL_EXPORT int HasUserAchievementStoredResponse()
 */
 extern "C" DLL_EXPORT char *GetUserAchievementStoredName()
 {
-	return utils::CreateString(Callbacks()->GetUserAchievementStored().m_rgchAchievementName);
+	return utils::CreateString(Callbacks()->UserAchievementStored.GetCurrent().m_rgchAchievementName);
 }
 
 /*
@@ -1377,7 +1377,7 @@ extern "C" DLL_EXPORT char *GetUserAchievementStoredName()
 */
 extern "C" DLL_EXPORT int GetUserAchievementStoredCurrentProgress()
 {
-	return (int)Callbacks()->GetUserAchievementStored().m_nCurProgress;
+	return (int)Callbacks()->UserAchievementStored.GetCurrent().m_nCurProgress;
 }
 
 /*
@@ -1387,7 +1387,7 @@ extern "C" DLL_EXPORT int GetUserAchievementStoredCurrentProgress()
 */
 extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress()
 {
-	return (int)Callbacks()->GetUserAchievementStored().m_nMaxProgress;
+	return (int)Callbacks()->UserAchievementStored.GetCurrent().m_nMaxProgress;
 }
 
 /*
@@ -1399,7 +1399,7 @@ extern "C" DLL_EXPORT int GetUserAchievementStoredMaxProgress()
 */
 extern "C" DLL_EXPORT int HasUserStatsReceivedResponse()
 {
-	return Callbacks()->HasUserStatsReceivedResponse();
+	return Callbacks()->UserStatsReceived.HasResponse();
 }
 
 // This plugin only reports for the current app id.
@@ -1415,7 +1415,7 @@ extern "C" DLL_EXPORT int HasUserStatsReceivedResponse()
 */
 extern "C" DLL_EXPORT int GetUserStatsReceivedResult()
 {
-	return (int)Callbacks()->GetUserStatsReceived().m_eResult;
+	return (int)Callbacks()->UserStatsReceived.GetCurrent().m_eResult;
 }
 
 /*
@@ -1425,7 +1425,7 @@ extern "C" DLL_EXPORT int GetUserStatsReceivedResult()
 */
 extern "C" DLL_EXPORT int GetUserStatsReceivedUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetUserStatsReceived().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(Callbacks()->UserStatsReceived.GetCurrent().m_steamIDUser);
 }
 
 /*
@@ -1457,7 +1457,7 @@ extern "C" DLL_EXPORT int StatsInitializedForUser(int hSteamID)
 */
 extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse()
 {
-	return Callbacks()->HasUserStatsUnloadedResponse();
+	return Callbacks()->UserStatsUnloaded.HasResponse();
 }
 
 /*
@@ -1467,7 +1467,7 @@ extern "C" DLL_EXPORT int HasUserStatsUnloadedResponse()
 */
 extern "C" DLL_EXPORT int GetUserStatsUnloadedUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetUserStatsUnloaded());
+	return SteamHandles()->GetPluginHandle(Callbacks()->UserStatsUnloaded.GetCurrent());
 }
 
 /*
@@ -1479,7 +1479,7 @@ extern "C" DLL_EXPORT int GetUserStatsUnloadedUser()
 */
 extern "C" DLL_EXPORT int HasUserStatsStoredResponse()
 {
-	if (Callbacks()->HasUserStatsStoredResponse())
+	if (Callbacks()->UserStatsStored.HasResponse())
 	{
 		g_StoringStats = false;
 		return true;
@@ -1494,5 +1494,5 @@ extern "C" DLL_EXPORT int HasUserStatsStoredResponse()
 */
 extern "C" DLL_EXPORT int GetUserStatsStoredResult()
 {
-	return (int)Callbacks()->GetUserStatsStored().m_eResult;
+	return (int)Callbacks()->UserStatsStored.GetCurrent().m_eResult;
 }

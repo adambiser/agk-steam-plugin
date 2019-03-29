@@ -32,18 +32,15 @@ THE SOFTWARE.
 #include <map>
 #include <mutex>
 #include <vector>
-//member_type T::*member_name
+
 class CCallbacks;
 
 template <class callback_type, void(CCallbacks::*callback_function)(callback_type*), class list_type = callback_type>
-struct ListCallback
+class ListCallback
 {
-	bool m_bEnabled;
-	std::list<list_type> m_List;
-	std::mutex m_Mutex;
-	list_type m_CurrentValue;
-	CCallbackManual<CCallbacks, callback_type> m_Callback;
-
+public:
+	ListCallback() : m_bEnabled(false) {};
+	virtual ~ListCallback() {}
 	void Register()
 	{
 		if (!g_SteamInitialized)
@@ -68,6 +65,16 @@ struct ListCallback
 			m_Callback.Unregister();
 		}
 	}
+	// Clears the callback response list and current value.
+	void Reset()
+	{
+		m_Mutex.lock();
+		Clear(m_CurrentValue);
+		m_List.clear();
+		Unregister();
+		m_Mutex.unlock();
+	}
+	// Only for use in the callback function.
 	void StoreResponse(list_type result)
 	{
 		m_Mutex.lock();
@@ -88,102 +95,21 @@ struct ListCallback
 		m_Mutex.unlock();
 		return false;
 	}
-	list_type GetCurrent()
+	list_type GetCurrent() const
 	{
 		return m_CurrentValue;
 	}
-	/* Clears the callback list and current value variable. */
-	void Reset()
+	bool Enabled() const
 	{
-		m_Mutex.lock();
-		Clear(m_CurrentValue);
-		m_List.clear();
-		if (m_bEnabled)
-		{
-			m_bEnabled = false;
-			m_Callback.Unregister();
-		}
-		m_Mutex.unlock();
+		return m_bEnabled;
 	}
+private:
+	bool m_bEnabled;
+	std::list<list_type> m_List;
+	std::mutex m_Mutex;
+	list_type m_CurrentValue;
+	CCallbackManual<CCallbacks, callback_type> m_Callback;
 };
-
-#define _LIST_CALLBACK_MAIN(func, callback_type, list_type)						\
-	STEAM_CALLBACK_MANUAL(CCallbacks, On##func, callback_type, m_Callback##func);\
-public:																			\
-	void Register##func##Callback()												\
-	{																			\
-		if (!g_SteamInitialized)												\
-		{																		\
-			return;																\
-		}																		\
-		if (!m_b##func##Enabled)												\
-		{																		\
-			m_b##func##Enabled = true;											\
-			m_Callback##func##.Register(this, &CCallbacks::On##func##);			\
-		}																		\
-	}																			\
-	void Unregister##func##Callback()											\
-	{																			\
-		if (!g_SteamInitialized)												\
-		{																		\
-			return;																\
-		}																		\
-		if (m_b##func##Enabled)													\
-		{																		\
-			m_b##func##Enabled = false;											\
-			m_Callback##func##.Unregister();									\
-		}																		\
-	}																			\
-	/* Moves the front value of the list into the current value variable. */	\
-	bool Has##func##Response()													\
-	{																			\
-		m_##func##Mutex.lock();													\
-		if (m_##func##List.size() > 0)											\
-		{																		\
-			m_Current##func = m_##func##List.front();							\
-			m_##func##List.pop_front();											\
-			m_##func##Mutex.unlock();											\
-			return true;														\
-		}																		\
-		Clear(m_Current##func##);												\
-		m_##func##Mutex.unlock();												\
-		return false;															\
-	}																			\
-	list_type Get##func##()														\
-	{																			\
-		return m_Current##func##;												\
-	}																			\
-private:																		\
-	/* Clears the callback list and current value variable. */					\
-	void Clear##func##() 														\
-	{																			\
-		m_##func##Mutex.lock();													\
-		Clear(m_Current##func##);												\
-		m_##func##List.clear();													\
-/*		while (m_##func##List.size() > 0)										\
-		{																		\
-			m_Current##func = m_##func##List.front();							\
-			m_##func##List.pop_front();											\
-			Clear(m_Current##func##);											\
-		}																		\
-*/		if (m_b##func##Enabled)													\
-		{																		\
-			m_b##func##Enabled = false;											\
-			m_Callback##func##.Unregister();									\
-		}																		\
-		m_##func##Mutex.unlock();												\
-	} 																			\
-	bool m_b##func##Enabled;													\
-	std::list<##list_type##> m_##func##List;									\
-	std::mutex m_##func##Mutex;													\
-	list_type m_Current##func
-
-// Allow the list_type parameter to be 'optional'.  When omitted, use callback_type.
-#define _LIST_CALLBACK_2(func, callback_type)				_LIST_CALLBACK_MAIN(func, callback_type, callback_type)
-#define _LIST_CALLBACK_3(func, callback_type, list_type) 	_LIST_CALLBACK_MAIN(func, callback_type, list_type)
-#define _LIST_CALLBACK_HELPER( _1, _2, SELECTED, ... )		_LIST_CALLBACK_##SELECTED
-#define _LIST_CALLBACK_SELECT( X, Y )		_LIST_CALLBACK_HELPER X Y
-#define LIST_CALLBACK(func, ...)			_LIST_CALLBACK_SELECT( ( __VA_ARGS__, 3, 2 ), ( func, __VA_ARGS__ ) )
 
 #define BOOL_CALLBACK(func, callback_type)		\
 	STEAM_CALLBACK(CCallbacks, On##func, callback_type);\
@@ -196,6 +122,46 @@ private:										\
 	} 											\
 	bool m_b##func
 
+
+class BoolCallback
+{
+public:
+	BoolCallback() : m_bHadResponse(false) {};
+	virtual ~BoolCallback() {}
+	// Clears the callback response list and current value.
+	void Reset()
+	{
+		m_bHadResponse = false;
+	}
+	// Only for use in the callback function.
+	void Trigger()
+	{
+		m_bHadResponse = true;
+	}
+	bool HasResponse()
+	{
+		if (m_bHadResponse)
+		{
+			m_bHadResponse = false;
+			return true;
+		}
+		return false;
+	}
+protected:
+	bool m_bHadResponse;
+};
+
+//template <class callback_type, void(CCallbacks::*callback_function)(callback_type*)>
+//class BoolCallback : public BoolCallbackBase
+//{
+//public:
+//	BoolCallback() : BoolCallbackBase(), m_bHadResponse(false), m_Callback(Callbacks(), callback_function) { };
+//private:
+//	bool m_bHadResponse;
+//	CCallback<CCallbacks, callback_type> m_Callback;
+//};
+
+
 class CCallbacks
 {
 public:
@@ -206,11 +172,13 @@ public:
 #pragma region ISteamApps
 private:
 	// AppProofOfPurchaseKeyResponse_t - Only used internally in Steam.
-	LIST_CALLBACK(DlcInstalled, DlcInstalled_t);	// InstallDLC
+	void OnDlcInstalled(DlcInstalled_t*);	// InstallDLC
 	// FileDetailsResult_t - call result for GetFileDetails
 	BOOL_CALLBACK(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 	//BOOL_CALLBACK(NewLaunchQueryParameters, NewLaunchQueryParameters_t); - Removed SDK v1.43
 	// RegisterActivationCodeResponse_t - Only used internally in Steam.
+public:
+	ListCallback<DlcInstalled_t, &OnDlcInstalled> DlcInstalled;	// InstallDLC
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -227,7 +195,7 @@ private:
 
 #pragma region ISteamFriends
 private:
-	LIST_CALLBACK(AvatarImageLoaded, AvatarImageLoaded_t, CSteamID); // GetFriendAvatar
+	void OnAvatarImageLoaded(AvatarImageLoaded_t*); // GetFriendAvatar
 	// ClanOfficerListResponse_t - RequestClanOfficerList
 	// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
 	// FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
@@ -238,16 +206,19 @@ private:
 	// GameConnectedChatLeave_t - LeaveClanChatRoom
 	// GameConnectedClanChatMsg_t - JoinClanChatRoom
 	// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
-	LIST_CALLBACK(GameLobbyJoinRequested, GameLobbyJoinRequested_t);
+	void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t*);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
 	// GameRichPresenceJoinRequested_t - InviteUserToGame
 	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
 	// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
-	LIST_CALLBACK(PersonaStateChange, PersonaStateChange_t); // RequestUserInformation
+	void OnPersonaStateChange(PersonaStateChange_t*); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
 public:
+	ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID> AvatarImageLoaded; // GetFriendAvatar
+	ListCallback<GameLobbyJoinRequested_t, &OnGameLobbyJoinRequested> GameLobbyJoinRequested;
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
+	ListCallback<PersonaStateChange_t, &OnPersonaStateChange> PersonaStateChange; // RequestUserInformation
 #pragma endregion
 
 #pragma region ISteamGameCoordinator
@@ -277,23 +248,24 @@ public:
 #pragma region ISteamMatchmaking
 private:
 	// FavoritesListAccountsUpdated_t - no information given about this.
-	LIST_CALLBACK(FavoritesListChanged, FavoritesListChanged_t);
-	//LIST_CALLBACK(LobbyChatMessage, LobbyChatMsg_t, plugin::LobbyChatMsg_t);
-	void OnLobbyChatMessage(LobbyChatMsg_t *pParam); // While in a lobby
-	LIST_CALLBACK(LobbyChatUpdate, LobbyChatUpdate_t); // While in a lobby
+	void OnFavoritesListChanged(FavoritesListChanged_t*);
+	void OnLobbyChatMessage(LobbyChatMsg_t*); // While in a lobby
+	void OnLobbyChatUpdate(LobbyChatUpdate_t*); // While in a lobby
 	// LobbyCreated_t - Call result
-	void OnLobbyDataUpdate(LobbyDataUpdate_t *pParam); // While in a lobby
-	void OnLobbyEnter(LobbyEnter_t *pParam); // While in a lobby
-	//LIST_CALLBACK(LobbyEnter, LobbyEnter_t); // CreateLobby, JoinLobby, also a call result
-	LIST_CALLBACK(LobbyGameCreated, LobbyGameCreated_t); // While in a lobby
+	void OnLobbyDataUpdate(LobbyDataUpdate_t*); // While in a lobby
+	void OnLobbyEnter(LobbyEnter_t*); // CreateLobby, JoinLobby, also a call result
+	void OnLobbyGameCreated(LobbyGameCreated_t*); // While in a lobby
 	//TODO LobbyInvite_t - Someone has invited you to join a Lobby. Normally you don't need to do anything with this...
 	// LobbyKicked_t - Currently unused!
 	// LobbyMatchList_t - Call result.
 	// PSNGameBootInviteResult_t - deprecated
 public:
-	ListCallback<LobbyChatMsg_t, &CCallbacks::OnLobbyChatMessage, plugin::LobbyChatMsg_t> LobbyChatMessage;
-	ListCallback<LobbyDataUpdate_t, &CCallbacks::OnLobbyDataUpdate> LobbyDataUpdate;
-	ListCallback<LobbyEnter_t, &CCallbacks::OnLobbyEnter> LobbyEnter;
+	ListCallback<FavoritesListChanged_t, &OnFavoritesListChanged> FavoritesListChanged;
+	ListCallback<LobbyChatUpdate_t, &OnLobbyChatUpdate> LobbyChatUpdate;
+	ListCallback<LobbyChatMsg_t, &OnLobbyChatMessage, plugin::LobbyChatMsg_t> LobbyChatMessage;
+	ListCallback<LobbyDataUpdate_t, &OnLobbyDataUpdate> LobbyDataUpdate;
+	ListCallback<LobbyEnter_t, &OnLobbyEnter> LobbyEnter;
+	ListCallback<LobbyGameCreated_t, &OnLobbyGameCreated> LobbyGameCreated;
 #pragma endregion
 
 #pragma region ISteamMatchmakingServers
@@ -302,8 +274,16 @@ public:
 
 #pragma region ISteamMusic
 private:
-	BOOL_CALLBACK(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-	BOOL_CALLBACK(VolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
+	//void OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t*);
+	STEAM_CALLBACK(CCallbacks, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+	//void OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t*);
+	//BOOL_CALLBACK(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+	STEAM_CALLBACK(CCallbacks, OnVolumeHasChanged, VolumeHasChanged_t);
+	//void OnVolumeHasChanged(VolumeHasChanged_t*);
+	//BOOL_CALLBACK(VolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
+public:
+	BoolCallback PlaybackStatusHasChanged;
+	BoolCallback VolumeHasChanged;
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -424,29 +404,34 @@ private:
 	//PS3TrophiesInstalled_t - ignore
 	STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t);
 	std::map<std::string, int> m_AchievementIconsMap;
-	LIST_CALLBACK(UserAchievementStored, UserAchievementStored_t);
-	LIST_CALLBACK(UserStatsReceived, UserStatsReceived_t);
+	void OnUserAchievementStored(UserAchievementStored_t*);
+	void OnUserStatsReceived(UserStatsReceived_t*);
 	bool m_StatsInitialized;
 	std::vector<CSteamID> m_StatsInitializedUsers;
-	LIST_CALLBACK(UserStatsStored, UserStatsStored_t);
-	LIST_CALLBACK(UserStatsUnloaded, UserStatsUnloaded_t, CSteamID); // -RequestUserStats again
+	void OnUserStatsStored(UserStatsStored_t*);
+	void OnUserStatsUnloaded(UserStatsUnloaded_t*); // -RequestUserStats again
 public:
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
 	int GetAchievementIcon(const char *pchName);
+	ListCallback<UserAchievementStored_t, &OnUserAchievementStored> UserAchievementStored;
+	ListCallback<UserStatsReceived_t, &OnUserStatsReceived> UserStatsReceived;
 	bool StatsInitialized() { return m_StatsInitialized; }
 	bool StatsInitializedForUser(CSteamID user);
+	ListCallback<UserStatsStored_t, &OnUserStatsStored> UserStatsStored;
+	ListCallback<UserStatsUnloaded_t, &OnUserStatsUnloaded, CSteamID> UserStatsUnloaded; // Call RequestUserStats again
 #pragma endregion
 
 #pragma region ISteamUtils
 private:
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
-	LIST_CALLBACK(GamepadTextInputDismissed, GamepadTextInputDismissed_t, plugin::GamepadTextInputDismissed_t);
+	void OnGamepadTextInputDismissed(GamepadTextInputDismissed_t*);
 	BOOL_CALLBACK(IPCountryChanged, IPCountry_t);
 	BOOL_CALLBACK(LowBatteryPower, LowBatteryPower_t);
 	uint8 m_nMinutesBatteryLeft;
 	//SteamAPICallCompleted_t - not needed
 	BOOL_CALLBACK(SteamShutdown, SteamShutdown_t);
 public:
+	ListCallback<GamepadTextInputDismissed_t, &OnGamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t> GamepadTextInputDismissed;
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
 #pragma endregion
 

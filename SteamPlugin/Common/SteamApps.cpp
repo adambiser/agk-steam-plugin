@@ -457,7 +457,7 @@ extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key)
 extern "C" DLL_EXPORT void InstallDLC(int appID)
 {
 	CheckInitialized(NORETURN);
-	Callbacks()->RegisterDlcInstalledCallback();
+	Callbacks()->DlcInstalled.Register();
 	SteamApps()->InstallDLC(appID);
 }
 
@@ -503,7 +503,7 @@ extern "C" DLL_EXPORT void UninstallDLC(int appID)
 extern "C" DLL_EXPORT int HasDLCInstalledResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasDlcInstalledResponse();
+	return Callbacks()->DlcInstalled.HasResponse();
 }
 
 /*
@@ -514,7 +514,7 @@ extern "C" DLL_EXPORT int HasDLCInstalledResponse()
 extern "C" DLL_EXPORT int GetDLCInstalledAppID()
 {
 	CheckInitialized(0);
-	return Callbacks()->GetDlcInstalled().m_nAppID;
+	return Callbacks()->DlcInstalled.GetCurrent().m_nAppID;
 }
 
 /*

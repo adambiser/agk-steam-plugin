@@ -130,7 +130,7 @@ extern "C" DLL_EXPORT void SetMusicVolume(float volume)
 extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasPlaybackStatusHasChangedResponse();
+	return Callbacks()->PlaybackStatusHasChanged.HasResponse();
 }
 
 /*
@@ -142,5 +142,5 @@ extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 extern "C" DLL_EXPORT int HasMusicVolumeChangedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasVolumeHasChangedResponse();
+	return Callbacks()->VolumeHasChanged.HasResponse();
 }

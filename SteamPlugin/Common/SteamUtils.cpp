@@ -352,7 +352,7 @@ extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMod
 		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
 		charMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
 	}
-	Callbacks()->RegisterGamepadTextInputDismissedCallback();
+	Callbacks()->GamepadTextInputDismissed.Register();
 	return SteamUtils()->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
@@ -379,7 +379,7 @@ extern "C" DLL_EXPORT void StartVRDashboard()
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->HasGamepadTextInputDismissedResponse();
+	return Callbacks()->GamepadTextInputDismissed.HasResponse();
 }
 
 /*
@@ -389,7 +389,7 @@ extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 */
 extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 {
-	return Callbacks()->GetGamepadTextInputDismissed().m_bSubmitted;
+	return Callbacks()->GamepadTextInputDismissed.GetCurrent().m_bSubmitted;
 }
 
 /*
@@ -399,7 +399,7 @@ extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 */
 extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 {
-	return utils::CreateString(Callbacks()->GetGamepadTextInputDismissed().m_chSubmittedText);
+	return utils::CreateString(Callbacks()->GamepadTextInputDismissed.GetCurrent().m_chSubmittedText);
 }
 
 /*

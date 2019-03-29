@@ -22,12 +22,6 @@ THE SOFTWARE.
 
 #include "CCallbacks.h"
 
-// Adds the result to the end of the callback list.
-#define STORE_CALLBACK_RESULT(func, result)	\
-	m_##func##Mutex.lock();					\
-	m_##func##List.push_back(result);		\
-	m_##func##Mutex.unlock()
-
 // Default BOOL_CALLBACK methods.
 #define BOOL_CALLBACK_METHODS(func, callback_type)			\
 	void CCallbacks::On##func##(callback_type *pParam)		\
@@ -64,7 +58,7 @@ CCallbacks::~CCallbacks(void)
 void CCallbacks::Reset()
 {
 	// ISteamApps
-	ClearDlcInstalled();
+	DlcInstalled.Reset();
 	ClearNewUrlLaunchParameters();
 
 	// ISteamAppTicket
@@ -72,11 +66,11 @@ void CCallbacks::Reset()
 	// ISteamController/ISteamInput
 
 	// ISteamFriends
-	ClearAvatarImageLoaded();
-	ClearGameLobbyJoinRequested();
+	AvatarImageLoaded.Reset();
+	GameLobbyJoinRequested.Reset();
 	//STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
 	m_IsGameOverlayActive = false;
-	ClearPersonaStateChange();
+	PersonaStateChange.Reset();
 
 	// ISteamGameCoordinator
 	// ISteamGameServer
@@ -86,17 +80,18 @@ void CCallbacks::Reset()
 	// ISteamInventory
 
 	// ISteamMatchmaking
-	LobbyChatMessage.Reset(); // ClearLobbyChatMessage();
-	ClearLobbyChatUpdate();
-	LobbyDataUpdate.Reset(); // ClearLobbyDataUpdate();
-	LobbyEnter.Reset();	//ClearLobbyEnter();
-	ClearLobbyGameCreated();
+	FavoritesListChanged.Reset();
+	LobbyChatMessage.Reset();
+	LobbyChatUpdate.Reset();
+	LobbyDataUpdate.Reset();
+	LobbyEnter.Reset();
+	LobbyGameCreated.Reset();
 
 	// ISteamMatchmakingServers
 
 	// ISteamMusic
-	ClearPlaybackStatusHasChanged();
-	ClearVolumeHasChanged();
+	PlaybackStatusHasChanged.Reset();
+	VolumeHasChanged.Reset();
 
 	// ISteamMusicRemote
 	// ISteamNetworking
@@ -112,14 +107,15 @@ void CCallbacks::Reset()
 	// ISteamUserStats
 	//STEAM_CALLBACK(CCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t, m_CallbackUserAchievementIconFetched);
 	m_AchievementIconsMap.clear();
-	ClearUserAchievementStored();
-	ClearUserStatsReceived();
+	UserAchievementStored.Reset();
+	UserStatsReceived.Reset();
 	m_StatsInitialized = false;
 	m_StatsInitializedUsers.clear();
-	ClearUserStatsStored();
+	UserStatsStored.Reset();
+	UserStatsUnloaded.Reset();
 	// ISteamUtils
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
-	ClearGamepadTextInputDismissed();
+	GamepadTextInputDismissed.Reset();
 	ClearIPCountryChanged();
 	ClearLowBatteryPower();
 	m_nMinutesBatteryLeft = 0;
@@ -130,7 +126,7 @@ void CCallbacks::Reset()
 void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 {
 	utils::Log("Callback: OnDlcInstalled.  AppID = " + std::to_string(pParam->m_nAppID));
-	STORE_CALLBACK_RESULT(DlcInstalled, *pParam);
+	DlcInstalled.StoreResponse(*pParam);
 }
 
 BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
@@ -152,7 +148,7 @@ BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 {
 	agk::Log("Callback: OnAvatarImageLoaded");
-	STORE_CALLBACK_RESULT(AvatarImageLoaded, pParam->m_steamID);
+	AvatarImageLoaded.StoreResponse(pParam->m_steamID);
 }
 
 // ClanOfficerListResponse_t - RequestClanOfficerList
@@ -169,7 +165,7 @@ void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 void CCallbacks::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 {
 	agk::Log("Callback: OnGameLobbyJoinRequested");
-	STORE_CALLBACK_RESULT(GameLobbyJoinRequested, *pParam);
+	GameLobbyJoinRequested.StoreResponse(*pParam);
 }
 
 void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
@@ -186,13 +182,13 @@ void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 {
 	agk::Log("Callback: OnPersonaStateChange"); //.SteamID = " + std::to_string(pParam->m_ulSteamID) + ", Flags = " + std::to_string(pParam->m_nChangeFlags));
-	STORE_CALLBACK_RESULT(PersonaStateChange, *pParam);
+	PersonaStateChange.StoreResponse(*pParam);
 	if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
 	{
 		// Allow HasAvatarImageLoaded to report avatar changes from here as well.
-		if (m_bAvatarImageLoadedEnabled)
+		if (AvatarImageLoaded.Enabled())
 		{
-			STORE_CALLBACK_RESULT(AvatarImageLoaded, pParam->m_ulSteamID);
+			AvatarImageLoaded.StoreResponse(pParam->m_ulSteamID);
 		}
 	}
 }
@@ -226,7 +222,7 @@ void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 void CCallbacks::OnFavoritesListChanged(FavoritesListChanged_t *pParam)
 {
 	agk::Log("Callback: OnFavoritesListChanged");
-	STORE_CALLBACK_RESULT(FavoritesListChanged, *pParam);
+	FavoritesListChanged.StoreResponse(*pParam);
 }
 
 void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
@@ -248,13 +244,12 @@ void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 void CCallbacks::OnLobbyChatUpdate(LobbyChatUpdate_t *pParam)
 {
 	agk::Log("Callback: OnLobbyChatUpdate");
-	STORE_CALLBACK_RESULT(LobbyChatUpdate, *pParam);
+	LobbyChatUpdate.StoreResponse(*pParam);
 }
 
 void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 {
 	utils::Log("Callback OnLobbyDataUpdate.  Success: " + std::to_string(pParam->m_bSuccess));
-	//STORE_CALLBACK_RESULT(LobbyDataUpdate, *pParam);
 	LobbyDataUpdate.StoreResponse(*pParam);
 }
 
@@ -273,17 +268,17 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 		agk::Log("Registering in-lobby callbacks");
 		//RegisterLobbyChatMessageCallback();
 		LobbyChatMessage.Register();
-		RegisterLobbyChatUpdateCallback();
+		LobbyChatUpdate.Register();
 		//RegisterLobbyDataUpdateCallback();
 		LobbyDataUpdate.Register();
-		RegisterLobbyGameCreatedCallback();
+		LobbyGameCreated.Register();
 	}
 }
 
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 {
 	agk::Log("Callback: OnLobbyGameCreated");
-	STORE_CALLBACK_RESULT(LobbyGameCreated, *pParam);
+	LobbyGameCreated.StoreResponse(*pParam);
 }
 
 // LobbyInvite_t - when invited by someone.
@@ -296,8 +291,19 @@ void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 #pragma endregion
 
 #pragma region ISteamMusic
-BOOL_CALLBACK_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-BOOL_CALLBACK_METHODS(VolumeHasChanged, VolumeHasChanged_t);
+//BOOL_CALLBACK_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+void CCallbacks::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pCallback)
+{
+	agk::Log("Callback: OnPlaybackStatusHasChanged");
+	PlaybackStatusHasChanged.Trigger();
+}
+
+//BOOL_CALLBACK_METHODS(VolumeHasChanged, VolumeHasChanged_t);
+void CCallbacks::OnVolumeHasChanged(VolumeHasChanged_t *pCallback)
+{
+	agk::Log("Callback: OnVolumeHasChanged");
+	VolumeHasChanged.Trigger();
+}
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -415,7 +421,7 @@ void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pCallback)
 	if (pCallback->m_nGameID == g_AppID)
 	{
 		agk::Log("Callback: OnUserAchievementStored");
-		STORE_CALLBACK_RESULT(UserAchievementStored, *pCallback);
+		UserAchievementStored.StoreResponse(*pCallback);
 	}
 }
 
@@ -437,7 +443,7 @@ void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 				m_StatsInitialized = true;
 			}
 		}
-		STORE_CALLBACK_RESULT(UserStatsReceived, *pCallback);
+		UserStatsReceived.StoreResponse(*pCallback);
 	}
 	else
 	{
@@ -451,7 +457,7 @@ void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
 	if (pCallback->m_nGameID == g_AppID)
 	{
 		utils::Log("Callback: OnUserStatsStored.  Result = " + std::to_string(pCallback->m_eResult));
-		STORE_CALLBACK_RESULT(UserStatsStored, *pCallback);
+		UserStatsStored.StoreResponse(*pCallback);
 	}
 }
 
@@ -463,7 +469,7 @@ void CCallbacks::OnUserStatsUnloaded(UserStatsUnloaded_t *pCallback)
 	{
 		m_StatsInitializedUsers.erase(it);
 	}
-	STORE_CALLBACK_RESULT(UserStatsUnloaded, pCallback->m_steamIDUser);
+	UserStatsUnloaded.StoreResponse(pCallback->m_steamIDUser);
 }
 #pragma endregion
 
@@ -481,7 +487,7 @@ void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallb
 			agk::PluginError("OnGamepadTextInputDismissed: GetEnteredGamepadTextInput failed.");
 		}
 	}
-	STORE_CALLBACK_RESULT(GamepadTextInputDismissed, info);
+	GamepadTextInputDismissed.StoreResponse(info);
 }
 
 BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t);

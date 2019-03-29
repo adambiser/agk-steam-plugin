@@ -835,7 +835,7 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hSteamIDUser)
 extern "C" DLL_EXPORT char *GetFriendPersonaName(int hSteamIDUser)
 {
 	CheckInitialized(NULL_STRING);
-	Callbacks()->RegisterPersonaStateChangeCallback();
+	Callbacks()->PersonaStateChange.Register();
 	return utils::CreateString(SteamFriends()->GetFriendPersonaName(SteamHandles()->GetSteamHandle(hSteamIDUser)));
 }
 
@@ -895,7 +895,7 @@ extern "C" DLL_EXPORT char *GetFriendPersonaNameHistoryJSON(int hSteamIDFriend)
 extern "C" DLL_EXPORT int GetFriendPersonaState(int hSteamIDUser)
 {
 	CheckInitialized(-1);
-	Callbacks()->RegisterPersonaStateChangeCallback();
+	Callbacks()->PersonaStateChange.Register();
 	return SteamFriends()->GetFriendPersonaState(SteamHandles()->GetSteamHandle(hSteamIDUser));
 }
 
@@ -1081,7 +1081,7 @@ extern "C" DLL_EXPORT int GetFriendSteamLevel(int hSteamIDUser)
 	Possible solution is to just keep requesting the level when 0 is returned.
 	*/
 	CheckInitialized(0);
-	Callbacks()->RegisterPersonaStateChangeCallback();
+	Callbacks()->PersonaStateChange.Register();
 	return SteamFriends()->GetFriendSteamLevel(SteamHandles()->GetSteamHandle(hSteamIDUser));
 }
 
@@ -1110,8 +1110,8 @@ Use [LoadImageFromHandle](Image-Loading#loadimagefromhandle) to load the image f
 extern "C" DLL_EXPORT int GetFriendAvatar(int hSteamIDUser, int size)
 {
 	CheckInitialized(0);
-	Callbacks()->RegisterAvatarImageLoadedCallback();
-	Callbacks()->RegisterPersonaStateChangeCallback();
+	Callbacks()->AvatarImageLoaded.Register();
+	Callbacks()->PersonaStateChange.Register();
 	CSteamID steamID = SteamHandles()->GetSteamHandle(hSteamIDUser);
 	// NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 	//SteamFriends()->RequestUserInformation(steamID, false);
@@ -1434,8 +1434,8 @@ extern "C" DLL_EXPORT int GetRequestClanOfficerListClan(int hCallResult)
 extern "C" DLL_EXPORT int RequestUserInformation(int hSteamIDUser, int requireNameOnly)
 {
 	CheckInitialized(false);
-	Callbacks()->RegisterPersonaStateChangeCallback();
-	Callbacks()->RegisterAvatarImageLoadedCallback();
+	Callbacks()->PersonaStateChange.Register();
+	Callbacks()->AvatarImageLoaded.Register();
 	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hSteamIDUser), requireNameOnly != 0);
 }
 
@@ -1457,7 +1457,7 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hSteamIDUser, int requireNa
 extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasAvatarImageLoadedResponse();
+	return Callbacks()->AvatarImageLoaded.HasResponse();
 }
 
 /*
@@ -1469,7 +1469,7 @@ Call GetFriendAvatar with the returned user handle to get the image handle
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetAvatarImageLoaded());
+	return SteamHandles()->GetPluginHandle(Callbacks()->AvatarImageLoaded.GetCurrent());
 }
 
 //ClanOfficerListResponse_t
@@ -1494,7 +1494,7 @@ If the game isn't running yet then the game will be automatically launched with 
 */
 extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse()
 {
-	return Callbacks()->HasGameLobbyJoinRequestedResponse();
+	return Callbacks()->GameLobbyJoinRequested.HasResponse();
 }
 
 /*
@@ -1503,7 +1503,7 @@ extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse()
 */
 extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetGameLobbyJoinRequested().m_steamIDLobby);
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameLobbyJoinRequested.GetCurrent().m_steamIDLobby);
 }
 
 /*
@@ -1529,7 +1529,7 @@ extern "C" DLL_EXPORT int IsGameOverlayActive()
 */
 extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 {
-	return Callbacks()->HasPersonaStateChangeResponse();
+	return Callbacks()->PersonaStateChange.HasResponse();
 }
 
 /*
@@ -1540,7 +1540,7 @@ extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 {
-	return Callbacks()->GetPersonaStateChange().m_nChangeFlags;
+	return Callbacks()->PersonaStateChange.GetCurrent().m_nChangeFlags;
 }
 
 /*
@@ -1550,7 +1550,7 @@ extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GetPersonaStateChange().m_ulSteamID);
+	return SteamHandles()->GetPluginHandle(Callbacks()->PersonaStateChange.GetCurrent().m_ulSteamID);
 }
 
 //SetPersonaNameResponse_t
