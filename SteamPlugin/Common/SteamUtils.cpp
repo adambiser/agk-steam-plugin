@@ -411,7 +411,7 @@ extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 extern "C" DLL_EXPORT int HasIPCountryChangedResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasIPCountryChangedResponse();
+	return Callbacks()->IPCountryChanged.HasResponse();
 }
 
 /*
@@ -425,7 +425,7 @@ This method returns 1 once per warning.  It is not reported as an on going effec
 extern "C" DLL_EXPORT int HasLowBatteryWarningResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasLowBatteryPowerResponse();
+	return Callbacks()->LowBatteryPower.HasResponse();
 }
 
 /*
@@ -438,7 +438,7 @@ Reports the estimate battery life in minutes when a low battery warning occurs.
 extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 {
 	CheckInitialized(255);
-	return Callbacks()->GetMinutesBatteryLeft();
+	return Callbacks()->LowBatteryPower.GetMinutesBatteryLeft();
 }
 
 //SteamAPICallCompleted_t
@@ -452,5 +452,5 @@ extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 extern "C" DLL_EXPORT int IsSteamShuttingDown()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasSteamShutdownResponse();
+	return Callbacks()->SteamShutdown.HasResponse();
 }

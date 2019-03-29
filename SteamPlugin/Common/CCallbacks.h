@@ -111,56 +111,46 @@ private:
 	CCallbackManual<CCallbacks, callback_type> m_Callback;
 };
 
-#define BOOL_CALLBACK(func, callback_type)		\
-	STEAM_CALLBACK(CCallbacks, On##func, callback_type);\
-public:											\
-	bool Has##func##Response();					\
-private:										\
-	void Clear##func##() 						\
-	{											\
-		m_b##func = false;						\
-	} 											\
-	bool m_b##func
-
-
+template <class callback_type>
 class BoolCallback
 {
 public:
 	BoolCallback() : m_bHadResponse(false) {};
-	virtual ~BoolCallback() {}
 	// Clears the callback response list and current value.
-	void Reset()
+	virtual void Reset()
 	{
 		m_bHadResponse = false;
 	}
 	// Only for use in the callback function.
-	void Trigger()
+	virtual void StoreResponse(callback_type result)
 	{
 		m_bHadResponse = true;
+		m_Response = result;
 	}
 	bool HasResponse()
 	{
 		if (m_bHadResponse)
 		{
-			m_bHadResponse = false;
+			Reset();
 			return true;
 		}
 		return false;
 	}
+	callback_type GetCurrent()
+	{
+		return m_Response;
+	}
+private:
+	STEAM_CALLBACK(BoolCallback<callback_type>, OnResponse, callback_type)
+	{
+		//agk::Log(utils::GetTypeName<callback_type>()); // TODO name
+		agk::Log(__FUNCTION__);
+		StoreResponse(*pParam);
+	}
 protected:
 	bool m_bHadResponse;
+	callback_type m_Response;
 };
-
-//template <class callback_type, void(CCallbacks::*callback_function)(callback_type*)>
-//class BoolCallback : public BoolCallbackBase
-//{
-//public:
-//	BoolCallback() : BoolCallbackBase(), m_bHadResponse(false), m_Callback(Callbacks(), callback_function) { };
-//private:
-//	bool m_bHadResponse;
-//	CCallback<CCallbacks, callback_type> m_Callback;
-//};
-
 
 class CCallbacks
 {
@@ -174,11 +164,12 @@ private:
 	// AppProofOfPurchaseKeyResponse_t - Only used internally in Steam.
 	void OnDlcInstalled(DlcInstalled_t*);	// InstallDLC
 	// FileDetailsResult_t - call result for GetFileDetails
-	BOOL_CALLBACK(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
-	//BOOL_CALLBACK(NewLaunchQueryParameters, NewLaunchQueryParameters_t); - Removed SDK v1.43
+	//void OnNewUrlLaunchParameters(NewUrlLaunchParameters_t*);
+	//NewLaunchQueryParameters_t - Removed SDK v1.43
 	// RegisterActivationCodeResponse_t - Only used internally in Steam.
 public:
 	ListCallback<DlcInstalled_t, &OnDlcInstalled> DlcInstalled;	// InstallDLC
+	BoolCallback<NewUrlLaunchParameters_t> NewUrlLaunchParameters;
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -274,16 +265,11 @@ public:
 
 #pragma region ISteamMusic
 private:
-	//void OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t*);
-	STEAM_CALLBACK(CCallbacks, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-	//void OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t*);
-	//BOOL_CALLBACK(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-	STEAM_CALLBACK(CCallbacks, OnVolumeHasChanged, VolumeHasChanged_t);
-	//void OnVolumeHasChanged(VolumeHasChanged_t*);
-	//BOOL_CALLBACK(VolumeHasChanged, VolumeHasChanged_t); // TODO Return VolumeHasChanged_t.m_flNewVolume ?
+	//STEAM_CALLBACK(CCallbacks, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+	//STEAM_CALLBACK(CCallbacks, OnVolumeHasChanged, VolumeHasChanged_t);
 public:
-	BoolCallback PlaybackStatusHasChanged;
-	BoolCallback VolumeHasChanged;
+	BoolCallback<PlaybackStatusHasChanged_t> PlaybackStatusHasChanged;
+	BoolCallback<VolumeHasChanged_t> VolumeHasChanged;
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -425,14 +411,24 @@ public:
 private:
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
 	void OnGamepadTextInputDismissed(GamepadTextInputDismissed_t*);
-	BOOL_CALLBACK(IPCountryChanged, IPCountry_t);
-	BOOL_CALLBACK(LowBatteryPower, LowBatteryPower_t);
-	uint8 m_nMinutesBatteryLeft;
+	//STEAM_CALLBACK(CCallbacks, OnIPCountryChanged, IPCountry_t);
+	//STEAM_CALLBACK(CCallbacks, OnLowBatteryPower, LowBatteryPower_t);
 	//SteamAPICallCompleted_t - not needed
-	BOOL_CALLBACK(SteamShutdown, SteamShutdown_t);
+	//STEAM_CALLBACK(CCallbacks, OnSteamShutdown, SteamShutdown_t);
 public:
 	ListCallback<GamepadTextInputDismissed_t, &OnGamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t> GamepadTextInputDismissed;
-	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }
+	BoolCallback<IPCountry_t> IPCountryChanged;
+	class CLowBatteryPower : public BoolCallback<LowBatteryPower_t>
+	{
+	public:
+		void Reset()
+		{
+			BoolCallback::Reset();
+			m_Response.m_nMinutesBatteryLeft = 0;
+		}
+		uint8 GetMinutesBatteryLeft() { return m_Response.m_nMinutesBatteryLeft; }
+	} LowBatteryPower;
+	BoolCallback<SteamShutdown_t> SteamShutdown;
 #pragma endregion
 
 #pragma region ISteamVideo

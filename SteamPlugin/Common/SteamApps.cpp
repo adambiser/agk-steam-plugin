@@ -527,5 +527,5 @@ Once a post has been reported, this method returns 0 until another post arrives.
 extern "C" DLL_EXPORT int HasNewUrlLaunchParametersResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->HasNewUrlLaunchParametersResponse();
+	return Callbacks()->NewUrlLaunchParameters.HasResponse();
 }

@@ -23,21 +23,29 @@ THE SOFTWARE.
 #include "CCallbacks.h"
 
 // Default BOOL_CALLBACK methods.
-#define BOOL_CALLBACK_METHODS(func, callback_type)			\
-	void CCallbacks::On##func##(callback_type *pParam)		\
-	{														\
-		agk::Log("Callback: On" #func);						\
-		m_b##func## = true;									\
-	}														\
-	bool CCallbacks::Has##func##Response()					\
-	{														\
-		if (m_b##func##)									\
-		{													\
-			m_b##func## = false;							\
-			return true;									\
-		}													\
-		return false;										\
-	}
+//#define BOOL_CALLBACK_METHODS(func, callback_type)			\
+//	void CCallbacks::On##func##(callback_type *pParam)		\
+//	{														\
+//		agk::Log("Callback: On" #func);						\
+//		m_b##func## = true;									\
+//	}														\
+//	bool CCallbacks::Has##func##Response()					\
+//	{														\
+//		if (m_b##func##)									\
+//		{													\
+//			m_b##func## = false;							\
+//			return true;									\
+//		}													\
+//		return false;										\
+//	}
+
+//#define BOOL_CALLBACK_METHODS(var, callback_type)			\
+//	void CCallbacks::On##var##(callback_type *pCallback)	\
+//	{ \
+//		agk::Log("Callback: On" #var); \
+//		var.StoreResponse(*pCallback); \
+//	}
+
 
 CCallbacks *Callbacks()
 {
@@ -59,7 +67,7 @@ void CCallbacks::Reset()
 {
 	// ISteamApps
 	DlcInstalled.Reset();
-	ClearNewUrlLaunchParameters();
+	NewUrlLaunchParameters.Reset();
 
 	// ISteamAppTicket
 	// ISteamClient
@@ -68,7 +76,6 @@ void CCallbacks::Reset()
 	// ISteamFriends
 	AvatarImageLoaded.Reset();
 	GameLobbyJoinRequested.Reset();
-	//STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated);
 	m_IsGameOverlayActive = false;
 	PersonaStateChange.Reset();
 
@@ -116,10 +123,10 @@ void CCallbacks::Reset()
 	// ISteamUtils
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
 	GamepadTextInputDismissed.Reset();
-	ClearIPCountryChanged();
-	ClearLowBatteryPower();
-	m_nMinutesBatteryLeft = 0;
-	ClearSteamShutdown();
+	IPCountryChanged.Reset();
+	LowBatteryPower.Reset();
+	//m_nMinutesBatteryLeft = 0;
+	SteamShutdown.Reset();
 }
 
 #pragma region ISteamApps
@@ -129,7 +136,7 @@ void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 	DlcInstalled.StoreResponse(*pParam);
 }
 
-BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
+//BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -292,18 +299,18 @@ void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 
 #pragma region ISteamMusic
 //BOOL_CALLBACK_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-void CCallbacks::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pCallback)
-{
-	agk::Log("Callback: OnPlaybackStatusHasChanged");
-	PlaybackStatusHasChanged.Trigger();
-}
+//void CCallbacks::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pCallback)
+//{
+//	agk::Log("Callback: OnPlaybackStatusHasChanged");
+//	PlaybackStatusHasChanged.Trigger();
+//}
 
 //BOOL_CALLBACK_METHODS(VolumeHasChanged, VolumeHasChanged_t);
-void CCallbacks::OnVolumeHasChanged(VolumeHasChanged_t *pCallback)
-{
-	agk::Log("Callback: OnVolumeHasChanged");
-	VolumeHasChanged.Trigger();
-}
+//void CCallbacks::OnVolumeHasChanged(VolumeHasChanged_t *pCallback)
+//{
+//	agk::Log("Callback: OnVolumeHasChanged");
+//	VolumeHasChanged.Trigger();
+//}
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -429,6 +436,7 @@ void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
 {
 	if (pCallback->m_nGameID == g_AppID)
 	{
+		agk::Log(__FUNCTION__);
 		utils::Log("Callback: OnUserStatsReceived.  Result = " + std::to_string(pCallback->m_eResult) + ", user = " + std::to_string(pCallback->m_steamIDUser.ConvertToUint64()));
 		if (pCallback->m_eResult == k_EResultOK)
 		{
@@ -490,27 +498,11 @@ void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallb
 	GamepadTextInputDismissed.StoreResponse(info);
 }
 
-BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t);
+//BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t);
 
-void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
-{
-	agk::Log("Callback: OnLowBatteryPower");
-	m_bLowBatteryPower = true;
-	m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
-}
+//BOOL_CALLBACK_METHODS(LowBatteryPower, LowBatteryPower_t);
 
-bool CCallbacks::HasLowBatteryPowerResponse()
-{
-	if (m_bLowBatteryPower)
-	{
-		m_bLowBatteryPower = false;
-		return true;
-	}
-	m_nMinutesBatteryLeft = 0;
-	return false;
-}
-
-BOOL_CALLBACK_METHODS(SteamShutdown, SteamShutdown_t);
+//BOOL_CALLBACK_METHODS(SteamShutdown, SteamShutdown_t);
 #pragma endregion
 
 #pragma region ISteamVideo
