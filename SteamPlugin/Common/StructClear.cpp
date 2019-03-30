@@ -6,10 +6,10 @@ void Clear(CSteamID &value)
 	value = k_steamIDNil;
 }
 
-void Clear(DlcInstalled_t &value)
-{
-	value.m_nAppID = 0;
-}
+//void Clear(DlcInstalled_t &value)
+//{
+//	value.m_nAppID = 0;
+//}
 
 void Clear(FavoritesListChanged_t &value)
 {

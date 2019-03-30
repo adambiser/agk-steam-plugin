@@ -39,12 +39,12 @@ THE SOFTWARE.
 //		return false;										\
 //	}
 
-//#define BOOL_CALLBACK_METHODS(var, callback_type)			\
-//	void CCallbacks::On##var##(callback_type *pCallback)	\
-//	{ \
-//		agk::Log("Callback: On" #var); \
-//		var.StoreResponse(*pCallback); \
-//	}
+#define BOOL_CALLBACK_METHODS(var, callback_type, log_text)		\
+	void CCallbacks::On##var##(callback_type *pParam)			\
+	{															\
+		utils::Log(__FUNCTION__ log_text);						\
+		var.Trigger();											\
+	}
 
 
 CCallbacks *Callbacks()
@@ -136,7 +136,7 @@ void CCallbacks::OnDlcInstalled(DlcInstalled_t *pParam)
 	DlcInstalled.StoreResponse(*pParam);
 }
 
-//BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t);
+BOOL_CALLBACK_METHODS(NewUrlLaunchParameters, NewUrlLaunchParameters_t,);
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -159,7 +159,7 @@ void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 }
 
 // ClanOfficerListResponse_t - RequestClanOfficerList
-// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
+// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts
 // FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
 // FriendsEnumerateFollowingList_t - EnumerateFollowingList
 // FriendsGetFollowerCount_t - GetFollowerCount
@@ -298,15 +298,15 @@ void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
 #pragma endregion
 
 #pragma region ISteamMusic
-//BOOL_CALLBACK_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-//void CCallbacks::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pCallback)
+BOOL_CALLBACK_METHODS(PlaybackStatusHasChanged, PlaybackStatusHasChanged_t,);
+//void CCallbacks::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pParam)
 //{
 //	agk::Log("Callback: OnPlaybackStatusHasChanged");
 //	PlaybackStatusHasChanged.Trigger();
 //}
 
-//BOOL_CALLBACK_METHODS(VolumeHasChanged, VolumeHasChanged_t);
-//void CCallbacks::OnVolumeHasChanged(VolumeHasChanged_t *pCallback)
+BOOL_CALLBACK_METHODS(VolumeHasChanged, VolumeHasChanged_t, ".  New volume: " + std::to_string(pParam->m_flNewVolume));
+//void CCallbacks::OnVolumeHasChanged(VolumeHasChanged_t *pParam)
 //{
 //	agk::Log("Callback: OnVolumeHasChanged");
 //	VolumeHasChanged.Trigger();
@@ -423,69 +423,69 @@ bool CCallbacks::StatsInitializedForUser(CSteamID steamIDUser)
 }
 
 // Callback for StoreStats.
-void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pCallback)
+void CCallbacks::OnUserAchievementStored(UserAchievementStored_t *pParam)
 {
-	if (pCallback->m_nGameID == g_AppID)
+	if (pParam->m_nGameID == g_AppID)
 	{
 		agk::Log("Callback: OnUserAchievementStored");
-		UserAchievementStored.StoreResponse(*pCallback);
+		UserAchievementStored.StoreResponse(*pParam);
 	}
 }
 
-void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallback)
+void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pParam)
 {
-	if (pCallback->m_nGameID == g_AppID)
+	if (pParam->m_nGameID == g_AppID)
 	{
 		agk::Log(__FUNCTION__);
-		utils::Log("Callback: OnUserStatsReceived.  Result = " + std::to_string(pCallback->m_eResult) + ", user = " + std::to_string(pCallback->m_steamIDUser.ConvertToUint64()));
-		if (pCallback->m_eResult == k_EResultOK)
+		utils::Log("Callback: OnUserStatsReceived.  Result = " + std::to_string(pParam->m_eResult) + ", user = " + std::to_string(pParam->m_steamIDUser.ConvertToUint64()));
+		if (pParam->m_eResult == k_EResultOK)
 		{
-			auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pCallback->m_steamIDUser);
+			auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pParam->m_steamIDUser);
 			if (it == m_StatsInitializedUsers.end())
 			{
-				m_StatsInitializedUsers.push_back(pCallback->m_steamIDUser);
+				m_StatsInitializedUsers.push_back(pParam->m_steamIDUser);
 			}
 			// If the current user's stats were received, set a flag.
-			if (pCallback->m_steamIDUser == SteamUser()->GetSteamID())
+			if (pParam->m_steamIDUser == SteamUser()->GetSteamID())
 			{
 				m_StatsInitialized = true;
 			}
 		}
-		UserStatsReceived.StoreResponse(*pCallback);
+		UserStatsReceived.StoreResponse(*pParam);
 	}
 	else
 	{
-		utils::Log("Callback: OnUserStatsReceived.  GameID = " + std::to_string(pCallback->m_nGameID));
+		utils::Log("Callback: OnUserStatsReceived.  GameID = " + std::to_string(pParam->m_nGameID));
 	}
 }
 
 // Callback for StoreStats and ResetAllStats.
-void CCallbacks::OnUserStatsStored(UserStatsStored_t *pCallback)
+void CCallbacks::OnUserStatsStored(UserStatsStored_t *pParam)
 {
-	if (pCallback->m_nGameID == g_AppID)
+	if (pParam->m_nGameID == g_AppID)
 	{
-		utils::Log("Callback: OnUserStatsStored.  Result = " + std::to_string(pCallback->m_eResult));
-		UserStatsStored.StoreResponse(*pCallback);
+		utils::Log("Callback: OnUserStatsStored.  Result = " + std::to_string(pParam->m_eResult));
+		UserStatsStored.StoreResponse(*pParam);
 	}
 }
 
-void CCallbacks::OnUserStatsUnloaded(UserStatsUnloaded_t *pCallback)
+void CCallbacks::OnUserStatsUnloaded(UserStatsUnloaded_t *pParam)
 {
-	utils::Log("Callback: OnUserStatsUnloaded.  User = " + std::to_string(pCallback->m_steamIDUser.ConvertToUint64()));
-	auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pCallback->m_steamIDUser);
+	utils::Log("Callback: OnUserStatsUnloaded.  User = " + std::to_string(pParam->m_steamIDUser.ConvertToUint64()));
+	auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pParam->m_steamIDUser);
 	if (it != m_StatsInitializedUsers.end())
 	{
 		m_StatsInitializedUsers.erase(it);
 	}
-	UserStatsUnloaded.StoreResponse(pCallback->m_steamIDUser);
+	UserStatsUnloaded.StoreResponse(pParam->m_steamIDUser);
 }
 #pragma endregion
 
 #pragma region ISteamUtils
-void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallback)
+void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pParam)
 {
-	utils::Log("Callback: OnGamepadTextInputDismissed.  Submitted = " + std::to_string(pCallback->m_bSubmitted));
-	plugin::GamepadTextInputDismissed_t info(*pCallback);
+	utils::Log("Callback: OnGamepadTextInputDismissed.  Submitted = " + std::to_string(pParam->m_bSubmitted));
+	plugin::GamepadTextInputDismissed_t info(*pParam);
 	if (info.m_bSubmitted)
 	{
 		uint32 length = SteamUtils()->GetEnteredGamepadTextLength();
@@ -498,11 +498,18 @@ void CCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallb
 	GamepadTextInputDismissed.StoreResponse(info);
 }
 
-//BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t);
+BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t,);
 
 //BOOL_CALLBACK_METHODS(LowBatteryPower, LowBatteryPower_t);
+void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
+{
+	agk::Log(__FUNCTION__);
+	LowBatteryPower.Trigger();
+	LowBatteryPower.m_Response = *pParam;
+}
 
-//BOOL_CALLBACK_METHODS(SteamShutdown, SteamShutdown_t);
+
+BOOL_CALLBACK_METHODS(SteamShutdown, SteamShutdown_t,);
 #pragma endregion
 
 #pragma region ISteamVideo

@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include "steam_api.h"
 
 void Clear(CSteamID &value);
-void Clear(DlcInstalled_t &value);
+//void Clear(DlcInstalled_t &value);
 void Clear(FavoritesListChanged_t &value);
 void Clear(GameLobbyJoinRequested_t &value);
 void Clear(plugin::GamepadTextInputDismissed_t &value);

@@ -65,11 +65,12 @@ public:
 			m_Callback.Unregister();
 		}
 	}
+	virtual void ClearCurrent() = 0;
 	// Clears the callback response list and current value.
 	void Reset()
 	{
 		m_Mutex.lock();
-		Clear(m_CurrentValue);
+		ClearCurrent();// Clear(m_CurrentValue);
 		m_List.clear();
 		Unregister();
 		m_Mutex.unlock();
@@ -91,7 +92,7 @@ public:
 			m_Mutex.unlock();
 			return true;
 		}
-		Clear(m_CurrentValue);
+		ClearCurrent();//Clear(m_CurrentValue);
 		m_Mutex.unlock();
 		return false;
 	}
@@ -103,15 +104,15 @@ public:
 	{
 		return m_bEnabled;
 	}
+protected:
+	list_type m_CurrentValue;
 private:
 	bool m_bEnabled;
 	std::list<list_type> m_List;
 	std::mutex m_Mutex;
-	list_type m_CurrentValue;
 	CCallbackManual<CCallbacks, callback_type> m_Callback;
 };
 
-template <class callback_type>
 class BoolCallback
 {
 public:
@@ -122,34 +123,21 @@ public:
 		m_bHadResponse = false;
 	}
 	// Only for use in the callback function.
-	virtual void StoreResponse(callback_type result)
+	void Trigger()
 	{
 		m_bHadResponse = true;
-		m_Response = result;
 	}
 	bool HasResponse()
 	{
 		if (m_bHadResponse)
 		{
-			Reset();
+			m_bHadResponse = false;
 			return true;
 		}
 		return false;
 	}
-	callback_type GetCurrent()
-	{
-		return m_Response;
-	}
-private:
-	STEAM_CALLBACK(BoolCallback<callback_type>, OnResponse, callback_type)
-	{
-		//agk::Log(utils::GetTypeName<callback_type>()); // TODO name
-		agk::Log(__FUNCTION__);
-		StoreResponse(*pParam);
-	}
 protected:
 	bool m_bHadResponse;
-	callback_type m_Response;
 };
 
 class CCallbacks
@@ -164,12 +152,22 @@ private:
 	// AppProofOfPurchaseKeyResponse_t - Only used internally in Steam.
 	void OnDlcInstalled(DlcInstalled_t*);	// InstallDLC
 	// FileDetailsResult_t - call result for GetFileDetails
-	//void OnNewUrlLaunchParameters(NewUrlLaunchParameters_t*);
+	void OnNewUrlLaunchParameters(NewUrlLaunchParameters_t*);
 	//NewLaunchQueryParameters_t - Removed SDK v1.43
 	// RegisterActivationCodeResponse_t - Only used internally in Steam.
 public:
-	ListCallback<DlcInstalled_t, &OnDlcInstalled> DlcInstalled;	// InstallDLC
-	BoolCallback<NewUrlLaunchParameters_t> NewUrlLaunchParameters;
+	void Clear(DlcInstalled_t &value)
+	{
+		value.m_nAppID = 0;
+	}
+	class : ListCallback<DlcInstalled_t, &OnDlcInstalled>
+	{
+		void ClearCurrent()
+		{
+			m_CurrentValue.m_nAppID = 0;
+		}
+	} DlcInstalled;	// InstallDLC
+	BoolCallback NewUrlLaunchParameters;
 #pragma endregion
 
 #pragma region ISteamAppTicket
@@ -187,16 +185,16 @@ public:
 #pragma region ISteamFriends
 private:
 	void OnAvatarImageLoaded(AvatarImageLoaded_t*); // GetFriendAvatar
-	// ClanOfficerListResponse_t - RequestClanOfficerList
-	// DownloadClanActivityCountsResult_t - DownloadClanActivityCounts, always fires
-	// FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
-	// FriendsEnumerateFollowingList_t - EnumerateFollowingList
-	// FriendsGetFollowerCount_t - GetFollowerCount
-	// FriendsIsFollowing_t - IsFollowing
-	// GameConnectedChatJoin_t - JoinClanChatRoom
-	// GameConnectedChatLeave_t - LeaveClanChatRoom
-	// GameConnectedClanChatMsg_t - JoinClanChatRoom
-	// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
+	// ClanOfficerListResponse_t - call result for RequestClanOfficerList
+	// DownloadClanActivityCountsResult_t - call result for DownloadClanActivityCounts
+	void OnFriendRichPresenceUpdate(FriendRichPresenceUpdate_t*); // RequestFriendRichPresence, always fires
+	// FriendsEnumerateFollowingList_t - call result for EnumerateFollowingList
+	// FriendsGetFollowerCount_t - call result for GetFollowerCount
+	// FriendsIsFollowing_t - call result for IsFollowing
+	void OnGameConnectedChatJoin(GameConnectedChatJoin_t*); // JoinClanChatRoom
+	void OnGameConnectedChatLeave(GameConnectedChatLeave_t*); // LeaveClanChatRoom
+	void OnGameConnectedClanChatMsg(GameConnectedClanChatMsg_t*); // JoinClanChatRoom
+	void OnGameConnectedFriendChatMsg(GameConnectedFriendChatMsg_t*); // SetListenForFriendsMessages
 	void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t*);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
@@ -206,7 +204,20 @@ private:
 	void OnPersonaStateChange(PersonaStateChange_t*); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
 public:
-	ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID> AvatarImageLoaded; // GetFriendAvatar
+	class : ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID>
+	{
+		void ClearCurrent()
+		{
+			m_CurrentValue = k_steamIDNil;
+		}
+	} AvatarImageLoaded; // GetFriendAvatar
+
+	ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID> 
+	ListCallback<FriendRichPresenceUpdate_t, &OnFriendRichPresenceUpdate, CSteamID> FriendRichPresenceUpdate;
+	ListCallback<GameConnectedChatJoin_t, &OnGameConnectedChatJoin> GameConnectedChatJoin;
+	ListCallback<GameConnectedChatLeave_t, &OnGameConnectedChatLeave> GameConnectedChatLeave;
+	//ListCallback<GameConnectedClanChatMsg_t, &OnGameConnectedClanChatMsg, plugin::GameConnectedClanChatMsg_t> GameConnectedClanChatMsg;
+	//ListCallback<GameConnectedFriendChatMsg_t, &OnGameConnectedFriendChatMsg, plugin::GameConnectedFriendChatMsg_t> GameConnectedFriendChatMsg_;
 	ListCallback<GameLobbyJoinRequested_t, &OnGameLobbyJoinRequested> GameLobbyJoinRequested;
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 	ListCallback<PersonaStateChange_t, &OnPersonaStateChange> PersonaStateChange; // RequestUserInformation
@@ -265,11 +276,11 @@ public:
 
 #pragma region ISteamMusic
 private:
-	//STEAM_CALLBACK(CCallbacks, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
-	//STEAM_CALLBACK(CCallbacks, OnVolumeHasChanged, VolumeHasChanged_t);
+	STEAM_CALLBACK(CCallbacks, OnPlaybackStatusHasChanged, PlaybackStatusHasChanged_t);
+	STEAM_CALLBACK(CCallbacks, OnVolumeHasChanged, VolumeHasChanged_t);
 public:
-	BoolCallback<PlaybackStatusHasChanged_t> PlaybackStatusHasChanged;
-	BoolCallback<VolumeHasChanged_t> VolumeHasChanged;
+	BoolCallback PlaybackStatusHasChanged;
+	BoolCallback VolumeHasChanged;
 #pragma endregion
 
 #pragma region ISteamMusicRemote
@@ -411,14 +422,14 @@ public:
 private:
 	// CheckFileSignature_t - Call result for  CheckFileSignature.
 	void OnGamepadTextInputDismissed(GamepadTextInputDismissed_t*);
-	//STEAM_CALLBACK(CCallbacks, OnIPCountryChanged, IPCountry_t);
-	//STEAM_CALLBACK(CCallbacks, OnLowBatteryPower, LowBatteryPower_t);
+	STEAM_CALLBACK(CCallbacks, OnIPCountryChanged, IPCountry_t);
+	STEAM_CALLBACK(CCallbacks, OnLowBatteryPower, LowBatteryPower_t);
 	//SteamAPICallCompleted_t - not needed
-	//STEAM_CALLBACK(CCallbacks, OnSteamShutdown, SteamShutdown_t);
+	STEAM_CALLBACK(CCallbacks, OnSteamShutdown, SteamShutdown_t);
 public:
 	ListCallback<GamepadTextInputDismissed_t, &OnGamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t> GamepadTextInputDismissed;
-	BoolCallback<IPCountry_t> IPCountryChanged;
-	class CLowBatteryPower : public BoolCallback<LowBatteryPower_t>
+	BoolCallback IPCountryChanged;
+	class : public BoolCallback
 	{
 	public:
 		void Reset()
@@ -427,8 +438,9 @@ public:
 			m_Response.m_nMinutesBatteryLeft = 0;
 		}
 		uint8 GetMinutesBatteryLeft() { return m_Response.m_nMinutesBatteryLeft; }
+		LowBatteryPower_t m_Response;
 	} LowBatteryPower;
-	BoolCallback<SteamShutdown_t> SteamShutdown;
+	BoolCallback SteamShutdown;
 #pragma endregion
 
 #pragma region ISteamVideo
