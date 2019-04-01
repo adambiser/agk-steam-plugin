@@ -22,30 +22,13 @@ THE SOFTWARE.
 
 #include "CCallbacks.h"
 
-// Default BOOL_CALLBACK methods.
-//#define BOOL_CALLBACK_METHODS(func, callback_type)			\
-//	void CCallbacks::On##func##(callback_type *pParam)		\
-//	{														\
-//		agk::Log("Callback: On" #func);						\
-//		m_b##func## = true;									\
-//	}														\
-//	bool CCallbacks::Has##func##Response()					\
-//	{														\
-//		if (m_b##func##)									\
-//		{													\
-//			m_b##func## = false;							\
-//			return true;									\
-//		}													\
-//		return false;										\
-//	}
-
+// Default BOOL_CALLBACK method.
 #define BOOL_CALLBACK_METHODS(var, callback_type, log_text)		\
 	void CCallbacks::On##var##(callback_type *pParam)			\
 	{															\
-		utils::Log(__FUNCTION__ log_text);						\
+		utils::Log("Callback: On" #var log_text);				\
 		var.Trigger();											\
 	}
-
 
 CCallbacks *Callbacks()
 {
@@ -232,6 +215,18 @@ void CCallbacks::OnFavoritesListChanged(FavoritesListChanged_t *pParam)
 	FavoritesListChanged.StoreResponse(*pParam);
 }
 
+void Clear(plugin::LobbyChatMsg_t &value)
+{
+	value.m_ulSteamIDLobby = 0;
+	value.m_ulSteamIDUser = 0;
+	value.m_eChatEntryType = 0;
+	if (value.m_MemblockID && agk::GetMemblockExists(value.m_MemblockID))
+	{
+		agk::DeleteMemblock(value.m_MemblockID);
+	}
+	value.m_MemblockID = 0;
+}
+
 void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 {
 	agk::Log("Callback: OnLobbyChatMessage");
@@ -244,7 +239,6 @@ void CCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pParam)
 		info.m_MemblockID = agk::CreateMemblock(length);
 		memcpy_s(agk::GetMemblockPtr(info.m_MemblockID), length, data, length);
 	}
-	//STORE_CALLBACK_RESULT(LobbyChatMessage, info);
 	LobbyChatMessage.StoreResponse(info);
 }
 
@@ -264,7 +258,6 @@ void CCallbacks::OnLobbyDataUpdate(LobbyDataUpdate_t *pParam)
 void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 {
 	agk::Log("Callback: OnLobbyEnter");
-	//STORE_CALLBACK_RESULT(LobbyEnter, *pParam);
 	LobbyEnter.StoreResponse(*pParam);
 	if (pParam->m_ulSteamIDLobby != 0)
 	{
@@ -276,7 +269,7 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 		//RegisterLobbyChatMessageCallback();
 		LobbyChatMessage.Register();
 		LobbyChatUpdate.Register();
-		//RegisterLobbyDataUpdateCallback();
+		//LobbyDataUpdate.Register();
 		LobbyDataUpdate.Register();
 		LobbyGameCreated.Register();
 	}
@@ -436,7 +429,6 @@ void CCallbacks::OnUserStatsReceived(UserStatsReceived_t *pParam)
 {
 	if (pParam->m_nGameID == g_AppID)
 	{
-		agk::Log(__FUNCTION__);
 		utils::Log("Callback: OnUserStatsReceived.  Result = " + std::to_string(pParam->m_eResult) + ", user = " + std::to_string(pParam->m_steamIDUser.ConvertToUint64()));
 		if (pParam->m_eResult == k_EResultOK)
 		{
@@ -503,7 +495,7 @@ BOOL_CALLBACK_METHODS(IPCountryChanged, IPCountry_t,);
 //BOOL_CALLBACK_METHODS(LowBatteryPower, LowBatteryPower_t);
 void CCallbacks::OnLowBatteryPower(LowBatteryPower_t *pParam)
 {
-	agk::Log(__FUNCTION__);
+	agk::Log("Callback: OnLowBatteryPower");
 	LowBatteryPower.Trigger();
 	LowBatteryPower.m_Response = *pParam;
 }

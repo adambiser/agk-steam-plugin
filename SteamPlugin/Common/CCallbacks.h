@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include <vector>
 
 class CCallbacks;
+void Clear(plugin::LobbyChatMsg_t &value);
 
 template <class callback_type, void(CCallbacks::*callback_function)(callback_type*), class list_type = callback_type>
 class ListCallback
@@ -69,7 +70,10 @@ public:
 	void Reset()
 	{
 		m_Mutex.lock();
-		ClearCurrent();// Clear(m_CurrentValue);
+		Clear(m_CurrentValue);
+		for (auto iter = m_List.begin(); iter != m_List.end(); iter++) {
+			Clear(*iter);
+		}
 		m_List.clear();
 		Unregister();
 		m_Mutex.unlock();
@@ -91,7 +95,7 @@ public:
 			m_Mutex.unlock();
 			return true;
 		}
-		ClearCurrent();//Clear(m_CurrentValue);
+		Clear(m_CurrentValue);
 		m_Mutex.unlock();
 		return false;
 	}
@@ -104,7 +108,6 @@ public:
 		return m_bEnabled;
 	}
 protected:
-	virtual void ClearCurrent() = 0;
 	list_type m_CurrentValue;
 private:
 	bool m_bEnabled;
@@ -112,6 +115,7 @@ private:
 	std::mutex m_Mutex;
 	CCallbackManual<CCallbacks, callback_type> m_Callback;
 };
+
 
 class BoolCallback
 {
@@ -156,18 +160,7 @@ private:
 	//NewLaunchQueryParameters_t - Removed SDK v1.43
 	// RegisterActivationCodeResponse_t - Only used internally in Steam.
 public:
-	void Clear(DlcInstalled_t &value)
-	{
-		value.m_nAppID = 0;
-	}
-	class : public ListCallback<DlcInstalled_t, &OnDlcInstalled>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_nAppID = 0;
-		}
-	} DlcInstalled;	// InstallDLC
+	ListCallback<DlcInstalled_t, &OnDlcInstalled> DlcInstalled;	// InstallDLC
 	BoolCallback NewUrlLaunchParameters;
 #pragma endregion
 
@@ -205,65 +198,15 @@ private:
 	void OnPersonaStateChange(PersonaStateChange_t*); // RequestUserInformation
 	// SetPersonaNameResponse_t - SetPersonaName
 public:
-	class : public ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue = k_steamIDNil;
-		}
-	} AvatarImageLoaded; // GetFriendAvatar
-
-	class : public ListCallback<FriendRichPresenceUpdate_t, &OnFriendRichPresenceUpdate, CSteamID>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue = k_steamIDNil;
-		}
-	} FriendRichPresenceUpdate;
-
-	class : public ListCallback<GameConnectedChatJoin_t, &OnGameConnectedChatJoin>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_steamIDClanChat = k_steamIDNil;
-			m_CurrentValue.m_steamIDUser = k_steamIDNil;
-		}
-	} GameConnectedChatJoin;
-	class : public ListCallback<GameConnectedChatLeave_t, &OnGameConnectedChatLeave>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_steamIDClanChat = k_steamIDNil;
-			m_CurrentValue.m_steamIDUser = k_steamIDNil;
-			m_CurrentValue.m_bDropped = false;
-			m_CurrentValue.m_bKicked = false;
-		}
-	} GameConnectedChatLeave;
+	ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID> AvatarImageLoaded; // GetFriendAvatar
+	ListCallback<FriendRichPresenceUpdate_t, &OnFriendRichPresenceUpdate, CSteamID> FriendRichPresenceUpdate;
+	ListCallback<GameConnectedChatJoin_t, &OnGameConnectedChatJoin> GameConnectedChatJoin;
+	ListCallback<GameConnectedChatLeave_t, &OnGameConnectedChatLeave> GameConnectedChatLeave;
 	//ListCallback<GameConnectedClanChatMsg_t, &OnGameConnectedClanChatMsg, plugin::GameConnectedClanChatMsg_t> GameConnectedClanChatMsg;
 	//ListCallback<GameConnectedFriendChatMsg_t, &OnGameConnectedFriendChatMsg, plugin::GameConnectedFriendChatMsg_t> GameConnectedFriendChatMsg_;
-	class : public ListCallback<GameLobbyJoinRequested_t, &OnGameLobbyJoinRequested>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_steamIDLobby = k_steamIDNil;
-			m_CurrentValue.m_steamIDFriend = k_steamIDNil;
-		}
-	} GameLobbyJoinRequested;
+	ListCallback<GameLobbyJoinRequested_t, &OnGameLobbyJoinRequested> GameLobbyJoinRequested;
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
-	class : public ListCallback<PersonaStateChange_t, &OnPersonaStateChange>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_ulSteamID = 0;
-			m_CurrentValue.m_nChangeFlags = 0;
-		}
-	}PersonaStateChange; // RequestUserInformation
+	ListCallback<PersonaStateChange_t, &OnPersonaStateChange> PersonaStateChange; // RequestUserInformation
 #pragma endregion
 
 #pragma region ISteamGameCoordinator
@@ -305,74 +248,12 @@ private:
 	// LobbyMatchList_t - Call result.
 	// PSNGameBootInviteResult_t - deprecated
 public:
-	class : public ListCallback<FavoritesListChanged_t, &OnFavoritesListChanged>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_nIP = 0;
-			m_CurrentValue.m_nQueryPort = 0;
-			m_CurrentValue.m_nConnPort = 0;
-			m_CurrentValue.m_nAppID = 0;
-			m_CurrentValue.m_nFlags = 0;
-			m_CurrentValue.m_bAdd = false;
-			m_CurrentValue.m_unAccountId = 0;
-		}
-	} FavoritesListChanged;
-	class : public ListCallback<LobbyChatUpdate_t, &OnLobbyChatUpdate>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_ulSteamIDLobby = 0;
-			m_CurrentValue.m_ulSteamIDUserChanged = 0;
-			m_CurrentValue.m_ulSteamIDMakingChange = 0;
-			m_CurrentValue.m_rgfChatMemberStateChange = 0;
-		}
-	} LobbyChatUpdate;
-	class : public ListCallback<LobbyChatMsg_t, &OnLobbyChatMessage, plugin::LobbyChatMsg_t>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_ulSteamIDLobby = k_steamIDNil;
-			m_CurrentValue.m_ulSteamIDUser = k_steamIDNil;
-			m_CurrentValue.m_eChatEntryType = (EChatEntryType)0;
-			m_CurrentValue.m_MemblockID = 0; // TODO ditch the special struct, move this into the call back class.
-		}
-	} LobbyChatMessage;
-	class : public ListCallback<LobbyDataUpdate_t, &OnLobbyDataUpdate>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_ulSteamIDLobby = 0;
-			m_CurrentValue.m_ulSteamIDMember = 0;
-			m_CurrentValue.m_bSuccess = 0;
-		}
-	} LobbyDataUpdate;
-	class : public ListCallback<LobbyEnter_t, &OnLobbyEnter>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_ulSteamIDLobby = 0;
-			m_CurrentValue.m_rgfChatPermissions = 0;
-			m_CurrentValue.m_bLocked = false;
-			m_CurrentValue.m_EChatRoomEnterResponse = 0;
-		}
-	} LobbyEnter;
-	class : public ListCallback<LobbyGameCreated_t, &OnLobbyGameCreated>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_ulSteamIDLobby = 0;
-			m_CurrentValue.m_ulSteamIDGameServer = 0;
-			m_CurrentValue.m_unIP = 0;
-			m_CurrentValue.m_usPort = 0;
-		}
-	} LobbyGameCreated;
+	ListCallback<FavoritesListChanged_t, &OnFavoritesListChanged> FavoritesListChanged;
+	ListCallback<LobbyChatUpdate_t, &OnLobbyChatUpdate> LobbyChatUpdate;
+	ListCallback<LobbyChatMsg_t, &OnLobbyChatMessage, plugin::LobbyChatMsg_t> LobbyChatMessage;
+	ListCallback<LobbyDataUpdate_t, &OnLobbyDataUpdate> LobbyDataUpdate;
+	ListCallback<LobbyEnter_t, &OnLobbyEnter> LobbyEnter;
+	ListCallback<LobbyGameCreated_t, &OnLobbyGameCreated> LobbyGameCreated;
 #pragma endregion
 
 #pragma region ISteamMatchmakingServers
@@ -515,47 +396,12 @@ private:
 public:
 	// While GetAchievementIcon has an internal callback, there's no need to make them external.
 	int GetAchievementIcon(const char *pchName);
-	class : public ListCallback<UserAchievementStored_t, &OnUserAchievementStored>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_nGameID = 0;
-			m_CurrentValue.m_bGroupAchievement = false;
-			m_CurrentValue.m_rgchAchievementName[0] = 0;
-			m_CurrentValue.m_nCurProgress = 0;
-			m_CurrentValue.m_nMaxProgress = 0;
-		}
-	} UserAchievementStored;
-	class : public ListCallback<UserStatsReceived_t, &OnUserStatsReceived>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_nGameID = 0;
-			m_CurrentValue.m_eResult = (EResult)0;
-			m_CurrentValue.m_steamIDUser = k_steamIDNil;
-		}
-	} UserStatsReceived;
+	ListCallback<UserAchievementStored_t, &OnUserAchievementStored> UserAchievementStored;
+	ListCallback<UserStatsReceived_t, &OnUserStatsReceived> UserStatsReceived;
 	bool StatsInitialized() { return m_StatsInitialized; }
 	bool StatsInitializedForUser(CSteamID user);
-	class : public ListCallback<UserStatsStored_t, &OnUserStatsStored>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_nGameID = 0;
-			m_CurrentValue.m_eResult = (EResult)0;
-		}
-	} UserStatsStored;
-	class : public ListCallback<UserStatsUnloaded_t, &OnUserStatsUnloaded, CSteamID>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue = k_steamIDNil;
-		}
-	} UserStatsUnloaded; // Call RequestUserStats again
+	ListCallback<UserStatsStored_t, &OnUserStatsStored> UserStatsStored;
+	ListCallback<UserStatsUnloaded_t, &OnUserStatsUnloaded, CSteamID> UserStatsUnloaded; // Call RequestUserStats again
 #pragma endregion
 
 #pragma region ISteamUtils
@@ -567,15 +413,7 @@ private:
 	//SteamAPICallCompleted_t - not needed
 	STEAM_CALLBACK(CCallbacks, OnSteamShutdown, SteamShutdown_t);
 public:
-	class : public ListCallback<GamepadTextInputDismissed_t, &OnGamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t>
-	{
-	protected:
-		void ClearCurrent()
-		{
-			m_CurrentValue.m_bSubmitted = 0;
-			m_CurrentValue.m_chSubmittedText[0] = 0; // TODO ditch special struct. move into class
-		}
-	} GamepadTextInputDismissed;
+	ListCallback<GamepadTextInputDismissed_t, &OnGamepadTextInputDismissed, plugin::GamepadTextInputDismissed_t> GamepadTextInputDismissed;
 	BoolCallback IPCountryChanged;
 	class : public BoolCallback
 	{
