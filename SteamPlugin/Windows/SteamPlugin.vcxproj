@@ -190,6 +190,7 @@
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
     <ClCompile Include="..\Common\CCallbacks.cpp" />
     <ClCompile Include="..\Common\CCallResultItem.cpp" />
+    <ClCompile Include="..\Common\CRoomManager.cpp" />
     <ClCompile Include="..\Common\CSteamHandleVector.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -219,6 +220,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
+    <ClInclude Include="..\Common\CRoomManager.h" />
     <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
     <ClInclude Include="..\Common\DllMain.h" />

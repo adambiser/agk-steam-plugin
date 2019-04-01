@@ -136,7 +136,12 @@ IsFollowing,I,I,IsFollowing,0,0,0,0,IsFollowing
 GetIsFollowingSteamID,I,I,GetIsFollowingSteamID,0,0,0,0,GetIsFollowingSteamID
 GetIsFollowingResult,I,I,GetIsFollowingResult,0,0,0,0,GetIsFollowingResult
 IsUserInSource,I,II,IsUserInSource,0,0,0,0,IsUserInSource
+JoinClanChatRoom,I,I,JoinClanChatRoom,0,0,0,0,JoinClanChatRoom
+GetJoinClanChatRoomEnterResponse,I,I,GetJoinClanChatRoomEnterResponse,0,0,0,0,GetJoinClanChatRoomEnterResponse
+GetJoinClanChatRoomSteamID,I,I,GetJoinClanChatRoomSteamID,0,0,0,0,GetJoinClanChatRoomSteamID
 LeaveClanChatRoom,I,I,LeaveClanChatRoom,0,0,0,0,LeaveClanChatRoom
+OpenClanChatWindowInSteam,I,I,OpenClanChatWindowInSteam,0,0,0,0,OpenClanChatWindowInSteam
+ReplyToFriendMessage,I,IS,ReplyToFriendMessage,0,0,0,0,ReplyToFriendMessage
 RequestClanOfficerList,I,I,RequestClanOfficerList,0,0,0,0,RequestClanOfficerList
 GetRequestClanOfficerListOfficerCount,I,I,GetRequestClanOfficerListOfficerCount,0,0,0,0,GetRequestClanOfficerListOfficerCount
 GetRequestClanOfficerListClan,I,I,GetRequestClanOfficerListClan,0,0,0,0,GetRequestClanOfficerListClan

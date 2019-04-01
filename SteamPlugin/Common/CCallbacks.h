@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "DllMain.h"
+#include "CRoomManager.h"
 #include "PluginTypes.h"
 #include "StructClear.h"
 #include <steam_api.h>
@@ -192,20 +193,23 @@ private:
 	void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t*);
 	STEAM_CALLBACK(CCallbacks, OnGameOverlayActivated, GameOverlayActivated_t); // always enabled.
 	bool m_IsGameOverlayActive;
-	// GameRichPresenceJoinRequested_t - InviteUserToGame
-	// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
-	// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
+	void OnGameRichPresenceJoinRequested(GameRichPresenceJoinRequested_t*); // InviteUserToGame
+	void OnGameServerChangeRequested(GameServerChangeRequested_t*); // fires when requesting to join game server from friends list.
+	void OnJoinClanChatRoomCompletionResult(JoinClanChatRoomCompletionResult_t*); // calback and call result for JoinClanChatRoom
 	void OnPersonaStateChange(PersonaStateChange_t*); // RequestUserInformation
-	// SetPersonaNameResponse_t - SetPersonaName
+	// SetPersonaNameResponse_t - call result for SetPersonaName
 public:
 	ListCallback<AvatarImageLoaded_t, &OnAvatarImageLoaded, CSteamID> AvatarImageLoaded; // GetFriendAvatar
 	ListCallback<FriendRichPresenceUpdate_t, &OnFriendRichPresenceUpdate, CSteamID> FriendRichPresenceUpdate;
 	ListCallback<GameConnectedChatJoin_t, &OnGameConnectedChatJoin> GameConnectedChatJoin;
 	ListCallback<GameConnectedChatLeave_t, &OnGameConnectedChatLeave> GameConnectedChatLeave;
-	//ListCallback<GameConnectedClanChatMsg_t, &OnGameConnectedClanChatMsg, plugin::GameConnectedClanChatMsg_t> GameConnectedClanChatMsg;
-	//ListCallback<GameConnectedFriendChatMsg_t, &OnGameConnectedFriendChatMsg, plugin::GameConnectedFriendChatMsg_t> GameConnectedFriendChatMsg_;
+	ListCallback<GameConnectedClanChatMsg_t, &OnGameConnectedClanChatMsg, plugin::GameConnectedClanChatMsg_t> GameConnectedClanChatMsg;
+	ListCallback<GameConnectedFriendChatMsg_t, &OnGameConnectedFriendChatMsg, plugin::GameConnectedFriendChatMsg_t> GameConnectedFriendChatMsg;
 	ListCallback<GameLobbyJoinRequested_t, &OnGameLobbyJoinRequested> GameLobbyJoinRequested;
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
+	ListCallback<GameRichPresenceJoinRequested_t, &OnGameRichPresenceJoinRequested> GameRichPresenceJoinRequested;
+	ListCallback<GameServerChangeRequested_t, &OnGameServerChangeRequested> GameServerChangeRequested;
+	ListCallback<JoinClanChatRoomCompletionResult_t, &OnJoinClanChatRoomCompletionResult> JoinClanChatRoomCompletionResult;
 	ListCallback<PersonaStateChange_t, &OnPersonaStateChange> PersonaStateChange; // RequestUserInformation
 #pragma endregion
 

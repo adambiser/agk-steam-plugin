@@ -5,14 +5,14 @@ WIKI_PATH = "../../../agk-steam-plugin.wiki/"
 error_count = 0
 
 
-# TODO Change @api, @param-api, and @return-api to @url, @param-url, @return-url.
-#  url can be a list.  urls must be delimited by newlines.
-#  Parse url to show anchor if available, otherwise page name.
+# TODO Parse url to show anchor if available, otherwise page name.
 #  ie:
 #  https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t -> FriendsGetFollowerCount_t
 #  https://partner.steamgames.com/doc/api/steam_gameserver -> steam_gameserver
 #  Handle this?
 #  [Downloadable Content (DLC)](https://partner.steamgames.com/doc/store/application/dlc) -> Downloadable Content (DLC)
+
+# TODO @callback-type callresult attaches its @url tags to each @callback-getters method.
 
 def report_error(text):
     global error_count

@@ -117,7 +117,7 @@ extern "C" DLL_EXPORT int CloseClanChatWindowInSteam(int hSteamIDClanChat)
 	return SteamFriends()->CloseClanChatWindowInSteam(SteamHandles()->GetSteamHandle(hSteamIDClanChat));
 }
 
-class CDownloadClanActivityCountsCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, SuccessResponse<DownloadClanActivityCountsResult_t>>
+class CDownloadClanActivityCountsCallResult : public CCallResultItem<DownloadClanActivityCountsResult_t, ResponseWrapper<DownloadClanActivityCountsResult_t>>
 {
 public:
 	CDownloadClanActivityCountsCallResult()
@@ -188,6 +188,8 @@ public:
 /*
 @desc Gets the list of users that the current user is following.
 @param startIndex The index to start receiving followers from. This should be 0 on the initial call.
+@callback-type callresult
+@callback-getters GetEnumerateFollowingListResultsReturned, GetEnumerateFollowingListTotalResultCount, GetEnumerateFollowingListSteamID
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
 @url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
@@ -202,12 +204,11 @@ extern "C" DLL_EXPORT int EnumerateFollowingList(int startIndex)
 @desc Gets the number of results returned by the EnumerateFollowingList call result.
 @param hCallResult An EnumerateFollowingList call result handle.
 @return The number of results returned.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
-@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListResultsReturned(int hCallResult)
 {
-	return GetCallResultValue(hCallResult, &CEnumerateFollowingListCallResult::GetResultsReturned);
+	//return GetCallResultValue(hCallResult, &CEnumerateFollowingListCallResult::GetResultsReturned);
+	return GetCallResultResponse<CEnumerateFollowingListCallResult>(hCallResult, &FriendsEnumerateFollowingList_t::m_nResultsReturned);
 }
 
 /*
@@ -217,8 +218,6 @@ If this value is greater than the start index for the call + GetEnumerateFollowi
 call EnumerateFollowingList with start index + GetEnumerateFollowingListResultsReturned as the new start index.
 @param hCallResult An EnumerateFollowingList call result handle.
 @return The total number of people we are following.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
-@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallResult)
 {
@@ -230,8 +229,6 @@ extern "C" DLL_EXPORT int GetEnumerateFollowingListTotalResultCount(int hCallRes
 @param hCallResult An EnumerateFollowingList call result handle.
 @param index The index of the followed user to retrieve.
 @return A Steam ID handle.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
-@url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCountsResult_t
 */
 extern "C" DLL_EXPORT int GetEnumerateFollowingListSteamID(int hCallResult, int index)
 {
@@ -581,7 +578,6 @@ extern "C" DLL_EXPORT int GetFollowerCount(int hSteamID)
 @desc Gets the number of users following the user for the GetFollowerCount call result.
 @param hCallResult A GetFollowerCount call result handle.
 @return An integer.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t
 */
 extern "C" DLL_EXPORT int GetFollowerCountValue(int hCallResult)
 {
@@ -592,7 +588,6 @@ extern "C" DLL_EXPORT int GetFollowerCountValue(int hCallResult)
 @desc Gets the user's Steam ID handle for the GetFollowerCount call result.
 @param hCallResult A GetFollowerCount call result handle.
 @return A Steam ID handle.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t
 */
 extern "C" DLL_EXPORT int GetFollowerCountSteamID(int hCallResult)
 {
@@ -1354,8 +1349,59 @@ extern "C" DLL_EXPORT int IsUserInSource(int hSteamIDUser, int hSteamIDSource)
 	return SteamFriends()->IsUserInSource(SteamHandles()->GetSteamHandle(hSteamIDUser), SteamHandles()->GetSteamHandle(hSteamIDSource));
 }
 
-//JoinClanChatRoom - JoinClanChatRoomCompletionResult_t (cr) GameConnectedChatJoin_t, GameConnectedClanChatMsg_t, GameConnectedChatLeave_t
-//LeaveClanChatRoom - GameConnectedChatLeave_t (on other machines?)
+void ResponseWrapper<JoinClanChatRoomCompletionResult_t>::SetResult()
+{
+	m_eResult = (m_eChatRoomEnterResponse == k_EChatRoomEnterResponseSuccess) ? k_EResultOK : k_EResultFail;
+}
+
+class CJoinClanChatRoomCallResult : public CCallResultItem<JoinClanChatRoomCompletionResult_t, ResponseWrapper<JoinClanChatRoomCompletionResult_t>>
+{
+public:
+	CJoinClanChatRoomCallResult(CSteamID steamIDClan)
+	{
+		m_CallResultName = "JoinClanChatRoom(" + std::to_string(steamIDClan.ConvertToUint64()) + ")";
+		m_hSteamAPICall = SteamFriends()->JoinClanChatRoom(steamIDClan);
+	}
+	int GetChatRoomEnterResponse() { return (int)m_Response.m_eChatRoomEnterResponse; }
+	CSteamID GetSteamIDClanChat() { return m_Response.m_steamIDClanChat; }
+};
+
+/*
+@desc Allows the user to join Steam group (clan) chats right within the game.
+@param hSteamIDClan The Steam ID of the Steam group to join.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@callback-type callresult
+@callback-getters GetJoinClanChatRoomEnterResponse, GetJoinClanChatRoomSteamID
+@url https://partner.steamgames.com/doc/api/ISteamFriends#JoinClanChatRoom
+@url https://partner.steamgames.com/doc/api/ISteamFriends#JoinClanChatRoomCompletionResult_t
+*/
+extern "C" DLL_EXPORT int JoinClanChatRoom(int hSteamIDClan)
+{
+	CheckInitialized(0);
+	Callbacks()->GameConnectedChatJoin.Register();
+	return CallResults()->Add(new CJoinClanChatRoomCallResult(SteamHandles()->GetSteamHandle(hSteamIDClan)));
+}
+
+/*
+@desc Returns the result of the JoinClanChatRoom call result.
+Provides more detail that GetCallResultCode.
+@return An EChatRoomEnterResponse value.
+@return-url https://partner.steamgames.com/doc/api/steam_api#EChatRoomEnterResponse
+*/
+extern "C" DLL_EXPORT int GetJoinClanChatRoomEnterResponse(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CJoinClanChatRoomCallResult::GetChatRoomEnterResponse);
+}
+
+/*
+@desc The Steam ID of the chat that the user has joined for the given JoinClanChatRoom
+@param hCallResult A JoinClanChatRoom call result handle.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetJoinClanChatRoomSteamID(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CJoinClanChatRoomCallResult::GetSteamIDClanChat);
+}
 
 /*
 @desc Leaves a Steam group chat that the user has previously entered with JoinClanChatRoom.
@@ -1371,10 +1417,33 @@ extern "C" DLL_EXPORT int LeaveClanChatRoom(int hSteamIDClan)
 	return SteamFriends()->LeaveClanChatRoom(SteamHandles()->GetSteamHandle(hSteamIDClan));
 }
 
-//OpenClanChatWindowInSteam
-//ReplyToFriendMessage
+/*
+@desc Opens the specified Steam group chat room in the Steam UI.
+@param hSteamIDClanChat The Steam ID of the Steam group chat room to open.
+@return 1 if the user successfully entered the Steam group chat room; otherwise, 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#OpenClanChatWindowInSteam
+*/
+extern "C" DLL_EXPORT int OpenClanChatWindowInSteam(int hSteamIDClanChat)
+{
+	CheckInitialized(0);
+	return SteamFriends()->OpenClanChatWindowInSteam(SteamHandles()->GetSteamHandle(hSteamIDClanChat));
+}
 
-class CClanOfficerListResponseCallResult : public CCallResultItem<ClanOfficerListResponse_t, SuccessResponse<ClanOfficerListResponse_t>>
+/*
+@desc Sends a message to a Steam friend.
+@param hSteamIDFriend The Steam ID of the friend to send the message to.
+@param message The UTF-8 formatted message to send.
+@return 1 if the message was successfully sent.
+0 if the current user is rate limited or chat restricted.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ReplyToFriendMessage
+*/
+extern "C" DLL_EXPORT int ReplyToFriendMessage(int hSteamIDFriend, const char *message)
+{
+	CheckInitialized(0);
+	return SteamFriends()->ReplyToFriendMessage(SteamHandles()->GetSteamHandle(hSteamIDFriend), message);
+}
+
+class CClanOfficerListResponseCallResult : public CCallResultItem<ClanOfficerListResponse_t, ResponseWrapper<ClanOfficerListResponse_t>>
 {
 public:
 	CClanOfficerListResponseCallResult(CSteamID steamIDClan)
@@ -1389,8 +1458,11 @@ public:
 /*
 @desc Requests information about a Steam group officers (administrators and moderators).
 @param hSteamIDClan The Steam group to get the officers list for.
+@callback-type callresult
+@callback-getters GetRequestClanOfficerListOfficerCount, GetRequestClanOfficerListClan
 @return @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
 */
 extern "C" DLL_EXPORT int RequestClanOfficerList(int hSteamIDClan)
 {
@@ -1402,8 +1474,6 @@ extern "C" DLL_EXPORT int RequestClanOfficerList(int hSteamIDClan)
 @desc Gets the number of officers in the group from the call result response. This is the same as GetClanOfficerCount.
 @param hCallResult An RequestClanOfficerList call result handle.
 @return An integer.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
-@url https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
 */
 extern "C" DLL_EXPORT int GetRequestClanOfficerListOfficerCount(int hCallResult)
 {
@@ -1414,15 +1484,24 @@ extern "C" DLL_EXPORT int GetRequestClanOfficerListOfficerCount(int hCallResult)
 @desc Gets the Steam group that the call result just got the officer list for.
 @param hCallResult An RequestClanOfficerList call result handle.
 @return A Steam ID handle.  0 if there was a problem.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
-@url https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
 */
 extern "C" DLL_EXPORT int GetRequestClanOfficerListClan(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CClanOfficerListResponseCallResult::GetSteamIDClan);
 }
 
-//RequestFriendRichPresence - FriendRichPresenceUpdate_t
+/*
+@desc Requests Rich Presence data from a specific user.
+
+Triggers a FriendRichPresenceUpdate_t callback.
+@param hSteamIDFriend The Steam ID of the user to request the rich presence of.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RequestFriendRichPresence
+*/
+extern "C" DLL_EXPORT void RequestFriendRichPresence(int hSteamIDFriend)
+{
+	CheckInitialized(NORETURN);
+	SteamFriends()->RequestFriendRichPresence(SteamHandles()->GetSteamHandle(hSteamIDFriend));
+}
 
 /*
 @desc Requests the persona name and optionally the avatar of a specified user (when requireNameOnly is 0).
@@ -1439,12 +1518,125 @@ extern "C" DLL_EXPORT int RequestUserInformation(int hSteamIDUser, int requireNa
 	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hSteamIDUser), requireNameOnly != 0);
 }
 
-//SendClanChatMessage
-//SetInGameVoiceSpeaking
-//SetListenForFriendsMessages - GameConnectedFriendChatMsg_t
-//SetPersonaName - SetPersonaNameResponse_t
-//SetPlayedWith
-//SetRichPresence
+/*
+@desc Sends a message to a Steam group chat room.
+@param hSteamIDClanChat The Steam ID of the group chat to send the message to.
+@param text The UTF-8 formatted message to send. This can be up to 2048 characters long.
+@return 1 if the message was successfully sent; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SendClanChatMessage
+*/
+extern "C" DLL_EXPORT int SendClanChatMessage(int hSteamIDClanChat, const char *text)
+{
+	CheckInitialized(false);
+	return SteamFriends()->SendClanChatMessage(SteamHandles()->GetSteamHandle(hSteamIDClanChat), text);
+}
+
+/*
+@desc Let Steam know that the user is currently using voice chat in game.
+
+This will suppress the microphone for all voice communication in the Steam UI.
+@param speaking Did the user start speaking in game (1) or stopped speaking in game (0)?
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetInGameVoiceSpeaking
+*/
+extern "C" DLL_EXPORT void SetInGameVoiceSpeaking(int speaking)
+{
+	CheckInitialized(NORETURN);
+	SteamFriends()->SetInGameVoiceSpeaking(SteamUser()->GetSteamID(), speaking != 0);
+}
+
+/*
+@desc Listens for Steam friends chat messages.
+@param interceptEnabled Turn friends message interception on (1) or off (0)?
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetListenForFriendsMessages
+*/
+extern "C" DLL_EXPORT void SetListenForFriendsMessages(int interceptEnabled)
+{
+	CheckInitialized(NORETURN);
+	if (interceptEnabled)
+	{
+		Callbacks()->GameConnectedFriendChatMsg.Register();
+	}
+	else
+	{
+		Callbacks()->GameConnectedFriendChatMsg.Unregister();
+	}
+	SteamFriends()->SetListenForFriendsMessages(interceptEnabled != 0);
+}
+
+void ResponseWrapper<SetPersonaNameResponse_t>::SetResult() { m_eResult = m_result; }
+
+class CSetPersonaNameCallResult : public CCallResultItem<SetPersonaNameResponse_t, ResponseWrapper<SetPersonaNameResponse_t>>
+{
+public:
+	CSetPersonaNameCallResult(const char *pchPersonaName)
+	{
+		m_CallResultName = "SetPersonaName(" + std::string(pchPersonaName) + ")";
+		m_hSteamAPICall = SteamFriends()->SetPersonaName(pchPersonaName);
+	}
+	int GetSuccess() { return m_Response.m_bSuccess; }
+	int GetLocalSuccess() { return m_Response.m_bLocalSuccess; }
+};
+
+/*
+@desc Sets the current users persona name, stores it on the server and publishes the changes to all friends who are online.
+@param personaName The users new persona name. Can not be longer than k_cchPersonaNameMax bytes.
+@callback-type callresult
+@callback-getters
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetPersonaName
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetPersonaNameResponse_t
+*/
+extern "C" DLL_EXPORT int SetPersonaName(const char *personaName)
+{
+	CheckInitialized(0);
+	return CallResults()->Add(new CSetPersonaNameCallResult(personaName));
+}
+
+/*
+@desc Returns whether the name change completed successfully.
+@param hCallResult A SetPersonaName call result handle.
+@return 1 if name change completed successfully.
+*/
+extern "C" DLL_EXPORT int GetSetPersonaNameSuccess(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CSetPersonaNameCallResult::GetSuccess);
+}
+
+/*
+@desc Returns whether the name change was retained locally.
+@param hCallResult A SetPersonaName call result handle.
+@return 1 if name change was retained locally. We might not have been able to communicate with Steam.
+*/
+extern "C" DLL_EXPORT int GetSetPersonaNameLocalSuccess(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CSetPersonaNameCallResult::GetLocalSuccess);
+}
+
+/*
+@desc Mark a target user as 'played with'.
+@param hSteamIDUserPlayedWith The other user that we have played with.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetPlayedWith
+*/
+extern "C" DLL_EXPORT void SetPlayedWith(int hSteamIDUserPlayedWith)
+{
+	CheckInitialized(NORETURN);
+	SteamFriends()->SetPlayedWith(SteamHandles()->GetSteamHandle(hSteamIDUserPlayedWith));
+}
+
+/*
+@desc Sets a Rich Presence key/value for the current user that is automatically shared to all friends playing the same game.
+@param key The rich presence 'key' to set. This can not be longer than specified in k_cchMaxRichPresenceKeyLength.
+@param value The rich presence 'value' to associate with pchKey. This can not be longer than specified in k_cchMaxRichPresenceValueLength.
+If this is set to an empty string ("") or NULL then the key is removed if it's set.
+@return 1 if the rich presence was set successfully; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetRichPresence
+*/
+
+extern "C" DLL_EXPORT int SetRichPresence(const char *key, const char *value)
+{
+	CheckInitialized(false);
+	return SteamFriends()->SetRichPresence(key, value);
+}
 
 //Callbacks
 /*
@@ -1472,16 +1664,19 @@ extern "C" DLL_EXPORT int GetAvatarImageLoadedUser()
 	return SteamHandles()->GetPluginHandle(Callbacks()->AvatarImageLoaded.GetCurrent());
 }
 
-//ClanOfficerListResponse_t
-//DownloadClanActivityCountsResult_t
-//FriendRichPresenceUpdate_t
-//FriendsEnumerateFollowingList_t
-//FriendsGetFollowerCount_t
-//FriendsIsFollowing_t
-//GameConnectedChatJoin_t
-//GameConnectedChatLeave_t
-//GameConnectedClanChatMsg_t
-//GameConnectedFriendChatMsg_t
+//ClanOfficerListResponse_t - call result for RequestClanOfficerList
+//DownloadClanActivityCountsResult_t - call result for DownloadClanActivityCounts
+
+//TODO FriendRichPresenceUpdate_t
+
+//FriendsEnumerateFollowingList_t - call result for EnumerateFollowingList
+//FriendsGetFollowerCount_t - call result for GetFollowerCount
+//FriendsIsFollowing_t - call result for IsFollowing
+
+//TODO GameConnectedChatJoin_t
+//TODO GameConnectedChatLeave_t
+//TODO GameConnectedClanChatMsg_t
+//TODO GameConnectedFriendChatMsg_t
 
 /*
 @desc Triggered when the user tries to join a lobby from their friends list or from an invite.
@@ -1516,9 +1711,9 @@ extern "C" DLL_EXPORT int IsGameOverlayActive()
 	return Callbacks()->IsGameOverlayActive();
 }
 
-//GameRichPresenceJoinRequested_t
-//GameServerChangeRequested_t - always fires
-//JoinClanChatRoomCompletionResult_t
+//TODO GameRichPresenceJoinRequested_t
+//TODO GameServerChangeRequested_t - always fires
+//TODO JoinClanChatRoomCompletionResult_t
 
 /*
 @desc Triggered whenever a friend's status changes.
@@ -1553,4 +1748,4 @@ extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID()
 	return SteamHandles()->GetPluginHandle(Callbacks()->PersonaStateChange.GetCurrent().m_ulSteamID);
 }
 
-//SetPersonaNameResponse_t
+//SetPersonaNameResponse_t - call result for SetPersonaName

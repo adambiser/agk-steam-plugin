@@ -22,6 +22,15 @@ void Clear(FavoritesListChanged_t &value)
 	value.m_unAccountId = 0;
 }
 
+void Clear(plugin::GameConnectedClanChatMsg_t &value)
+{
+	value.m_ChatEntryType = (EChatEntryType)0;
+	value.m_iMessageID = 0;
+	value.m_steamIDClanChat = k_steamIDNil;
+	value.m_steamIDUser = k_steamIDNil;
+	value.m_Text[0] = 0;
+}
+
 void Clear(GameLobbyJoinRequested_t &value)
 {
 	value.m_steamIDLobby = k_steamIDNil;

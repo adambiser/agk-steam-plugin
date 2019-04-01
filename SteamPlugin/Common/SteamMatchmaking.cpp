@@ -165,7 +165,6 @@ public:
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitialized(0);
-	//Callbacks()->RegisterLobbyEnterCallback();
 	Callbacks()->LobbyEnter.Register();
 	return CallResults()->Add(new CCreateLobbyCallResult((ELobbyType)eLobbyType, maxMembers));
 }
@@ -547,7 +546,9 @@ extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteam
 	return SteamMatchmaking()->InviteUserToLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hInviteeSteamID));
 }
 
-class CJoinLobbyCallResult : public CCallResultItem<LobbyEnter_t, WrappedResponse <LobbyEnter_t, uint64, &LobbyEnter_t::m_ulSteamIDLobby>>
+void ResponseWrapper<LobbyEnter_t>::SetResult() { m_eResult = m_ulSteamIDLobby != 0 ? k_EResultOK : k_EResultFail; }
+
+class CJoinLobbyCallResult : public CCallResultItem<LobbyEnter_t, ResponseWrapper<LobbyEnter_t>>
 {
 public:
 	CJoinLobbyCallResult(CSteamID steamIDLobby)
@@ -572,7 +573,6 @@ public:
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
-	//Callbacks()->RegisterLobbyEnterCallback();
 	Callbacks()->LobbyEnter.Register();
 	return CallResults()->Add(new CJoinLobbyCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
@@ -625,26 +625,7 @@ extern "C" DLL_EXPORT int GetJoinLobbyLocked(int hCallResult)
 extern "C" DLL_EXPORT void LeaveLobby(int hLobbySteamID)
 {
 	CheckInitialized(NORETURN);
-	CSteamID steamIDLobby = SteamHandles()->GetSteamHandle(hLobbySteamID);
-	g_JoinedLobbiesMutex.lock();
-	SteamMatchmaking()->LeaveLobby(steamIDLobby);
-	// Remove from list of joined lobbies.
-	auto it = std::find(g_JoinedLobbies.begin(), g_JoinedLobbies.end(), steamIDLobby);
-	if (it != g_JoinedLobbies.end())
-	{
-		g_JoinedLobbies.erase(it);
-	}
-	g_JoinedLobbiesMutex.unlock();
-	if (g_JoinedLobbies.size() == 0)
-	{
-		// Unregister the in-lobby callbacks when leaving the last lobby.
-		// Should be the same callbacks that get registered in CCallbacks::OnLobbyEnter.
-		agk::Log("Unregistering in-lobby callbacks");
-		Callbacks()->LobbyChatMessage.Unregister();
-		Callbacks()->LobbyChatUpdate.Unregister();
-		Callbacks()->LobbyDataUpdate.Unregister();
-		Callbacks()->LobbyGameCreated.Unregister();
-	}
+	LobbyManager()->Remove(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
 /*
@@ -695,7 +676,9 @@ extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID)
 	return SteamMatchmaking()->RequestLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
-class CRequestLobbyListCallResult : public CCallResultItem<LobbyMatchList_t, AlwaysOKResponse<LobbyMatchList_t>>
+void ResponseWrapper<LobbyMatchList_t>::SetResult() { m_eResult = k_EResultOK; }
+
+class CRequestLobbyListCallResult : public CCallResultItem<LobbyMatchList_t, ResponseWrapper<LobbyMatchList_t>>
 {
 public:
 	CRequestLobbyListCallResult()

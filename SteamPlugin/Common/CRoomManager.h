@@ -20,30 +20,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _STRUCTCLEAR_H_
-#define _STRUCTCLEAR_H_
+#ifndef _CROOMMANAGER_H_
+#define _CROOMMANAGER_H_
 #pragma once
 
-#include "PluginTypes.h"
-#include "steam_api.h"
+#include "DllMain.h"
+#include <mutex>
+#include <vector>
 
-void Clear(CSteamID &value);
-void Clear(DlcInstalled_t &value);
-void Clear(FavoritesListChanged_t &value);
-void Clear(plugin::GameConnectedClanChatMsg_t &value);
-void Clear(GameLobbyJoinRequested_t &value);
-void Clear(plugin::GamepadTextInputDismissed_t &value);
-void Clear(InputAnalogActionData_t &value);
-void Clear(InputDigitalActionData_t &value);
-void Clear(InputMotionData_t &value);
-//void Clear(plugin::LobbyChatMsg_t &value);
-void Clear(LobbyChatUpdate_t &value);
-void Clear(LobbyDataUpdate_t &value);
-void Clear(LobbyEnter_t &value);
-void Clear(LobbyGameCreated_t &value);
-void Clear(PersonaStateChange_t &value);
-void Clear(UserAchievementStored_t &value);
-void Clear(UserStatsReceived_t &value);
-void Clear(UserStatsStored_t &value);
+// Registers callbacks when joining a lobby or clan chat.  Unregisters when the last is left.
+class CRoomManager
+{
+public:
+	CRoomManager() {}
+	virtual ~CRoomManager() {}
+	void Add(CSteamID steamID);
+	void Remove(CSteamID steamID);
+	void Reset();
+protected:
+	virtual void Leave(CSteamID steamID) = 0;
+	virtual void RegisterCallbacks() = 0;
+	virtual void UnregisterCallbacks() = 0;
+	std::mutex m_JoinedMutex;
+	std::vector<CSteamID> m_Joined;
+};
 
-#endif // _STRUCTCLEAR_H_
+class CLobbyManager : public CRoomManager
+{
+protected:
+	void Leave(CSteamID steamID);
+	void RegisterCallbacks();
+	void UnregisterCallbacks();
+};
+
+CLobbyManager *LobbyManager();
+
+class CClanChatManager : public CRoomManager
+{
+protected:
+	void Leave(CSteamID steamID);
+	void RegisterCallbacks();
+	void UnregisterCallbacks();
+};
+
+CClanChatManager *ClanChatManager();
+
+#endif // _CROOMMANAGER_H_

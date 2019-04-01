@@ -109,9 +109,9 @@ extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 	return SteamUserStats()->ClearAchievement(name);
 }
 
-typedef WrappedResponse<LeaderboardScoresDownloaded_t, SteamLeaderboard_t, &LeaderboardScoresDownloaded_t::m_hSteamLeaderboard> WrappedLeaderboardScoresDownloaded_t;
+void ResponseWrapper<LeaderboardScoresDownloaded_t>::SetResult() { m_eResult = m_hSteamLeaderboard != 0 ? k_EResultOK : k_EResultFail; }
 
-class CDownloadLeaderboardEntriesCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, WrappedLeaderboardScoresDownloaded_t>
+class CDownloadLeaderboardEntriesCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, ResponseWrapper<LeaderboardScoresDownloaded_t>>
 {
 public:
 	CDownloadLeaderboardEntriesCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
@@ -175,9 +175,11 @@ protected:
 @param rangeStart The index to start downloading entries relative to eLeaderboardDataRequest.
 @param rangeEnd The last index to retrieve entries for relative to eLeaderboardDataRequest.
 @callback-type callresult
-@callback-getters GetDownloadLeaderboardHandle, GetDownloadLeaderboardEntryCount, GetDownloadLeaderboardEntryUser, GetDownloadLeaderboardEntryGlobalRank, GetDownloadLeaderboardEntryScore
+@callback-getters GetDownloadLeaderboardHandle, GetDownloadLeaderboardEntryCount, GetDownloadLeaderboardEntryUser,
+GetDownloadLeaderboardEntryGlobalRank, GetDownloadLeaderboardEntryScore, GetDownloadLeaderboardEntryDetails, GetDownloadLeaderboardEntryUGC
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#DownloadLeaderboardEntries
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLeaderboardDataRequest, int rangeStart, int rangeEnd)
 {
@@ -197,7 +199,6 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 @desc Returns the handle to the leaderboard for the DownloadLeaderboardEntries call.
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @return A Steam ID handle.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardHandle(int hCallResult)
 {
@@ -208,11 +209,11 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardHandle(int hCallResult)
 @desc Returns the entry count for the DownloadLeaderboardEntries call.
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @return The number of entries.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult)
 {
 	return GetCallResultValue(hCallResult, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryCount);
+	//return GetCallResultResponse<CDownloadLeaderboardEntriesCallResult>(hCallResult, &LeaderboardScoresDownloaded_t::m_cEntryCount);
 }
 
 /*
@@ -220,7 +221,6 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryCount(int hCallResult)
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A Steam ID handle.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int index)
 {
@@ -232,7 +232,6 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUser(int hCallResult, int i
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A Steam ID handle.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult, int index)
 {
@@ -244,7 +243,6 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryGlobalRank(int hCallResult,
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return An integer
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int index)
 {
@@ -256,7 +254,6 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryScore(int hCallResult, int 
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A JSON array of integers.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT char *GetDownloadLeaderboardEntryDetails(int hCallResult, int index)
 {
@@ -290,14 +287,15 @@ extern "C" DLL_EXPORT char *GetDownloadLeaderboardEntryDetails(int hCallResult, 
 @param hCallResult A DownloadLeaderboardEntries call result handle.
 @param index The entry index.
 @return A UGC handle or 0.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
 */
 extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUGC(int hCallResult, int index)
 {
 	return GetCallResultValue(hCallResult, index, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
 }
 
-class CFindLeaderboardCallResult : public CCallResultItem<LeaderboardFindResult_t, AlwaysOKResponse<LeaderboardFindResult_t>>
+void ResponseWrapper<LeaderboardFindResult_t>::SetResult() { m_eResult = k_EResultOK; }
+
+class CFindLeaderboardCallResult : public CCallResultItem<LeaderboardFindResult_t, ResponseWrapper<LeaderboardFindResult_t>>
 {
 public:
 	CFindLeaderboardCallResult(const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod = k_ELeaderboardSortMethodNone, ELeaderboardDisplayType eLeaderboardDisplayType = k_ELeaderboardDisplayTypeNone)
@@ -783,7 +781,7 @@ extern "C" DLL_EXPORT int GetNumAchievements()
 	return SteamUserStats()->GetNumAchievements();
 }
 
-class CGetNumberOfCurrentPlayersCallResult : public CCallResultItem<NumberOfCurrentPlayers_t, SuccessResponse<NumberOfCurrentPlayers_t>>
+class CGetNumberOfCurrentPlayersCallResult : public CCallResultItem<NumberOfCurrentPlayers_t, ResponseWrapper<NumberOfCurrentPlayers_t>>
 {
 public:
 	CGetNumberOfCurrentPlayersCallResult()
@@ -1004,8 +1002,9 @@ protected:
 
 /*
 @desc Asynchronously fetch the data for the percentage of players who have received each achievement for the current game globally.
+
+Use GetCallResultCode to determine when the call result finishes and its result.
 @callback-type callresult
-@callback-getters GetCallResultCode
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestGlobalAchievementPercentages
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#GlobalAchievementPercentagesReady_t
@@ -1038,9 +1037,10 @@ protected:
 
 /*
 @desc Asynchronously fetches global stats data, which is available for stats marked as "aggregated" in the App Admin panel of the Steamworks website.
+
+Use GetCallResultCode to determine when the call result finishes and its result.
 @param historyDays How many days of day-by-day history to retrieve in addition to the overall totals. The limit is 60.
 @callback-type callresult
-@callback-getters GetCallResultCode
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestGlobalStats
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#GlobalStatsReceived_t
@@ -1170,7 +1170,7 @@ extern "C" DLL_EXPORT int UpdateAvgRateStat(const char *name, float countThisSes
 	return SteamUserStats()->UpdateAvgRateStat(name, countThisSession, (double)sessionLength);
 }
 
-class CUploadLeaderboardScoreCallResult : public CCallResultItem<LeaderboardScoreUploaded_t, SuccessResponse<LeaderboardScoreUploaded_t>>
+class CUploadLeaderboardScoreCallResult : public CCallResultItem<LeaderboardScoreUploaded_t, ResponseWrapper<LeaderboardScoreUploaded_t>>
 {
 public:
 	CUploadLeaderboardScoreCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int nScore)

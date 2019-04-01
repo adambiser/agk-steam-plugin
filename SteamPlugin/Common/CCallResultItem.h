@@ -69,6 +69,7 @@ public:
 		m_CallResult.Cancel();
 	}
 	int GetCallResultType() { return iCallback; }
+	response_type GetResponse() { return m_Response; }
 protected:
 	response_type m_Response;
 	int iCallback;
@@ -126,6 +127,17 @@ private:
 
 // Use this to access the call result map.
 CCallResultMap *CallResults();
+
+// TODO See about using this style template instead of GetCallResultValue.
+template <class callresult_type, class response_type>
+int GetCallResultResponse(int hCallResult, int(response_type::*member))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return callResult->GetResponse().*member;
+	}
+	return 0;
+}
 
 template <typename callresult_type>
 int GetCallResultValue(int hCallResult, int(callresult_type::*function)(void))
@@ -243,29 +255,19 @@ int GetCallResultValue(int hCallResult, int index, CSteamID(callresult_type::*fu
 // Used to wrap Steamworks structs that don't have an m_eResult member.
 // Check m_bSuccess for the eResult value.
 template <class T>
-struct SuccessResponse : T
+struct ResponseWrapper : T
 {
 	EResult m_eResult;
-	SuccessResponse<T>() : m_eResult((EResult)0) {}
-	SuccessResponse<T>(T &from) : T(from), m_eResult(from.m_bSuccess ? k_EResultOK : k_EResultFail) {}
-};
-
-// Check <member_name> for the eResult value.
-template <class T, class member_type, member_type T::*member_name>
-struct WrappedResponse : T
-{
-	EResult m_eResult;
-	WrappedResponse<T, member_type, member_name>() : m_eResult((EResult)0) {}
-	WrappedResponse<T, member_type, member_name>(T &from) : T(from), m_eResult((from.*member_name != 0) ? k_EResultOK : k_EResultFail) {}
-};
-
-// eResult is always k_EResultOK.
-template <class T>
-struct AlwaysOKResponse : T
-{
-	EResult m_eResult;
-	AlwaysOKResponse<T>() : m_eResult((EResult)0) {}
-	AlwaysOKResponse<T>(T &from) : T(from), m_eResult(k_EResultOK) {}
+	ResponseWrapper<T>() : m_eResult((EResult)0) {}
+	ResponseWrapper<T>(T &from) : T(from)
+	{
+		SetResult();
+	}
+private:
+	void SetResult()
+	{
+		m_eResult = m_bSuccess ? k_EResultOK : k_EResultFail;
+	}
 };
 
 #endif // _CCALLRESULTITEM_H_

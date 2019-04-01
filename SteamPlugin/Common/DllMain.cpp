@@ -31,28 +31,16 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 */
 
 // GLOBALS!
-// Move into Callbacks().
 uint32 g_AppID = 0;
 bool g_SteamInitialized;
 bool g_StoringStats;
-std::mutex g_JoinedLobbiesMutex;
-std::vector<CSteamID> g_JoinedLobbies; // Keep track so we don't leave any left open when closing.
 
 void ResetSession()
 {
-	// Disconnect from any lobbies.
-	g_JoinedLobbiesMutex.lock();
-	for (size_t index = 0; index < g_JoinedLobbies.size(); index++)
-	{
-		SteamMatchmaking()->LeaveLobby(g_JoinedLobbies[index]);
-	}
-	g_JoinedLobbies.clear();
-	g_JoinedLobbiesMutex.unlock();
 	Callbacks()->Reset();
-	// Clear handles
 	CallResults()->Clear();
 	SteamHandles()->Clear();
-	// Clear motion data
+	// Clear input data
 	Clear(g_InputAnalogActionData);
 	Clear(g_InputDigitalActionData);
 	Clear(g_InputMotionData);

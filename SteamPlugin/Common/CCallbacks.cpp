@@ -57,6 +57,8 @@ void CCallbacks::Reset()
 	// ISteamController/ISteamInput
 
 	// ISteamFriends
+	// Disconnect from any clan chats.
+	ClanChatManager()->Reset();
 	AvatarImageLoaded.Reset();
 	GameLobbyJoinRequested.Reset();
 	m_IsGameOverlayActive = false;
@@ -70,6 +72,8 @@ void CCallbacks::Reset()
 	// ISteamInventory
 
 	// ISteamMatchmaking
+	// Disconnect from any lobbies.
+	LobbyManager()->Reset();
 	FavoritesListChanged.Reset();
 	LobbyChatMessage.Reset();
 	LobbyChatUpdate.Reset();
@@ -143,14 +147,47 @@ void CCallbacks::OnAvatarImageLoaded(AvatarImageLoaded_t *pParam)
 
 // ClanOfficerListResponse_t - RequestClanOfficerList
 // DownloadClanActivityCountsResult_t - DownloadClanActivityCounts
-// FriendRichPresenceUpdate_t - RequestFriendRichPresence, always fires
+
+void CCallbacks::OnFriendRichPresenceUpdate(FriendRichPresenceUpdate_t *pParam)
+{
+	utils::Log("Callback: OnFriendRichPresenceUpdate.  AppID = " + std::to_string(pParam->m_nAppID));
+	FriendRichPresenceUpdate.StoreResponse(pParam->m_steamIDFriend);
+}
 // FriendsEnumerateFollowingList_t - EnumerateFollowingList
 // FriendsGetFollowerCount_t - GetFollowerCount
 // FriendsIsFollowing_t - IsFollowing
-// GameConnectedChatJoin_t - JoinClanChatRoom
-// GameConnectedChatLeave_t - LeaveClanChatRoom
-// GameConnectedClanChatMsg_t - JoinClanChatRoom
-// GameConnectedFriendChatMsg_t - SetListenForFriendsMessages
+
+void CCallbacks::OnGameConnectedChatJoin(GameConnectedChatJoin_t *pParam)
+{
+	agk::Log("Callback: OnGameConnectedChatJoin");
+	GameConnectedChatJoin.StoreResponse(*pParam);
+}
+
+void CCallbacks::OnGameConnectedChatLeave(GameConnectedChatLeave_t *pParam)
+{
+	agk::Log("Callback: OnGameConnectedChatLeave");
+	GameConnectedChatLeave.StoreResponse(*pParam);
+}
+
+void CCallbacks::OnGameConnectedClanChatMsg(GameConnectedClanChatMsg_t *pParam)
+{
+	agk::Log("Callback: OnGameConnectedClanChatMsg");
+	plugin::GameConnectedClanChatMsg_t msg(*pParam);
+	int length = SteamFriends()->GetClanChatMessage(msg.m_steamIDClanChat, msg.m_iMessageID, msg.m_Text, MAX_GAME_CONNECTED_CLAN_CHAT_LENGTH, &msg.m_ChatEntryType, &msg.m_steamIDUser);
+	msg.m_Text[length] = 0;
+	if (msg.m_ChatEntryType == k_EChatEntryTypeInvalid)
+	{
+		agk::PluginError("Error: GetClanChatMessage got an invalid entry.");
+		return;
+	}
+	GameConnectedClanChatMsg.StoreResponse(msg);
+}
+
+void CCallbacks::OnGameConnectedFriendChatMsg(GameConnectedFriendChatMsg_t *pParam)
+{
+	agk::Log("Callback: OnGameConnectedFriendChatMsg");
+	GameConnectedFriendChatMsg.StoreResponse(*pParam);
+}
 
 void CCallbacks::OnGameLobbyJoinRequested(GameLobbyJoinRequested_t *pParam)
 {
@@ -164,14 +201,29 @@ void CCallbacks::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
 	m_IsGameOverlayActive = pParam->m_bActive != 0;
 }
 
-// GameRichPresenceJoinRequested_t - InviteUserToGame
-// GameServerChangeRequested_t - fires when requesting to join game server from friends list.
-// JoinClanChatRoomCompletionResult_t - JoinClanChatRoom
+void CCallbacks::OnGameRichPresenceJoinRequested(GameRichPresenceJoinRequested_t *pParam)
+{
+	utils::Log("Callback: OnGameRichPresenceJoinRequested");
+	GameRichPresenceJoinRequested.StoreResponse(*pParam);
+}
+
+void CCallbacks::OnGameServerChangeRequested(GameServerChangeRequested_t *pParam)
+{
+	utils::Log("Callback: OnGameServerChangeRequested");
+	GameServerChangeRequested.StoreResponse(*pParam);
+}
+
+void CCallbacks::OnJoinClanChatRoomCompletionResult(JoinClanChatRoomCompletionResult_t *pParam)
+{
+	utils::Log("Callback: OnJoinClanChatRoomCompletionResult.  SteamID = " + std::to_string(pParam->m_steamIDClanChat.ConvertToUint64()) + ", Response = " + std::to_string(pParam->m_eChatRoomEnterResponse));
+	JoinClanChatRoomCompletionResult.StoreResponse(*pParam);
+	ClanChatManager()->Add(pParam->m_steamIDClanChat);
+}
 
 // Callback for RequestUserInformation and more.
 void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
 {
-	agk::Log("Callback: OnPersonaStateChange"); //.SteamID = " + std::to_string(pParam->m_ulSteamID) + ", Flags = " + std::to_string(pParam->m_nChangeFlags));
+	utils::Log("Callback: OnPersonaStateChange.  SteamID = " + std::to_string(pParam->m_ulSteamID) + ", Flags = " + std::to_string(pParam->m_nChangeFlags));
 	PersonaStateChange.StoreResponse(*pParam);
 	if (pParam->m_nChangeFlags & k_EPersonaChangeAvatar)
 	{
@@ -259,20 +311,7 @@ void CCallbacks::OnLobbyEnter(LobbyEnter_t *pParam)
 {
 	agk::Log("Callback: OnLobbyEnter");
 	LobbyEnter.StoreResponse(*pParam);
-	if (pParam->m_ulSteamIDLobby != 0)
-	{
-		g_JoinedLobbiesMutex.lock();
-		g_JoinedLobbies.push_back(pParam->m_ulSteamIDLobby);
-		g_JoinedLobbiesMutex.unlock();
-		// Register the in-lobby callbacks.
-		agk::Log("Registering in-lobby callbacks");
-		//RegisterLobbyChatMessageCallback();
-		LobbyChatMessage.Register();
-		LobbyChatUpdate.Register();
-		//LobbyDataUpdate.Register();
-		LobbyDataUpdate.Register();
-		LobbyGameCreated.Register();
-	}
+	LobbyManager()->Add(pParam->m_ulSteamIDLobby);
 }
 
 void CCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pParam)
