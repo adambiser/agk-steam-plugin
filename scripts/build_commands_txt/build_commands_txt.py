@@ -215,6 +215,9 @@ class ExportedMethodLoader:
             if 'callback-getters' in method:
                 if 'callback-type' not in method:
                     report_error('{} does not have a callback type.'.format(method['name']))
+                if method['callback-getters'] == '':
+                    report_error('{} has a empty callback-getters tag.'.format(method['name']))
+                    return
                 for getter in method['callback-getters']:
                     method_index = next((i for i, m in enumerate(methods) if m["name"] == getter), None)
                     if method_index is None:

@@ -53,8 +53,6 @@ extern bool g_SteamInitialized;
 
 extern uint32 g_AppID;
 extern bool g_StoringStats;
-extern std::mutex g_JoinedLobbiesMutex;
-extern std::vector<CSteamID> g_JoinedLobbies;
 
 extern int g_InputCount;
 extern InputAnalogActionData_t g_InputAnalogActionData;
@@ -137,6 +135,11 @@ namespace utils
 	static inline char *CreateString(std::ostringstream& stream)
 	{
 		return CreateString(stream.str());
+	}
+
+	static inline void Log(const char *msg) // pass through without converting to std::string.
+	{
+		agk::Log(msg);
 	}
 
 	static inline void Log(std::string msg)
@@ -247,6 +250,27 @@ namespace utils
 		}
 		return output.str();
 	}
+
+	//template <typename T>
+	//struct GetTypeNameHelper
+	//{
+	//	static const unsigned int FRONT_SIZE = sizeof("utils::GetTypeNameHelper<struct ") - 1u;
+	//	static const unsigned int BACK_SIZE = sizeof(">::GetTypeName") - 1u;
+
+	//	static const char* GetTypeName(void)
+	//	{
+	//		static const size_t size = sizeof(__FUNCTION__) - FRONT_SIZE - BACK_SIZE;
+	//		static char typeName[size] = {};
+	//		memcpy(typeName, __FUNCTION__ + FRONT_SIZE, size - 1u);
+	//		return typeName;
+	//	}
+	//};
+
+	//template <typename T>
+	//static inline const char* GetTypeName(void)
+	//{
+	//	return GetTypeNameHelper<T>::GetTypeName();
+	//}
 };
 
 #endif // _DLLMAIN_H_

@@ -173,11 +173,11 @@ void CCallbacks::OnGameConnectedClanChatMsg(GameConnectedClanChatMsg_t *pParam)
 {
 	agk::Log("Callback: OnGameConnectedClanChatMsg");
 	plugin::GameConnectedClanChatMsg_t msg(*pParam);
-	int length = SteamFriends()->GetClanChatMessage(msg.m_steamIDClanChat, msg.m_iMessageID, msg.m_Text, MAX_GAME_CONNECTED_CLAN_CHAT_LENGTH, &msg.m_ChatEntryType, &msg.m_steamIDUser);
+	int length = SteamFriends()->GetClanChatMessage(msg.m_steamIDClanChat, msg.m_iMessageID, msg.m_Text, MAX_CLAN_CHAT_MESSAGE_LENGTH, &msg.m_ChatEntryType, &msg.m_steamIDUser);
 	msg.m_Text[length] = 0;
 	if (msg.m_ChatEntryType == k_EChatEntryTypeInvalid)
 	{
-		agk::PluginError("Error: GetClanChatMessage got an invalid entry.");
+		agk::PluginError("OnGameConnectedClanChatMsg: GetClanChatMessage received an invalid entry type.");
 		return;
 	}
 	GameConnectedClanChatMsg.StoreResponse(msg);
@@ -186,6 +186,14 @@ void CCallbacks::OnGameConnectedClanChatMsg(GameConnectedClanChatMsg_t *pParam)
 void CCallbacks::OnGameConnectedFriendChatMsg(GameConnectedFriendChatMsg_t *pParam)
 {
 	agk::Log("Callback: OnGameConnectedFriendChatMsg");
+	plugin::GameConnectedFriendChatMsg_t msg(*pParam);
+	int length = SteamFriends()->GetFriendMessage(msg.m_steamIDUser, msg.m_iMessageID, msg.m_Text, MAX_FRIEND_CHAT_MESSAGE_LENGTH, &msg.m_ChatEntryType);
+	msg.m_Text[length] = 0;
+	if (msg.m_ChatEntryType == k_EChatEntryTypeInvalid)
+	{
+		agk::PluginError("OnGameConnectedFriendChatMsg: GetFriendMessage received an invalid entry type.");
+		return;
+	}
 	GameConnectedFriendChatMsg.StoreResponse(*pParam);
 }
 
@@ -213,12 +221,12 @@ void CCallbacks::OnGameServerChangeRequested(GameServerChangeRequested_t *pParam
 	GameServerChangeRequested.StoreResponse(*pParam);
 }
 
-void CCallbacks::OnJoinClanChatRoomCompletionResult(JoinClanChatRoomCompletionResult_t *pParam)
-{
-	utils::Log("Callback: OnJoinClanChatRoomCompletionResult.  SteamID = " + std::to_string(pParam->m_steamIDClanChat.ConvertToUint64()) + ", Response = " + std::to_string(pParam->m_eChatRoomEnterResponse));
-	JoinClanChatRoomCompletionResult.StoreResponse(*pParam);
-	ClanChatManager()->Add(pParam->m_steamIDClanChat);
-}
+//void CCallbacks::OnJoinClanChatRoomCompletionResult(JoinClanChatRoomCompletionResult_t *pParam)
+//{
+//	utils::Log("Callback: OnJoinClanChatRoomCompletionResult.  SteamID = " + std::to_string(pParam->m_steamIDClanChat.ConvertToUint64()) + ", Response = " + std::to_string(pParam->m_eChatRoomEnterResponse));
+//	JoinClanChatRoomCompletionResult.StoreResponse(*pParam);
+//	ClanChatManager()->Add(pParam->m_steamIDClanChat);
+//}
 
 // Callback for RequestUserInformation and more.
 void CCallbacks::OnPersonaStateChange(PersonaStateChange_t *pParam)
@@ -503,12 +511,12 @@ void CCallbacks::OnUserStatsStored(UserStatsStored_t *pParam)
 void CCallbacks::OnUserStatsUnloaded(UserStatsUnloaded_t *pParam)
 {
 	utils::Log("Callback: OnUserStatsUnloaded.  User = " + std::to_string(pParam->m_steamIDUser.ConvertToUint64()));
+	UserStatsUnloaded.StoreResponse(pParam->m_steamIDUser);
 	auto it = std::find(m_StatsInitializedUsers.begin(), m_StatsInitializedUsers.end(), pParam->m_steamIDUser);
 	if (it != m_StatsInitializedUsers.end())
 	{
 		m_StatsInitializedUsers.erase(it);
 	}
-	UserStatsUnloaded.StoreResponse(pParam->m_steamIDUser);
 }
 #pragma endregion
 

@@ -1364,6 +1364,12 @@ public:
 	}
 	int GetChatRoomEnterResponse() { return (int)m_Response.m_eChatRoomEnterResponse; }
 	CSteamID GetSteamIDClanChat() { return m_Response.m_steamIDClanChat; }
+protected:
+	void OnResponse(JoinClanChatRoomCompletionResult_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+		ClanChatManager()->Add(pCallResult->m_steamIDClanChat);
+	}
 };
 
 /*
@@ -1378,13 +1384,14 @@ public:
 extern "C" DLL_EXPORT int JoinClanChatRoom(int hSteamIDClan)
 {
 	CheckInitialized(0);
-	Callbacks()->GameConnectedChatJoin.Register();
+	//Callbacks()->GameConnectedChatJoin.Register();
 	return CallResults()->Add(new CJoinClanChatRoomCallResult(SteamHandles()->GetSteamHandle(hSteamIDClan)));
 }
 
 /*
 @desc Returns the result of the JoinClanChatRoom call result.
 Provides more detail that GetCallResultCode.
+@param hCallResult A JoinClanChatRoom call result handle.
 @return An EChatRoomEnterResponse value.
 @return-url https://partner.steamgames.com/doc/api/steam_api#EChatRoomEnterResponse
 */
@@ -1500,6 +1507,7 @@ Triggers a FriendRichPresenceUpdate_t callback.
 extern "C" DLL_EXPORT void RequestFriendRichPresence(int hSteamIDFriend)
 {
 	CheckInitialized(NORETURN);
+	Callbacks()->FriendRichPresenceUpdate.Register();
 	SteamFriends()->RequestFriendRichPresence(SteamHandles()->GetSteamHandle(hSteamIDFriend));
 }
 
@@ -1581,7 +1589,7 @@ public:
 @desc Sets the current users persona name, stores it on the server and publishes the changes to all friends who are online.
 @param personaName The users new persona name. Can not be longer than k_cchPersonaNameMax bytes.
 @callback-type callresult
-@callback-getters
+@callback-getters GetSetPersonaNameSuccess, GetSetPersonaNameLocalSuccess
 @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#SetPersonaName
 @url https://partner.steamgames.com/doc/api/ISteamFriends#SetPersonaNameResponse_t
@@ -1631,7 +1639,6 @@ If this is set to an empty string ("") or NULL then the key is removed if it's s
 @return 1 if the rich presence was set successfully; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#SetRichPresence
 */
-
 extern "C" DLL_EXPORT int SetRichPresence(const char *key, const char *value)
 {
 	CheckInitialized(false);
@@ -1648,7 +1655,6 @@ extern "C" DLL_EXPORT int SetRichPresence(const char *key, const char *value)
 */
 extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse()
 {
-	CheckInitialized(false);
 	return Callbacks()->AvatarImageLoaded.HasResponse();
 }
 
@@ -1656,27 +1662,209 @@ extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse()
 @desc Returns the Steam ID handle for current AvatarImageLoaded_t callback response.
 Call GetFriendAvatar with the returned user handle to get the image handle
 @return The SteamID handle of the user whose avatar loaded.
-@url https://partner.steamgames.com/doc/api/ISteamFriends#AvatarImageLoaded_t
 */
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser()
 {
-	CheckInitialized(0);
 	return SteamHandles()->GetPluginHandle(Callbacks()->AvatarImageLoaded.GetCurrent());
 }
 
 //ClanOfficerListResponse_t - call result for RequestClanOfficerList
 //DownloadClanActivityCountsResult_t - call result for DownloadClanActivityCounts
 
-//TODO FriendRichPresenceUpdate_t
+/*
+@desc Called when Rich Presence data has been updated for a user, this can happen automatically when friends in the 
+same game update their rich presence, or after a call to RequestFriendRichPresence.
+@callback-type list
+@callback-getters GetFriendRichPresenceUpdateUser
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#FriendRichPresenceUpdate_t
+*/
+extern "C" DLL_EXPORT int HasFriendRichPresenceUpdateResponse()
+{
+	return Callbacks()->FriendRichPresenceUpdate.HasResponse();
+}
+
+/*
+@desc Returns the Steam ID handle for current FriendRichPresenceUpdate_t callback response.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetFriendRichPresenceUpdateUser()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->FriendRichPresenceUpdate.GetCurrent());
+}
 
 //FriendsEnumerateFollowingList_t - call result for EnumerateFollowingList
 //FriendsGetFollowerCount_t - call result for GetFollowerCount
 //FriendsIsFollowing_t - call result for IsFollowing
 
-//TODO GameConnectedChatJoin_t
-//TODO GameConnectedChatLeave_t
-//TODO GameConnectedClanChatMsg_t
-//TODO GameConnectedFriendChatMsg_t
+/*
+@desc Called when a user has joined a Steam group chat that the we are in.
+@callback-type list
+@callback-getters GetGameConnectedChatJoinClan, GetGameConnectedChatJoinUser
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameConnectedChatJoin_t
+*/
+extern "C" DLL_EXPORT int HasGameConnectedChatJoinResponse()
+{
+	return Callbacks()->GameConnectedChatJoin.HasResponse();
+}
+
+/*
+@desc Returns the Steam ID of the chat that a user has joined..
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedChatJoinClan()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatJoin.GetCurrent().m_steamIDClanChat);
+}
+
+/*
+@desc Returns the Steam ID of the user that has joined the chat.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedChatJoinUser()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatJoin.GetCurrent().m_steamIDUser);
+}
+
+/*
+@desc Called when a user has left a Steam group chat that the we are in.
+@callback-type list
+@callback-getters GetGameConnectedChatLeaveClan, GetGameConnectedChatLeaveUser, GetGameConnectedChatLeaveDropped, 
+GetGameConnectedChatLeaveKicked
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameConnectedChatLeave_t
+*/
+extern "C" DLL_EXPORT int HasGameConnectedChatLeaveResponse()
+{
+	return Callbacks()->GameConnectedChatLeave.HasResponse();
+}
+
+/*
+@desc Returns the Steam ID of the chat that a user has left.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedChatLeaveClan()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatLeave.GetCurrent().m_steamIDClanChat);
+}
+
+/*
+@desc Returns the Steam ID of the user that has left the chat.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedChatLeaveUser()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatLeave.GetCurrent().m_steamIDUser);
+}
+
+/*
+@desc Returns whether the user's connection to Steam dropped or they left via other means.
+@return 1 if dropped; otherwise 0.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedChatLeaveDropped()
+{
+	return Callbacks()->GameConnectedChatLeave.GetCurrent().m_bDropped;
+}
+
+/*
+@desc Returns whether or not the user was kicked by an officer.
+@return 1 if kicked; otherwise 0.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedChatLeaveKicked()
+{
+	return Callbacks()->GameConnectedChatLeave.GetCurrent().m_bKicked;
+}
+
+/*
+@desc Called when a chat message has been received in a Steam group chat that we are in.
+@callback-type list
+@callback-getters GetGameConnectedClanChatMessageEntryType, GetGameConnectedClanChatMessageClan, GetGameConnectedClanChatMessageUser,
+GetGameConnectedClanChatMessageText
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameConnectedClanChatMsg_t
+*/
+extern "C" DLL_EXPORT int HasGameConnectedClanChatMessageResponse()
+{
+	return Callbacks()->GameConnectedClanChatMsg.HasResponse();
+}
+
+/*
+@desc Returns the type of chat entry that was received.
+@return An EChatEntryType value.
+@return-url https://partner.steamgames.com/doc/api/steam_api#EChatEntryType
+*/
+extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageEntryType()
+{
+	return Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_ChatEntryType;
+}
+
+/*
+@desc Returns the Steam ID of the chat that the message was received in.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageClan()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_steamIDClanChat);
+}
+
+/*
+@desc Returns the Steam ID of the user that sent the message.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageUser()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_steamIDUser);
+}
+
+/*
+@desc Returns the chat message that was sent.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetGameConnectedClanChatMessageText()
+{
+	return utils::CreateString(Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_Text);
+}
+
+/*
+@desc Called when chat message has been received from a friend.
+@callback-type list
+@callback-getters GetGameConnectedFriendChatMessageEntryType, GetGameConnectedFriendChatMessageUser, GetGameConnectedFriendChatMessageText
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameConnectedFriendChatMsg_t
+*/
+extern "C" DLL_EXPORT int HasGameConnectedFriendChatMessageResponse()
+{
+	return Callbacks()->GameConnectedFriendChatMsg.HasResponse();
+}
+
+/*
+@desc Returns the type of chat entry that was received.
+@return An EChatEntryType value.
+@return-url https://partner.steamgames.com/doc/api/steam_api#EChatEntryType
+*/
+extern "C" DLL_EXPORT int GetGameConnectedFriendChatMessageEntryType()
+{
+	return Callbacks()->GameConnectedFriendChatMsg.GetCurrent().m_ChatEntryType;
+}
+
+/*
+@desc Returns the Steam ID of the friend that sent the message.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameConnectedFriendChatMessageUser()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedFriendChatMsg.GetCurrent().m_steamIDUser);
+}
+
+/*
+@desc Returns the chat message that was sent.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetGameConnectedFriendChatMessageText()
+{
+	return utils::CreateString(Callbacks()->GameConnectedFriendChatMsg.GetCurrent().m_Text);
+}
 
 /*
 @desc Triggered when the user tries to join a lobby from their friends list or from an invite.
@@ -1693,12 +1881,21 @@ extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse()
 }
 
 /*
-@desc Gets the lobby to which the user was invited for the current GameLobbyJoinRequested_t callback response.
-@return A lobby Steam ID handle or 0.
+@desc Gets the lobby to which the user was invited.
+@return A Steam ID handle or 0.
 */
 extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby()
 {
 	return SteamHandles()->GetPluginHandle(Callbacks()->GameLobbyJoinRequested.GetCurrent().m_steamIDLobby);
+}
+
+/*
+@desc Returns the friend they joined through. This will be invalid if not directly via a friend.
+@return A Steam ID handle or 0.
+*/
+extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedFriend()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameLobbyJoinRequested.GetCurrent().m_steamIDFriend);
 }
 
 /*
@@ -1711,9 +1908,98 @@ extern "C" DLL_EXPORT int IsGameOverlayActive()
 	return Callbacks()->IsGameOverlayActive();
 }
 
-//TODO GameRichPresenceJoinRequested_t
-//TODO GameServerChangeRequested_t - always fires
-//TODO JoinClanChatRoomCompletionResult_t
+/*
+@desc Called when the user tries to join a game from their friends list or after a user accepts an invite by a friend with InviteUserToGame.
+@callback-type list
+@callback-getters GetGameRichPresenceJoinRequestedConnect, GetGameRichPresenceJoinRequestedFriend
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameRichPresenceJoinRequested_t
+*/
+extern "C" DLL_EXPORT int HasGameRichPresenceJoinRequestedResponse()
+{
+	return Callbacks()->GameRichPresenceJoinRequested.HasResponse();
+}
+
+/*
+@desc The value associated with the "connect" Rich Presence key.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetGameRichPresenceJoinRequestedConnect()
+{
+	return utils::CreateString(Callbacks()->GameRichPresenceJoinRequested.GetCurrent().m_rgchConnect);
+}
+
+/*
+@desc The friend they joined through. This will be invalid if not directly via a friend.
+@return A Steam ID handle.
+*/
+extern "C" DLL_EXPORT int GetGameRichPresenceJoinRequestedFriend()
+{
+	return SteamHandles()->GetPluginHandle(Callbacks()->GameRichPresenceJoinRequested.GetCurrent().m_steamIDFriend);
+}
+
+/*
+@desc Called when the user tries to join a different game server from their friends list.
+The game client should attempt to connect to specified server when this is received.
+@callback-type list
+@callback-getters GetGameServerChangeRequestedPassword, GetGameServerChangeRequestedServer
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GameServerChangeRequested_t
+*/
+extern "C" DLL_EXPORT int HasGameServerChangeRequestedResponse()
+{
+	return Callbacks()->GameServerChangeRequested.HasResponse();
+}
+
+/*
+@desc Server password, if any.
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetGameServerChangeRequestedPassword()
+{
+	return utils::CreateString(Callbacks()->GameServerChangeRequested.GetCurrent().m_rgchPassword);
+}
+
+/*
+@desc Server address (e.g. "127.0.0.1:27015", "tf2.valvesoftware.com")
+@return A string.
+*/
+extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
+{
+	return utils::CreateString(Callbacks()->GameServerChangeRequested.GetCurrent().m_rgchServer);
+}
+
+// This appears to be call resultonly.
+///*
+//@desc Posted when the user has attempted to join a Steam group chat via JoinClanChatRoom
+//@return 1 when the callback has more responses to process; otherwise 0.
+//@callback-type list
+//@callback-getters GetJoinClanChatRoomCompletionResultEnterResponse, GetJoinClanChatRoomCompletionResultUser
+//@url https://partner.steamgames.com/doc/api/ISteamFriends#JoinClanChatRoomCompletionResult_t
+//*/
+//extern "C" DLL_EXPORT int HasJoinClanChatRoomCompletionResultResponse()
+//{
+//	return Callbacks()->JoinClanChatRoomCompletionResult.HasResponse();
+//}
+//
+///*
+//@desc The result of the operation.
+//@return An EChatRoomEnterResponse value.
+//@return-url https://partner.steamgames.com/doc/api/steam_api#EChatRoomEnterResponse
+//*/
+//extern "C" DLL_EXPORT int GetJoinClanChatRoomCompletionResultEnterResponse()
+//{
+//	return (int)Callbacks()->JoinClanChatRoomCompletionResult.GetCurrent().m_eChatRoomEnterResponse;
+//}
+//
+///*
+//@desc The Steam ID of the chat that the user has joined.
+//@return A Steeam ID handle.
+//*/
+//extern "C" DLL_EXPORT int GetJoinClanChatRoomCompletionResultUser()
+//{
+//	return SteamHandles()->GetPluginHandle(Callbacks()->JoinClanChatRoomCompletionResult.GetCurrent().m_steamIDClanChat);
+//}
 
 /*
 @desc Triggered whenever a friend's status changes.
@@ -1728,7 +2014,7 @@ extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 }
 
 /*
-@desc Returns the bit-wise union of EPersonaChange values for the current PersonaStateChange_t callback response.
+@desc Returns the bit-wise union of EPersonaChange values.
 @return The EPersonaChange values of the user whose persona state changed.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#PersonaStateChange_t
 @url https://partner.steamgames.com/doc/api/ISteamFriends#EPersonaChange
@@ -1739,7 +2025,7 @@ extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 }
 
 /*
-@desc Returns the SteamID handle of the user whose persona state changed for the current PersonaStateChange_t callback response.
+@desc Returns the SteamID handle of the user whose persona state changed.
 @return The SteamID handle of the user whose persona state changed.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#PersonaStateChange_t
 */

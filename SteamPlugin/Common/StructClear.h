@@ -30,12 +30,18 @@ THE SOFTWARE.
 void Clear(CSteamID &value);
 void Clear(DlcInstalled_t &value);
 void Clear(FavoritesListChanged_t &value);
+void Clear(GameConnectedChatJoin_t & value);
+void Clear(GameConnectedChatLeave_t &value);
 void Clear(plugin::GameConnectedClanChatMsg_t &value);
+void Clear(plugin::GameConnectedFriendChatMsg_t &value);
 void Clear(GameLobbyJoinRequested_t &value);
 void Clear(plugin::GamepadTextInputDismissed_t &value);
+void Clear(GameRichPresenceJoinRequested_t &value);
+void Clear(GameServerChangeRequested_t &value);
 void Clear(InputAnalogActionData_t &value);
 void Clear(InputDigitalActionData_t &value);
 void Clear(InputMotionData_t &value);
+void Clear(JoinClanChatRoomCompletionResult_t &value);
 //void Clear(plugin::LobbyChatMsg_t &value);
 void Clear(LobbyChatUpdate_t &value);
 void Clear(LobbyDataUpdate_t &value);

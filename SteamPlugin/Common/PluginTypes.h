@@ -31,19 +31,23 @@ THE SOFTWARE.
 
 namespace plugin
 {
-#define MAX_GAME_CONNECTED_CLAN_CHAT_LENGTH	8193
+#define MAX_CLAN_CHAT_MESSAGE_LENGTH	8193
 
 	struct GameConnectedClanChatMsg_t : ::GameConnectedClanChatMsg_t
 	{
 		// Should be big enough to hold 2048 UTF-8 characters. So 8192 bytes + 1 for '\0'.
-		char m_Text[MAX_GAME_CONNECTED_CLAN_CHAT_LENGTH];
+		char m_Text[MAX_CLAN_CHAT_MESSAGE_LENGTH];
 		EChatEntryType m_ChatEntryType;
 		GameConnectedClanChatMsg_t() : m_Text{} {}
 		GameConnectedClanChatMsg_t(::GameConnectedClanChatMsg_t from) : ::GameConnectedClanChatMsg_t(from), m_Text{} {}
 	};
 
+#define MAX_FRIEND_CHAT_MESSAGE_LENGTH	4096 // This is an arbitrary amount.  SDK does not specify a maximum.
+
 	struct GameConnectedFriendChatMsg_t : ::GameConnectedFriendChatMsg_t
 	{
+		char m_Text[MAX_FRIEND_CHAT_MESSAGE_LENGTH];
+		EChatEntryType m_ChatEntryType;
 		GameConnectedFriendChatMsg_t() {}
 		GameConnectedFriendChatMsg_t(::GameConnectedFriendChatMsg_t from) : ::GameConnectedFriendChatMsg_t(from) {}
 	};

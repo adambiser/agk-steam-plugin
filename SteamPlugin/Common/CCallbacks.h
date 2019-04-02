@@ -88,6 +88,15 @@ public:
 	}
 	bool HasResponse()
 	{
+		if (!g_SteamInitialized)
+		{
+			return false;
+		}
+		// Register the callback if the game is checking for responses.
+		if (!m_bEnabled)
+		{
+			Register();
+		}
 		m_Mutex.lock();
 		if (m_List.size() > 0)
 		{
@@ -195,7 +204,7 @@ private:
 	bool m_IsGameOverlayActive;
 	void OnGameRichPresenceJoinRequested(GameRichPresenceJoinRequested_t*); // InviteUserToGame
 	void OnGameServerChangeRequested(GameServerChangeRequested_t*); // fires when requesting to join game server from friends list.
-	void OnJoinClanChatRoomCompletionResult(JoinClanChatRoomCompletionResult_t*); // calback and call result for JoinClanChatRoom
+	//void OnJoinClanChatRoomCompletionResult(JoinClanChatRoomCompletionResult_t*); // call result for JoinClanChatRoom
 	void OnPersonaStateChange(PersonaStateChange_t*); // RequestUserInformation
 	// SetPersonaNameResponse_t - call result for SetPersonaName
 public:
@@ -209,7 +218,7 @@ public:
 	bool IsGameOverlayActive() { return m_IsGameOverlayActive; }
 	ListCallback<GameRichPresenceJoinRequested_t, &OnGameRichPresenceJoinRequested> GameRichPresenceJoinRequested;
 	ListCallback<GameServerChangeRequested_t, &OnGameServerChangeRequested> GameServerChangeRequested;
-	ListCallback<JoinClanChatRoomCompletionResult_t, &OnJoinClanChatRoomCompletionResult> JoinClanChatRoomCompletionResult;
+	//ListCallback<JoinClanChatRoomCompletionResult_t, &OnJoinClanChatRoomCompletionResult> JoinClanChatRoomCompletionResult;
 	ListCallback<PersonaStateChange_t, &OnPersonaStateChange> PersonaStateChange; // RequestUserInformation
 #pragma endregion
 

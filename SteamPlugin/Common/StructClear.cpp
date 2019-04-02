@@ -22,11 +22,33 @@ void Clear(FavoritesListChanged_t &value)
 	value.m_unAccountId = 0;
 }
 
+void Clear(GameConnectedChatJoin_t & value)
+{
+	value.m_steamIDClanChat = k_steamIDNil;
+	value.m_steamIDUser = k_steamIDNil;
+}
+
+void Clear(GameConnectedChatLeave_t &value)
+{
+	value.m_bDropped = false;
+	value.m_bKicked = false;
+	value.m_steamIDClanChat = k_steamIDNil;
+	value.m_steamIDUser = k_steamIDNil;
+}
+
 void Clear(plugin::GameConnectedClanChatMsg_t &value)
 {
 	value.m_ChatEntryType = (EChatEntryType)0;
 	value.m_iMessageID = 0;
 	value.m_steamIDClanChat = k_steamIDNil;
+	value.m_steamIDUser = k_steamIDNil;
+	value.m_Text[0] = 0;
+}
+
+void Clear(plugin::GameConnectedFriendChatMsg_t &value)
+{
+	value.m_ChatEntryType = (EChatEntryType)0;
+	value.m_iMessageID = 0;
 	value.m_steamIDUser = k_steamIDNil;
 	value.m_Text[0] = 0;
 }
@@ -41,6 +63,18 @@ void Clear(plugin::GamepadTextInputDismissed_t &value)
 {
 	value.m_bSubmitted = 0;
 	value.m_chSubmittedText[0] = 0;
+}
+
+void Clear(GameRichPresenceJoinRequested_t &value)
+{
+	value.m_rgchConnect[0] = 0;
+	value.m_steamIDFriend = k_steamIDNil;
+}
+
+void Clear(GameServerChangeRequested_t &value)
+{
+	value.m_rgchPassword[0] = 0;
+	value.m_rgchServer[0] = 0;
 }
 
 void Clear(InputAnalogActionData_t &value)
@@ -69,6 +103,12 @@ void Clear(InputMotionData_t &value)
 	value.rotVelX = 0;
 	value.rotVelY = 0;
 	value.rotVelZ = 0;
+}
+
+void Clear(JoinClanChatRoomCompletionResult_t &value)
+{
+	value.m_eChatRoomEnterResponse = (EChatRoomEnterResponse)0;
+	value.m_steamIDClanChat = k_steamIDNil;
 }
 
 //void Clear(plugin::LobbyChatMsg_t &value)
