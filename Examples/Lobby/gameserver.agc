@@ -77,6 +77,7 @@ Function ConnectGameServer(hLobby as integer, IP as string, Port as integer)
 	CloseNetwork(server.networkID)
 	server.networkID = 0
 	AddChatLine(GAME_SERVER_COLOR, "Disconnected.")
+	SetButtonEnabled(CREATE_GAME_BUTTON, 1)
 	// Sync again to clear key pressed.
 	Sync()
 EndFunction

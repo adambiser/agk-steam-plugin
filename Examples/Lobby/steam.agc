@@ -202,6 +202,7 @@ Function CheckInput()
 		Steam.SetLobbyMemberData(server.hLobby, "member_data", "")
 	endif
 	if GetVirtualButtonPressed(CREATE_GAME_BUTTON)
+		SetButtonEnabled(CREATE_GAME_BUTTON, 0)
 		HostGameServer()
 	endif
 	if GetEditBoxVisible(chatBox)
