@@ -7,7 +7,7 @@ GetSteamPath,S,0,GetSteamPath,0,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,0,0,0,0,IsSteamEmulated
 SetFileAttributes,I,SI,SetFileAttributes,0,0,0,0,SetFileAttributes
 #
-# CallResult Methods
+# Call Result Methods
 #
 DeleteCallResult,0,I,DeleteCallResult,0,0,0,0,DeleteCallResult
 GetCallResultCode,I,I,GetCallResultCode,0,0,0,0,GetCallResultCode
@@ -186,9 +186,6 @@ GetGameRichPresenceJoinRequestedFriend,I,0,GetGameRichPresenceJoinRequestedFrien
 HasGameServerChangeRequestedResponse,I,0,HasGameServerChangeRequestedResponse,0,0,0,0,HasGameServerChangeRequestedResponse
 GetGameServerChangeRequestedPassword,S,0,GetGameServerChangeRequestedPassword,0,0,0,0,GetGameServerChangeRequestedPassword
 GetGameServerChangeRequestedServer,S,0,GetGameServerChangeRequestedServer,0,0,0,0,GetGameServerChangeRequestedServer
-HasJoinClanChatRoomCompletionResultResponse,I,0,HasJoinClanChatRoomCompletionResultResponse,0,0,0,0,HasJoinClanChatRoomCompletionResultResponse
-GetJoinClanChatRoomCompletionResultEnterResponse,I,0,GetJoinClanChatRoomCompletionResultEnterResponse,0,0,0,0,GetJoinClanChatRoomCompletionResultEnterResponse
-GetJoinClanChatRoomCompletionResultUser,I,0,GetJoinClanChatRoomCompletionResultUser,0,0,0,0,GetJoinClanChatRoomCompletionResultUser
 HasPersonaStateChangeResponse,I,0,HasPersonaStateChangeResponse,0,0,0,0,HasPersonaStateChangeResponse
 GetPersonaStateChangeFlags,I,0,GetPersonaStateChangeFlags,0,0,0,0,GetPersonaStateChangeFlags
 GetPersonaStateChangeSteamID,I,0,GetPersonaStateChangeSteamID,0,0,0,0,GetPersonaStateChangeSteamID
@@ -419,6 +416,8 @@ AttachLeaderboardUGC,I,II,AttachLeaderboardUGC,0,0,0,0,AttachLeaderboardUGC
 GetAttachLeaderboardUGCLeaderboard,I,I,GetAttachLeaderboardUGCLeaderboard,0,0,0,0,GetAttachLeaderboardUGCLeaderboard
 ClearAchievement,I,S,ClearAchievement,0,0,0,0,ClearAchievement
 DownloadLeaderboardEntries,I,IIII,DownloadLeaderboardEntries,0,0,0,0,DownloadLeaderboardEntries
+AddDownloadLeaderboardEntriesUser,0,I,AddDownloadLeaderboardEntriesUser,0,0,0,0,AddDownloadLeaderboardEntriesUser
+DownloadLeaderboardEntriesForUsers,I,I,DownloadLeaderboardEntriesForUsers,0,0,0,0,DownloadLeaderboardEntriesForUsers
 GetDownloadLeaderboardHandle,I,I,GetDownloadLeaderboardHandle,0,0,0,0,GetDownloadLeaderboardHandle
 GetDownloadLeaderboardEntryCount,I,I,GetDownloadLeaderboardEntryCount,0,0,0,0,GetDownloadLeaderboardEntryCount
 GetDownloadLeaderboardEntryUser,I,II,GetDownloadLeaderboardEntryUser,0,0,0,0,GetDownloadLeaderboardEntryUser

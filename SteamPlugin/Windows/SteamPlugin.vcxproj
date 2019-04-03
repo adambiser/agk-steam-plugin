@@ -228,6 +228,7 @@
     <ClInclude Include="..\Common\SteamInput.h" />
     <ClInclude Include="..\Common\SteamMatchmaking.h" />
     <ClInclude Include="..\Common\SteamMusic.h" />
+    <ClInclude Include="..\Common\SteamRemoteStorage.h" />
     <ClInclude Include="..\Common\SteamUser.h" />
     <ClInclude Include="..\Common\SteamUserStats.h" />
     <ClInclude Include="..\Common\SteamUtils.h" />

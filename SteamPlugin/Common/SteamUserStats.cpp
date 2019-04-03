@@ -123,12 +123,28 @@ class CDownloadLeaderboardEntriesCallResult : public CCallResultItem<Leaderboard
 public:
 	CDownloadLeaderboardEntriesCallResult(SteamLeaderboard_t hLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 	{
-		m_CallResultName = "DownloadLeaderboardEntries("
-			+ std::to_string(hLeaderboard) + ", "
-			+ std::to_string(eLeaderboardDataRequest) + ", "
-			+ std::to_string(nRangeStart) + ", "
-			+ std::to_string(nRangeEnd) + ")";
-		m_hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+		// Hijack k_ELeaderboardDataRequestUsers to indicate that DownloadLeaderboardEntriesForUsers should be called.
+		// k_ELeaderboardDataRequestUsers is used internally by Steam and shouldn't be used anyway.
+		if (eLeaderboardDataRequest == k_ELeaderboardDataRequestUsers)
+		{
+			m_CallResultName = "DownloadLeaderboardEntriesForUsers("
+				+ std::to_string(hLeaderboard) + ", "
+				+ std::to_string(s_Users.size()) + " users)";
+			m_hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntriesForUsers(hLeaderboard, s_Users.data(), (int)s_Users.size());
+			if (m_hSteamAPICall != k_uAPICallInvalid)
+			{
+				s_Users.clear();
+			}
+		}
+		else
+		{
+			m_CallResultName = "DownloadLeaderboardEntries("
+				+ std::to_string(hLeaderboard) + ", "
+				+ std::to_string(eLeaderboardDataRequest) + ", "
+				+ std::to_string(nRangeStart) + ", "
+				+ std::to_string(nRangeEnd) + ")";
+			m_hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(hLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
+		}
 	}
 	uint64 GetLeaderboardID() { return m_Response.m_hSteamLeaderboard; }
 	int GetLeaderboardEntryCount() { return (int)m_Entries.size(); }
@@ -139,6 +155,10 @@ public:
 	int GetLeaderboardEntryDetailsCount(int index) { return m_Entries[index].m_cDetails; }
 	int32 GetLeaderboardEntryDetails(int index, int detailIndex) { return m_Entries[index].m_Details[detailIndex]; }
 	uint64 GetLeaderboardEntryUGCHandle(int index) { return m_Entries[index].m_hUGC; }
+	static void AddUser(CSteamID steamIDUser)
+	{
+		s_Users.push_back(steamIDUser);
+	}
 protected:
 	struct PluginLeaderboardEntry_t : LeaderboardEntry_t
 	{
@@ -172,7 +192,9 @@ protected:
 			}
 		}
 	}
+	static std::vector<CSteamID> s_Users;
 };
+std::vector<CSteamID> CDownloadLeaderboardEntriesCallResult::s_Users;
 
 /*
 @desc Downloads entries from a leaderboard.
@@ -200,7 +222,37 @@ extern "C" DLL_EXPORT int DownloadLeaderboardEntries(int hLeaderboard, int eLead
 	return CallResults()->Add(new CDownloadLeaderboardEntriesCallResult(leaderboard, (ELeaderboardDataRequest)eLeaderboardDataRequest, rangeStart, rangeEnd));
 }
 
-//TODO DownloadLeaderboardEntriesForUsers
+/*
+@desc Adds a user to be retrieved in the next DownloadLeaderboardEntriesForUsers call.
+@param hSteamIDUser A user Steam ID handle.
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#DownloadLeaderboardEntriesForUsers
+*/
+extern "C" DLL_EXPORT void AddDownloadLeaderboardEntriesUser(int hSteamIDUser)
+{
+	CDownloadLeaderboardEntriesCallResult::AddUser(SteamHandles()->GetSteamHandle(hSteamIDUser));
+}
+
+/*
+@desc Fetches leaderboard entries for an arbitrary set of users on a specified leaderboard.
+@param hLeaderboard A leaderboard handle.
+@callback-type callresult
+@callback-getters GetDownloadLeaderboardHandle, GetDownloadLeaderboardEntryCount, GetDownloadLeaderboardEntryUser,
+GetDownloadLeaderboardEntryGlobalRank, GetDownloadLeaderboardEntryScore, GetDownloadLeaderboardEntryDetails, GetDownloadLeaderboardEntryUGC
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#DownloadLeaderboardEntriesForUsers
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#LeaderboardScoresDownloaded_t
+*/
+extern "C" DLL_EXPORT int DownloadLeaderboardEntriesForUsers(int hLeaderboard)
+{
+	CheckInitialized(0);
+	SteamLeaderboard_t leaderboard = SteamHandles()->GetSteamHandle(hLeaderboard);
+	if (!leaderboard)
+	{
+		agk::PluginError("DownloadLeaderboardEntriesForUsers: Invalid leaderboard handle.");
+		return 0;
+	}
+	return CallResults()->Add(new CDownloadLeaderboardEntriesCallResult(leaderboard, k_ELeaderboardDataRequestUsers, 0, 0));
+}
 
 /*
 @desc Returns the handle to the leaderboard for the DownloadLeaderboardEntries call.
@@ -687,9 +739,9 @@ _Note: The plugin keeps track of the iterator mentioned in the Steamworks docume
 Usage:
 ```
 if Steam.GetMostAchievedAchievementInfo()
-repeat
-Log("Name: " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
-until not Steam.GetNextMostAchievedAchievementInfo()
+    repeat
+        Log("Name: " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
+    until not Steam.GetNextMostAchievedAchievementInfo()
 endif
 ```
 @return 1 If achievement info was loaded; otherwise 0.
@@ -718,9 +770,9 @@ _Note: The plugin keeps track of the iterator mentioned in the Steamworks docume
 Usage:
 ```
 if Steam.GetMostAchievedAchievementInfo()
-repeat
-Log("Name: " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
-until not Steam.GetNextMostAchievedAchievementInfo()
+    repeat
+        Log("Name: " + Steam.GetMostAchievedAchievementInfoName() + ", percent: " + str(Steam.GetMostAchievedAchievementInfoPercent()) + ", unlocked: " + str(Steam.GetMostAchievedAchievementInfoUnlocked()))
+    until not Steam.GetNextMostAchievedAchievementInfo()
 endif
 ```
 @return 1 If achievement info was loaded; otherwise 0.

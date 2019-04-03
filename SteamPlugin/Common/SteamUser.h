@@ -24,22 +24,22 @@ THE SOFTWARE.
 #define _STEAMUSER_H_
 #pragma once
 
-//#include "CCallbacks.h"
+#include "CCallbacks.h"
 
 //ClientGameServerDeny_t - game server stuff
 //EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
-//GameWebCallback_t
+//GameWebCallback_t - web sign up stuff.
 //GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
 
 //IPCFailure_t - Steam client had a fatal error.
 
-//LicensesUpdated_t
+//LicensesUpdated_t - Called whenever the users licenses (owned packages) changes.
 
 //MicroTxnAuthorizationResponse_t - micro transaction stuff.
 
-//SteamServerConnectFailure_t
-//SteamServersConnected_t
-//SteamServersDisconnected_t
+//SteamServerConnectFailure_t - Called when a connection attempt has failed.
+//SteamServersConnected_t - Called when a connections to the Steam back-end has been established.
+//SteamServersDisconnected_t - Called if the client has lost connection to the Steam servers.
 
 //StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
 //ValidateAuthTicketResponse_t - Call result for BeginAuthSession

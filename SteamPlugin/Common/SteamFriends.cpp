@@ -158,7 +158,7 @@ protected:
 std::vector<CSteamID> CDownloadClanActivityCountsCallResult::s_Clans;
 
 /*
-@desc Adds clans to be refreshed in the next DownloadClanActivityCounts call.
+@desc Adds a clan to be refreshed in the next DownloadClanActivityCounts call.
 @param hSteamIDClan The clan's Steam ID handle.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#DownloadClanActivityCounts
 */
@@ -1480,7 +1480,7 @@ public:
 @param hSteamIDClan The Steam group to get the officers list for.
 @callback-type callresult
 @callback-getters GetRequestClanOfficerListOfficerCount, GetRequestClanOfficerListClan
-@return @return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#RequestClanOfficerList
 @url https://partner.steamgames.com/doc/api/ISteamFriends#ClanOfficerListResponse_t
 */

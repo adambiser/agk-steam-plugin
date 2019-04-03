@@ -53,7 +53,7 @@ void ResetSession()
 #pragma region Additional Methods
 /* @page Additional Methods
 
-These commands are not part of the Steamworks SDK but are included as a convenience.
+_Note: These commands are not part of the Steamworks SDK but are included as a convenience._
 */
 /*
 @desc Returns the command line arguments.
@@ -172,8 +172,8 @@ extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes
 //}
 #pragma endregion
 
-#pragma region CallResult Methods
-/* @page CallResult Methods
+#pragma region Call Result Methods
+/* @page Call Result Methods
 
 Some Steamworks methods are asynchronous commands that return call result handles.
 

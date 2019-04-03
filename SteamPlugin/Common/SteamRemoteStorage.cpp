@@ -995,39 +995,3 @@ extern "C" DLL_EXPORT void CloudUGCReadClose(int hUGC)
 //UpdatePublishedFileTitle - deprecated
 //UpdatePublishedFileVisibility - deprecated
 //UpdateUserPublishedItemVote - deprecated
-
-//callbacks
-// RemoteStorageAppSyncedClient_t - deprecated
-// RemoteStorageAppSyncedServer_t - deprecated
-// RemoteStorageAppSyncProgress_t - deprecated
-// RemoteStorageAppSyncStatusCheck_t - deprecated
-// RemoteStorageDeletePublishedFileResult_t - deprecated
-
-// RemoteStorageDownloadUGCResult_t - Call result for UGCDownload, UGCDownloadToLocation.
-
-// RemoteStorageEnumeratePublishedFilesByUserActionResult_t - deprecated
-// RemoteStorageEnumerateUserPublishedFilesResult_t - deprecated
-// RemoteStorageEnumerateUserSharedWorkshopFilesResult_t - deprecated
-// RemoteStorageEnumerateUserSubscribedFilesResult_t - deprecated
-// RemoteStorageEnumerateWorkshopFilesResult_t - deprecated
-
-// RemoteStorageFileReadAsyncComplete_t - Call result for FileReadAsync.
-// RemoteStorageFileShareResult_t - Call result for FileShare.
-// RemoteStorageFileWriteAsyncComplete_t - Call result for FileWriteAsync.
-
-// RemoteStorageGetPublishedFileDetailsResult_t - deprecated
-// RemoteStorageGetPublishedItemVoteDetailsResult_t - deprecated
-// RemoteStoragePublishedFileDeleted_t - deprecated
-// RemoteStoragePublishedFileSubscribed_t - deprecated
-// RemoteStoragePublishedFileUnsubscribed_t - deprecated
-// RemoteStoragePublishedFileUpdated_t - deprecated
-// RemoteStoragePublishFileProgress_t - deprecated
-// RemoteStoragePublishFileResult_t - deprecated
-// RemoteStorageSetUserPublishedFileActionResult_t - deprecated
-
-// RemoteStorageSubscribePublishedFileResult_t - Call result for SubscribePublishedFile, ISteamUGC::SubscribeItem.
-// RemoteStorageUnsubscribePublishedFileResult_t - Call result for UnsubscribePublishedFile, ISteamUGC::UnsubscribeItem.
-
-// RemoteStorageUpdatePublishedFileResult_t - deprecated
-// RemoteStorageUpdateUserPublishedItemVoteResult_t - deprecated
-// RemoteStorageUserVoteDetails_t - deprecated

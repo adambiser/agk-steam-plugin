@@ -5,13 +5,6 @@ WIKI_PATH = "../../../agk-steam-plugin.wiki/"
 error_count = 0
 
 
-# TODO Parse url to show anchor if available, otherwise page name.
-#  ie:
-#  https://partner.steamgames.com/doc/api/ISteamFriends#FriendsGetFollowerCount_t -> FriendsGetFollowerCount_t
-#  https://partner.steamgames.com/doc/api/steam_gameserver -> steam_gameserver
-#  Handle this?
-#  [Downloadable Content (DLC)](https://partner.steamgames.com/doc/store/application/dlc) -> Downloadable Content (DLC)
-
 # TODO @callback-type callresult attaches its @url tags to each @callback-getters method.
 
 def report_error(text):
@@ -22,7 +15,7 @@ def report_error(text):
 
 class ExportedMethodLoader:
     CPP_TO_TIER1_VAR_TYPES = {
-        'void': '',
+        'void': None,
         'int': 'integer',
         'float': 'float',
         'char*': 'string',
@@ -66,10 +59,10 @@ class ExportedMethodLoader:
         pages = []
         for match in re.finditer(r'(?:/\*+\s*@page\s+)(?P<tag_info>(?:(?!\*+/).)*)\*+/',
                                  lines, re.DOTALL | re.MULTILINE):
-            name, sep, header = match.group('tag_info').partition('\n')
+            name, sep, desc = match.group('tag_info').partition('\n')
             pages.append({
                 'name': name.strip(),
-                'header': header.strip(),
+                'desc': desc.strip(),
                 'start': match.start(),
                 'filename': '{}.md'.format(name.strip().replace(' ', '-')),
             })
@@ -90,10 +83,12 @@ class ExportedMethodLoader:
             # method_declaration = declaration_pattern.match(match['method'])
             method = {
                 'name': match['name'],
-                'return_type': cls._get_tier_1_var_type(match['type']),
                 'start': match.start(),
                 'params': [],
             }
+            return_type = cls._get_tier_1_var_type(match['type'])
+            if return_type:
+                method['return_type'] = return_type
             # Parse parameter names and types.
             if match['params']:
                 for param in match['params'].split(','):
@@ -123,43 +118,50 @@ class ExportedMethodLoader:
             return next((i for i, p in enumerate(params) if p["name"] == name), None)
 
         def process_desc_tag(tag_text):
+            if 'desc' in method:
+                report_error('{} has multiple desc tags.'.format(method['name']))
+                return
             method['desc'] = tag_text
 
         def process_return_tag(tag_text):
+            if 'return_desc' in method:
+                report_error('{} has multiple return-desc tags.'.format(method['name']))
+                return
             method['return_desc'] = tag_text
 
-        # def process_return_api_tag(tag_text):
-        #     # TODO remove
-        #     method['return_api'] = tag_text
-        #
         def process_return_url_tag(tag_text):
+            if 'return_url' in method:
+                report_error('{} has multiple return-url tags.'.format(method['name']))
+                return
             method['return_url'] = tag_text
 
         def process_param_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
-            if tag_text:
-                index = get_param_index(method['params'], param_name)
-                if index is None:
-                    report_error('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
-                else:
-                    method['params'][index]['desc'] = tag_text
-            else:
+            if not tag_text:
                 report_error('{} has an empty description for parameter: {}'.format(method['name'], param_name))
-
-        # def process_param_api_tag(tag_text):
-        #     # TODO remove
-        #     param_name, sep, tag_text = tag_text.partition(' ')
-        #     if not tag_text:
-        #         report_error('{} has an empty API reference for parameter: {}'.format(method['name'], param_name))
-        #     index = get_param_index(method['params'], param_name)
-        #     if index is None:
-        #         report_error('{} has an API reference for an unknown parameter: {}'.format(method['name'], param_name))
-        #     else:
-        #         method['params'][index]['api'] = tag_text
+                return
+            index = get_param_index(method['params'], param_name)
+            if index is None:
+                report_error('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
+                return
+            if 'desc' in method['params'][index]:
+                report_error('{} has multiple param tags for: {}'.format(method['name'], param_name))
+                return
+            method['params'][index]['desc'] = tag_text
 
         def process_param_url_tag(tag_text):
-            # TODO
-            pass
+            param_name, sep, tag_text = tag_text.partition(' ')
+            if not tag_text:
+                report_error('{} has an empty URL for parameter: {}'.format(method['name'], param_name))
+                return
+            index = get_param_index(method['params'], param_name)
+            if index is None:
+                report_error('{} has a URL for an unknown parameter: {}'.format(method['name'], param_name))
+                return
+            if 'url' in method['params'][index]:
+                report_error('{} has multiple param-url tags for: {}'.format(method['name'], param_name))
+                return
+            method['params'][index]['url'] = tag_text
 
         # def process_api_tag(tag_text):
         #     method['api'] = [api.strip() for api in tag_text.split(',')]
@@ -169,21 +171,38 @@ class ExportedMethodLoader:
                 report_error('{} had a url tag with multiple urls.'.format(method['name']))
                 return
             # TODO
-            pass
+            if 'url' not in method:
+                method['url'] = []
+            if tag_text in method['url']:
+                report_error('{} had a duplicate url entry: {}'.format(method['name'], tag_text))
+                return
+            method['url'].append(tag_text)
 
         def process_plugin_name_tag(tag_text):
+            if 'plugin_name' in method:
+                report_error('{} already had a plugin-name tag.'.format(method['name']))
+                return
             method['plugin_name'] = tag_text
 
         def process_callback_type_tag(tag_text):
             if tag_text not in ['list', 'bool', 'callresult']:
                 report_error("{} has an unknown callback type: {}".format(method['name'], tag_text))
-            else:
-                method['callback-type'] = tag_text
+                return
+            if 'callback-type' in method:
+                report_error('{} has multiple callback-type tags.'.format(method['name']))
+                return
+            method['callback-type'] = tag_text
 
         def process_callback_getters_tag(tag_text):
+            if 'callback-getters' in method:
+                report_error('{} has multiple callback-getters tags.'.format(method['name']))
+                return
             method['callback-getters'] = [name.strip() for name in tag_text.split(',')]
 
         def process_callbacks_tag(tag_text):
+            if 'callbacks' in method:
+                report_error('{} has multiple callbacks tags.'.format(method['name']))
+                return
             # callbacks that fire as a result of the current method.
             method['callbacks'] = [name.strip() for name in tag_text.split(',')]
 
@@ -198,7 +217,7 @@ class ExportedMethodLoader:
         # Final validation checks
         if 'desc' not in method:
             report_error("{} has no description.".format(method['name']))
-        if method['return_type']:
+        if 'return_type' in method:
             if 'return_desc' not in method:
                 report_error("{} has a return type without a return description.".format(method['name']))
         else:
@@ -223,7 +242,10 @@ class ExportedMethodLoader:
                     if method_index is None:
                         report_error('{} has an unknown callback getter method: {}'.format(method['name'], getter))
                     else:
-                        methods[method_index]['callback-parent'] = method['name']
+                        if 'callback-parents' not in methods[method_index]:
+                            methods[method_index]['callback-parents'] = []
+                        methods[method_index]['callback-parents'].append(method['name'])
+                        methods[method_index]['callback-parent-type'] = method['callback-type']
 
     @classmethod
     def _assign_methods_to_pages(cls, pages, methods):
@@ -233,11 +255,13 @@ class ExportedMethodLoader:
             try:
                 page = [p for p in pages if p['start'] <= method['start']][-1]
                 page['methods'].append(method)
+                method['page'] = page
             except IndexError as e:
                 report_error("Could not find page for method: {}".format(method['name']))
 
     def write_commands_txt(self, out_file: str):
         var_type_letter = {
+            None: '0',
             '': '0',
             'integer': 'I',
             'float': 'F',
@@ -256,7 +280,7 @@ class ExportedMethodLoader:
                     f.write('{plugin_method_name},{return_type},{param_types},'
                             '{windows},{linux},{mac},{android},{ios},{windows64}\n'
                             .format(plugin_method_name=method.get('plugin_name', method['name']),
-                                    return_type=var_type_letter[method['return_type']],
+                                    return_type=var_type_letter[method.get('return_type')],
                                     param_types=param_types,
                                     windows=method['name'],
                                     linux='0',
@@ -267,9 +291,86 @@ class ExportedMethodLoader:
                                     )
                             )
 
+    @classmethod
+    def _get_url_title(cls, url: str):
+        # TODO Handle this?
+        #  [Downloadable Content (DLC)](https://partner.steamgames.com/doc/store/application/dlc)
+        #  -> Downloadable Content (DLC)
+        base, sep, title = url.rpartition('/')
+        # base, sep, title = title.rpartition('#')
+        return title
+
+    @classmethod
+    def _create_comma_list(cls, text_list):
+        if len(text_list) == 0:
+            return ""
+        if len(text_list) == 1:
+            return text_list[0]
+        return ', '.join(text_list[0:-1]) + ' or ' + text_list[-1]
+
+    def _get_method_link(self, method_name):
+        for page in self.pages:
+            if method_name in [m['name'] for m in page['methods']]:
+                return '[{0}]({1}#{0})'.format(method_name, page['name'].replace(' ', '-'))
+        report_error("Could not generate method link for {}".format(method_name))
+        return method_name
+
+    def write_wiki_files(self, base_path: str):
+        for page in [p for p in self.pages if p['methods']]:
+            with open(base_path + page['filename'], 'w') as f:
+                if 'desc' in page:
+                    f.write(page['desc'])
+                    f.write('\n\n')
+                for method in page['methods']:  # type: dict
+                    params_list = ', '.join(
+                            ('[{name} as {type}]({url})' if 'url' in param else '{name} as {type}').format(
+                                    **param) for param in method['params'])
+                    syntax = '{name}({params_list}){return_type}'.format(name=method['name'],
+                                                                         params_list=params_list,
+                                                                         return_type=(' as ' + method['return_type'])
+                                                                         if 'return_type' in method else '')
+                    # print(syntax)
+                    # Output the method wiki.
+                    wiki_entry = '## {0}\n'.format(method['name'])
+                    wiki_entry += '> {0}\n'.format(syntax)
+                    if method['params']:
+                        wiki_entry += ''.join('> * _{name}_ - {desc}  \n'.format(**param) for param in method['params'])
+                    wiki_entry += '\n'
+                    if 'desc' in method:
+                        wiki_entry += '{0}\n\n'.format(method['desc'])
+                    if 'callback-parents' in method:
+                        if method['callback-parent-type'] == 'callresult':
+                            parent_links = [self._get_method_link(name) for name in method['callback-parents']]
+                            comma_list = self._create_comma_list(parent_links)
+                            wiki_entry += '_This method should only be used when the call result returned by {} has ' \
+                                          'reported a GetCallResultCode of 1._'.format(comma_list)
+                        else:
+                            # Only one callback parent for other types.
+                            wiki_entry += '_This method should only be used ' \
+                                          'when {} has returned 1._'.format(method['callback-parents'][0])
+                        wiki_entry += '\n\n'
+                    if 'return_desc' in method:
+                        if 'return_url' in method:
+                            wiki_entry += '**Returns:** [{return_desc}]({return_url})\n\n'.format(**method)
+                        else:
+                            wiki_entry += '**Returns:** {return_desc}\n\n'.format(**method)
+                    if 'callback-getters' in method:
+                        wiki_entry += '**Associated Methods:**  \n'
+                        # TODO Add links to functions?
+                        wiki_entry += '  \n'.join(self._get_method_link(name) for name in method['callback-getters'])
+                        wiki_entry += '\n\n'
+                    if 'url' in method:
+                        wiki_entry += '**Reference:**  \n'
+                        wiki_entry += '  \n'.join(('[{0}]({1})'.format(self._get_url_title(url), url)
+                                                   for url in method['url']))
+                        wiki_entry += '\n\n'
+                    f.write(wiki_entry)
+                    # print(wiki_entry)
+
 
 loader = ExportedMethodLoader('../../SteamPlugin/Common/')
 loader.write_commands_txt('../../AGKPlugin/SteamPlugin/Commands.txt')
 print("Error count: {}".format(error_count))
 print("Page count: {}".format(len(loader.pages)))
 print("Method count: {}".format(loader.method_count))
+loader.write_wiki_files(WIKI_PATH)
