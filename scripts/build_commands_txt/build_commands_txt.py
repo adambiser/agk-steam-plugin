@@ -5,8 +5,6 @@ WIKI_PATH = "../../../agk-steam-plugin.wiki/"
 error_count = 0
 
 
-# TODO @callback-type callresult attaches its @url tags to each @callback-getters method.
-
 def report_error(text):
     global error_count
     error_count += 1
@@ -170,7 +168,6 @@ class ExportedMethodLoader:
             if ',' in tag_text or '\n' in tag_text:
                 report_error('{} had a url tag with multiple urls.'.format(method['name']))
                 return
-            # TODO
             if 'url' not in method:
                 method['url'] = []
             if tag_text in method['url']:
@@ -246,6 +243,13 @@ class ExportedMethodLoader:
                             methods[method_index]['callback-parents'] = []
                         methods[method_index]['callback-parents'].append(method['name'])
                         methods[method_index]['callback-parent-type'] = method['callback-type']
+                        # callback parents attach their @url tags to each @callback-getters method.
+                        if 'url' in method:
+                            if 'url' not in methods[method_index]:
+                                methods[method_index]['url'] = []
+                            for url in method['url']:
+                                if url not in methods[method_index]['url']:
+                                    methods[method_index]['url'].append(url)
 
     @classmethod
     def _assign_methods_to_pages(cls, pages, methods):
