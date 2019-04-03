@@ -356,7 +356,6 @@ class ExportedMethodLoader:
                             wiki_entry += '**Returns:** {return_desc}\n\n'.format(**method)
                     if 'callback-getters' in method:
                         wiki_entry += '**Associated Methods:**  \n'
-                        # TODO Add links to functions?
                         wiki_entry += '  \n'.join(self._get_method_link(name) for name in method['callback-getters'])
                         wiki_entry += '\n\n'
                     if 'url' in method:
