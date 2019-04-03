@@ -20,29 +20,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CLeaderboardFindCallResult.h"
+#ifndef _STEAMAPPS_H_
+#define _STEAMAPPS_H_
+#pragma once
 
-void CLeaderboardFindCallResult::OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure)
-{
-	m_hLeaderboard = pCallResult->m_hSteamLeaderboard;
-	bool found = pCallResult->m_bLeaderboardFound && !bIOFailure;
-	utils::Log(GetName() + ": Found = " + std::to_string(found) + ", Handle = " + std::to_string(m_hLeaderboard));
-	if (found)
-	{
-		m_State = Done;
-	}
-	else
-	{
-		m_State = ServerError;
-	}
-}
+#include "CCallbacks.h"
 
-void CLeaderboardFindCallResult::Call()
+// AppProofOfPurchaseKeyResponse_t - Only used internally in Steam.
+
+// InstallDLC
+class CDlcInstalledCallback : public ListCallbackBase<CDlcInstalledCallback, DlcInstalled_t>
 {
-	m_hSteamAPICall = SteamUserStats()->FindLeaderboard(m_Name.c_str());
-	if (m_hSteamAPICall == k_uAPICallInvalid)
+public:
+	void OnResponse(DlcInstalled_t *pParam)
 	{
-		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+		utils::Log("Callback: OnDlcInstalled.  AppID = " + std::to_string(pParam->m_nAppID));
+		StoreResponse(*pParam);
 	}
-	m_CallResult.Set(m_hSteamAPICall, this, &CLeaderboardFindCallResult::OnFindLeaderboard);
-}
+	void Clear(DlcInstalled_t &value)
+	{
+		value.m_nAppID = 0;
+	}
+};
+
+// FileDetailsResult_t - call result for GetFileDetails
+
+class CNewUrlLaunchParametersCallback : public BoolCallbackBase<CNewUrlLaunchParametersCallback, NewUrlLaunchParameters_t>
+{
+public:
+	void OnResponse(NewUrlLaunchParameters_t *pParam)
+	{
+		agk::Log("Callback: OnNewUrlLaunchParameters");
+		BoolCallbackBase::OnResponse(pParam);
+	}
+};
+
+// NewLaunchQueryParameters_t - Removed in SDK v1.43
+// RegisterActivationCodeResponse_t - Only used internally in Steam.
+
+#endif // _STEAMAPPS_H_

@@ -25,12 +25,10 @@ global dlcDownloadBar as ProgressBar
 dlcUploadBar = CreateProgressBar(0, 200, 100, 500, "File Upload:")
 dlcDownloadBar = CreateProgressBar(0, 200, 130, 500, "File Download:")
 
-global cloudFiles as CloudFileInfo_t[]
-
 AddStatus(Steam.GetSteamID3(Steam.GetSteamID()))
 AddStatus("Cloud enabled for app: " + TF(Steam.IsCloudEnabledForApp()))
 AddStatus("Cloud enabled for account: " + TF(Steam.IsCloudEnabledForAccount()))
-AddStatus("Quota: " + Steam.GetCloudQuotaJSON())
+AddStatus("Quota: Available: " + str(Steam.GetCloudQuotaAvailable()) + ", Total: " + str(Steam.GetCloudQuotaTotal()))
 AddStatus("Files in cloud: " + str(Steam.GetCloudFileCount()))
 AddStatus("File 0 = " + Steam.GetCloudFileName(0))
 AddStatus(TEST_FILE_NAME + " exists: " + TF(Steam.CloudFileExists(TEST_FILE_NAME)))
@@ -40,12 +38,23 @@ if Steam.CloudFileExists(TEST_FILE_NAME)
 	AddStatus(TEST_FILE_NAME + " persisted: " + TF(Steam.CloudFilePersisted(TEST_FILE_NAME)))
 	AddStatus(TEST_FILE_NAME + " platforms: " + GetSyncPlatformList(Steam.GetCloudFileSyncPlatforms(TEST_FILE_NAME)))
 endif
-//~ AddStatus("GetCachedUGCCount: " + str(Steam.GetCachedUGCCount()))
 
+AddStatus("Files:")
+for x = 0 to Steam.GetCloudFileCount() - 1
+	AddStatus("> " + Steam.GetCloudFileName(x) + " - size: " + str(Steam.GetCloudFileSize(x)))
+next
 
-cloudFiles.fromJSON(Steam.GetCloudFileListJSON())
-AddStatus("Files: " + cloudFiles.toJSON())
+Function DisplayUGCInfo()
+	x as integer
+	AddStatus("GetCachedUGCCount: " + str(Steam.GetCloudCachedUGCCount()))
+	for x = 0 to Steam.GetCloudCachedUGCCount() - 1
+		hUGC as integer
+		hUGC = Steam.GetCloudCachedUGCHandle(x)
+		AddStatus("UGC " + str(x) + ": Handle = " + str(hUGC) + ", AppID = " + str(Steam.GetCloudUGCDetailsAppID(hUGC)) + ", File Name = " + Steam.GetCloudUGCDetailsFileName(hUGC) + ", Size = " + str(Steam.GetCloudUGCDetailsFileSize(hUGC)) + ", Owner = " + Steam.GetFriendPersonaName(Steam.GetCloudUGCDetailsOwner(hUGC)))
+	next	
+EndFunction
 
+DisplayUGCInfo()
 
 //
 // The main loop
@@ -177,70 +186,66 @@ global errorReported as integer[1]
 Function ProcessCallbacks()
 	index as integer
 	filename as string
+	result as integer
 	for index = asyncWriteCallResults.length to 0 step -1
-		select Steam.GetCallResultState(asyncWriteCallResults[index])
-			case STATE_DONE
+		result = Steam.GetCallResultCode(asyncWriteCallResults[index])
+		if result
+			if result = EResultOK
 				filename = Steam.GetCloudFileWriteAsyncFileName(asyncWriteCallResults[index])
 				AddStatus("Finished async write for " + filename)
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncWriteCallResults[index])
-				asyncWriteCallResults.remove(index)
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			else
 				filename = Steam.GetCloudFileWriteAsyncFileName(asyncWriteCallResults[index])
-				AddStatus("ERROR: FileWriteAsync: " + filename)
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncWriteCallResults[index])
-				asyncWriteCallResults.remove(index)
-			endcase
-		endselect
+				AddStatus("ERROR: FileWriteAsync: " + filename + ", result = " + str(result))
+			endif
+			// We're done with the CallResult.  Delete it.
+			Steam.DeleteCallResult(asyncWriteCallResults[index])
+			asyncWriteCallResults.remove(index)
+		endif
 	next
 	for index = asyncReadCallResults.length to 0 step -1
-		select Steam.GetCallResultState(asyncReadCallResults[index])
-			case STATE_DONE
+		result = Steam.GetCallResultCode(asyncReadCallResults[index])
+		if result
+			if result = EResultOK
 				filename = Steam.GetCloudFileReadAsyncFileName(asyncReadCallResults[index])
 				AddStatus("Finished async read for " + filename)
 				memblock as integer
 				memblock = Steam.GetCloudFileReadAsyncMemblock(asyncReadCallResults[index])
 				if memblock
+					AddStatus("Length: " + str(GetMemblockSize(memblock)))
 					AddStatus("File Text: " + GetMemblockString(memblock, 0, Steam.GetCloudFileSize(filename)))
 					// NOTE: Deleting the FileReadAsync call result will delete its memblock.
 				else
 					AddStatus("File does not exist!") 
 				endif
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncReadCallResults[index])
-				asyncReadCallResults.remove(index)
-			endcase
-			case STATE_SERVER_ERROR, STATE_CLIENT_ERROR
+			else
 				filename = Steam.GetCloudFileReadAsyncFileName(asyncReadCallResults[index])
 				AddStatus("ERROR: FileReadAsync: " + filename)
-				// We're done with the CallResult.  Delete it.
-				Steam.DeleteCallResult(asyncReadCallResults[index])
-				asyncReadCallResults.remove(index)
-			endcase
-		endselect
+			endif
+			// We're done with the CallResult.  Delete it.
+			Steam.DeleteCallResult(asyncReadCallResults[index])
+			asyncReadCallResults.remove(index)
+		endif
 	next
 EndFunction
 
 Function GetSyncPlatformList(flags as integer)
 	platforms as string[]
-	if flags = k_ERemoteStoragePlatformAll
+	if flags = ERemoteStoragePlatformAll
 		platforms.insert("All")
 	endif
-	if flags and k_ERemoteStoragePlatformWindows
+	if flags and ERemoteStoragePlatformWindows
 		platforms.insert("Windows")
 	endif
-	if flags and k_ERemoteStoragePlatformOSX
+	if flags and ERemoteStoragePlatformOSX
 		platforms.insert("Mac OSX")
 	endif
-	if flags and k_ERemoteStoragePlatformPS3
+	if flags and ERemoteStoragePlatformPS3
 		platforms.insert("PlayStation 3")
 	endif
-	if flags and k_ERemoteStoragePlatformLinux
+	if flags and ERemoteStoragePlatformLinux
 		platforms.insert("SteamOS/Linux")
 	endif
-	if flags and k_ERemoteStoragePlatformReserved2
+	if flags and ERemoteStoragePlatformReserved2
 		platforms.insert("Reserved2")
 	endif
 EndFunction platforms.toJSON()

@@ -20,41 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CFILEWRITEASYNCCALLRESULT_H_
-#define _CFILEWRITEASYNCCALLRESULT_H_
+#ifndef _STEAMINPUT_H_
+#define _STEAMINPUT_H_
 #pragma once
 
-#include "CCallResultItem.h"
+//#include "CCallbacks.h"
+#include "steam_api.h"
 
-class CFileWriteAsyncCallResult : public CCallResultItem
-{
-public:
-	CFileWriteAsyncCallResult(const char *pchFile, const void *pvData, uint32 cubData) :
-		CCallResultItem(),
-		m_FileName(pchFile),
-		m_pvData(pvData),
-		m_cubData(cubData) {}
-	virtual ~CFileWriteAsyncCallResult(void)
-	{
-		m_CallResult.Cancel();
-	}
-	std::string GetName()
-	{
-		return "FileWriteAsync("
-			+ m_FileName + ", "
-			+ "*data, "
-			//+ std::to_string(m_nOffset) + ", "
-			+ std::to_string(m_cubData) + ")";
-	}
-	std::string GetFileName() { return m_FileName; }
-protected:
-	void Call();
-private:
-	CCallResult<CFileWriteAsyncCallResult, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
-	std::string m_FileName;
-	const void *m_pvData;
-	uint32 m_cubData;
-};
+void ResetSteamInput();
 
-#endif // CFILEWRITEASYNCCALLRESULT_H_
+#endif // _STEAMINPUT_H_

@@ -20,33 +20,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLOBBYMATCHLISTCALLRESULT_H_
-#define _CLOBBYMATCHLISTCALLRESULT_H_
+#ifndef _STEAMMUSIC_H_
+#define _STEAMMUSIC_H_
 #pragma once
 
-#include "CCallResultItem.h"
-#include <vector>
+#include "CCallbacks.h"
 
-class CLobbyMatchListCallResult : public CCallResultItem
+class CPlaybackStatusHasChangedCallback : public BoolCallbackBase<CPlaybackStatusHasChangedCallback, PlaybackStatusHasChanged_t>
 {
 public:
-	CLobbyMatchListCallResult() : CCallResultItem() {}
-	virtual ~CLobbyMatchListCallResult(void)
+	void OnResponse(PlaybackStatusHasChanged_t *pParam)
 	{
-		m_CallResult.Cancel();
+		agk::Log("Callback: OnPlaybackStatusHasChanged");
+		BoolCallbackBase::OnResponse(pParam);
 	}
-	std::string GetName()
-	{
-		return "RequestLobbyList()";
-	}
-	int GetLobbyMatchListCount() { return (int)m_Lobbies.size(); }
-	CSteamID GetLobbyByIndex(int iLobby);
-protected:
-	void Call();
-private:
-	CCallResult<CLobbyMatchListCallResult, LobbyMatchList_t> m_CallResult;
-	void OnLobbyMatchList(LobbyMatchList_t *pLobbyMatchList, bool bIOFailure);
-	std::vector<CSteamID> m_Lobbies;
 };
 
-#endif // _CLOBBYMATCHLISTCALLRESULT_H_
+class CVolumeHasChangedCallback : public BoolCallbackBase<CVolumeHasChangedCallback, VolumeHasChanged_t>
+{
+public:
+	void OnResponse(VolumeHasChanged_t *pParam)
+	{
+		utils::Log("Callback: OnVolumeHasChanged.  New volume : " + std::to_string(pParam->m_flNewVolume));
+		BoolCallbackBase::OnResponse(pParam);
+	}
+};
+
+#endif // _STEAMMUSIC_H_

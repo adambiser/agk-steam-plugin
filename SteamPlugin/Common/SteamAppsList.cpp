@@ -20,32 +20,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _CLEADERBOARDFINDCALLRESULT_H_
-#define _CLEADERBOARDFINDCALLRESULT_H_
-#pragma once
+#include "DllMain.h"
 
-#include "CCallResultItem.h"
+/* @page ISteamAppsList
+This is a restricted interface that can only be used by approved apps.
+*/
 
-class CLeaderboardFindCallResult : public CCallResultItem
+/*
+@desc Returns the app name for the given appid.
+@param appID The AppID to get the name for.
+@return The app name or an empty string if the app has not been approved for this method.
+@url https://partner.steamgames.com/doc/api/ISteamAppList#GetAppName
+*/
+extern "C" DLL_EXPORT char *GetAppName(int appID)
 {
-public:
-	CLeaderboardFindCallResult(std::string leaderboardName) :
-		CCallResultItem(),
-		m_Name(leaderboardName),
-		m_hLeaderboard(0) {}
-	virtual ~CLeaderboardFindCallResult(void)
+	CheckInitialized(NULL_STRING);
+	char name[256];
+	// Note: This does not behave how the SDK says it does.  See comments in the code below.
+	int length = SteamAppList()->GetAppName(appID, name, sizeof(name));
+	// Length of 0 means there is no app of that id.
+	if (length == 0)
 	{
-		m_CallResult.Cancel();
+		return utils::CreateString("Not found");
 	}
-	std::string GetName() { return "FindLeaderboard(" + m_Name + ")"; }
-	SteamLeaderboard_t GetLeaderboardHandle() { return m_hLeaderboard; }
-protected:
-	void Call();
-private:
-	CCallResult<CLeaderboardFindCallResult, LeaderboardFindResult_t> m_CallResult;
-	void OnFindLeaderboard(LeaderboardFindResult_t *pCallResult, bool bIOFailure);
-	std::string m_Name;
-	SteamLeaderboard_t m_hLeaderboard;
-};
-
-#endif // _CLEADERBOARDFINDCALLRESULT_H_
+	// Length > 0 means the name was found.
+	if (length > 0)
+	{
+		name[length] = 0;
+		return utils::CreateString(name);
+	}
+	// Length < 0 means the name needs to be cached.  Ask again later.
+	return agk::CreateString(0);
+}

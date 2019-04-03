@@ -24,56 +24,250 @@ THE SOFTWARE.
 #define _CCALLRESULTITEM_H_
 #pragma once
 
-#include <steam_api.h>
 #include "DllMain.h"
-#include "AGKUtils.h"
-#include <typeinfo>
+#include <map>
 
-class CCallResultItem
+class CCallResultItemBase
 {
 public:
-	CCallResultItem() : m_State(Idle) {}
-	virtual ~CCallResultItem(void) {}
-	// Return a 'name' for the CCallResultItem object, usually indicates type and some useful parameter values.
-	virtual std::string GetName() = 0;
-	ECallbackState GetState()
-	{
-		// Immediately return to Idle after reporting Done.
-		if (m_State == Done)
-		{
-			m_State = Idle;
-			return Done;
-		}
-		return m_State;
-	}
-	void Run()
-	{
-		if (m_State == Running)
-		{
-			return;
-		}
-		try
-		{
-			utils::Log(GetName() + ": Calling.");
-			Call();
-			m_State = Running;
-		}
-		catch (std::string e)
-		{
-			utils::PluginError(e);
-			m_State = ClientError;
-		}
-		catch (...)
-		{
-			utils::PluginError(GetName() + ": Call threw an unexpected error.");
-			m_State = ClientError;
-		}
-	}
+	CCallResultItemBase() :
+		m_eResult((EResult)0),
+		m_CallResultName("Unnamed Call Result"),
+		m_bRunning(false),
+		m_hSteamAPICall(k_uAPICallInvalid) {}
+	virtual ~CCallResultItemBase(void) {}
+	// Return a 'name' for the CCallResultItemBase object, usually indicates type and some useful parameter values.
+	std::string GetName() { return m_CallResultName; }
+	EResult GetResultCode() { return m_eResult; }
 protected:
-	// Throw std::string for errors
-	virtual void Call() = 0;
-	ECallbackState m_State;
 	SteamAPICall_t m_hSteamAPICall;
+	std::string m_CallResultName;
+	// Throw std::string for errors.
+	virtual SteamAPICall_t Call()
+	{
+		throw std::string(GetName() + ": Call is not defined.");
+	}
+	virtual void Register() = 0;
+	// Called from CCallResultMap.Add().
+	friend void FriendRegister(CCallResultItemBase &callResult)
+	{
+		callResult.Register();
+	}
+	void SetResultCode(EResult eResult, bool bFailure = false);
+	bool m_bRunning;
+private:
+	EResult m_eResult;
+};
+
+template <class callback_type, class response_type = callback_type>
+class CCallResultItem : public CCallResultItemBase
+{
+public:
+	CCallResultItem() : iCallback(callback_type::k_iCallback){}
+	virtual ~CCallResultItem(void)
+	{
+		m_CallResult.Cancel();
+	}
+	int GetCallResultType() { return iCallback; }
+	response_type GetResponse() { return m_Response; }
+protected:
+	response_type m_Response;
+	int iCallback;
+	void Register()
+	{
+		if (m_hSteamAPICall == k_uAPICallInvalid)
+		{
+			throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+		}
+		m_CallResult.Set(m_hSteamAPICall, this, &CCallResultItem<callback_type, response_type>::OnResponse);
+	}
+	virtual void OnResponse(callback_type *pCallResult, bool bFailure)
+	{
+		m_Response = *pCallResult;
+		SetResultCode(m_Response.m_eResult, bFailure);
+		utils::Log(GetName() + ":  Result code = " + std::to_string(m_Response.m_eResult));
+	}
+private:
+	CCallResult<CCallResultItem<callback_type, response_type>, callback_type> m_CallResult;
+};
+
+/*
+Map for maintaining all existing call results.
+*/
+class CCallResultMap
+{
+public:
+	CCallResultMap() {}
+	virtual ~CCallResultMap(void) {}
+
+	int Add(CCallResultItemBase *callResult);
+	// Template methods MUST be defined in the header file!
+	template <class T> T *Get(int handle)
+	{
+		auto search = m_Items.find(handle);
+		if (search == m_Items.end())
+		{
+			utils::PluginError("Invalid call result handle: " + std::to_string(handle) + ".");
+			return NULL;
+		}
+		T *callResult = dynamic_cast<T*>(m_Items[handle]);
+		if (!callResult)
+		{
+			utils::PluginError("Call result handle " + std::to_string(handle) + " was not the expected call result type.");
+			return NULL;
+		}
+		return callResult;
+	}
+	void Delete(int handle);
+	void Clear();
+private:
+	std::map<int, CCallResultItemBase*> m_Items;
+	int m_CurrentHandle;
+};
+
+// Use this to access the call result map.
+CCallResultMap *CallResults();
+
+// TODO See about using this style template instead of GetCallResultValue.
+template <class callresult_type, class response_type>
+int GetCallResultResponse(int hCallResult, int(response_type::*member))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return callResult->GetResponse().*member;
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return (callResult->*function)();
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, bool(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return (callResult->*function)();
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, uint32(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, uint64(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, CSteamID(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return SteamHandles()->GetPluginHandle((callResult->*function)());
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+char *GetCallResultValue(int hCallResult, std::string(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
+
+template <typename callresult_type>
+char *GetCallResultValue(int hCallResult, char *(callresult_type::*function)(void))
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		return utils::CreateString((callResult->*function)());
+	}
+	return agk::CreateString(0);
+}
+
+// Indexes result values
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, int(callresult_type::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return (callResult->*function)(index);
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, uint64(callresult_type::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return SteamHandles()->GetPluginHandle((callResult->*function)(index));
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
+
+template <typename callresult_type>
+int GetCallResultValue(int hCallResult, int index, CSteamID(callresult_type::*function)(int), char *functionName)
+{
+	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
+	{
+		if (callResult->IsValidIndex(index))
+		{
+			return SteamHandles()->GetPluginHandle((callResult->*function)(index));
+		}
+		utils::PluginError(functionName + std::string(": Index out of range."));
+	}
+	return 0;
+}
+
+// Used to wrap Steamworks structs that don't have an m_eResult member.
+// Check m_bSuccess for the eResult value.
+template <class T>
+struct ResponseWrapper : T
+{
+	EResult m_eResult;
+	ResponseWrapper<T>() : m_eResult((EResult)0) {}
+	ResponseWrapper<T>(T &from) : T(from)
+	{
+		SetResult();
+	}
+private:
+	void SetResult()
+	{
+		m_eResult = m_bSuccess ? k_EResultOK : k_EResultFail;
+	}
 };
 
 #endif // _CCALLRESULTITEM_H_

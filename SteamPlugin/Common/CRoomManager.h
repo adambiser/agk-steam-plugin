@@ -20,29 +20,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CLobbyEnterCallResult.h"
+#ifndef _CROOMMANAGER_H_
+#define _CROOMMANAGER_H_
+#pragma once
 
-void CLobbyEnterCallResult::OnLobbyEnter(LobbyEnter_t *pParam, bool bIOFailure)
-{
-	if (!bIOFailure)
-	{
-		utils::Log(GetName() + ": Succeeded.");
-		m_LobbyEnter = *pParam;
-		m_State = Done;
-	}
-	else
-	{
-		utils::Log(GetName() + ": Failed.");
-		m_State = ServerError;
-	}
-}
+#include "DllMain.h"
+#include <mutex>
+#include <vector>
 
-void CLobbyEnterCallResult::Call()
+// Registers callbacks when joining a lobby or clan chat.  Unregisters when the last is left.
+class CRoomManager
 {
-	m_hSteamAPICall = SteamMatchmaking()->JoinLobby(m_steamIDLobby);
-	if (m_hSteamAPICall == k_uAPICallInvalid)
-	{
-		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
-	}
-	m_CallResult.Set(m_hSteamAPICall, this, &CLobbyEnterCallResult::OnLobbyEnter);
-}
+public:
+	CRoomManager() {}
+	virtual ~CRoomManager() {}
+	void Add(CSteamID steamID);
+	void Remove(CSteamID steamID);
+	void Reset();
+protected:
+	virtual void Leave(CSteamID steamID) = 0;
+	virtual void RegisterCallbacks() = 0;
+	virtual void UnregisterCallbacks() = 0;
+	std::mutex m_JoinedMutex;
+	std::vector<CSteamID> m_Joined;
+};
+
+class CLobbyManager : public CRoomManager
+{
+protected:
+	void Leave(CSteamID steamID);
+	void RegisterCallbacks();
+	void UnregisterCallbacks();
+};
+
+CLobbyManager *LobbyManager();
+
+class CClanChatManager : public CRoomManager
+{
+protected:
+	void Leave(CSteamID steamID);
+	void RegisterCallbacks();
+	void UnregisterCallbacks();
+};
+
+CClanChatManager *ClanChatManager();
+
+#endif // _CROOMMANAGER_H_

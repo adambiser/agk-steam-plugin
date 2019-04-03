@@ -20,90 +20,132 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#include "SteamMusic.h"
+#include "DllMain.h"
 
-// Music methods
-bool SteamPlugin::IsMusicEnabled()
+/* @page ISteamMusic */
+
+CPlaybackStatusHasChangedCallback PlaybackStatusHasChangedCallback;
+CVolumeHasChangedCallback VolumeHasChangedCallback;
+
+/*
+@desc Checks if Steam Music is enabled.
+@return 1 if Steam Music is enabled; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#BIsEnabled
+*/
+extern "C" DLL_EXPORT int IsMusicEnabled()
 {
-	CheckInitialized(SteamMusic, false);
+	CheckInitialized(false);
 	return SteamMusic()->BIsEnabled();
 }
 
-bool SteamPlugin::IsMusicPlaying()
+/*
+@desc Checks if Steam Music is active. This does not necessarily mean that a song is currently playing, it may be paused.
+@return 1 if Steam Music is active; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#BIsPlaying
+*/
+extern "C" DLL_EXPORT int IsMusicPlaying()
 {
-	CheckInitialized(SteamMusic, false);
+	CheckInitialized(false);
 	return SteamMusic()->BIsPlaying();
 }
 
-AudioPlayback_Status SteamPlugin::GetMusicPlaybackStatus()
+/*
+@desc Gets the current status of the Steam Music player.
+@return An AudioPlayback_Status value
+@return-url https://partner.steamgames.com/doc/api/ISteamMusic#AudioPlayback_Status
+@url https://partner.steamgames.com/doc/api/ISteamMusic#GetPlaybackStatus
+*/
+extern "C" DLL_EXPORT int GetMusicPlaybackStatus()
 {
-	CheckInitialized(SteamMusic, AudioPlayback_Undefined);
+	CheckInitialized(AudioPlayback_Undefined);
 	return SteamMusic()->GetPlaybackStatus();
 }
 
-float SteamPlugin::GetMusicVolume()
+/*
+@desc Gets the current volume of the Steam Music player.
+@return The volume is returned as a percentage between 0.0 and 1.0.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#GetVolume
+*/
+extern "C" DLL_EXPORT float GetMusicVolume()
 {
-	CheckInitialized(SteamMusic, 0.0);
+	CheckInitialized(0.0);
 	return SteamMusic()->GetVolume();
 }
 
-void SteamPlugin::PauseMusic()
+/*
+@desc Pause the Steam Music player.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#Pause
+*/
+extern "C" DLL_EXPORT void PauseMusic()
 {
-	CheckInitialized(SteamMusic, );
+	CheckInitialized(NORETURN);
 	SteamMusic()->Pause();
 }
 
-void SteamPlugin::PlayMusic()
+/*
+@desc Have the Steam Music player resume playing.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#Play
+*/
+extern "C" DLL_EXPORT void PlayMusic()
 {
-	CheckInitialized(SteamMusic, );
+	CheckInitialized(NORETURN);
 	SteamMusic()->Play();
 }
 
-void SteamPlugin::PlayNextSong()
+/*
+@desc Have the Steam Music player skip to the next song.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#PlayNext
+*/
+extern "C" DLL_EXPORT void PlayNextSong()
 {
-	CheckInitialized(SteamMusic, );
+	CheckInitialized(NORETURN);
 	SteamMusic()->PlayNext();
 }
 
-void SteamPlugin::PlayPreviousSong()
+/*
+@desc Have the Steam Music player play the previous song.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#PlayPrevious
+*/
+extern "C" DLL_EXPORT void PlayPreviousSong()
 {
-	CheckInitialized(SteamMusic, );
+	CheckInitialized(NORETURN);
 	SteamMusic()->PlayPrevious();
 }
 
-void SteamPlugin::SetMusicVolume(float flVolume)
+/*
+@desc Sets the volume of the Steam Music player.
+@param volume The volume percentage to set from 0.0 to 1.0.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#SetVolume
+*/
+extern "C" DLL_EXPORT void SetMusicVolume(float volume)
 {
-	CheckInitialized(SteamMusic, );
-	SteamMusic()->SetVolume(flVolume);
+	CheckInitialized(NORETURN);
+	SteamMusic()->SetVolume(volume);
 }
 
-void SteamPlugin::OnPlaybackStatusHasChanged(PlaybackStatusHasChanged_t *pParam)
+//Callbacks
+/*
+@desc Notifies the caller that the music playback status has changed since the last call.
+@callback-type bool
+@return 1 when a change has occurred; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#PlaybackStatusHasChanged_t
+*/
+extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 {
-	agk::Log("Callback: OnPlaybackStatusHasChanged");
-	m_PlaybackStatusHasChanged = true;
+	CheckInitialized(0);
+	return PlaybackStatusHasChangedCallback.HasResponse();
 }
 
-bool SteamPlugin::HasMusicPlaybackStatusChanged()
+/*
+@desc Notifies the caller that the music volume has changed since the last call.
+@callback-type bool
+@return 1 when a change has occurred; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamMusic#VolumeHasChanged_t
+*/
+extern "C" DLL_EXPORT int HasMusicVolumeChangedResponse()
 {
-	// Reports true only once per change.
-	if (m_PlaybackStatusHasChanged)
-	{
-		m_PlaybackStatusHasChanged = false;
-		return true;
-	}
-	return false;
+	CheckInitialized(0);
+	return VolumeHasChangedCallback.HasResponse();
 }
 
-void SteamPlugin::OnVolumeHasChanged(VolumeHasChanged_t *pParam)
-{
-	agk::Log("Callback: OnVolumeHasChanged");
-	m_VolumeHasChanged = true;
-}
-
-bool SteamPlugin::HasMusicVolumeChanged()
-{
-	// Reports true only once per change.
-	bool temp = m_VolumeHasChanged;
-	m_VolumeHasChanged = false;
-	return temp;
-}

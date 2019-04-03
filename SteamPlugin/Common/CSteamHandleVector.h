@@ -20,5 +20,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "SteamPlugin.h"
+#ifndef _CSTEAMHANDLEVECTOR_H_
+#define _CSTEAMHANDLEVECTOR_H_
+#pragma once
 
+#include <steam_api.h>
+#include <vector>
+
+class CSteamHandleVector
+{
+public:
+	CSteamHandleVector() { Clear(); }
+	~CSteamHandleVector(void) {};
+	uint64 GetSteamHandle(int pluginHandle);
+	int GetPluginHandle(uint64 steamHandle);
+	int GetPluginHandle(CSteamID steamID);
+	void Clear();
+private:
+	std::vector<uint64> m_SteamHandles;
+};
+
+CSteamHandleVector *SteamHandles();
+
+#endif // _CSTEAMHANDLEVECTOR_H_

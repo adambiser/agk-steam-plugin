@@ -20,29 +20,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CFileWriteAsyncCallResult.h"
+#include "CSteamHandleVector.h"
+#include "../AGKLibraryCommands.h"
 
-void CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure)
+CSteamHandleVector *SteamHandles()
 {
-	if (pResult->m_eResult == k_EResultOK && !bFailure)
-	{
-		utils::Log(GetName() + ": Succeeded.");
-		m_State = Done;
-	}
-	else
-	{
-		utils::Log(GetName() + ": Failed with result " + std::to_string(pResult->m_eResult) + ".");
-		m_State = ServerError;
-	}
+	static CSteamHandleVector *handles = new CSteamHandleVector();
+	return handles;
 }
 
-void CFileWriteAsyncCallResult::Call()
+uint64 CSteamHandleVector::GetSteamHandle(int pluginHandle)
 {
-	m_hSteamAPICall = SteamRemoteStorage()->FileWriteAsync(m_FileName.c_str(), m_pvData, m_cubData);
-	if (m_hSteamAPICall == k_uAPICallInvalid)
+	if (pluginHandle >= 0 && pluginHandle < (int)m_SteamHandles.size())
 	{
-		//throw std::string(GetName() + ": File does not exist.");
-		throw std::string(GetName() + ": Call returned k_uAPICallInvalid.");
+		return m_SteamHandles[pluginHandle];
 	}
-	m_CallResult.Set(m_hSteamAPICall, this, &CFileWriteAsyncCallResult::OnRemoteStorageFileWriteAsyncComplete);
+	agk::PluginError("Invalid Steam uint64 handle.");
+	return 0;
+}
+
+int CSteamHandleVector::GetPluginHandle(uint64 handle)
+{
+	int index = (int)(std::find(m_SteamHandles.begin(), m_SteamHandles.end(), handle) - m_SteamHandles.begin());
+	if (index < (int)m_SteamHandles.size())
+	{
+		// Handles are 1-based!
+		return index;
+	}
+	m_SteamHandles.push_back(handle);
+	return (int)m_SteamHandles.size() - 1;
+}
+
+int CSteamHandleVector::GetPluginHandle(CSteamID steamID)
+{
+	return GetPluginHandle(steamID.ConvertToUint64());
+}
+
+void CSteamHandleVector::Clear()
+{
+	m_SteamHandles.clear();
+	// Handle 0 is always k_steamIDNil.
+	m_SteamHandles.push_back(k_steamIDNil.ConvertToUint64());
 }

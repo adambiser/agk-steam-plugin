@@ -188,14 +188,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\AGKLibraryCommands.cpp" />
-    <ClCompile Include="..\Common\CFileReadAsyncCallResult.cpp" />
-    <ClCompile Include="..\Common\CFileWriteAsyncCallResult.cpp" />
-    <ClCompile Include="..\Common\CLeaderboardFindCallResult.cpp" />
-    <ClCompile Include="..\Common\CLeaderboardScoresDownloadedCallResult.cpp" />
-    <ClCompile Include="..\Common\CLeaderboardScoreUploadedCallResult.cpp" />
-    <ClCompile Include="..\Common\CLobbyCreatedCallResult.cpp" />
-    <ClCompile Include="..\Common\CLobbyEnterCallResult.cpp" />
-    <ClCompile Include="..\Common\CLobbyMatchListCallResult.cpp" />
+    <ClCompile Include="..\Common\CCallbacks.cpp" />
+    <ClCompile Include="..\Common\CCallResultItem.cpp" />
+    <ClCompile Include="..\Common\CRoomManager.cpp" />
+    <ClCompile Include="..\Common\CSteamHandleVector.cpp" />
     <ClCompile Include="..\Common\DllMain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -211,32 +207,33 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Common\SteamApps.cpp" />
+    <ClCompile Include="..\Common\SteamAppsList.cpp" />
     <ClCompile Include="..\Common\SteamFriends.cpp" />
     <ClCompile Include="..\Common\SteamInput.cpp" />
     <ClCompile Include="..\Common\SteamMatchmaking.cpp" />
     <ClCompile Include="..\Common\SteamMusic.cpp" />
-    <ClCompile Include="..\Common\SteamPlugin.cpp" />
     <ClCompile Include="..\Common\SteamRemoteStorage.cpp" />
-    <ClCompile Include="..\Common\SteamUGC.cpp" />
     <ClCompile Include="..\Common\SteamUser.cpp" />
     <ClCompile Include="..\Common\SteamUserStats.cpp" />
     <ClCompile Include="..\Common\SteamUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
-    <ClInclude Include="..\Common\AGKUtils.h" />
+    <ClInclude Include="..\Common\CRoomManager.h" />
+    <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
-    <ClInclude Include="..\Common\CFileReadAsyncCallResult.h" />
-    <ClInclude Include="..\Common\CFileWriteAsyncCallResult.h" />
-    <ClInclude Include="..\Common\CLeaderboardFindCallResult.h" />
-    <ClInclude Include="..\Common\CLeaderboardScoresDownloadedCallResult.h" />
-    <ClInclude Include="..\Common\CLeaderboardScoreUploadedCallResult.h" />
-    <ClInclude Include="..\Common\CLobbyCreatedCallResult.h" />
-    <ClInclude Include="..\Common\CLobbyEnterCallResult.h" />
-    <ClInclude Include="..\Common\CLobbyMatchListCallResult.h" />
     <ClInclude Include="..\Common\DllMain.h" />
+    <ClInclude Include="..\Common\SteamApps.h" />
+    <ClInclude Include="..\Common\SteamFriends.h" />
+    <ClInclude Include="..\Common\SteamInput.h" />
+    <ClInclude Include="..\Common\SteamMatchmaking.h" />
+    <ClInclude Include="..\Common\SteamMusic.h" />
+    <ClInclude Include="..\Common\SteamRemoteStorage.h" />
+    <ClInclude Include="..\Common\SteamUser.h" />
+    <ClInclude Include="..\Common\SteamUserStats.h" />
+    <ClInclude Include="..\Common\SteamUtils.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="..\Common\SteamPlugin.h" />
+    <ClInclude Include="..\Common\CCallbacks.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SteamPlugin.rc" />

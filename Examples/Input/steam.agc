@@ -34,6 +34,8 @@ EndType
 
 #constant SHOW_ACTION_NAME_INDEX 4
 
+#constant HINPUT	1	// Assuming hInput 1 for this example.
+
 CreateTextEx(0, 80, digitalActionNames[SHOW_ACTION_NAME_INDEX] + ": ")
 global buttonSprite as integer
 buttonSprite = CreateSprite(0) // LoadImage("raw:C:\Program Files (x86)\Steam\tenfoot\resource\images\library\controller\api\xbox_button_dpad_w.png"))
@@ -74,6 +76,8 @@ do
 	endif
 loop
 
+global speedTestDone as integer
+
 //
 // Check and handle input.
 //
@@ -83,27 +87,51 @@ Function CheckInput()
 	// Check action data
 	Steam.RunFrame()
 	if controllerCount
-		Steam.ActivateActionSet(1, ActionSetHandles.shipControls)
+		Steam.ActivateActionSet(HINPUT, ActionSetHandles.shipControls)
 		// Space War has an action set layer, but I don't know its name.  Pretending menu_controls is an action set layer for now.
-		Steam.ActivateActionSetLayer(1, ActionSetHandles.menuControls) // Hit DETECT again to see this layer activated.
+		Steam.ActivateActionSetLayer(HINPUT, ActionSetHandles.menuControls) // Hit DETECT again to see this layer activated.
+		// Speed test
+		//~ if not speedTestDone
+			//~ ResetTimer()
+			//~ for x = 1 to 100000
+				//~ Steam.GetMotionData(HINPUT)
+				//~ Steam.GetMotionDataPosAccelX()
+				//~ Steam.GetMotionDataPosAccelY()
+				//~ Steam.GetMotionDataPosAccelZ()
+				//~ Steam.GetMotionDataRotQuatW()
+				//~ Steam.GetMotionDataRotQuatX()
+				//~ Steam.GetMotionDataRotQuatY()
+				//~ Steam.GetMotionDataRotQuatZ()
+				//~ Steam.GetMotionDataRotVelX()
+				//~ Steam.GetMotionDataRotVelY()
+				//~ Steam.GetMotionDataRotVelZ()
+			//~ next
+			//~ AddStatus("Speed Test: " + str(Timer()))
+			//~ speedTestDone = 1
+		//~ endif
 		for x = 0 to digitalActionHandles.length
 			// Must call GetDigitalActionData before checking GetDigitalActionDataState and/or GetDigitalActionDataActive!
 			// Note that this only indicates the current state.  You'd have to keep track of these values if you want to know when pressed or released.
-			Steam.GetDigitalActionData(1, digitalActionHandles[x])
-			if Steam.GetDigitalActionDataState()
-				AddStatus("Digital action: " + digitalActionNames[x])
+			if Steam.GetDigitalActionData(HINPUT, digitalActionHandles[x])
+				if Steam.GetDigitalActionDataState()
+					AddStatus("Digital action: " + digitalActionNames[x])
+				endif
+			//~ else
+				//~ AddStatus(digitalActionNames[x] + " is inactive.")
 			endif
 		next
 		for x = 0 to analogActionHandles.length
 			// Must call GetAnalogActionData before checking GetAnalogActionDataX or GetAnalogActionDataY!
-			// Note that the Steam API does not have a dead zone value, so you'd have to implement one yourself.
-			Steam.GetAnalogActionData(1, analogActionHandles[x])
-			if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
-				AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
+			if Steam.GetAnalogActionData(HINPUT, analogActionHandles[x])
+				if Steam.GetAnalogActionDataX() <> 0 or Steam.GetAnalogActionDataY() <> 0
+					AddStatus(analogActionNames[x] + ".x / .y = " + str(Steam.GetAnalogActionDataX()) + ", " + str(Steam.GetAnalogActionDataY()))
+				endif
+			//~ else
+				//~ AddStatus(analogActionNames[x] + " is inactive.")
 			endif
 		next
-		// Check for motion data.
-		Steam.GetMotionData(1)
+		// Check for motion data.  Have to call GetMotionData for our input handle to load the data in the plugin for retrieval.
+		Steam.GetMotionData(HINPUT)
 		AddStatusIfNotZero("PosAccelX", Steam.GetMotionDataPosAccelX())
 		AddStatusIfNotZero("PosAccelY", Steam.GetMotionDataPosAccelY())
 		AddStatusIfNotZero("PosAccelZ", Steam.GetMotionDataPosAccelZ())
@@ -129,29 +157,37 @@ Function CheckInput()
 		next
 		if controllerCount > 0
 			origins as integer[]
-			origins.fromjson(Steam.GetDigitalActionOriginsJSON(1, ActionSetHandles.shipControls, digitalActionHandles[SHOW_ACTION_NAME_INDEX]))
+			for x = 0 to Steam.GetDigitalActionOriginCount(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[SHOW_ACTION_NAME_INDEX]) - 1
+				origins.insert(Steam.GetDigitalActionOriginValue(HINPUT, ActionSetHandles.shipControls, digitalActionHandles[SHOW_ACTION_NAME_INDEX], x))
+			next x
 			AddStatus(digitalActionNames[SHOW_ACTION_NAME_INDEX] + " origins: " + origins.tojson())
 			for x = 0 to origins.length
 				AddStatus("Action origin " + str(x) + ": " + Steam.GetStringForActionOrigin(origins[x]))
 				glyphPath as String
 				glyphPath = Steam.GetGlyphForActionOrigin(origins[x])
 				AddStatus("Glyph path " + str(x) +": " + glyphPath)
+				// Display the first origin glyph.
 				if x = 0
 					SetSpriteImage(buttonSprite, LoadImage("raw:" + glyphPath))
 				endif
 			next
-			origins.fromjson(Steam.GetAnalogActionOriginsJSON(1, ActionSetHandles.shipControls, analogActionHandles[0]))
+			origins.length = -1
+			for x = 0 to Steam.GetAnalogActionOriginCount(HINPUT, ActionSetHandles.shipControls, analogActionHandles[0]) - 1
+				origins.insert(Steam.GetAnalogActionOriginValue(HINPUT, ActionSetHandles.shipControls, analogActionHandles[0], x))
+			next x
 			if origins.length >= 0
 				AddStatus(analogActionNames[0] + " origins: " + origins.tojson())
 				AddStatus("Action origin: " + Steam.GetStringForActionOrigin(origins[0]))
 			endif
 			layers as integer[]
-			layers.fromjson(Steam.GetActiveActionSetLayersJSON(1))
+			for x = 0 to Steam.GetActiveActionSetLayerCount(HINPUT) - 1
+				layers.insert(Steam.GetActiveActionSetLayerHandle(HINPUT, x))
+			next
 			AddStatus("Active Action Set Layers: " + layers.tojson())
 		endif
 	endif
 	if GetVirtualButtonPressed(BINDING_PANEL_BUTTON)
-		AddStatus("Show binding panel for input 1: " + TF(Steam.ShowBindingPanel(1)))
+		AddStatus("Show binding panel for input 1: " + TF(Steam.ShowBindingPanel(HINPUT)))
 		// No real way of knowing when the binding panel closes!
 		while not GetResumed() or GetPaused()
 			Sync()
@@ -159,11 +195,11 @@ Function CheckInput()
 	endif
 	if GetVirtualButtonPressed(VIBRATE_BUTTON)
 		AddStatus("Vibrating input 1...")
-		Steam.TriggerInputVibration(1, 2000, 1000)
+		Steam.TriggerInputVibration(HINPUT, 2000, 1000)
 	endif
 	if GetVirtualButtonPressed(HAPTIC_BUTTON)
 		AddStatus("Sending haptic pulse to input 1 left pad...")
-		Steam.TriggerInputHapticPulse(1, k_ESteamControllerPad_Left, 1000)
+		Steam.TriggerInputHapticPulse(HINPUT, ESteamControllerPad_Left, 1000)
 	endif
 EndFunction
 
@@ -182,22 +218,22 @@ EndFunction
 
 Function GetInputTypeName(value as integer)
 	select value
-		case k_ESteamInputType_Unknown
+		case ESteamInputType_Unknown
 			ExitFunction "Unknown"
 		endcase
-		case k_ESteamInputType_SteamController
+		case ESteamInputType_SteamController
 			ExitFunction "Steam Controller"
 		endcase
-		case k_ESteamInputType_XBox360Controller
+		case ESteamInputType_XBox360Controller
 			ExitFunction "XBox 360 Controller"
 		endcase
-		case k_ESteamInputType_XBoxOneController
+		case ESteamInputType_XBoxOneController
 			ExitFunction "XBox One Controller"
 		endcase
-		case k_ESteamInputType_GenericGamepad
+		case ESteamInputType_GenericGamepad
 			ExitFunction "DirectX Controller"
 		endcase
-		case k_ESteamInputType_PS4Controller
+		case ESteamInputType_PS4Controller
 			ExitFunction "PS4 Controller"
 		endcase
 	endselect
