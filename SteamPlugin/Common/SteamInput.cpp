@@ -46,6 +46,27 @@ InputMotionData_t g_InputMotionData;
 		return returnValue;							\
 	}
 
+void ResetSteamInput()
+{
+	g_InputCount = 0;
+	g_InputAnalogActionData.bActive = false;
+	g_InputAnalogActionData.eMode = k_EInputSourceMode_None;
+	g_InputAnalogActionData.x = 0;
+	g_InputAnalogActionData.y = 0;
+	g_InputDigitalActionData.bActive = false;
+	g_InputDigitalActionData.bState = false;
+	g_InputMotionData.posAccelX = 0;
+	g_InputMotionData.posAccelY = 0;
+	g_InputMotionData.posAccelZ = 0;
+	g_InputMotionData.rotQuatW = 0;
+	g_InputMotionData.rotQuatX = 0;
+	g_InputMotionData.rotQuatY = 0;
+	g_InputMotionData.rotQuatZ = 0;
+	g_InputMotionData.rotVelX = 0;
+	g_InputMotionData.rotVelY = 0;
+	g_InputMotionData.rotVelZ = 0;
+}
+
 /*
 @desc Reconfigure the input to use the specified action set (ie "Menu", "Walk", or "Drive").
 

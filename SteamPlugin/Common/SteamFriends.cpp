@@ -20,7 +20,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "SteamFriends.h"
 #include "DllMain.h"
+
+CAvatarImageLoadedCallback AvatarImageLoadedCallback;
+CFriendRichPresenceUpdateCallback FriendRichPresenceUpdateCallback;
+CGameConnectedChatJoinCallback GameConnectedChatJoinCallback;
+CGameConnectedChatLeaveCallback GameConnectedChatLeaveCallback;
+CGameConnectedClanChatMsgCallback GameConnectedClanChatMsgCallback;
+CGameConnectedFriendChatMsgCallback GameConnectedFriendChatMsgCallback;
+CGameLobbyJoinRequestedCallback GameLobbyJoinRequestedCallback;
+CGameOverlayActivatedCallback GameOverlayActivatedCallback;
+CGameRichPresenceJoinRequestedCallback GameRichPresenceJoinRequestedCallback;
+CGameServerChangeRequestedCallback GameServerChangeRequestedCallback;
+CPersonaStateChangeCallback PersonaStateChangeCallback;
 
 /* @page ISteamFriends */
 
@@ -830,7 +843,7 @@ extern "C" DLL_EXPORT int GetFriendGamePlayedLobby(int hSteamIDUser)
 extern "C" DLL_EXPORT char *GetFriendPersonaName(int hSteamIDUser)
 {
 	CheckInitialized(NULL_STRING);
-	Callbacks()->PersonaStateChange.Register();
+	PersonaStateChangeCallback.Register();
 	return utils::CreateString(SteamFriends()->GetFriendPersonaName(SteamHandles()->GetSteamHandle(hSteamIDUser)));
 }
 
@@ -890,7 +903,7 @@ extern "C" DLL_EXPORT char *GetFriendPersonaNameHistoryJSON(int hSteamIDFriend)
 extern "C" DLL_EXPORT int GetFriendPersonaState(int hSteamIDUser)
 {
 	CheckInitialized(-1);
-	Callbacks()->PersonaStateChange.Register();
+	PersonaStateChangeCallback.Register();
 	return SteamFriends()->GetFriendPersonaState(SteamHandles()->GetSteamHandle(hSteamIDUser));
 }
 
@@ -1076,7 +1089,7 @@ extern "C" DLL_EXPORT int GetFriendSteamLevel(int hSteamIDUser)
 	Possible solution is to just keep requesting the level when 0 is returned.
 	*/
 	CheckInitialized(0);
-	Callbacks()->PersonaStateChange.Register();
+	PersonaStateChangeCallback.Register();
 	return SteamFriends()->GetFriendSteamLevel(SteamHandles()->GetSteamHandle(hSteamIDUser));
 }
 
@@ -1105,8 +1118,8 @@ Use [LoadImageFromHandle](Image-Loading#loadimagefromhandle) to load the image f
 extern "C" DLL_EXPORT int GetFriendAvatar(int hSteamIDUser, int size)
 {
 	CheckInitialized(0);
-	Callbacks()->AvatarImageLoaded.Register();
-	Callbacks()->PersonaStateChange.Register();
+	AvatarImageLoadedCallback.Register();
+	PersonaStateChangeCallback.Register();
 	CSteamID steamID = SteamHandles()->GetSteamHandle(hSteamIDUser);
 	// NOTE: The Steam API appears to implicitly call RequestUserInformation when needed.
 	//SteamFriends()->RequestUserInformation(steamID, false);
@@ -1384,7 +1397,7 @@ protected:
 extern "C" DLL_EXPORT int JoinClanChatRoom(int hSteamIDClan)
 {
 	CheckInitialized(0);
-	//Callbacks()->GameConnectedChatJoin.Register();
+	//GameConnectedChatJoinCallback.Register();
 	return CallResults()->Add(new CJoinClanChatRoomCallResult(SteamHandles()->GetSteamHandle(hSteamIDClan)));
 }
 
@@ -1507,7 +1520,7 @@ Triggers a FriendRichPresenceUpdate_t callback.
 extern "C" DLL_EXPORT void RequestFriendRichPresence(int hSteamIDFriend)
 {
 	CheckInitialized(NORETURN);
-	Callbacks()->FriendRichPresenceUpdate.Register();
+	FriendRichPresenceUpdateCallback.Register();
 	SteamFriends()->RequestFriendRichPresence(SteamHandles()->GetSteamHandle(hSteamIDFriend));
 }
 
@@ -1521,8 +1534,8 @@ extern "C" DLL_EXPORT void RequestFriendRichPresence(int hSteamIDFriend)
 extern "C" DLL_EXPORT int RequestUserInformation(int hSteamIDUser, int requireNameOnly)
 {
 	CheckInitialized(false);
-	Callbacks()->PersonaStateChange.Register();
-	Callbacks()->AvatarImageLoaded.Register();
+	PersonaStateChangeCallback.Register();
+	AvatarImageLoadedCallback.Register();
 	return SteamFriends()->RequestUserInformation(SteamHandles()->GetSteamHandle(hSteamIDUser), requireNameOnly != 0);
 }
 
@@ -1562,11 +1575,11 @@ extern "C" DLL_EXPORT void SetListenForFriendsMessages(int interceptEnabled)
 	CheckInitialized(NORETURN);
 	if (interceptEnabled)
 	{
-		Callbacks()->GameConnectedFriendChatMsg.Register();
+		GameConnectedFriendChatMsgCallback.Register();
 	}
 	else
 	{
-		Callbacks()->GameConnectedFriendChatMsg.Unregister();
+		GameConnectedFriendChatMsgCallback.Unregister();
 	}
 	SteamFriends()->SetListenForFriendsMessages(interceptEnabled != 0);
 }
@@ -1655,7 +1668,7 @@ extern "C" DLL_EXPORT int SetRichPresence(const char *key, const char *value)
 */
 extern "C" DLL_EXPORT int HasAvatarImageLoadedResponse()
 {
-	return Callbacks()->AvatarImageLoaded.HasResponse();
+	return AvatarImageLoadedCallback.HasResponse();
 }
 
 /*
@@ -1665,7 +1678,7 @@ Call GetFriendAvatar with the returned user handle to get the image handle
 */
 extern "C" DLL_EXPORT int GetAvatarImageLoadedUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->AvatarImageLoaded.GetCurrent());
+	return SteamHandles()->GetPluginHandle(AvatarImageLoadedCallback.GetCurrent());
 }
 
 //ClanOfficerListResponse_t - call result for RequestClanOfficerList
@@ -1681,7 +1694,7 @@ same game update their rich presence, or after a call to RequestFriendRichPresen
 */
 extern "C" DLL_EXPORT int HasFriendRichPresenceUpdateResponse()
 {
-	return Callbacks()->FriendRichPresenceUpdate.HasResponse();
+	return FriendRichPresenceUpdateCallback.HasResponse();
 }
 
 /*
@@ -1690,7 +1703,7 @@ extern "C" DLL_EXPORT int HasFriendRichPresenceUpdateResponse()
 */
 extern "C" DLL_EXPORT int GetFriendRichPresenceUpdateUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->FriendRichPresenceUpdate.GetCurrent());
+	return SteamHandles()->GetPluginHandle(FriendRichPresenceUpdateCallback.GetCurrent());
 }
 
 //FriendsEnumerateFollowingList_t - call result for EnumerateFollowingList
@@ -1706,7 +1719,7 @@ extern "C" DLL_EXPORT int GetFriendRichPresenceUpdateUser()
 */
 extern "C" DLL_EXPORT int HasGameConnectedChatJoinResponse()
 {
-	return Callbacks()->GameConnectedChatJoin.HasResponse();
+	return GameConnectedChatJoinCallback.HasResponse();
 }
 
 /*
@@ -1715,7 +1728,7 @@ extern "C" DLL_EXPORT int HasGameConnectedChatJoinResponse()
 */
 extern "C" DLL_EXPORT int GetGameConnectedChatJoinClan()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatJoin.GetCurrent().m_steamIDClanChat);
+	return SteamHandles()->GetPluginHandle(GameConnectedChatJoinCallback.GetCurrent().m_steamIDClanChat);
 }
 
 /*
@@ -1724,7 +1737,7 @@ extern "C" DLL_EXPORT int GetGameConnectedChatJoinClan()
 */
 extern "C" DLL_EXPORT int GetGameConnectedChatJoinUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatJoin.GetCurrent().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(GameConnectedChatJoinCallback.GetCurrent().m_steamIDUser);
 }
 
 /*
@@ -1737,7 +1750,7 @@ GetGameConnectedChatLeaveKicked
 */
 extern "C" DLL_EXPORT int HasGameConnectedChatLeaveResponse()
 {
-	return Callbacks()->GameConnectedChatLeave.HasResponse();
+	return GameConnectedChatLeaveCallback.HasResponse();
 }
 
 /*
@@ -1746,7 +1759,7 @@ extern "C" DLL_EXPORT int HasGameConnectedChatLeaveResponse()
 */
 extern "C" DLL_EXPORT int GetGameConnectedChatLeaveClan()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatLeave.GetCurrent().m_steamIDClanChat);
+	return SteamHandles()->GetPluginHandle(GameConnectedChatLeaveCallback.GetCurrent().m_steamIDClanChat);
 }
 
 /*
@@ -1755,7 +1768,7 @@ extern "C" DLL_EXPORT int GetGameConnectedChatLeaveClan()
 */
 extern "C" DLL_EXPORT int GetGameConnectedChatLeaveUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedChatLeave.GetCurrent().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(GameConnectedChatLeaveCallback.GetCurrent().m_steamIDUser);
 }
 
 /*
@@ -1764,7 +1777,7 @@ extern "C" DLL_EXPORT int GetGameConnectedChatLeaveUser()
 */
 extern "C" DLL_EXPORT int GetGameConnectedChatLeaveDropped()
 {
-	return Callbacks()->GameConnectedChatLeave.GetCurrent().m_bDropped;
+	return GameConnectedChatLeaveCallback.GetCurrent().m_bDropped;
 }
 
 /*
@@ -1773,7 +1786,7 @@ extern "C" DLL_EXPORT int GetGameConnectedChatLeaveDropped()
 */
 extern "C" DLL_EXPORT int GetGameConnectedChatLeaveKicked()
 {
-	return Callbacks()->GameConnectedChatLeave.GetCurrent().m_bKicked;
+	return GameConnectedChatLeaveCallback.GetCurrent().m_bKicked;
 }
 
 /*
@@ -1786,7 +1799,7 @@ GetGameConnectedClanChatMessageText
 */
 extern "C" DLL_EXPORT int HasGameConnectedClanChatMessageResponse()
 {
-	return Callbacks()->GameConnectedClanChatMsg.HasResponse();
+	return GameConnectedClanChatMsgCallback.HasResponse();
 }
 
 /*
@@ -1796,7 +1809,7 @@ extern "C" DLL_EXPORT int HasGameConnectedClanChatMessageResponse()
 */
 extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageEntryType()
 {
-	return Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_ChatEntryType;
+	return GameConnectedClanChatMsgCallback.GetCurrent().m_ChatEntryType;
 }
 
 /*
@@ -1805,7 +1818,7 @@ extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageEntryType()
 */
 extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageClan()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_steamIDClanChat);
+	return SteamHandles()->GetPluginHandle(GameConnectedClanChatMsgCallback.GetCurrent().m_steamIDClanChat);
 }
 
 /*
@@ -1814,7 +1827,7 @@ extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageClan()
 */
 extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(GameConnectedClanChatMsgCallback.GetCurrent().m_steamIDUser);
 }
 
 /*
@@ -1823,7 +1836,7 @@ extern "C" DLL_EXPORT int GetGameConnectedClanChatMessageUser()
 */
 extern "C" DLL_EXPORT char *GetGameConnectedClanChatMessageText()
 {
-	return utils::CreateString(Callbacks()->GameConnectedClanChatMsg.GetCurrent().m_Text);
+	return utils::CreateString(GameConnectedClanChatMsgCallback.GetCurrent().m_Text);
 }
 
 /*
@@ -1835,7 +1848,7 @@ extern "C" DLL_EXPORT char *GetGameConnectedClanChatMessageText()
 */
 extern "C" DLL_EXPORT int HasGameConnectedFriendChatMessageResponse()
 {
-	return Callbacks()->GameConnectedFriendChatMsg.HasResponse();
+	return GameConnectedFriendChatMsgCallback.HasResponse();
 }
 
 /*
@@ -1845,7 +1858,7 @@ extern "C" DLL_EXPORT int HasGameConnectedFriendChatMessageResponse()
 */
 extern "C" DLL_EXPORT int GetGameConnectedFriendChatMessageEntryType()
 {
-	return Callbacks()->GameConnectedFriendChatMsg.GetCurrent().m_ChatEntryType;
+	return GameConnectedFriendChatMsgCallback.GetCurrent().m_ChatEntryType;
 }
 
 /*
@@ -1854,7 +1867,7 @@ extern "C" DLL_EXPORT int GetGameConnectedFriendChatMessageEntryType()
 */
 extern "C" DLL_EXPORT int GetGameConnectedFriendChatMessageUser()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameConnectedFriendChatMsg.GetCurrent().m_steamIDUser);
+	return SteamHandles()->GetPluginHandle(GameConnectedFriendChatMsgCallback.GetCurrent().m_steamIDUser);
 }
 
 /*
@@ -1863,7 +1876,7 @@ extern "C" DLL_EXPORT int GetGameConnectedFriendChatMessageUser()
 */
 extern "C" DLL_EXPORT char *GetGameConnectedFriendChatMessageText()
 {
-	return utils::CreateString(Callbacks()->GameConnectedFriendChatMsg.GetCurrent().m_Text);
+	return utils::CreateString(GameConnectedFriendChatMsgCallback.GetCurrent().m_Text);
 }
 
 /*
@@ -1877,7 +1890,7 @@ If the game isn't running yet then the game will be automatically launched with 
 */
 extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse()
 {
-	return Callbacks()->GameLobbyJoinRequested.HasResponse();
+	return GameLobbyJoinRequestedCallback.HasResponse();
 }
 
 /*
@@ -1886,7 +1899,7 @@ extern "C" DLL_EXPORT int HasGameLobbyJoinRequestedResponse()
 */
 extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameLobbyJoinRequested.GetCurrent().m_steamIDLobby);
+	return SteamHandles()->GetPluginHandle(GameLobbyJoinRequestedCallback.GetCurrent().m_steamIDLobby);
 }
 
 /*
@@ -1895,7 +1908,7 @@ extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedLobby()
 */
 extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedFriend()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameLobbyJoinRequested.GetCurrent().m_steamIDFriend);
+	return SteamHandles()->GetPluginHandle(GameLobbyJoinRequestedCallback.GetCurrent().m_steamIDFriend);
 }
 
 /*
@@ -1905,7 +1918,7 @@ extern "C" DLL_EXPORT int GetGameLobbyJoinRequestedFriend()
 */
 extern "C" DLL_EXPORT int IsGameOverlayActive()
 {
-	return Callbacks()->IsGameOverlayActive();
+	return GameOverlayActivatedCallback.IsGameOverlayActive();
 }
 
 /*
@@ -1917,7 +1930,7 @@ extern "C" DLL_EXPORT int IsGameOverlayActive()
 */
 extern "C" DLL_EXPORT int HasGameRichPresenceJoinRequestedResponse()
 {
-	return Callbacks()->GameRichPresenceJoinRequested.HasResponse();
+	return GameRichPresenceJoinRequestedCallback.HasResponse();
 }
 
 /*
@@ -1926,7 +1939,7 @@ extern "C" DLL_EXPORT int HasGameRichPresenceJoinRequestedResponse()
 */
 extern "C" DLL_EXPORT char *GetGameRichPresenceJoinRequestedConnect()
 {
-	return utils::CreateString(Callbacks()->GameRichPresenceJoinRequested.GetCurrent().m_rgchConnect);
+	return utils::CreateString(GameRichPresenceJoinRequestedCallback.GetCurrent().m_rgchConnect);
 }
 
 /*
@@ -1935,7 +1948,7 @@ extern "C" DLL_EXPORT char *GetGameRichPresenceJoinRequestedConnect()
 */
 extern "C" DLL_EXPORT int GetGameRichPresenceJoinRequestedFriend()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->GameRichPresenceJoinRequested.GetCurrent().m_steamIDFriend);
+	return SteamHandles()->GetPluginHandle(GameRichPresenceJoinRequestedCallback.GetCurrent().m_steamIDFriend);
 }
 
 /*
@@ -1948,7 +1961,7 @@ The game client should attempt to connect to specified server when this is recei
 */
 extern "C" DLL_EXPORT int HasGameServerChangeRequestedResponse()
 {
-	return Callbacks()->GameServerChangeRequested.HasResponse();
+	return GameServerChangeRequestedCallback.HasResponse();
 }
 
 /*
@@ -1957,7 +1970,7 @@ extern "C" DLL_EXPORT int HasGameServerChangeRequestedResponse()
 */
 extern "C" DLL_EXPORT char *GetGameServerChangeRequestedPassword()
 {
-	return utils::CreateString(Callbacks()->GameServerChangeRequested.GetCurrent().m_rgchPassword);
+	return utils::CreateString(GameServerChangeRequestedCallback.GetCurrent().m_rgchPassword);
 }
 
 /*
@@ -1966,7 +1979,7 @@ extern "C" DLL_EXPORT char *GetGameServerChangeRequestedPassword()
 */
 extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
 {
-	return utils::CreateString(Callbacks()->GameServerChangeRequested.GetCurrent().m_rgchServer);
+	return utils::CreateString(GameServerChangeRequestedCallback.GetCurrent().m_rgchServer);
 }
 
 // This appears to be call resultonly.
@@ -1979,7 +1992,7 @@ extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
 //*/
 //extern "C" DLL_EXPORT int HasJoinClanChatRoomCompletionResultResponse()
 //{
-//	return Callbacks()->JoinClanChatRoomCompletionResult.HasResponse();
+//	return JoinClanChatRoomCompletionResultCallback.HasResponse();
 //}
 //
 ///*
@@ -1989,7 +2002,7 @@ extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
 //*/
 //extern "C" DLL_EXPORT int GetJoinClanChatRoomCompletionResultEnterResponse()
 //{
-//	return (int)Callbacks()->JoinClanChatRoomCompletionResult.GetCurrent().m_eChatRoomEnterResponse;
+//	return (int)JoinClanChatRoomCompletionResultCallback.GetCurrent().m_eChatRoomEnterResponse;
 //}
 //
 ///*
@@ -1998,7 +2011,7 @@ extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
 //*/
 //extern "C" DLL_EXPORT int GetJoinClanChatRoomCompletionResultUser()
 //{
-//	return SteamHandles()->GetPluginHandle(Callbacks()->JoinClanChatRoomCompletionResult.GetCurrent().m_steamIDClanChat);
+//	return SteamHandles()->GetPluginHandle(JoinClanChatRoomCompletionResultCallback.GetCurrent().m_steamIDClanChat);
 //}
 
 /*
@@ -2010,7 +2023,7 @@ extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
 */
 extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 {
-	return Callbacks()->PersonaStateChange.HasResponse();
+	return PersonaStateChangeCallback.HasResponse();
 }
 
 /*
@@ -2021,7 +2034,7 @@ extern "C" DLL_EXPORT int HasPersonaStateChangeResponse()
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 {
-	return Callbacks()->PersonaStateChange.GetCurrent().m_nChangeFlags;
+	return PersonaStateChangeCallback.GetCurrent().m_nChangeFlags;
 }
 
 /*
@@ -2031,7 +2044,7 @@ extern "C" DLL_EXPORT int GetPersonaStateChangeFlags()
 */
 extern "C" DLL_EXPORT int GetPersonaStateChangeSteamID()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->PersonaStateChange.GetCurrent().m_ulSteamID);
+	return SteamHandles()->GetPluginHandle(PersonaStateChangeCallback.GetCurrent().m_ulSteamID);
 }
 
 //SetPersonaNameResponse_t - call result for SetPersonaName

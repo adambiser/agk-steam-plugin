@@ -20,6 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CCallbacks.h"
+#ifndef _STEAMINPUT_H_
+#define _STEAMINPUT_H_
+#pragma once
 
-std::vector<CallbackBase*> CallbackBase::m_AllCallbacks;
+//#include "CCallbacks.h"
+#include "steam_api.h"
+
+void ResetSteamInput();
+
+#endif // _STEAMINPUT_H_

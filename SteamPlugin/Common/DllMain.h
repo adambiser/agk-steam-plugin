@@ -35,12 +35,10 @@ THE SOFTWARE.
 #endif
 #include "steam_api.h"
 
-extern bool g_SteamInitialized;
-
 #include "CCallbacks.h"
 #include "CCallResultItem.h"
 #include "CSteamHandleVector.h"
-#include "StructClear.h"
+#include "CRoomManager.h"
 #include <mutex>
 #include <string>
 #include <sstream>
@@ -51,17 +49,12 @@ extern bool g_SteamInitialized;
 #define AVATAR_MEDIUM	1 // 64x64
 #define AVATAR_LARGE	2 // 128x128
 
+extern bool g_SteamInitialized;
 extern uint32 g_AppID;
-extern bool g_StoringStats;
-
-extern int g_InputCount;
-extern InputAnalogActionData_t g_InputAnalogActionData;
-extern InputDigitalActionData_t g_InputDigitalActionData;
-extern InputMotionData_t g_InputMotionData;
-
 /* @ignore docs */
 extern "C" DLL_EXPORT int RequestCurrentStats();
 extern void ClearMostAchievedAchievementInfo();
+extern void ResetSteamInput();
 
 /*
 Check to see if the SteamPlugin has been initialized.

@@ -20,9 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "SteamMusic.h"
 #include "DllMain.h"
 
 /* @page ISteamMusic */
+
+CPlaybackStatusHasChangedCallback PlaybackStatusHasChangedCallback;
+CVolumeHasChangedCallback VolumeHasChangedCallback;
 
 /*
 @desc Checks if Steam Music is enabled.
@@ -130,7 +134,7 @@ extern "C" DLL_EXPORT void SetMusicVolume(float volume)
 extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->PlaybackStatusHasChanged.HasResponse();
+	return PlaybackStatusHasChangedCallback.HasResponse();
 }
 
 /*
@@ -142,5 +146,6 @@ extern "C" DLL_EXPORT int HasMusicPlaybackStatusChangedResponse()
 extern "C" DLL_EXPORT int HasMusicVolumeChangedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->VolumeHasChanged.HasResponse();
+	return VolumeHasChangedCallback.HasResponse();
 }
+

@@ -33,22 +33,20 @@ NOTE: Cannot use bool as an exported function return type because of AGK2 limita
 // GLOBALS!
 uint32 g_AppID = 0;
 bool g_SteamInitialized;
-bool g_StoringStats;
 
 void ResetSession()
 {
-	Callbacks()->Reset();
+	CallbackBase::ResetAll();
 	CallResults()->Clear();
 	SteamHandles()->Clear();
+	// Disconnect from any lobbies and clan chats.
+	LobbyManager()->Reset();
+	ClanChatManager()->Reset();
 	// Clear input data
-	Clear(g_InputAnalogActionData);
-	Clear(g_InputDigitalActionData);
-	Clear(g_InputMotionData);
+	ResetSteamInput();
 	// Variables
 	g_AppID = 0;
-	g_InputCount = 0;
 	g_SteamInitialized = false;
-	g_StoringStats = false;
 	ClearMostAchievedAchievementInfo();
 }
 
@@ -348,6 +346,22 @@ extern "C" DLL_EXPORT void Shutdown()
 
 // ISteamUGC
 //	TODO: Research this.
+//AddAppDependencyResult_t - Call result for AddAppDependency
+//AddUGCDependencyResult_t - Call result for AddDependency
+//CreateItemResult_t - Call result for CreateItem
+//DownloadItemResult_t - Call result for DownloadItem
+//GetAppDependenciesResult_t - Call result for GetAppDependencies
+//DeleteItemResult_t - Call result for DeleteItem
+//GetUserItemVoteResult_t - Call result for GetUserItemVote
+//ItemInstalled_t - Callback.  Check m_unAppID for this game's appid!
+//RemoveAppDependencyResult_t - Call result for RemoveAppDependency.
+//RemoveUGCDependencyResult_t - Call result for RemoveDependency
+//SetUserItemVoteResult_t - Call result for SetUserItemVote
+//StartPlaytimeTrackingResult_t - Call result for StartPlaytimeTracking
+//SteamUGCQueryCompleted_t - Call result for SendQueryUGCRequest
+//StopPlaytimeTrackingResult_t - Call result for StopPlaytimeTracking, StopPlaytimeTrackingForAllItems
+//SubmitItemUpdateResult_t - Call result for SubmitItemUpdate
+//UserFavoriteItemsListChanged_t - Call result for AddItemToFavorites, RemoveItemFromFavorites
 
 // ISteamUnifiedMessages
 //	SKIP: Deprecated

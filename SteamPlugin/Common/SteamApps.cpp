@@ -20,7 +20,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "SteamApps.h"
 #include "DllMain.h"
+
+CDlcInstalledCallback DlcInstalledCallback;
+CNewUrlLaunchParametersCallback NewUrlLaunchParametersCallback;
 
 /* @page ISteamApps */
 
@@ -457,7 +461,7 @@ extern "C" DLL_EXPORT char *GetLaunchQueryParam(const char *key)
 extern "C" DLL_EXPORT void InstallDLC(int appID)
 {
 	CheckInitialized(NORETURN);
-	Callbacks()->DlcInstalled.Register();
+	DlcInstalledCallback.Register();
 	SteamApps()->InstallDLC(appID);
 }
 
@@ -503,7 +507,7 @@ extern "C" DLL_EXPORT void UninstallDLC(int appID)
 extern "C" DLL_EXPORT int HasDLCInstalledResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->DlcInstalled.HasResponse();
+	return DlcInstalledCallback.HasResponse();
 }
 
 /*
@@ -514,7 +518,7 @@ extern "C" DLL_EXPORT int HasDLCInstalledResponse()
 extern "C" DLL_EXPORT int GetDLCInstalledAppID()
 {
 	CheckInitialized(0);
-	return Callbacks()->DlcInstalled.GetCurrent().m_nAppID;
+	return DlcInstalledCallback.GetCurrent().m_nAppID;
 }
 
 /*
@@ -527,5 +531,5 @@ Once a post has been reported, this method returns 0 until another post arrives.
 extern "C" DLL_EXPORT int HasNewUrlLaunchParametersResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->NewUrlLaunchParameters.HasResponse();
+	return NewUrlLaunchParametersCallback.HasResponse();
 }

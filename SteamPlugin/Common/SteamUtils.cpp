@@ -20,7 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "SteamUtils.h"
 #include "DllMain.h"
+
+CGamepadTextInputDismissedCallback GamepadTextInputDismissedCallback;
+CIPCountryChangedCallback IPCountryChangedCallback;
+CLowBatteryPowerCallback LowBatteryPowerCallback;
+CSteamShutdownCallback SteamShutdownCallback;
 
 /* @page ISteamUtils */
 
@@ -352,7 +358,7 @@ extern "C" DLL_EXPORT int ShowGamepadTextInput(int eInputMode, int eLineInputMod
 		agk::Log("ShowGamepadTextInput: Maximum text length exceeds plugin limit.");
 		charMax = MAX_GAMEPAD_TEXT_INPUT_LENGTH;
 	}
-	Callbacks()->GamepadTextInputDismissed.Register();
+	GamepadTextInputDismissedCallback.Register();
 	return SteamUtils()->ShowGamepadTextInput((EGamepadTextInputMode)eInputMode, (EGamepadTextInputLineMode)eLineInputMode, description, charMax, existingText);
 }
 
@@ -379,7 +385,7 @@ extern "C" DLL_EXPORT void StartVRDashboard()
 extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 {
 	CheckInitialized(0);
-	return Callbacks()->GamepadTextInputDismissed.HasResponse();
+	return GamepadTextInputDismissedCallback.HasResponse();
 }
 
 /*
@@ -389,7 +395,7 @@ extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 */
 extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 {
-	return Callbacks()->GamepadTextInputDismissed.GetCurrent().m_bSubmitted;
+	return GamepadTextInputDismissedCallback.GetCurrent().m_bSubmitted;
 }
 
 /*
@@ -399,7 +405,7 @@ extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 */
 extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 {
-	return utils::CreateString(Callbacks()->GamepadTextInputDismissed.GetCurrent().m_chSubmittedText);
+	return utils::CreateString(GamepadTextInputDismissedCallback.GetCurrent().m_chSubmittedText);
 }
 
 /*
@@ -411,7 +417,7 @@ extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
 extern "C" DLL_EXPORT int HasIPCountryChangedResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->IPCountryChanged.HasResponse();
+	return IPCountryChangedCallback.HasResponse();
 }
 
 /*
@@ -425,7 +431,7 @@ This method returns 1 once per warning.  It is not reported as an on going effec
 extern "C" DLL_EXPORT int HasLowBatteryWarningResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->LowBatteryPower.HasResponse();
+	return LowBatteryPowerCallback.HasResponse();
 }
 
 /*
@@ -438,7 +444,7 @@ Reports the estimate battery life in minutes when a low battery warning occurs.
 extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 {
 	CheckInitialized(255);
-	return Callbacks()->LowBatteryPower.GetMinutesBatteryLeft();
+	return LowBatteryPowerCallback.GetMinutesBatteryLeft();
 }
 
 //SteamAPICallCompleted_t
@@ -452,5 +458,5 @@ extern "C" DLL_EXPORT int GetMinutesBatteryLeft()
 extern "C" DLL_EXPORT int IsSteamShuttingDown()
 {
 	CheckInitialized(false);
-	return Callbacks()->SteamShutdown.HasResponse();
+	return SteamShutdownCallback.HasResponse();
 }

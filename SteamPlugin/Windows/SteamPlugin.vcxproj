@@ -216,7 +216,6 @@
     <ClCompile Include="..\Common\SteamUser.cpp" />
     <ClCompile Include="..\Common\SteamUserStats.cpp" />
     <ClCompile Include="..\Common\SteamUtils.cpp" />
-    <ClCompile Include="..\Common\StructClear.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AGKLibraryCommands.h" />
@@ -224,8 +223,14 @@
     <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
     <ClInclude Include="..\Common\DllMain.h" />
-    <ClInclude Include="..\Common\PluginTypes.h" />
-    <ClInclude Include="..\Common\StructClear.h" />
+    <ClInclude Include="..\Common\SteamApps.h" />
+    <ClInclude Include="..\Common\SteamFriends.h" />
+    <ClInclude Include="..\Common\SteamInput.h" />
+    <ClInclude Include="..\Common\SteamMatchmaking.h" />
+    <ClInclude Include="..\Common\SteamMusic.h" />
+    <ClInclude Include="..\Common\SteamUser.h" />
+    <ClInclude Include="..\Common\SteamUserStats.h" />
+    <ClInclude Include="..\Common\SteamUtils.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\Common\CCallbacks.h" />
   </ItemGroup>

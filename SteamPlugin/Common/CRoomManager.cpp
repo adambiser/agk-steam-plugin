@@ -21,6 +21,18 @@ THE SOFTWARE.
 */
 
 #include "CRoomManager.h"
+#include "SteamFriends.h"
+#include "SteamMatchmaking.h"
+
+extern CLobbyChatMessageCallback LobbyChatMessageCallback;
+extern CLobbyChatUpdateCallback LobbyChatUpdateCallback;
+extern CLobbyDataUpdateCallback LobbyDataUpdateCallback;
+extern CLobbyGameCreatedCallback LobbyGameCreatedCallback;
+
+extern CGameConnectedChatJoinCallback GameConnectedChatJoinCallback;
+extern CGameConnectedChatLeaveCallback GameConnectedChatLeaveCallback;
+extern CGameConnectedClanChatMsgCallback GameConnectedClanChatMsgCallback;
+
 
 /*
 CRoomManager
@@ -84,19 +96,19 @@ void CLobbyManager::Leave(CSteamID steamID)
 void CLobbyManager::RegisterCallbacks()
 {
 	agk::Log("Registering lobby callbacks");
-	Callbacks()->LobbyChatMessage.Register();
-	Callbacks()->LobbyChatUpdate.Register();
-	Callbacks()->LobbyDataUpdate.Register();
-	Callbacks()->LobbyGameCreated.Register();
+	LobbyChatMessageCallback.Register();
+	LobbyChatUpdateCallback.Register();
+	LobbyDataUpdateCallback.Register();
+	LobbyGameCreatedCallback.Register();
 }
 
 void CLobbyManager::UnregisterCallbacks()
 {
 	agk::Log("Unregistering lobby callbacks");
-	Callbacks()->LobbyChatMessage.Unregister();
-	Callbacks()->LobbyChatUpdate.Unregister();
-	Callbacks()->LobbyDataUpdate.Unregister();
-	Callbacks()->LobbyGameCreated.Unregister();
+	LobbyChatMessageCallback.Unregister();
+	LobbyChatUpdateCallback.Unregister();
+	LobbyDataUpdateCallback.Unregister();
+	LobbyGameCreatedCallback.Unregister();
 }
 
 /*
@@ -116,15 +128,15 @@ void CClanChatManager::Leave(CSteamID steamID)
 void CClanChatManager::RegisterCallbacks()
 {
 	agk::Log("Registering clan chat callbacks");
-	Callbacks()->GameConnectedChatJoin.Register();
-	Callbacks()->GameConnectedChatLeave.Register();
-	Callbacks()->GameConnectedClanChatMsg.Register();
+	GameConnectedChatJoinCallback.Register();
+	GameConnectedChatLeaveCallback.Register();
+	GameConnectedClanChatMsgCallback.Register();
 }
 
 void CClanChatManager::UnregisterCallbacks()
 {
 	agk::Log("Unregistering clan chat callbacks");
-	Callbacks()->GameConnectedChatJoin.Unregister();
-	Callbacks()->GameConnectedChatLeave.Unregister();
-	Callbacks()->GameConnectedClanChatMsg.Unregister();
+	GameConnectedChatJoinCallback.Unregister();
+	GameConnectedChatLeaveCallback.Unregister();
+	GameConnectedClanChatMsgCallback.Unregister();
 }

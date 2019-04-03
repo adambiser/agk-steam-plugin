@@ -20,6 +20,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CCallbacks.h"
+#ifndef _STEAMUSER_H_
+#define _STEAMUSER_H_
+#pragma once
 
-std::vector<CallbackBase*> CallbackBase::m_AllCallbacks;
+//#include "CCallbacks.h"
+
+//ClientGameServerDeny_t - game server stuff
+//EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
+//GameWebCallback_t
+//GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
+
+//IPCFailure_t - Steam client had a fatal error.
+
+//LicensesUpdated_t
+
+//MicroTxnAuthorizationResponse_t - micro transaction stuff.
+
+//SteamServerConnectFailure_t
+//SteamServersConnected_t
+//SteamServersDisconnected_t
+
+//StoreAuthURLResponse_t - Call result for RequestStoreAuthURL
+//ValidateAuthTicketResponse_t - Call result for BeginAuthSession
+
+#endif // _STEAMUSER_H_

@@ -20,6 +20,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#ifndef _STEAMMUSIC_H_
+#define _STEAMMUSIC_H_
+#pragma once
+
 #include "CCallbacks.h"
 
-std::vector<CallbackBase*> CallbackBase::m_AllCallbacks;
+class CPlaybackStatusHasChangedCallback : public BoolCallbackBase<CPlaybackStatusHasChangedCallback, PlaybackStatusHasChanged_t>
+{
+public:
+	void OnResponse(PlaybackStatusHasChanged_t *pParam)
+	{
+		agk::Log("Callback: OnPlaybackStatusHasChanged");
+		BoolCallbackBase::OnResponse(pParam);
+	}
+};
+
+class CVolumeHasChangedCallback : public BoolCallbackBase<CVolumeHasChangedCallback, VolumeHasChanged_t>
+{
+public:
+	void OnResponse(VolumeHasChanged_t *pParam)
+	{
+		utils::Log("Callback: OnVolumeHasChanged.  New volume : " + std::to_string(pParam->m_flNewVolume));
+		BoolCallbackBase::OnResponse(pParam);
+	}
+};
+
+#endif // _STEAMMUSIC_H_

@@ -20,9 +20,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "SteamMatchmaking.h"
 #include "DllMain.h"
 
 /* @page ISteamMatchmaking */
+
+CFavoritesListChangedCallback FavoritesListChangedCallback;
+CLobbyChatMessageCallback LobbyChatMessageCallback;
+CLobbyChatUpdateCallback LobbyChatUpdateCallback;
+CLobbyDataUpdateCallback LobbyDataUpdateCallback;
+CLobbyEnterCallback LobbyEnterCallback;
+CLobbyGameCreatedCallback LobbyGameCreatedCallback;
 
 /*
 @desc Adds the game server to the local favorites list or updates the time played of the server if it already exists in the list.
@@ -165,7 +173,7 @@ public:
 extern "C" DLL_EXPORT int CreateLobby(int eLobbyType, int maxMembers)
 {
 	CheckInitialized(0);
-	Callbacks()->LobbyEnter.Register();
+	LobbyEnterCallback.Register();
 	return CallResults()->Add(new CCreateLobbyCallResult((ELobbyType)eLobbyType, maxMembers));
 }
 
@@ -573,7 +581,7 @@ public:
 extern "C" DLL_EXPORT int JoinLobby(int hLobbySteamID)
 {
 	CheckInitialized(false);
-	Callbacks()->LobbyEnter.Register();
+	LobbyEnterCallback.Register();
 	return CallResults()->Add(new CJoinLobbyCallResult(SteamHandles()->GetSteamHandle(hLobbySteamID)));
 }
 
@@ -796,7 +804,7 @@ _This can only be set by the owner of the lobby._
 extern "C" DLL_EXPORT int SetLobbyGameServer(int hLobbySteamID, const char *gameServerIP, int gameServerPort, int hGameServerSteamID)
 {
 	CheckInitialized(false);
-	Callbacks()->LobbyGameCreated.Register();
+	LobbyGameCreatedCallback.Register();
 	if (gameServerPort < 0 || gameServerPort > 0xffff)
 	{
 		agk::PluginError("SetLobbyGameServer: Invalid game server port.");
@@ -899,8 +907,7 @@ GetFavoritesListChangedFlags, GetFavoritesListChangedIsAdd, GetFavoritesListChan
 */
 extern "C" DLL_EXPORT int HasFavoritesListChangedResponse()
 {
-	Callbacks()->FavoritesListChanged.Register();
-	return Callbacks()->FavoritesListChanged.HasResponse();
+	return FavoritesListChangedCallback.HasResponse();
 }
 
 /*
@@ -911,7 +918,7 @@ When an empty string, reload the entire list; otherwise it means just one server
 */
 extern "C" DLL_EXPORT char *GetFavoritesListChangedIP()
 {
-	return utils::CreateString(utils::ToIPString(Callbacks()->FavoritesListChanged.GetCurrent().m_nIP));
+	return utils::CreateString(utils::ToIPString(FavoritesListChangedCallback.GetCurrent().m_nIP));
 }
 
 /*
@@ -921,7 +928,7 @@ extern "C" DLL_EXPORT char *GetFavoritesListChangedIP()
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedQueryPort()
 {
-	return Callbacks()->FavoritesListChanged.GetCurrent().m_nQueryPort;
+	return FavoritesListChangedCallback.GetCurrent().m_nQueryPort;
 }
 
 /*
@@ -931,7 +938,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedQueryPort()
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedConnectionPort()
 {
-	return Callbacks()->FavoritesListChanged.GetCurrent().m_nConnPort;
+	return FavoritesListChangedCallback.GetCurrent().m_nConnPort;
 }
 
 /*
@@ -941,7 +948,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedConnectionPort()
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedAppID()
 {
-	return Callbacks()->FavoritesListChanged.GetCurrent().m_nAppID;
+	return FavoritesListChangedCallback.GetCurrent().m_nAppID;
 }
 
 /*
@@ -954,7 +961,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedAppID()
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedFlags()
 {
-	return Callbacks()->FavoritesListChanged.GetCurrent().m_nFlags;
+	return FavoritesListChangedCallback.GetCurrent().m_nFlags;
 }
 
 /*
@@ -964,7 +971,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedFlags()
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedIsAdd()
 {
-	return Callbacks()->FavoritesListChanged.GetCurrent().m_bAdd;
+	return FavoritesListChangedCallback.GetCurrent().m_bAdd;
 }
 
 /*
@@ -974,7 +981,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedIsAdd()
 */
 extern "C" DLL_EXPORT int GetFavoritesListChangedAccountID()
 {
-	return Callbacks()->FavoritesListChanged.GetCurrent().m_unAccountId;
+	return FavoritesListChangedCallback.GetCurrent().m_unAccountId;
 }
 
 /*
@@ -987,7 +994,7 @@ extern "C" DLL_EXPORT int GetFavoritesListChangedAccountID()
 extern "C" DLL_EXPORT int HasLobbyChatMessageResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->LobbyChatMessage.HasResponse();
+	return LobbyChatMessageCallback.HasResponse();
 }
 
 /*
@@ -998,7 +1005,7 @@ extern "C" DLL_EXPORT int HasLobbyChatMessageResponse()
 extern "C" DLL_EXPORT int GetLobbyChatMessageLobby()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatMessage.GetCurrent().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(LobbyChatMessageCallback.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1010,7 +1017,7 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageLobby()
 extern "C" DLL_EXPORT int GetLobbyChatMessageUser()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatMessage.GetCurrent().m_ulSteamIDUser);
+	return SteamHandles()->GetPluginHandle(LobbyChatMessageCallback.GetCurrent().m_ulSteamIDUser);
 }
 
 // Always k_EChatEntryTypeChatMsg
@@ -1023,7 +1030,7 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageUser()
 //extern "C" DLL_EXPORT int GetLobbyChatMessageEntryType()
 //{
 //	CheckInitialized(0);
-//	return SteamHandles()->GetPluginHandle(Callbacks()->GetLobbyChatMessage().m_eChatEntryType);
+//	return SteamHandles()->GetPluginHandle(LobbyChatMessageCallback.GetCurrent().m_eChatEntryType);
 //}
 
 /*
@@ -1035,7 +1042,7 @@ The memblock will be deleted the next time HasLobbyChatMessageResponse is called
 */
 extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock()
 {
-	return Callbacks()->LobbyChatMessage.GetCurrent().m_MemblockID;
+	return LobbyChatMessageCallback.GetCurrent().m_MemblockID;
 }
 
 /*
@@ -1047,7 +1054,7 @@ extern "C" DLL_EXPORT int GetLobbyChatMessageMemblock()
 extern "C" DLL_EXPORT char *GetLobbyChatMessageText()
 {
 	CheckInitialized(NULL_STRING);
-	int memblock = Callbacks()->LobbyChatMessage.GetCurrent().m_MemblockID;
+	int memblock = LobbyChatMessageCallback.GetCurrent().m_MemblockID;
 	if (memblock)
 	{
 		return agk::GetMemblockString(memblock, 0, agk::GetMemblockSize(memblock));
@@ -1065,7 +1072,7 @@ extern "C" DLL_EXPORT char *GetLobbyChatMessageText()
 extern "C" DLL_EXPORT int HasLobbyChatUpdateResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->LobbyChatUpdate.HasResponse();
+	return LobbyChatUpdateCallback.HasResponse();
 }
 
 /*
@@ -1076,7 +1083,7 @@ extern "C" DLL_EXPORT int HasLobbyChatUpdateResponse()
 extern "C" DLL_EXPORT int GetLobbyChatUpdateLobby()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatUpdate.GetCurrent().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(LobbyChatUpdateCallback.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1087,7 +1094,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateLobby()
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatUpdate.GetCurrent().m_ulSteamIDUserChanged);
+	return SteamHandles()->GetPluginHandle(LobbyChatUpdateCallback.GetCurrent().m_ulSteamIDUserChanged);
 }
 
 /*
@@ -1099,7 +1106,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserChanged()
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState()
 {
 	CheckInitialized(0);
-	return Callbacks()->LobbyChatUpdate.GetCurrent().m_rgfChatMemberStateChange;
+	return LobbyChatUpdateCallback.GetCurrent().m_rgfChatMemberStateChange;
 }
 
 /*
@@ -1110,7 +1117,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserState()
 extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange()
 {
 	CheckInitialized(0);
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyChatUpdate.GetCurrent().m_ulSteamIDMakingChange);
+	return SteamHandles()->GetPluginHandle(LobbyChatUpdateCallback.GetCurrent().m_ulSteamIDMakingChange);
 }
 
 /*
@@ -1123,7 +1130,7 @@ extern "C" DLL_EXPORT int GetLobbyChatUpdateUserMakingChange()
 extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->LobbyDataUpdate.HasResponse();
+	return LobbyDataUpdateCallback.HasResponse();
 }
 
 /*
@@ -1133,7 +1140,7 @@ extern "C" DLL_EXPORT int HasLobbyDataUpdateResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyDataUpdate.GetCurrent().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(LobbyDataUpdateCallback.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1145,7 +1152,7 @@ otherwise, if GetLobbyDataUpdateMember == GetLobbyDataUpdateLobby, use GetLobbyD
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateMember()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyDataUpdate.GetCurrent().m_ulSteamIDMember);
+	return SteamHandles()->GetPluginHandle(LobbyDataUpdateCallback.GetCurrent().m_ulSteamIDMember);
 }
 
 /*
@@ -1155,7 +1162,7 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateMember()
 */
 extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyDataUpdate.GetCurrent().m_bSuccess);
+	return SteamHandles()->GetPluginHandle(LobbyDataUpdateCallback.GetCurrent().m_bSuccess);
 }
 
 /*
@@ -1168,13 +1175,13 @@ extern "C" DLL_EXPORT int GetLobbyDataUpdateSuccess()
 extern "C" DLL_EXPORT int HasLobbyEnterResponse()
 {
 	CheckInitialized(false);
-	return Callbacks()->LobbyEnter.HasResponse();
+	return LobbyEnterCallback.HasResponse();
 }
 
 // Unused - always 0
 //int GetLobbyEnterChatPermissions()
 //{
-//	return Callbacks()->GetLobbyEnter().m_rgfChatPermissions;
+//	return LobbyEnterCallback.GetCurrent().m_rgfChatPermissions;
 //}
 
 /*
@@ -1185,7 +1192,7 @@ extern "C" DLL_EXPORT int HasLobbyEnterResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse()
 {
-	return Callbacks()->LobbyEnter.GetCurrent().m_EChatRoomEnterResponse;
+	return LobbyEnterCallback.GetCurrent().m_EChatRoomEnterResponse;
 }
 
 /*
@@ -1195,7 +1202,7 @@ extern "C" DLL_EXPORT int GetLobbyEnterChatRoomEnterResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyEnterLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyEnter.GetCurrent().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(LobbyEnterCallback.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1205,7 +1212,7 @@ extern "C" DLL_EXPORT int GetLobbyEnterLobby()
 */
 extern "C" DLL_EXPORT int GetLobbyEnterLocked()
 {
-	return Callbacks()->LobbyEnter.GetCurrent().m_bLocked;
+	return LobbyEnterCallback.GetCurrent().m_bLocked;
 }
 
 /*
@@ -1218,7 +1225,7 @@ _This can only be read once per lobby game creation!_
 */
 extern "C" DLL_EXPORT int HasLobbyGameCreatedResponse()
 {
-	return Callbacks()->LobbyGameCreated.HasResponse();
+	return LobbyGameCreatedCallback.HasResponse();
 }
 
 /*
@@ -1228,7 +1235,7 @@ extern "C" DLL_EXPORT int HasLobbyGameCreatedResponse()
 */
 extern "C" DLL_EXPORT int GetLobbyGameCreatedGameServer()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyGameCreated.GetCurrent().m_ulSteamIDGameServer);
+	return SteamHandles()->GetPluginHandle(LobbyGameCreatedCallback.GetCurrent().m_ulSteamIDGameServer);
 }
 
 /*
@@ -1238,7 +1245,7 @@ extern "C" DLL_EXPORT int GetLobbyGameCreatedGameServer()
 */
 extern "C" DLL_EXPORT int GetLobbyGameCreatedLobby()
 {
-	return SteamHandles()->GetPluginHandle(Callbacks()->LobbyGameCreated.GetCurrent().m_ulSteamIDLobby);
+	return SteamHandles()->GetPluginHandle(LobbyGameCreatedCallback.GetCurrent().m_ulSteamIDLobby);
 }
 
 /*
@@ -1248,7 +1255,7 @@ extern "C" DLL_EXPORT int GetLobbyGameCreatedLobby()
 */
 extern "C" DLL_EXPORT char *GetLobbyGameCreatedIP()
 {
-	return utils::CreateString(utils::ToIPString(Callbacks()->LobbyGameCreated.GetCurrent().m_unIP));
+	return utils::CreateString(utils::ToIPString(LobbyGameCreatedCallback.GetCurrent().m_unIP));
 }
 
 /*
@@ -1258,5 +1265,5 @@ extern "C" DLL_EXPORT char *GetLobbyGameCreatedIP()
 */
 extern "C" DLL_EXPORT int GetLobbyGameCreatedPort()
 {
-	return Callbacks()->LobbyGameCreated.GetCurrent().m_usPort;
+	return LobbyGameCreatedCallback.GetCurrent().m_usPort;
 }

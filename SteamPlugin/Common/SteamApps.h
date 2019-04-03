@@ -20,6 +20,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#ifndef _STEAMAPPS_H_
+#define _STEAMAPPS_H_
+#pragma once
+
 #include "CCallbacks.h"
 
-std::vector<CallbackBase*> CallbackBase::m_AllCallbacks;
+// AppProofOfPurchaseKeyResponse_t - Only used internally in Steam.
+
+// InstallDLC
+class CDlcInstalledCallback : public ListCallbackBase<CDlcInstalledCallback, DlcInstalled_t>
+{
+public:
+	void OnResponse(DlcInstalled_t *pParam)
+	{
+		utils::Log("Callback: OnDlcInstalled.  AppID = " + std::to_string(pParam->m_nAppID));
+		StoreResponse(*pParam);
+	}
+	void Clear(DlcInstalled_t &value)
+	{
+		value.m_nAppID = 0;
+	}
+};
+
+// FileDetailsResult_t - call result for GetFileDetails
+
+class CNewUrlLaunchParametersCallback : public BoolCallbackBase<CNewUrlLaunchParametersCallback, NewUrlLaunchParameters_t>
+{
+public:
+	void OnResponse(NewUrlLaunchParameters_t *pParam)
+	{
+		agk::Log("Callback: OnNewUrlLaunchParameters");
+		BoolCallbackBase::OnResponse(pParam);
+	}
+};
+
+// NewLaunchQueryParameters_t - Removed in SDK v1.43
+// RegisterActivationCodeResponse_t - Only used internally in Steam.
+
+#endif // _STEAMAPPS_H_
