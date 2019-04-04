@@ -241,7 +241,7 @@ extern "C" DLL_EXPORT int Init()
 @desc Returns whether the Steam API is currently initialized.
 @return 1 when the Steam API is initialized; otherwise 0.
 */
-extern "C" DLL_EXPORT int IsSteamInitialized()
+extern "C" DLL_EXPORT int SteamInitialized()
 {
 	return g_SteamInitialized;
 }

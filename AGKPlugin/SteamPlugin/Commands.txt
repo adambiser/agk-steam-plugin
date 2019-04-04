@@ -528,7 +528,7 @@ IsSteamShuttingDown,I,0,IsSteamShuttingDown,0,0,0,0,IsSteamShuttingDown
 # steam_api.h
 #
 Init,I,0,Init,0,0,0,0,Init
-IsSteamInitialized,I,0,IsSteamInitialized,0,0,0,0,IsSteamInitialized
+SteamInitialized,I,0,SteamInitialized,0,0,0,0,SteamInitialized
 RestartAppIfNecessary,I,I,RestartAppIfNecessary,0,0,0,0,RestartAppIfNecessary
 RunCallbacks,0,0,RunCallbacks,0,0,0,0,RunCallbacks
 Shutdown,0,0,Shutdown,0,0,0,0,Shutdown
