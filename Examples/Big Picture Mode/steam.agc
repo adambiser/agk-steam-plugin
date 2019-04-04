@@ -10,8 +10,8 @@ for x = 0 to buttonText.length
 	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
 next
 
-global buttonModes as integer[2] = [k_EGamepadTextInputModeNormal, k_EGamepadTextInputModeNormal, k_EGamepadTextInputModePassword]
-global buttonLineModes as integer[2] = [k_EGamepadTextInputLineModeSingleLine, k_EGamepadTextInputLineModeMultipleLines, k_EGamepadTextInputLineModeSingleLine]
+global buttonModes as integer[2] = [EGamepadTextInputModeNormal, EGamepadTextInputModeNormal, EGamepadTextInputModePassword]
+global buttonLineModes as integer[2] = [EGamepadTextInputLineModeSingleLine, EGamepadTextInputLineModeMultipleLines, EGamepadTextInputLineModeSingleLine]
 global buttonInputDesc as string[2] = ["Normal/Single Line/10 Char Max", "Normal/Multiple Line/100 Char Max", "Password/Single Line/10 Char Max"]
 global buttonInputLengths as integer[2] = [10, 100, 10]
 global textinput as string[2] = ["", "", ""]
@@ -22,13 +22,11 @@ if Steam.IsSteamInBigPictureMode()
 	SetButtonEnabled(MULTUPLE_LINE_BUTTON, 1)
 	SetButtonEnabled(PASSWORD_BUTTON, 1)
 else
-	// To see how this works, the Spacewar install will need to be replaced with this test project.
-	// 1) Make a backup of the original contents of steamapps\common\Spacewar.
-	// 2) Copy this project folder's contents into steamapps\common\Spacewar
-	// 3) Rename "Big Picture Mode.exe" to "SteamworksExample.exe" so the Steam client runs it.
-	// The Steam client will now run this test project when you start Spacewar.
+	// To see how this works, the example must be started from the Steam client.
+	// To test, add this examples's EXE as a Non-Steam Game in the Steam client.
 	// Connect a controller, start Big Picture Mode, and give it a try.
 	Message("Steam needs to be in Big Picture Mode to test this.")
+	end
 endif
 
 //
@@ -68,12 +66,10 @@ EndFunction
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
-	if Steam.HasGamepadTextInputDismissedInfo()
-		info as GamepadTextInputDismissedInfo_t
-		info.fromJSON(Steam.GetGamepadTextInputDismissedInfoJSON())
-		if info.Submitted
-			textinput[lastButtonPressed - 1] = info.Text
-			AddStatus("User entered: " + info.Text)
+	if Steam.HasGamepadTextInputDismissedResponse()
+		if Steam.GetGamepadTextInputDismissedSubmitted()
+			textinput[lastButtonPressed - 1] = Steam.GetGamepadTextInputDismissedSubmittedText()
+			AddStatus("User entered: " + Steam.GetGamepadTextInputDismissedSubmittedText())
 		else
 			AddStatus("User cancelled text input.")
 		endif

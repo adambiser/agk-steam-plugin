@@ -40,25 +40,26 @@ AddStatus("Subscribed: " + TF(Steam.IsSubscribed()))
 AddStatus("Subscribed From Free Weekend: " + TF(Steam.IsSubscribedFromFreeWeekend()))
 //~ AddStatus("Half-Life 2 Subscribed: " + TF(Steam.IsSubscribedApp(220)))
 AddStatus("DLC Count: " + str(Steam.GetDLCCount()))
-AddStatus("DLC Data JSON: " + Steam.GetDLCDataJSON())
 AddStatus("GetLaunchQueryParam at startup.  param1 = " + Steam.GetLaunchQueryParam("param1"))
 AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
 
-
 // For reference: https://steamdb.info/app/480/
-// GetDLCDataJSON is the same as using GetDLCDataByIndexJSON for indices 0 to GetDLCCount.
 for x = 0 to Steam.GetDLCCount() - 1
-	dlcData as DLCData_t
-	dlcData.fromjson(Steam.GetDLCDataByIndexJSON(x))
-	if dlcData.AppID // Check whether DLC is hidden
-		AddStatus("DLC " + str(dlcData.AppID) + ": " + dlcData.Name)
-		AddStatus("Owned: " + TF(dlcData.Available)) // DLC app id
-		AddStatus("Installed: " + TF(Steam.IsDLCInstalled(dlcData.AppID))) // DLC app id
+	appID as integer
+	available as integer
+	name as string
+	appID = Steam.GetDLCDataByIndexAppID(x)
+	available = Steam.GetDLCDataByIndexAvailable(x)
+	name = Steam.GetDLCDataByIndexName(x)
+	AddStatus("DLC " + str(x) + ".  AppID: " + str(appID) + " - " + name)
+	if appID // Check whether DLC is hidden
+		AddStatus("Owned: " + TF(available))
+		AddStatus("Installed: " + TF(Steam.IsDLCInstalled(appID))) // DLC app id
 		// Add button to toggle DLC installation
-		dlcAppIDs.insert(dlcData.AppID)
-		CreateButton(DLC_START_BUTTON + x, 752 + (DLC_START_BUTTON + x - 6) * 100, 40, "DLC" + NEWLINE + str(dlcData.AppID))
+		dlcAppIDs.insert(appID)
+		CreateButton(DLC_START_BUTTON + x, 752 + (DLC_START_BUTTON + x - 6) * 100, 40, "DLC" + NEWLINE + str(appID))
 		// Enable the DLC button if the DLC is available/owned.
-		if dlcData.Available
+		if available
 			SetButtonEnabled(DLC_START_BUTTON + x, 1)
 		endif
 	endif
@@ -135,7 +136,7 @@ EndFunction
 //
 Function ProcessCallbacks()
 	x as integer
-	If Steam.HasNewLaunchQueryParameters() // Reports when a steam://run/ command is called while running.
+	If Steam.HasNewUrlLaunchParametersResponse() // Reports when a steam://run/ command is called while running.
 		AddStatus("HasNewLaunchQueryParameters.  param1 = " + Steam.GetLaunchQueryParam("param1"))
 		AddStatus("GetLaunchCommandLine: " + Steam.GetLaunchCommandLine())
 	endif
@@ -148,9 +149,9 @@ Function ProcessCallbacks()
 		//~ endif
 	//~ next
 	// Check for newly installed DLCs.
-	while Steam.HasNewDLCInstalled()
+	while Steam.HasDLCInstalledResponse()
 		appID as integer
-		appID = Steam.GetNewDLCInstalled()
+		appID = Steam.GetDLCInstalledAppID()
 		AddStatus("DLC " + str(appID) + " has finished downloading.")
 		UpdateProgressBar(dlcDownloadBar, 0, 0, "Done")
 		for x = 0 to dlcsToDownload.length
@@ -162,11 +163,13 @@ Function ProcessCallbacks()
 	endwhile
 	// Check the status of downloading DLCs.
 	for x = 0 to dlcsToDownload.length
-		progress as DownloadProgress_t
-		progress.fromjson(Steam.GetDLCDownloadProgressJSON(dlcsToDownload[x]))
-		// If the AppID is 0, the DLC isn't being downloaded.
-		if progress.AppID
-			UpdateProgressBar(dlcDownloadBar, progress.BytesDownloaded, progress.BytesTotal, "")
+		bytesDownloaded as integer
+		bytesTotal as integer
+		bytesDownloaded = Steam.GetDLCDownloadProgressBytesDownloaded(dlcsToDownload[x])
+		bytesTotal = Steam.GetDLCDownloadProgressBytesTotal(dlcsToDownload[x])
+		// BytesDownloaded and BytesTotal both report -1 when the DLC is not downloading.
+		if bytesTotal > -1
+			UpdateProgressBar(dlcDownloadBar, bytesDownloaded, bytesTotal, "")
 		endif
 	next
 EndFunction

@@ -19,7 +19,11 @@ Type FriendInfo
 	name as string
 	state as integer
 	//~ level as integer // GetFriendSteamLevel doesn't seem to work like the Steam API docs say.
-	gameinfo as FriendGameInfo_t
+	gameAppID as integer
+	gameIP as string
+	gamePort as integer
+	queryPort as integer
+	hLobby as integer
 	avatarImageID as integer
 	avatarHandle as integer
 EndType
@@ -41,6 +45,16 @@ EndType
 #constant LIST_HEIGHT		440 // 20 lines
 
 CreateFriendListUI()
+
+AddStatus("Your persona history: " + Steam.GetFriendPersonaNameHistoryJSON(Steam.GetSteamID()))
+
+//~ groups as integer[]
+//~ groups.fromjson(Steam.GetClanListJSON())
+//~ AddStatus("Groups: ")
+//~ x as integer
+//~ for x = 0 to groups.length
+	//~ AddStatus("Group: " + Steam.GetClanName(groups[x]))
+//~ next
 
 //
 // The main loop
@@ -96,9 +110,9 @@ Function ProcessCallbacks()
 	hSteamID as integer
 	flags as integer
 	index as integer
-	while Steam.HasPersonaStateChanged()
-		hSteamID = Steam.GetPersonaStateChangedUser()
-		flags = Steam.GetPersonaStateChangedFlags()
+	while Steam.HasPersonaStateChangeResponse()
+		hSteamID = Steam.GetPersonaStateChangeSteamID()
+		flags = Steam.GetPersonaStateChangeFlags()
 		AddStatus("Persona State Change: " + Steam.GetFriendPersonaName(hSteamID) + ", flags: " + GetPersonaStateChangeFlagText(flags))
 		index = GetFriendSteamIDIndex(hSteamID)
 		if index >= 0
@@ -113,7 +127,7 @@ Function ProcessCallbacks()
 			AddStatus(server.groupFriends[newIndex].name + " moved from index " + str(index) + " to index " + str(newIndex))
 		endif
 	endwhile
-	while Steam.HasAvatarImageLoaded()
+	while Steam.HasAvatarImageLoadedResponse()
 		hSteamID = Steam.GetAvatarImageLoadedUser()
 		AddStatus("Avatar loaded for " + Steam.GetFriendPersonaName(hSteamID))
 		// Load the new avatar.
@@ -176,9 +190,12 @@ EndFunction
 Function RefreshFriendGroupList()
 	server.friendGroups.length = -1
 	// Make index 0 represent the "All friends" list.
-	server.friendGroups.insert("All Friends (" + str(Steam.GetFriendCount(k_EFriendFlagImmediate)) + ")")
+	friends as integer[]
+	friends.fromjson(Steam.GetFriendListJSON(EFriendFlagImmediate))
+	server.friendGroups.insert("All Friends (" + str(friends.length + 1) + ")")
 	groupCount as integer
 	groupCount = Steam.GetFriendsGroupCount()
+	AddStatus("FriendsGroupCount: " + str(Steam.GetFriendsGroupCount()))
 	x as integer
 	for x = 0 to groupCount - 1
 		groupID as integer
@@ -219,14 +236,14 @@ Function SelectFriendGroup(index as integer)
 	server.selectedGroup = index
 	friendListJSON as string
 	// Index 0 in this app is a hard-coded "All friends" list.
+	groupFriendIDs as integer[]
 	if index = 0
-		friendListJSON = Steam.GetFriendListJSON(k_EFriendFlagImmediate)
+		friendListJSON = Steam.GetFriendListJSON(EFriendFlagImmediate)
 	else
 		// Subtract 1 because in this app index 0 = all friends
 		friendListJSON = Steam.GetFriendsGroupMembersListJSON(Steam.GetFriendsGroupIDByIndex(index - 1))
 	endif
 	server.groupFriends.length = -1
-	groupFriendIDs as integer[]
 	groupFriendIDs.fromJSON(friendListJSON)
 	x as integer
 	for x = 0 to groupFriendIDs.length
@@ -245,7 +262,11 @@ Function GetFriendInfo(hSteamID as integer)
 	info.name = Steam.GetFriendPersonaName(hSteamID)
 	info.state = Steam.GetFriendPersonaState(hSteamID)
 	//~ info.level = Steam.GetFriendSteamLevel(hSteamID)
-	info.gameinfo.fromJSON(Steam.GetFriendGamePlayedJSON(hSteamID))
+	info.gameAppID = Steam.GetFriendGamePlayedGameAppID(hSteamID)
+	info.gameIP = Steam.GetFriendGamePlayedIP(hSteamID)
+	info.gamePort = Steam.GetFriendGamePlayedConnectionPort(hSteamID)
+	info.queryPort = Steam.GetFriendGamePlayedQueryPort(hSteamID)
+	info.hLobby = Steam.GetFriendGamePlayedLobby(hSteamID)
 	info.avatarImageID = CreateImageColor(0, 0, 0, 0)
 	info.avatarHandle = Steam.GetFriendAvatar(hSteamID, AVATAR_SMALL)
 	if info.avatarHandle > 0
@@ -290,8 +311,8 @@ EndFunction
 // 0 = In-game, 1 = Online, 2 = Offline.
 //
 Function GetFriendInfoSortGroup(info as FriendInfo)
-	if info.state <> k_EPersonaStateOffline
-		if info.gameinfo.InGame
+	if info.state <> EPersonaStateOffline
+		if info.gameAppID
 			ExitFunction 0 // ingame group
 		else
 			ExitFunction 1 // online group
@@ -338,16 +359,17 @@ Function UpdateFriendStatus(hSteamID as integer)
 		info = server.groupFriends[index]
 		text as string
 		text = info.name
-		if info.state = k_EPersonaStateOffline
+		if info.state = EPersonaStateOffline
 			SetTextColor(ui.friendNameIDs[uiindex], OFFLINE_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], OFFLINE_COLOR)
-		elseif info.gameinfo.InGame
+		elseif info.gameAppID
 			SetTextColor(ui.friendNameIDs[uiindex], INGAME_COLOR)
 			SetSpriteColor(ui.friendAvatarBackground[uiindex], INGAME_COLOR)
 			// Note: GetAppName is a restricted interface that can only be used by approved apps.
 			// Space War (480) is one such approved app.
 			appname as string
-			appname = Steam.GetAppName(info.gameinfo.GameAppID)
+			appname = Steam.GetAppName(info.gameAppID)
+			// Note: appname will be blank if the name hasn't cached yet.  It will be "Not found" when not found.
 			if len(appname)
 				text = text + " [In-Game: " + appname + "]"
 			else
@@ -388,46 +410,46 @@ EndFunction result
 
 Function GetPersonaStateChangeFlagText(flags as integer)
 	names as string[]
-	if HasFlag(flags, k_EPersonaChangeName)
+	if HasFlag(flags, EPersonaChangeName)
 		names.insert("Name") // GetFriendPersonaName
 	endif
-	if HasFlag(flags, k_EPersonaChangeStatus)
+	if HasFlag(flags, EPersonaChangeStatus)
 		names.insert("Status") // GetFriendPersonaState ?
 	endif
-	if HasFlag(flags, k_EPersonaChangeComeOnline)
+	if HasFlag(flags, EPersonaChangeComeOnline)
 		names.insert("ComeOnline") // GetFriendPersonaState
 	endif
-	if HasFlag(flags, k_EPersonaChangeGoneOffline)
+	if HasFlag(flags, EPersonaChangeGoneOffline)
 		names.insert("GoneOffline") // GetFriendPersonaState
 	endif
-	if HasFlag(flags, k_EPersonaChangeGamePlayed)
+	if HasFlag(flags, EPersonaChangeGamePlayed)
 		names.insert("GamePlayed") // GetFriendGamePlayedJSON
 	endif
-	if HasFlag(flags, k_EPersonaChangeGameServer)
+	if HasFlag(flags, EPersonaChangeGameServer)
 		names.insert("GameServer")
 	endif
-	if HasFlag(flags, k_EPersonaChangeAvatar)
+	if HasFlag(flags, EPersonaChangeAvatar)
 		names.insert("Avatar") // Use HasAvatarImageLoaded, GetAvatarImageLoadedUser, and GetFriendAvatar.
 	endif
-	if HasFlag(flags, k_EPersonaChangeJoinedSource)
+	if HasFlag(flags, EPersonaChangeJoinedSource)
 		names.insert("JoinedSource")
 	endif
-	if HasFlag(flags, k_EPersonaChangeLeftSource)
+	if HasFlag(flags, EPersonaChangeLeftSource)
 		names.insert("LeftSource")
 	endif
-	if HasFlag(flags, k_EPersonaChangeRelationshipChanged)
+	if HasFlag(flags, EPersonaChangeRelationshipChanged)
 		names.insert("RelationshipChanged")
 	endif
-	if HasFlag(flags, k_EPersonaChangeNameFirstSet)
+	if HasFlag(flags, EPersonaChangeNameFirstSet)
 		names.insert("NameFirstSet") // ??
 	endif
-	if HasFlag(flags, k_EPersonaChangeFacebookInfo)
+	if HasFlag(flags, EPersonaChangeFacebookInfo)
 		names.insert("FacebookInfo") // No way to get this information?
 	endif
-	if HasFlag(flags, k_EPersonaChangeNickname)
+	if HasFlag(flags, EPersonaChangeNickname)
 		names.insert("Nickname") // GetPlayerNickname
 	endif
-	if HasFlag(flags, k_EPersonaChangeSteamLevel)
+	if HasFlag(flags, EPersonaChangeSteamLevel)
 		names.insert("SteamLevel") // GetFriendSteamLevel
 	endif
 	result as string
@@ -442,25 +464,25 @@ EndFunction result
 
 Function GetFriendPersonaStateText(personaState as integer)
 	select personaState
-		case k_EPersonaStateOffline
+		case EPersonaStateOffline
 			ExitFunction "Offline"
 		endcase
-		case k_EPersonaStateOnline
+		case EPersonaStateOnline
 			ExitFunction "Online"
 		endcase
-		case k_EPersonaStateBusy
+		case EPersonaStateBusy
 			ExitFunction "Busy"
 		endcase
-		case k_EPersonaStateAway
+		case EPersonaStateAway
 			ExitFunction "Away"
 		endcase
-		case k_EPersonaStateSnooze
+		case EPersonaStateSnooze
 			ExitFunction "Snooze"
 		endcase
-		case k_EPersonaStateLookingToTrade
+		case EPersonaStateLookingToTrade
 			ExitFunction "Looking to Trade"
 		endcase
-		case k_EPersonaStateLookingToPlay
+		case EPersonaStateLookingToPlay
 			ExitFunction "Looking to Play"
 		endcase
 	endselect	

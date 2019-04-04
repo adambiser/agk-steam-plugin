@@ -1,0 +1,11 @@
+// Favorite game information.
+// Returned by GetFavoriteGameJSON.
+// This isn't from the Steamworks SDK, but compensates for the values being returned via parameters.
+Type FavoriteGameInfo_t
+	AppID as integer
+	IP as string
+	ConnPort as integer
+	QueryPort as integer
+	Flags as integer
+	TimeLastPlayedOnServer as integer
+EndType

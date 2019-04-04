@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef CFILEREADASYNCITEM_H_
-#define CFILEREADASYNCITEM_H_
+#ifndef _CROOMMANAGER_H_
+#define _CROOMMANAGER_H_
+#pragma once
 
 #include "DllMain.h"
-#include <steam_api.h>
-#include <string>
+#include <mutex>
+#include <vector>
 
-class CFileReadAsyncItem
+// Registers callbacks when joining a lobby or clan chat.  Unregisters when the last is left.
+class CRoomManager
 {
-private:
-	std::string m_Filename;
-	CCallResult<CFileReadAsyncItem, RemoteStorageFileReadAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileReadAsyncComplete(RemoteStorageFileReadAsyncComplete_t *pResult, bool bFailure);
 public:
-	CFileReadAsyncItem();
-	virtual ~CFileReadAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	int m_MemblockID;
-	// Method call.
-	bool Call(const char *pchFile, uint32 nOffset, uint32 cubToRead);
+	CRoomManager() {}
+	virtual ~CRoomManager() {}
+	void Add(CSteamID steamID);
+	void Remove(CSteamID steamID);
+	void Reset();
+protected:
+	virtual void Leave(CSteamID steamID) = 0;
+	virtual void RegisterCallbacks() = 0;
+	virtual void UnregisterCallbacks() = 0;
+	std::mutex m_JoinedMutex;
+	std::vector<CSteamID> m_Joined;
 };
 
-#endif // CFILEREADASYNCITEM_H_
+class CLobbyManager : public CRoomManager
+{
+protected:
+	void Leave(CSteamID steamID);
+	void RegisterCallbacks();
+	void UnregisterCallbacks();
+};
+
+CLobbyManager *LobbyManager();
+
+class CClanChatManager : public CRoomManager
+{
+protected:
+	void Leave(CSteamID steamID);
+	void RegisterCallbacks();
+	void UnregisterCallbacks();
+};
+
+CClanChatManager *ClanChatManager();
+
+#endif // _CROOMMANAGER_H_

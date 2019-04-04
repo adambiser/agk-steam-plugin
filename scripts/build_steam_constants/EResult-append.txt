@@ -1,0 +1,5 @@
+#constant EResultNoSiteLicensesFound	109	// No site licenses found
+#constant EResultWGNetworkSendExceeded	110	// the WG couldn't send a response because we exceeded max network send size
+#constant EResultAccountNotFriends	111	// the user is not mutually friends
+#constant EResultLimitedUserAccount	112	// the user is limited
+#constant EResultCantRemoveItem	113	// item can't be removed

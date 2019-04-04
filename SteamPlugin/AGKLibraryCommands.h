@@ -907,7 +907,7 @@ extern char*(*AGKCommand0)( unsigned int );
 //extern char*(*AGKCommand893)(  );
 //extern int(*AGKCommand894)(  );
 extern void(*AGKCommand895)( const char * );
-//extern void(*AGKCommand896)( const char* );
+extern void(*AGKCommand896)( const char* );
 //extern int(*AGKCommand897)(  );
 //extern float(*AGKCommand898)(  );
 //extern float(*AGKCommand899)(  );
@@ -1185,13 +1185,13 @@ extern int(*AGKCommand1170)( unsigned int );
 extern void(*AGKCommand1171)( unsigned int );
 //extern void(*AGKCommand1172)( unsigned int, unsigned int, unsigned int, unsigned int, unsigned int );
 extern int(*AGKCommand1173)( unsigned int );
-//extern int(*AGKCommand1174)( unsigned int, unsigned int );
+extern int(*AGKCommand1174)( unsigned int, unsigned int );
 //extern int(*AGKCommand1175)( unsigned int, unsigned int );
 //extern int(*AGKCommand1176)( unsigned int, unsigned int );
 //extern int(*AGKCommand1177)( unsigned int, unsigned int );
 //extern float(*AGKCommand1178)( unsigned int, unsigned int );
-//extern char*(*AGKCommand1179)( unsigned int, unsigned int, unsigned int );
-extern void(*AGKCommand1180)( unsigned int, unsigned int, int );
+extern char*(*AGKCommand1179)( unsigned int, unsigned int, unsigned int );
+//extern void(*AGKCommand1180)( unsigned int, unsigned int, int );
 //extern void(*AGKCommand1181)( unsigned int, unsigned int, int );
 //extern void(*AGKCommand1182)( unsigned int, unsigned int, int );
 extern void(*AGKCommand1183)( unsigned int, unsigned int, int );
@@ -1730,7 +1730,7 @@ extern unsigned int(*AGKCommand1189)( unsigned int );
 //extern int(*AGKCommand1716)(  );
 //extern void(*AGKCommand1717)( int );
 //extern void(*AGKCommand1718)( float, float );
-//extern int(*AGKCommand1719)(  );
+extern int(*AGKCommand1719)(  );
 //extern int(*AGKCommand1720)(  );
 //extern char*(*AGKCommand1721)(  );
 //extern char*(*AGKCommand1722)(  );
@@ -2800,7 +2800,7 @@ class agk
 		//static inline char* GetLastError(  ) { return AGKCommand893(  ); }
 		//static inline int GetErrorOccurred(  ) { return AGKCommand894(  ); }
 		static inline void PluginError( const char * szErr ) { AGKCommand895( szErr ); }
-		//static inline void Message( const char* msg ) { AGKCommand896( msg ); }
+		static inline void Message( const char* msg ) { AGKCommand896( msg ); }
 		//static inline int GetJoystickExists(  ) { return AGKCommand897(  ); }
 		//static inline float GetRawMouseX(  ) { return AGKCommand898(  ); }
 		//static inline float GetRawMouseY(  ) { return AGKCommand899(  ); }
@@ -3078,13 +3078,13 @@ class agk
 		static inline void DeleteMemblock( unsigned int memID ) { AGKCommand1171( memID ); }
 		//static inline void CopyMemblock( unsigned int memSrcID, unsigned int memDstID, unsigned int srcOffset, unsigned int dstOffset, unsigned int size ) { AGKCommand1172( memSrcID, memDstID, srcOffset, dstOffset, size ); }
 		static inline int GetMemblockSize( unsigned int memID ) { return AGKCommand1173( memID ); }
-		//static inline int GetMemblockByte( unsigned int memID, unsigned int offset ) { return AGKCommand1174( memID, offset ); }
+		static inline int GetMemblockByte( unsigned int memID, unsigned int offset ) { return AGKCommand1174( memID, offset ); }
 		//static inline int GetMemblockByteSigned( unsigned int memID, unsigned int offset ) { return AGKCommand1175( memID, offset ); }
 		//static inline int GetMemblockShort( unsigned int memID, unsigned int offset ) { return AGKCommand1176( memID, offset ); }
 		//static inline int GetMemblockInt( unsigned int memID, unsigned int offset ) { return AGKCommand1177( memID, offset ); }
 		//static inline float GetMemblockFloat( unsigned int memID, unsigned int offset ) { return AGKCommand1178( memID, offset ); }
-		//static inline char* GetMemblockString( unsigned int memID, unsigned int offset, unsigned int length ) { return AGKCommand1179( memID, offset, length ); }
-		static inline void SetMemblockByte( unsigned int memID, unsigned int offset, int value ) { AGKCommand1180( memID, offset, value ); }
+		static inline char* GetMemblockString( unsigned int memID, unsigned int offset, unsigned int length ) { return AGKCommand1179( memID, offset, length ); }
+		//static inline void SetMemblockByte( unsigned int memID, unsigned int offset, int value ) { AGKCommand1180( memID, offset, value ); }
 		//static inline void SetMemblockByteSigned( unsigned int memID, unsigned int offset, int value ) { AGKCommand1181( memID, offset, value ); }
 		//static inline void SetMemblockShort( unsigned int memID, unsigned int offset, int value ) { AGKCommand1182( memID, offset, value ); }
 		static inline void SetMemblockInt( unsigned int memID, unsigned int offset, int value ) { AGKCommand1183( memID, offset, value ); }
@@ -3623,7 +3623,7 @@ class agk
 		//static inline int GetGPSSensorExists(  ) { return AGKCommand1716(  ); }
 		//static inline void SetRawMouseVisible( int visible ) { AGKCommand1717( visible ); }
 		//static inline void SetRawMousePosition( float x, float y ) { AGKCommand1718( x, y ); }
-		//static inline int GetUnixTime(  ) { return AGKCommand1719(  ); }
+		static inline int GetUnixTime(  ) { return AGKCommand1719(  ); }
 		//static inline int GetDayOfWeek(  ) { return AGKCommand1720(  ); }
 		//static inline char* GetCurrentDate(  ) { return AGKCommand1721(  ); }
 		//static inline char* GetCurrentTime(  ) { return AGKCommand1722(  ); }

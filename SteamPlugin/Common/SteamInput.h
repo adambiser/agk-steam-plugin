@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Adam Biser <adambiser@gmail.com>
+Copyright (c) 2019 Adam Biser <adambiser@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef CFILEWRITEASYNCITEM_H_
-#define CFILEWRITEASYNCITEM_H_
+#ifndef _STEAMINPUT_H_
+#define _STEAMINPUT_H_
+#pragma once
 
-#include "DllMain.h"
-#include <steam_api.h>
-#include <string>
+//#include "CCallbacks.h"
+#include "steam_api.h"
 
-class CFileWriteAsyncItem
-{
-private:
-	std::string m_Filename;
-	CCallResult<CFileWriteAsyncItem, RemoteStorageFileWriteAsyncComplete_t> m_CallResult;
-	void OnRemoteStorageFileWriteAsyncComplete(RemoteStorageFileWriteAsyncComplete_t *pResult, bool bFailure);
-public:
-	CFileWriteAsyncItem();
-	virtual ~CFileWriteAsyncItem(void);
-	// Callback values.
-	ECallbackState m_CallbackState;
-	EResult m_Result;
-	// Method call.
-	bool Call(const char *pchFile, const void *pvData, uint32 cubData);
-};
+void ResetSteamInput();
 
-#endif // CFILEWRITEASYNCITEM_H_
+#endif // _STEAMINPUT_H_

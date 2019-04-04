@@ -1,0 +1,3 @@
+#constant FavoriteFlagNone						0x00	// This favorite game server has no flags set.
+#constant FavoriteFlagFavorite					0x01	// This favorite game server entry is for the favorites list.
+#constant FavoriteFlagHistory					0x02	// This favorite game server entry is for the history list.

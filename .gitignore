@@ -2,3 +2,4 @@ Examples/*/*.exe
 Examples/*/media/bytecode.byc
 Examples/*/Plugins/SteamPlugin/Windows.dll
 Examples/*/Plugins/SteamPlugin/Windows64.dll
+Releases/

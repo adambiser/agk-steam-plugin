@@ -80,10 +80,10 @@ EndFunction
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
-	if Steam.HasMusicPlaybackStatusChanged()
+	if Steam.HasMusicPlaybackStatusChangedResponse()
 		AddStatus("Status changed: " + GetMusicPlaybackStatusText(Steam.GetMusicPlaybackStatus()))
 	endif
-	if Steam.HasMusicVolumeChanged()
+	if Steam.HasMusicVolumeChangedResponse()
 		volume = Steam.GetMusicVolume()
 		AddStatus("Volume changed: " + str(volume))
 	endif

@@ -15,7 +15,7 @@ next
 infoTextID as integer
 infoTextID = CreateTextEx(0, 100, "")
 
-Steam.SetOverlayNotificationPosition(k_EPositionTopRight)
+Steam.SetOverlayNotificationPosition(EPositionTopRight)
 Steam.SetOverlayNotificationInset(50, 50)
 
 // This should cause the Steam API to send API warnings to AGK's Debug Log,
@@ -23,8 +23,30 @@ Steam.SetOverlayNotificationInset(50, 50)
 // one to fire, so I can only assume the plugin code is correct.
 Steam.SetWarningMessageHook()
 
+AddStatus("AppName: " + Steam.GetAppName(480))
+AddStatus("SteamID3: " + Steam.GetSteamID3(Steam.GetSteamID()))
+AddStatus("SteamID64: " + Steam.GetSteamID64(Steam.GetSteamID()))
 AddStatus("IP Country: " + Steam.GetIPCountry())
 AddStatus("Steam UI Language: " + Steam.GetSteamUILanguage())
+AddStatus("AppInstallDir: " + Steam.GetAppInstallDir(480))
+
+AddStatus("IsBehindNAT: " + TF(Steam.IsBehindNAT()))
+AddStatus("IsPhoneIdentifying: " + TF(Steam.IsPhoneIdentifying()))
+AddStatus("IsPhoneRequiringVerification: " + TF(Steam.IsPhoneRequiringVerification()))
+AddStatus("IsPhoneVerified: " + TF(Steam.IsPhoneVerified()))
+AddStatus("IsTwoFactorEnabled: " + TF(Steam.IsTwoFactorEnabled()))
+
+global filenames as string[1] = ["dummy.txt", "SteamworksExample.exe"]
+global fileCallResults as integer[1]
+
+for x = 0 to filenames.length
+	fileCallResults[x] = Steam.GetFileDetails(filenames[x])
+	AddStatus("GetFileDetails: " + filenames[x] + ", call result = " + str(fileCallResults[x]))
+next
+
+global numberOfPlayersCallResult as integer
+numberOfPlayersCallResult = Steam.GetNumberOfCurrentPlayers()
+	
 
 info as string
 //
@@ -67,13 +89,41 @@ EndFunction
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
-	if Steam.HasIPCountryChanged()
+	if Steam.HasIPCountryChangedResponse()
 		AddStatus("IP Country Changed: " + Steam.GetIPCountry())
 	endif
-	if Steam.HasLowBatteryWarning()
+	if Steam.HasLowBatteryWarningResponse()
 		AddStatus("Low battery warning!  " + str(Steam.GetMinutesBatteryLeft()) + " minute(s) remaining.")
 	endif
 	if Steam.IsSteamShuttingDown()
 		AddStatus("Steam is shutting down.")
+	endif
+	result as integer
+	x as integer
+	for x = 0 to fileCallResults.length
+		if fileCallResults[x]
+			result = Steam.GetCallResultCode(fileCallResults[x])
+			if result
+				AddStatus("GetFileDetails: " + filenames[x] + ", result code = " + str(result))
+				//~ if result = EResultOK
+					AddStatus(filenames[x] + ": size = " + str(Steam.GetFileDetailsSize(fileCallResults[x])) + ", SHA = " + Steam.GetFileDetailsSHA1(fileCallResults[x]))
+				//~ endif
+				// Done with the call result.  Delete and clear.
+				Steam.DeleteCallResult(fileCallResults[x])
+				fileCallResults[x] = 0
+			endif
+		endif
+	next
+	if numberOfPlayersCallResult
+		result = Steam.GetCallResultCode(numberOfPlayersCallResult)
+		if result
+			AddStatus("GetNumberOfCurrentPlayers: result code = " + str(result))
+			if result = EResultOK
+				AddStatus("Number of players: " + str(Steam.GetNumberOfCurrentPlayersResult(numberOfPlayersCallResult)))
+			endif
+			// Done with the call result.  Delete and clear.
+			Steam.DeleteCallResult(numberOfPlayersCallResult)
+			numberOfPlayersCallResult = 0
+		endif
 	endif
 EndFunction
