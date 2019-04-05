@@ -200,7 +200,7 @@ Function ProcessCallbacks()
 				SetButtonEnabled(x + 1, 1)
 			next
 		else
-			AddStatus("Error loading user stats.")
+			AddStatus("Error loading user stats.  Result: " + str(Steam.GetUserStatsReceivedResult()))
 		endif
 	endif
 	//

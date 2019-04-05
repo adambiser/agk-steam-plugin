@@ -171,8 +171,8 @@ Function ProcessCallbacks()
 			else
 				AddStatus("NumGames: " + str(Steam.GetUserStatInt(hSteamID, "NumGames")) + ", " + server.achievements[0] + ": " + str(Steam.GetUserAchievement(hSteamID, server.achievements[0])))
 			endif
-		//~ else
-			//~ AddStatus("Error loading user stats.")
+		else
+			AddStatus("Error loading user stats.  Result: " + str(Steam.GetUserStatsReceivedResult()))
 		endif
 	endwhile
 	while Steam.HasUserStatsUnloadedResponse()
