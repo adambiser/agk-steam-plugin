@@ -367,19 +367,18 @@ class ExportedMethodLoader:
                     f.write(page['desc'])
                     f.write('\n\n')
                 for method in page['methods']:  # type: dict
+                    public_method_name = method.get("plugin_name", method["name"])
                     params_list = ', '.join(
                             ('[{name} as {type}]({url})' if 'url' in param else '{name} as {type}').format(
                                     **param) for param in method['params'])
-                    syntax = '{name}({params_list}){return_type}'.format(name=method['name'],
-                                                                         params_list=params_list,
-                                                                         return_type=(' as ' + method['return_type'])
-                                                                         if 'return_type' in method else '')
+                    syntax = f'{public_method_name}({params_list})' \
+                             f'{" as " + method["return_type"] if "return_type" in method else ""}'
                     # print(syntax)
                     # Output the method wiki.
-                    wiki_entry = '## {0}\n'.format(method['name'])
-                    wiki_entry += '> {0}\n'.format(syntax)
+                    wiki_entry = f'## {public_method_name}\n'
+                    wiki_entry += f'> {syntax}\n'
                     if method['params']:
-                        wiki_entry += ''.join('> * _{name}_ - {desc}  \n'.format(**param) for param in method['params'])
+                        wiki_entry += ''.join(f'> * _{p["name"]}_ - {p["desc"]}  \n' for p in method['params'])
                     wiki_entry += '\n'
                     if 'desc' in method:
                         wiki_entry += '{0}\n\n'.format(method['desc'])
