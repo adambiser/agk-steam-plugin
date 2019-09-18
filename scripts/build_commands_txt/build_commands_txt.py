@@ -4,6 +4,39 @@ import re
 WIKI_PATH = "../../../agk-steam-plugin.wiki/"
 error_count = 0
 
+"""
+Page Tag Information:
+@page   The rest of the line is the page name/Steam class for the file.  Additional lines are for the page description.
+
+Method Tag Information
+@desc               The method description.  Can be multiple lines.
+@param              First word is the parameter name.  The rest is the description.  One per parameter.
+@param-url          The url for the parameter. (optional)
+@return             The return description.
+@return-url         The reference url for the return value. Only one allowed.  (optional)
+@plugin-name        The method name for Commands.txt.  Used to create method overrides.  (optional)
+@callback-type      Optional, but must be: 
+                        'list' - A callback that returns a list.
+                        'bool' - A callback that is a boolean.
+                        'callresult' - A callresult function.
+@callback-getters   Comma-delimited list of methods for getting callback information.  Can be multiple lines.
+@callbacks          Obsolete.
+@url                Reference urls.  Multiple tags allowed.
+"""
+
+_METHODS_WITH_NO_URL = [
+    "GetCommandLineArgsJSON",
+    "GetSteamPath",
+    "IsSteamEmulated",
+    "SetFileAttributes",
+    "DeleteCallResult",
+    "IsSteamIDValid",
+    "GetAccountID",
+    "GetSteamID64",
+    "GetHandleFromSteamID64",
+]
+
+
 
 def report_error(text):
     global error_count
@@ -27,7 +60,7 @@ class ExportedMethodLoader:
         for (root, _, filenames) in os.walk(path):
             for filename in [f for f in filenames if f.endswith('.cpp') or f.endswith('.h')]:
                 with open(os.path.join(root, filename), 'r') as f:
-                    # print("Loading {}...".format(filename))
+                    # print(f"Loading {filename}...")
                     lines = ''.join(f.readlines())
                     pages = self._get_page_tags(lines)
                     methods = self._get_methods(lines)
@@ -35,6 +68,14 @@ class ExportedMethodLoader:
                         self.method_count += len(methods)
                         self._validate_callback_tags(methods)
                         self._assign_methods_to_pages(pages, methods)
+                        # check urls
+                        for method in methods:
+                            if method["name"] in _METHODS_WITH_NO_URL:
+                                if 'url' in method:
+                                    report_error(f"{method['name']} has an unexpected URL.")
+                            else:
+                                if 'url' not in method:
+                                    report_error(f"{method['name']} has no URL.")
                         self._merge_page_list(pages)
         self.page_count = len(self.pages)
         # Alphabetize the pages
@@ -62,7 +103,7 @@ class ExportedMethodLoader:
                 'name': name.strip(),
                 'desc': desc.strip(),
                 'start': match.start(),
-                'filename': '{}.md'.format(name.strip().replace(' ', '-')),
+                'filename': f"{name.strip().replace(' ', '-')}.md",
             })
         return pages
 
@@ -105,7 +146,7 @@ class ExportedMethodLoader:
     @classmethod
     def _load_method_tags(cls, method, comment):
         if not comment:
-            report_error('{} has no documentation.'.format(method['name']))
+            report_error(f"{method['name']} has no documentation.")
             return True
 
         if '@ignore' in comment:
@@ -117,47 +158,47 @@ class ExportedMethodLoader:
 
         def process_desc_tag(tag_text):
             if 'desc' in method:
-                report_error('{} has multiple desc tags.'.format(method['name']))
+                report_error(f"{method['name']} has multiple desc tags.")
                 return
             method['desc'] = tag_text
 
         def process_return_tag(tag_text):
             if 'return_desc' in method:
-                report_error('{} has multiple return-desc tags.'.format(method['name']))
+                report_error(f"{method['name']} has multiple return-desc tags.")
                 return
             method['return_desc'] = tag_text
 
         def process_return_url_tag(tag_text):
             if 'return_url' in method:
-                report_error('{} has multiple return-url tags.'.format(method['name']))
+                report_error(f"{method['name']} has multiple return-url tags.")
                 return
             method['return_url'] = tag_text
 
         def process_param_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
             if not tag_text:
-                report_error('{} has an empty description for parameter: {}'.format(method['name'], param_name))
+                report_error(f"{method['name']} has an empty description for parameter: {param_name}")
                 return
             index = get_param_index(method['params'], param_name)
             if index is None:
-                report_error('{} has a description for an unknown parameter: {}'.format(method['name'], param_name))
+                report_error(f"{method['name']} has a description for an unknown parameter: {param_name}")
                 return
             if 'desc' in method['params'][index]:
-                report_error('{} has multiple param tags for: {}'.format(method['name'], param_name))
+                report_error(f"{method['name']} has multiple param tags for: {param_name}")
                 return
             method['params'][index]['desc'] = tag_text
 
         def process_param_url_tag(tag_text):
             param_name, sep, tag_text = tag_text.partition(' ')
             if not tag_text:
-                report_error('{} has an empty URL for parameter: {}'.format(method['name'], param_name))
+                report_error(f"{method['name']} has an empty URL for parameter: {param_name}")
                 return
             index = get_param_index(method['params'], param_name)
             if index is None:
-                report_error('{} has a URL for an unknown parameter: {}'.format(method['name'], param_name))
+                report_error(f"{method['name']} has a URL for an unknown parameter: {param_name}")
                 return
             if 'url' in method['params'][index]:
-                report_error('{} has multiple param-url tags for: {}'.format(method['name'], param_name))
+                report_error(f"{method['name']} has multiple param-url tags for: {param_name}")
                 return
             method['params'][index]['url'] = tag_text
 
@@ -166,18 +207,18 @@ class ExportedMethodLoader:
 
         def process_url_tag(tag_text):
             if ',' in tag_text or '\n' in tag_text:
-                report_error('{} had a url tag with multiple urls.'.format(method['name']))
+                report_error(f"{method['name']} had a url tag with multiple urls.")
                 return
             if 'url' not in method:
                 method['url'] = []
             if tag_text in method['url']:
-                report_error('{} had a duplicate url entry: {}'.format(method['name'], tag_text))
+                report_error(f"{method['name']} had a duplicate url entry: {tag_text}")
                 return
             method['url'].append(tag_text)
 
         def process_plugin_name_tag(tag_text):
             if 'plugin_name' in method:
-                report_error('{} already had a plugin-name tag.'.format(method['name']))
+                report_error(f"{method['name']} already had a plugin-name tag.")
                 return
             method['plugin_name'] = tag_text
 
@@ -186,19 +227,19 @@ class ExportedMethodLoader:
                 report_error("{} has an unknown callback type: {}".format(method['name'], tag_text))
                 return
             if 'callback-type' in method:
-                report_error('{} has multiple callback-type tags.'.format(method['name']))
+                report_error(f"{method['name']} has multiple callback-type tags.")
                 return
             method['callback-type'] = tag_text
 
         def process_callback_getters_tag(tag_text):
             if 'callback-getters' in method:
-                report_error('{} has multiple callback-getters tags.'.format(method['name']))
+                report_error(f"{method['name']} has multiple callback-getters tags.")
                 return
             method['callback-getters'] = [name.strip() for name in tag_text.split(',')]
 
         def process_callbacks_tag(tag_text):
             if 'callbacks' in method:
-                report_error('{} has multiple callbacks tags.'.format(method['name']))
+                report_error(f"{method['name']} has multiple callbacks tags.")
                 return
             # callbacks that fire as a result of the current method.
             method['callbacks'] = [name.strip() for name in tag_text.split(',')]
@@ -206,23 +247,23 @@ class ExportedMethodLoader:
         method_apis = []
         for tag in re.finditer(r'@(?P<name>[-a-z_0-9]+)\s+(?P<text>(?:(?!@).)*)', comment, re.DOTALL | re.MULTILINE):
             tag_name = tag['name']
-            process_function = locals().get('process_{}_tag'.format(tag['name'].replace("-", "_")))
+            process_function = locals().get(f"process_{tag['name'].replace('-', '_')}_tag")
             if process_function:
                 process_function(tag['text'].strip())
             else:
-                report_error('{} has an unknown tag: {}'.format(method['name'], tag_name))
+                report_error(f"{method['name']} has an unknown tag: {tag_name}")
         # Final validation checks
         if 'desc' not in method:
-            report_error("{} has no description.".format(method['name']))
+            report_error(f"{method['name']} has no description.")
         if 'return_type' in method:
             if 'return_desc' not in method:
-                report_error("{} has a return type without a return description.".format(method['name']))
+                report_error(f"{method['name']} has a return type without a return description.")
         else:
             if 'return_desc' in method:
-                report_error("{} has a return description without a return type.".format(method['name']))
+                report_error(f"{method['name']} has a return description without a return type.")
         for param in method['params']:
             if 'desc' not in param:
-                report_error("{} has a parameter without a description: {}".format(method['name'], param['name']))
+                report_error(f"{method['name']} has a parameter without a description: {param['name']}")
         return True
 
     @classmethod
@@ -230,14 +271,14 @@ class ExportedMethodLoader:
         for method in methods:
             if 'callback-getters' in method:
                 if 'callback-type' not in method:
-                    report_error('{} does not have a callback type.'.format(method['name']))
+                    report_error(f"{method['name']} does not have a callback type.")
                 if method['callback-getters'] == '':
-                    report_error('{} has a empty callback-getters tag.'.format(method['name']))
+                    report_error(f"{method['name']} has an empty callback-getters tag.")
                     return
                 for getter in method['callback-getters']:
                     method_index = next((i for i, m in enumerate(methods) if m["name"] == getter), None)
                     if method_index is None:
-                        report_error('{} has an unknown callback getter method: {}'.format(method['name'], getter))
+                        report_error(f"{method['name']} has an unknown callback getter method: {getter}")
                     else:
                         if 'callback-parents' not in methods[method_index]:
                             methods[method_index]['callback-parents'] = []
@@ -260,8 +301,8 @@ class ExportedMethodLoader:
                 page = [p for p in pages if p['start'] <= method['start']][-1]
                 page['methods'].append(method)
                 method['page'] = page
-            except IndexError as e:
-                report_error("Could not find page for method: {}".format(method['name']))
+            except IndexError:
+                report_error(f"Could not find page for method: {method['name']}")
 
     def write_commands_txt(self, out_file: str):
         var_type_letter = {
@@ -272,12 +313,12 @@ class ExportedMethodLoader:
             'string': 'S',
         }
         with open(out_file, 'w') as f:
-            f.write('#CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64\n')
+            f.write("#CommandName,ReturnType,ParameterTypes,Windows,Linux,Mac,Android,iOS,Windows64\n")
             for page in [p for p in self.pages if p['methods']]:
-                # print('Page {} has {} methods'.format(page['name'], len(page['methods'])))
-                f.write('#\n')
-                f.write('# {0}\n'.format(page['name']))
-                f.write('#\n')
+                # print(f"Page {page['name']} has {len(page['methods'])} methods")
+                f.write("#\n")
+                f.write(f"# {page['name']}\n")
+                f.write("#\n")
                 for method in page['methods']:  # type: dict
                     param_types = ''.join([var_type_letter[v['type']] for v in method['params']]) \
                         if method['params'] else '0'
