@@ -245,6 +245,9 @@ GetActionOriginFromXboxOrigin,I,II,GetActionOriginFromXboxOrigin,0,0,0,0,GetActi
 GetStringForXboxOrigin,S,I,GetStringForXboxOrigin,0,0,0,0,GetStringForXboxOrigin
 GetGlyphForXboxOrigin,S,I,GetGlyphForXboxOrigin,0,0,0,0,GetGlyphForXboxOrigin
 TranslateActionOrigin,I,II,TranslateActionOrigin,0,0,0,0,TranslateActionOrigin
+GetDeviceBindingRevisionMajor,I,I,GetDeviceBindingRevisionMajor,0,0,0,0,GetDeviceBindingRevisionMajor
+GetDeviceBindingRevisionMinor,I,I,GetDeviceBindingRevisionMinor,0,0,0,0,GetDeviceBindingRevisionMinor
+GetRemotePlaySessionID,I,I,GetRemotePlaySessionID,0,0,0,0,GetRemotePlaySessionID
 #
 # ISteamMatchmaking
 #
@@ -401,7 +404,26 @@ IsPhoneRequiringVerification,I,0,IsPhoneRequiringVerification,0,0,0,0,IsPhoneReq
 IsPhoneVerified,I,0,IsPhoneVerified,0,0,0,0,IsPhoneVerified
 IsTwoFactorEnabled,I,0,IsTwoFactorEnabled,0,0,0,0,IsTwoFactorEnabled
 LoggedOn,I,0,LoggedOn,0,0,0,0,LoggedOn
+GetDurationControl,I,0,GetDurationControl,0,0,0,0,GetDurationControl
+HasDurationControlResponse,I,0,HasDurationControlResponse,0,0,0,0,HasDurationControlResponse
+GetDurationControlResult,I,0,GetDurationControlResult,0,0,0,0,GetDurationControlResult
+GetDurationControlAppID,I,0,GetDurationControlAppID,0,0,0,0,GetDurationControlAppID
+GetDurationControlAppID,I,I,GetDurationControlCallResultAppID,0,0,0,0,GetDurationControlCallResultAppID
+GetDurationControlApplicable,I,0,GetDurationControlApplicable,0,0,0,0,GetDurationControlApplicable
+GetDurationControlApplicable,I,I,GetDurationControlCallResultApplicable,0,0,0,0,GetDurationControlCallResultApplicable
+GetDurationControlSecondsInLastFiveHours,I,0,GetDurationControlSecondsInLastFiveHours,0,0,0,0,GetDurationControlSecondsInLastFiveHours
+GetDurationControlSecondsInLastFiveHours,I,I,GetDurationControlCallResultSecondsInLastFiveHours,0,0,0,0,GetDurationControlCallResultSecondsInLastFiveHours
+GetDurationControlProgress,I,0,GetDurationControlProgress,0,0,0,0,GetDurationControlProgress
+GetDurationControlProgress,I,I,GetDurationControlCallResultProgress,0,0,0,0,GetDurationControlCallResultProgress
+GetDurationControlNotification,I,0,GetDurationControlNotification,0,0,0,0,GetDurationControlNotification
+GetDurationControlNotification,I,I,GetDurationControlCallResultNotification,0,0,0,0,GetDurationControlCallResultNotification
 GetGameBadgeLevel,I,II,GetGameBadgeLevel,0,0,0,0,GetGameBadgeLevel
+GetMarketEligibility,I,0,GetMarketEligibility,0,0,0,0,GetMarketEligibility
+GetMarketEligibilityIsAllowed,I,I,GetMarketEligibilityIsAllowed,0,0,0,0,GetMarketEligibilityIsAllowed
+GetMarketEligibilityNotAllowedReason,I,I,GetMarketEligibilityNotAllowedReason,0,0,0,0,GetMarketEligibilityNotAllowedReason
+GetMarketEligibilityAllowedAtTime,I,I,GetMarketEligibilityAllowedAtTime,0,0,0,0,GetMarketEligibilityAllowedAtTime
+GetMarketEligibilitySteamGuardRequiredDays,I,I,GetMarketEligibilitySteamGuardRequiredDays,0,0,0,0,GetMarketEligibilitySteamGuardRequiredDays
+GetMarketEligibilityNewDeviceCooldown,I,I,GetMarketEligibilityNewDeviceCooldown,0,0,0,0,GetMarketEligibilityNewDeviceCooldown
 GetPlayerSteamLevel,I,0,GetPlayerSteamLevel,0,0,0,0,GetPlayerSteamLevel
 GetSteamID,I,0,GetSteamID,0,0,0,0,GetSteamID
 IsSteamIDValid,I,I,IsSteamIDValid,0,0,0,0,IsSteamIDValid
@@ -507,7 +529,10 @@ GetSecondsSinceAppActive,I,0,GetSecondsSinceAppActive,0,0,0,0,GetSecondsSinceApp
 GetSecondsSinceComputerActive,I,0,GetSecondsSinceComputerActive,0,0,0,0,GetSecondsSinceComputerActive
 GetServerRealTime,I,0,GetServerRealTime,0,0,0,0,GetServerRealTime
 GetSteamUILanguage,S,0,GetSteamUILanguage,0,0,0,0,GetSteamUILanguage
+InitFilterText,I,0,InitFilterText,0,0,0,0,InitFilterText
+FilterText,S,SI,FilterText,0,0,0,0,FilterText
 IsOverlayEnabled,I,0,IsOverlayEnabled,0,0,0,0,IsOverlayEnabled
+IsSteamChinaLauncher,I,0,IsSteamChinaLauncher,0,0,0,0,IsSteamChinaLauncher
 IsSteamInBigPictureMode,I,0,IsSteamInBigPictureMode,0,0,0,0,IsSteamInBigPictureMode
 IsSteamRunningInVR,I,0,IsSteamRunningInVR,0,0,0,0,IsSteamRunningInVR
 IsVRHeadsetStreamingEnabled,I,0,IsVRHeadsetStreamingEnabled,0,0,0,0,IsVRHeadsetStreamingEnabled

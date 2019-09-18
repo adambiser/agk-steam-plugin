@@ -1032,6 +1032,8 @@ extern "C" DLL_EXPORT int GetFriendsGroupMembersCount(int hFriendsGroupID)
 @desc Gets a JSON integer array of SteamID handles of the list of members in a group.
 @param hFriendsGroupID The friends group ID handle to get the members list of.
 @return An integer array of Steam ID handles as a JSON string.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendsGroupMembersCount
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendsGroupMembersList
 */
 extern "C" DLL_EXPORT char *GetFriendsGroupMembersListJSON(int hFriendsGroupID)
 {
@@ -1219,6 +1221,7 @@ extern "C" DLL_EXPORT int GetSmallFriendAvatar(int hSteamIDUser)
 @desc Checks if current user is chat restricted.
 @return Restriction flags.
 @return-url https://partner.steamgames.com/doc/api/ISteamFriends#EUserRestriction
+@url https://partner.steamgames.com/doc/api/ISteamFriends#GetUserRestrictions
 */
 extern "C" DLL_EXPORT int GetUserRestrictions()
 {
@@ -1884,7 +1887,7 @@ extern "C" DLL_EXPORT char *GetGameConnectedFriendChatMessageText()
 The game client should attempt to connect to specified lobby when this is received.
 If the game isn't running yet then the game will be automatically launched with the command line parameter +connect_lobby <64-bit lobby Steam ID> instead.
 @callback-type list
-@callback-getters GetGameLobbyJoinRequestedLobby
+@callback-getters GetGameLobbyJoinRequestedLobby, GetGameLobbyJoinRequestedFriend
 @return 1 when the callback has more responses to process; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#GameLobbyJoinRequested_t
 */

@@ -405,6 +405,7 @@ extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult)
 @param appID The App to list the depots for.
 @param maxDepots The maximum number of depots to obtain.
 @return A JSON string of an integer array.
+@url https://partner.steamgames.com/doc/api/ISteamApps#GetInstalledDepots
 */
 extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {

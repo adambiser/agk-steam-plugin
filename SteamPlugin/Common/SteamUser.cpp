@@ -23,6 +23,8 @@ THE SOFTWARE.
 #include "SteamUser.h"
 #include "DllMain.h"
 
+CDurationControlCallback DurationControlCallback;
+
 /* @page ISteamUser */
 
 //AdvertiseGame - game server stuff
@@ -99,6 +101,183 @@ extern "C" DLL_EXPORT int LoggedOn()
 //EndAuthSession - game server stuff
 //GetAuthSessionTicket - game server stuff
 //GetAvailableVoice - voice stuff
+
+class CGetDurationControlCallResult : public CCallResultItem<DurationControl_t>
+{
+public:
+	CGetDurationControlCallResult()
+	{
+		m_CallResultName = "GetDurationControl()";
+		m_hSteamAPICall = SteamUser()->GetDurationControl();
+	}
+	virtual ~CGetDurationControlCallResult() { }
+	AppId_t GetAppID() { return m_Response.m_appid; }
+	bool GetApplicable() { return m_Response.m_bApplicable; }
+	int32 GetCSecsLast5h() { return m_Response.m_csecsLast5h; }
+	int GetProgress() { return (int)m_Response.m_progress; }
+	int GetNotification() { return (int)m_Response.m_notification; }
+protected:
+	void OnResponse(DurationControl_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+	}
+};
+
+/*
+@desc Retrieves anti indulgence / duration control for current user / game combination.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@callback-type callresult
+@callback-getters GetDurationControlAppID, GetDurationControlApplicable, GetDurationControlSecondsInLastFiveHours,
+GetDurationControlProgress, GetDurationControlNotification
+@url https://partner.steamgames.com/doc/api/ISteamUser#GetDurationControl
+*/
+extern "C" DLL_EXPORT int GetDurationControl()
+{
+	CheckInitialized(0);
+	DurationControlCallback.Register();
+	return CallResults()->Add(new CGetDurationControlCallResult());
+}
+
+/*
+@desc Sent for games with enabled anti indulgence / duration control, for enabled users. Lets the game know whether persistent rewards or XP should be granted at normal rate, half rate, or zero rate.
+
+This callback is fired asynchronously in response to timers triggering. It is also fired in response to calls to GetDurationControl().
+@callback-type list
+@callback-getters	GetDurationControlResult, GetDurationControlAppID, GetDurationControlApplicable, GetDurationControlSecondsInLastFiveHours,
+GetDurationControlProgress, GetDurationControlNotification
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+*/
+extern "C" DLL_EXPORT int HasDurationControlResponse()
+{
+	return DurationControlCallback.HasResponse();
+}
+
+/*
+@desc Returns the result of the current DurationControl_t callback response.
+@return An EResult value.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@url https://partner.steamgames.com/doc/api/steam_api#EResult
+*/
+extern "C" DLL_EXPORT int GetDurationControlResult()
+{
+	return DurationControlCallback.GetCurrent().m_eResult;
+}
+
+/*
+@desc Returns the appid generating playtime of the current DurationControl_t callback response.
+@return An app ID.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+*/
+extern "C" DLL_EXPORT int GetDurationControlAppID()
+{
+	return DurationControlCallback.GetCurrent().m_appid;
+}
+
+/*
+@desc Returns the appid generating playtime for the given call result.
+@param hCallResult An GetDurationControl call result handle.
+@return An app ID.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@plugin-name GetDurationControlAppID
+*/
+extern "C" DLL_EXPORT int GetDurationControlCallResultAppID(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetDurationControlCallResult::GetAppID);
+}
+
+/*
+@desc Returns whether the duration control is applicable to user + game combination for the current DurationControl_t callback response.
+@return 1 when the duration control is applicable to user + game combination; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+*/
+extern "C" DLL_EXPORT int GetDurationControlApplicable()
+{
+	return DurationControlCallback.GetCurrent().m_bApplicable;
+}
+
+/*
+@desc Returns whether the duration control is applicable to user + game combination for the given call result.
+@param hCallResult An GetDurationControl call result handle.
+@return 1 when the duration control is applicable to user + game combination; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@plugin-name GetDurationControlApplicable
+*/
+extern "C" DLL_EXPORT int GetDurationControlCallResultApplicable(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetDurationControlCallResult::GetApplicable);
+}
+
+/*
+@desc Returns playtime in trailing 5 hour window plus current session, in seconds, for the current DurationControl_t callback response.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+*/
+extern "C" DLL_EXPORT int GetDurationControlSecondsInLastFiveHours()
+{
+	return DurationControlCallback.GetCurrent().m_csecsLast5h;
+}
+
+/*
+@desc Returns playtime in trailing 5 hour window plus current session, in seconds, for the given call result.
+@param hCallResult An GetDurationControl call result handle.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@plugin-name GetDurationControlSecondsInLastFiveHours
+*/
+extern "C" DLL_EXPORT int GetDurationControlCallResultSecondsInLastFiveHours(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetDurationControlCallResult::GetCSecsLast5h);
+}
+
+/*
+@desc Returns the recommended progress for the current DurationControl_t callback response.
+@return An EDurationControlProgress value.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@url https://partner.steamgames.com/doc/api/ISteamUser#EDurationControlProgress
+*/
+extern "C" DLL_EXPORT int GetDurationControlProgress()
+{
+	return DurationControlCallback.GetCurrent().m_progress;
+}
+
+/*
+@desc Returns the recommended progress for the given call result.
+@param hCallResult An GetDurationControl call result handle.
+@return An EDurationControlProgress value.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@url https://partner.steamgames.com/doc/api/ISteamUser#EDurationControlProgress
+@plugin-name GetDurationControlProgress
+*/
+extern "C" DLL_EXPORT int GetDurationControlCallResultProgress(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetDurationControlCallResult::GetProgress);
+}
+
+/*
+@desc Returns the notification to show, if any (always k_EDurationControlNotification_None for API calls), for the current DurationControl_t callback response.
+@return An EDurationControlProgress value.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@url https://partner.steamgames.com/doc/api/ISteamUser#EDurationControlNotification
+*/
+extern "C" DLL_EXPORT int GetDurationControlNotification()
+{
+	return DurationControlCallback.GetCurrent().m_notification;
+}
+
+/*
+@desc Returns the notification to show, if any (always k_EDurationControlNotification_None for API calls), for the given call result.
+@param hCallResult An GetDurationControl call result handle.
+@return An EDurationControlProgress value.
+@url https://partner.steamgames.com/doc/api/ISteamUser#DurationControl_t
+@url https://partner.steamgames.com/doc/api/ISteamUser#EDurationControlNotification
+@plugin-name GetDurationControlNotification
+*/
+extern "C" DLL_EXPORT int GetDurationControlCallResultNotification(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetDurationControlCallResult::GetNotification);
+}
+
 //GetEncryptedAppTicket - encrypted app ticket stuff
 
 /*
@@ -117,9 +296,105 @@ extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil)
 
 //GetHSteamUser - internal use
 
+
+void ResponseWrapper<MarketEligibilityResponse_t>::SetResult() { m_eResult = k_EResultOK; }
+
+class CGetMarketEligibilityCallResult : public CCallResultItem<MarketEligibilityResponse_t, ResponseWrapper<MarketEligibilityResponse_t>>
+{
+public:
+	CGetMarketEligibilityCallResult()
+	{
+		m_CallResultName = "GetMarketEligibility()";
+		m_hSteamAPICall = SteamUser()->GetMarketEligibility();
+	}
+	virtual ~CGetMarketEligibilityCallResult() { }
+	bool IsAllowed() { return m_Response.m_bAllowed; }
+	int GetNotAllowedReason() { return (int)m_Response.m_eNotAllowedReason; }
+	int GetAllowedAtTime() { return (int)m_Response.m_rtAllowedAtTime; }
+	int GetSteamGuardRequiredDays() { return m_Response.m_cdaySteamGuardRequiredDays; }
+	int GetNewDeviceCooldown() { return m_Response.m_cdayNewDeviceCooldown; }
+protected:
+	void OnResponse(MarketEligibilityResponse_t *pCallResult, bool bFailure)
+	{
+		CCallResultItem::OnResponse(pCallResult, bFailure);
+	}
+};
+
+/*
+@desc Checks whether or not an account is allowed to use the market.
+@return A [call result handle](Callbacks-and-Call-Results#call-results) on success; otherwise 0.
+@callback-type callresult
+@callback-getters GetDurationControlAppID, GetDurationControlApplicable, GetDurationControlSecondsInLastFiveHours,
+GetDurationControlProgress, GetDurationControlNotification
+@url https://partner.steamgames.com/doc/api/ISteamUser#MarketEligibilityResponse_t
+*/
+extern "C" DLL_EXPORT int GetMarketEligibility()
+{
+	// Not in API docs, see https://partner.steamgames.com/doc/webapi/IEconMarketService#GetMarketEligibility
+	CheckInitialized(0);
+	return CallResults()->Add(new CGetMarketEligibilityCallResult());
+}
+
+/*
+@desc Returns whether or not the user can use the market.
+@param hCallResult An GetMarketEligibility call result handle.
+@return 1 if the user can use the market; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUser#MarketEligibilityResponse_t
+*/
+extern "C" DLL_EXPORT int GetMarketEligibilityIsAllowed(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetMarketEligibilityCallResult::IsAllowed);
+}
+
+/*
+@desc Returns the reasons a user may not use the Community Market.
+@param hCallResult An GetMarketEligibility call result handle.
+@return A EMarketNotAllowedReasonFlags value.
+@return-url https://partner.steamgames.com/doc/api/ISteamUser#EMarketNotAllowedReasonFlags
+@url https://partner.steamgames.com/doc/api/ISteamUser#MarketEligibilityResponse_t
+*/
+extern "C" DLL_EXPORT int GetMarketEligibilityNotAllowedReason(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetMarketEligibilityCallResult::GetNotAllowedReason);
+}
+
+/*
+@desc Returns when the user is allowed to use the market again.
+@param hCallResult An GetMarketEligibility call result handle.
+@return A Unix time.
+@url https://partner.steamgames.com/doc/api/ISteamUser#MarketEligibilityResponse_t
+*/
+extern "C" DLL_EXPORT int GetMarketEligibilityAllowedAtTime(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetMarketEligibilityCallResult::GetAllowedAtTime);
+}
+
+/*
+@desc Returns the number of days any user is required to have had Steam Guard before they can use the market
+@param hCallResult An GetMarketEligibility call result handle.
+@return An integer.
+@url https://partner.steamgames.com/doc/api/ISteamUser#MarketEligibilityResponse_t
+*/
+extern "C" DLL_EXPORT int GetMarketEligibilitySteamGuardRequiredDays(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetMarketEligibilityCallResult::GetSteamGuardRequiredDays);
+}
+
+/*
+@desc Returns the number of days after initial device authorization a user must wait before using the market on that device
+@param hCallResult An GetMarketEligibility call result handle.
+@return An integer
+@url https://partner.steamgames.com/doc/api/ISteamUser#MarketEligibilityResponse_t
+*/
+extern "C" DLL_EXPORT int GetMarketEligibilityNewDeviceCooldown(int hCallResult)
+{
+	return GetCallResultValue(hCallResult, &CGetMarketEligibilityCallResult::GetNewDeviceCooldown);
+}
+
 /*
 @desc Gets the Steam level of the user, as shown on their Steam community profile.
 @return The level of the current user.
+@url https://partner.steamgames.com/doc/api/ISteamUser#GetPlayerSteamLevel
 */
 extern "C" DLL_EXPORT int GetPlayerSteamLevel()
 {
@@ -173,6 +448,7 @@ extern "C" DLL_EXPORT int GetAccountID(int hSteamIDUser)
 @desc Gets the the SteamID3 for the given Steam ID handle.
 @param hSteamIDUser A user Steam ID handle.
 @return A string containing the SteamID3.
+@url https://developer.valvesoftware.com/wiki/SteamID#Types_of_Steam_Accounts
 */
 extern "C" DLL_EXPORT char *GetSteamID3(int hSteamIDUser)
 {

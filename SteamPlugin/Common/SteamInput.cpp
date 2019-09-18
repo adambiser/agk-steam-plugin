@@ -117,7 +117,7 @@ extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput)
 }
 
 /*
-@desc Gets the active action set layers for the given input.
+@desc Gets the number of active action set layers for the given input.
 @param hInput The handle of the input you want to get active action set layers for.
 @return The number of active action set layers.
 @url https://partner.steamgames.com/doc/api/ISteamController#GetActiveActionSetLayers
@@ -125,7 +125,7 @@ extern "C" DLL_EXPORT void DeactivateAllActionSetLayers(int hInput)
 extern "C" DLL_EXPORT int GetActiveActionSetLayerCount(int hInput)
 {
 	ValidateInputHandle(hInput, 0);
-	InputActionSetHandle_t hActionSetLayers[STEAM_INPUT_MAX_COUNT];
+	InputActionSetHandle_t hActionSetLayers[STEAM_INPUT_MAX_ACTIVE_LAYERS];
 	return SteamInput()->GetActiveActionSetLayers(g_InputHandles[hInput], hActionSetLayers);
 }
 
@@ -139,7 +139,7 @@ extern "C" DLL_EXPORT int GetActiveActionSetLayerCount(int hInput)
 extern "C" DLL_EXPORT int GetActiveActionSetLayerHandle(int hInput, int index)
 {
 	ValidateInputHandle(hInput, 0);
-	InputActionSetHandle_t hActionSetLayers[STEAM_INPUT_MAX_COUNT];
+	InputActionSetHandle_t hActionSetLayers[STEAM_INPUT_MAX_ACTIVE_LAYERS];
 	int count = SteamInput()->GetActiveActionSetLayers(g_InputHandles[hInput], hActionSetLayers);
 	if (index >= 0 && index < count)
 	{
@@ -798,4 +798,52 @@ extern "C" DLL_EXPORT int TranslateActionOrigin(int eDestinationInputType, int e
 {
 	CheckInitialized(k_EInputActionOrigin_None);
 	return SteamInput()->TranslateActionOrigin((ESteamInputType)eDestinationInputType, (EInputActionOrigin)eSourceOrigin);
+}
+
+/*
+@desc Gets the major device binding revisions for Steam Input API configurations.
+@param hInput The handle of the input you want to query.
+@return The major revision value or -1 if the binding is still loading.
+@url https://partner.steamgames.com/doc/api/ISteamInput#GetDeviceBindingRevision
+*/
+extern "C" DLL_EXPORT int GetDeviceBindingRevisionMajor(int hInput)
+{
+	ValidateInputHandle(hInput, -1);
+	int nMajor = -1;
+	int nMinor = -1;
+	if (SteamInput()->GetDeviceBindingRevision(g_InputHandles[hInput], &nMajor, &nMinor))
+	{
+		return nMajor;
+	}
+	return -1;
+}
+
+/*
+@desc Gets the minor device binding revisions for Steam Input API configurations.
+@param hInput The handle of the input you want to query.
+@return The minor revision value or -1 if the binding is still loading.
+@url https://partner.steamgames.com/doc/api/ISteamInput#GetDeviceBindingRevision
+*/
+extern "C" DLL_EXPORT int GetDeviceBindingRevisionMinor(int hInput)
+{
+	ValidateInputHandle(hInput, -1);
+	int nMajor = -1;
+	int nMinor = -1;
+	if (SteamInput()->GetDeviceBindingRevision(g_InputHandles[hInput], &nMajor, &nMinor))
+	{
+		return nMinor;
+	}
+	return -1;
+}
+
+/*
+@desc Get the Steam Remote Play session ID associated with a device, or 0 if there is no session associated with it.
+@param hInput The handle of the input you want to query.
+@return The Steam Remote Play session ID or 0.
+@url https://partner.steamgames.com/doc/api/ISteamInput#GetRemotePlaySessionID
+*/
+extern "C" DLL_EXPORT int GetRemotePlaySessionID(int hInput)
+{
+	ValidateInputHandle(hInput, -1);
+	return SteamInput()->GetRemotePlaySessionID(g_InputHandles[hInput]);
 }

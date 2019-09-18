@@ -132,10 +132,10 @@ EndType
 
 // EHTMLKeyModifiers
 // Used to let the browser know what keys are pressed with: KeyDown , KeyDown and KeyDown.
-#constant EHTMLKeyModifier_None	0	// No modifiers are pressed.
-#constant EHTMLKeyModifier_AltDown	1	// One of the alt keys are pressed.	// 1 << 0
-#constant EHTMLKeyModifier_CtrlDown	2	// One of the ctrl keys are pressed.	// 1 << 1
-#constant EHTMLKeyModifier_ShiftDown	4	// One of the shift keys are pressed.	// 1 << 2
+#constant EHTMLKeyModifier_None	0x0	// No modifiers are pressed.
+#constant EHTMLKeyModifier_AltDown	0x1	// One of the alt keys are pressed.	// 1 << 0
+#constant EHTMLKeyModifier_CtrlDown	0x2	// One of the ctrl keys are pressed.	// 1 << 1
+#constant EHTMLKeyModifier_ShiftDown	0x4	// One of the shift keys are pressed.	// 1 << 2
 
 // EHTMLMouseButton
 // Used to let the browser know when a mouse button is pressed with: MouseUp , MouseDown and MouseDoubleClick.
@@ -373,7 +373,7 @@ EndType
 #constant EInputActionOrigin_PS4_Gyro_Pitch					100	// (Sony Dualshock 4) gyroscope, analog movement on the Pitch axis // (point head up to ceiling, point head down to floor)
 #constant EInputActionOrigin_PS4_Gyro_Yaw					101	// (Sony Dualshock 4) gyroscope, analog movement on the Yaw axis // (turn head left to face one wall, turn head right to face other)
 #constant EInputActionOrigin_PS4_Gyro_Roll					102	// (Sony Dualshock 4) gyroscope, analog movement on the Roll axis // (tilt head left towards shoulder, tilt head right towards other shoulder)
-#constant EInputActionOrigin_PS4_Reserved0					103
+#constant EInputActionOrigin_PS4_DPad_Move					103
 #constant EInputActionOrigin_PS4_Reserved1					104
 #constant EInputActionOrigin_PS4_Reserved2					105
 #constant EInputActionOrigin_PS4_Reserved3					106
@@ -414,7 +414,7 @@ EndType
 #constant EInputActionOrigin_XBoxOne_DPad_South				139	// (XB1) digital pad, pressed // (lower quadrant)
 #constant EInputActionOrigin_XBoxOne_DPad_West				140	// (XB1) digital pad, pressed // (left quadrant)
 #constant EInputActionOrigin_XBoxOne_DPad_East				141	// (XB1) digital pad, pressed // (right quadrant)
-#constant EInputActionOrigin_XBoxOne_Reserved0				142
+#constant EInputActionOrigin_XBoxOne_DPad_Move				142
 #constant EInputActionOrigin_XBoxOne_Reserved1				143
 #constant EInputActionOrigin_XBoxOne_Reserved2				144
 #constant EInputActionOrigin_XBoxOne_Reserved3				145
@@ -455,7 +455,7 @@ EndType
 #constant EInputActionOrigin_XBox360_DPad_South				178	// (X360) digital pad, pressed // (lower quadrant)
 #constant EInputActionOrigin_XBox360_DPad_West				179	// (X360) digital pad, pressed // (left quadrant)
 #constant EInputActionOrigin_XBox360_DPad_East				180	// (X360) digital pad, pressed // (right quadrant)
-#constant EInputActionOrigin_XBox360_Reserved0				181
+#constant EInputActionOrigin_XBox360_DPad_Move				181
 #constant EInputActionOrigin_XBox360_Reserved1				182
 #constant EInputActionOrigin_XBox360_Reserved2				183
 #constant EInputActionOrigin_XBox360_Reserved3				184
@@ -502,7 +502,7 @@ EndType
 #constant EInputActionOrigin_Switch_ProGyro_Pitch			222	// Primary Gyro in Pro Controller, or Right JoyCon
 #constant EInputActionOrigin_Switch_ProGyro_Yaw				223	// Primary Gyro in Pro Controller, or Right JoyCon
 #constant EInputActionOrigin_Switch_ProGyro_Roll			224	// Primary Gyro in Pro Controller, or Right JoyCon
-#constant EInputActionOrigin_Switch_Reserved0				225
+#constant EInputActionOrigin_Switch_DPad_Move				225
 #constant EInputActionOrigin_Switch_Reserved1				226
 #constant EInputActionOrigin_Switch_Reserved2				227
 #constant EInputActionOrigin_Switch_Reserved3				228
@@ -627,7 +627,7 @@ EndType
 
 // ESteamItemFlags
 // These are bitflags that are set in SteamItemDetails_t.
-#constant ESteamItemNoTrade	1	// This item is account-locked and cannot be traded or given away.	// 1 << 0
+#constant ESteamItemNoTrade	0x1	// This item is account-locked and cannot be traded or given away.	// 1 << 0
 #constant ESteamItemRemoved	0x100	// The item has been destroyed, traded away, expired, or otherwise invalidated.	// 1 << 8
 #constant ESteamItemConsumed	0x200	// The item quantity has been decreased by 1 via ConsumeItem API.	// 1 << 9
 
@@ -670,6 +670,7 @@ EndType
 #constant ELobbyTypeFriendsOnly	1	// Joinable by friends and invitees, but does not show up in the lobby list.
 #constant ELobbyTypePublic	2	// Returned by search and visible to friends.
 #constant ELobbyTypeInvisible	3	// Returned by search, but not visible to other friends.
+#constant ELobbyTypePrivateUnique	4	// private, unique and does not delete when empty - only one of these may exist per unique keypair set.  can only create from webapi
 
 #constant FavoriteFlagNone						0x00	// This favorite game server has no flags set.
 #constant FavoriteFlagFavorite					0x01	// This favorite game server entry is for the favorites list.
@@ -795,12 +796,14 @@ EndType
 
 // ERemoteStoragePlatform
 // Sync Platforms flags.
-#constant ERemoteStoragePlatformNone	0	// This file will not be downloaded on any platform.
-#constant ERemoteStoragePlatformWindows	1	// This file will download on Windows.	// (1 << 0)
-#constant ERemoteStoragePlatformOSX	2	// This file will download on macOS.	// (1 << 1)
-#constant ERemoteStoragePlatformPS3	4	// This file will download on the Playstation 3.	// (1 << 2)
-#constant ERemoteStoragePlatformLinux	8	// This file will download on SteamOS/Linux.	// (1 << 3)
-#constant ERemoteStoragePlatformReserved2	16	// Reserved.	// (1 << 4)
+#constant ERemoteStoragePlatformNone	0x0	// This file will not be downloaded on any platform.
+#constant ERemoteStoragePlatformWindows	0x1	// This file will download on Windows.	// (1 << 0)
+#constant ERemoteStoragePlatformOSX	0x2	// This file will download on macOS.	// (1 << 1)
+#constant ERemoteStoragePlatformPS3	0x4	// This file will download on the Playstation 3.	// (1 << 2)
+#constant ERemoteStoragePlatformLinux	0x8	// This file will download on SteamOS/Linux.	// (1 << 3)
+#constant ERemoteStoragePlatformReserved2	0x10	// Reserved.	// (1 << 4)
+#constant ERemoteStoragePlatformAndroid	0x20	// (1 << 5),
+#constant ERemoteStoragePlatformIOS	0x40	// (1 << 6),
 #constant ERemoteStoragePlatformAll	0xffffffff	// This file will download on every platform.
 
 // ERemoteStoragePublishedFileVisibility
@@ -981,6 +984,40 @@ EndType
 // Specifies what type of failure happened in IPCFailure_t.
 #constant EFailureFlushedCallbackQueue	0
 #constant EFailurePipeFail	1
+
+// EDurationControlProgress
+// Describes XP / progress restrictions to apply for games with duration control / anti-indulgence enabled for minor Steam China users.
+#constant EDurationControlProgress_Full	0	// Full progress
+#constant EDurationControlProgress_Half	1	// XP or persistent rewards should be halved
+#constant EDurationControlProgress_None	2	// XP or persistent rewards should be stopped
+
+// EDurationControlNotification
+// Describes which notification timer has expired, for steam china duration control feature.
+#constant EDurationControlNotification_None	0	// Callback is just informing you about progress, no notification to show
+#constant EDurationControlNotification_1Hour	1	// "you've been playing for an hour"
+#constant EDurationControlNotification_3Hours	2	// "you've been playing for 3 hours; take a break"
+#constant EDurationControlNotification_HalfProgress	3	// "your XP / progress is half normal"
+#constant EDurationControlNotification_NoProgress	4	// "your XP / progress is zero"
+
+// EMarketNotAllowedReasonFlags
+// Reasons a user may not use the Community Market.
+#constant EMarketNotAllowedReason_None								0
+#constant EMarketNotAllowedReason_TemporaryFailure					0x1		// 1 << 0	// A back-end call failed or something that might work again on retry
+#constant EMarketNotAllowedReason_AccountDisabled					0x2		// 1 << 1	// Disabled account
+#constant EMarketNotAllowedReason_AccountLockedDown					0x4		// 1 << 2	// Locked account
+#constant EMarketNotAllowedReason_AccountLimited					0x8		// 1 << 3	// Limited account (no purchases)
+#constant EMarketNotAllowedReason_TradeBanned						0x10	// 1 << 4	// The account is banned from trading items
+#constant EMarketNotAllowedReason_AccountNotTrusted					0x20	// 1 << 5	// Wallet funds aren't tradable because the user has had no purchase activity in the last year or has had no purchases prior to last month
+#constant EMarketNotAllowedReason_SteamGuardNotEnabled				0x40	// 1 << 6	// The user doesn't have Steam Guard enabled
+#constant EMarketNotAllowedReason_SteamGuardOnlyRecentlyEnabled		0x80	// 1 << 7	
+#constant EMarketNotAllowedReason_RecentPasswordReset				0x100	// 1 << 8	// The user has recently forgotten their password and reset it
+#constant EMarketNotAllowedReason_NewPaymentMethod					0x200	// 1 << 9	// The user has recently funded his or her wallet with a new payment method
+#constant EMarketNotAllowedReason_InvalidCookie						0x400	// 1 << 10	// An invalid cookie was sent by the user
+#constant EMarketNotAllowedReason_UsingNewDevice					0x800	// 1 << 11	// The user has Steam Guard, but is using a new computer or web browser
+#constant EMarketNotAllowedReason_RecentSelfRefund					0x1000	// 1 << 12	// The user has recently refunded a store purchase by his or herself
+#constant EMarketNotAllowedReason_NewPaymentMethodCannotBeVerified	0x2000	// 1 << 13	// The user has recently funded his or her wallet with a new payment method that cannot be verified
+#constant EMarketNotAllowedReason_NoRecentPurchases					0x4000	// 1 << 14	// Not only is the account not trusted, but they have no recent purchases at all
+#constant EMarketNotAllowedReason_AcceptedWalletGift				0x8000	// 1 << 15	// User accepted a wallet gift that was recently purchased
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISteamUserStats
@@ -1193,11 +1230,11 @@ EndType
 
 // EMarketingMessageFlags
 // Internal Steam marketing message flags that change how a client should handle them.
-#constant EMarketingMessageFlagsNone	0
-#constant EMarketingMessageFlagsHighPriority	1	// 	// 1 << 0
-#constant EMarketingMessageFlagsPlatformWindows	2	// 	// 1 << 1
-#constant EMarketingMessageFlagsPlatformMac	4	// 	// 1 << 2
-#constant EMarketingMessageFlagsPlatformLinux	8	// 	// 1 << 3
+#constant EMarketingMessageFlagsNone	0x0
+#constant EMarketingMessageFlagsHighPriority	0x1	// 	// 1 << 0
+#constant EMarketingMessageFlagsPlatformWindows	0x2	// 	// 1 << 1
+#constant EMarketingMessageFlagsPlatformMac	0x4	// 	// 1 << 2
+#constant EMarketingMessageFlagsPlatformLinux	0x8	// 	// 1 << 3
 //#constant EMarketingMessageFlagsPlatformRestrictions	=	// aggregate flags
 
 // ENotificationPosition

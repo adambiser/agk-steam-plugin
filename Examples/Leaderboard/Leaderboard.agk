@@ -20,6 +20,7 @@ firebase_config_path=
 arcore=0
 url_scheme=
 deep_link=
+admob_app_id=
 
 [ipa_settings]
 app_icon_path=
@@ -39,6 +40,7 @@ firebase_config_path=
 splash_2436_path=
 url_scheme=
 deep_link=
+admob_app_id=
 
 [html5_settings]
 commands_used=0
@@ -50,7 +52,6 @@ FILE_0=main.agc;-1
 FILE_1=steam.agc;-1
 
 [files]
-FILE_NAME_0=1;steam.agc;9249;0
 
 [project]
 description=

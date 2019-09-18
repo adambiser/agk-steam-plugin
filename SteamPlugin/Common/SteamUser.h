@@ -27,9 +27,32 @@ THE SOFTWARE.
 #include "CCallbacks.h"
 
 //ClientGameServerDeny_t - game server stuff
+//DurationControl_t
 //EncryptedAppTicketResponse_t - Call result for RequestEncryptedAppTicket.
 //GameWebCallback_t - web sign up stuff.
 //GetAuthSessionTicketResponse_t - Call result for GetAuthSessionTicket.
+//MarketEligibilityResponse_t - Call result for GetMarketEligibility
+
+// GetDurationControl
+class CDurationControlCallback : public ListCallbackBase<CDurationControlCallback, DurationControl_t>
+{
+public:
+	void OnResponse(DurationControl_t *pParam)
+	{
+		agk::Log("Callback: OnDurationControl");
+		StoreResponse(*pParam);
+	}
+	void Clear(DurationControl_t &value)
+	{
+		value.m_appid = 0;
+		value.m_bApplicable = false;
+		value.m_csecsLast5h = 0;
+		value.m_eResult = (EResult)0;
+		value.m_notification = (EDurationControlNotification)0;
+		value.m_progress = (EDurationControlProgress)0;
+	}
+};
+
 
 //IPCFailure_t - Steam client had a fatal error.
 

@@ -387,6 +387,8 @@ Type KeyValuePair
     Value as string
 EndType
 ```
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyDataCount
+@url https://partner.steamgames.com/doc/api/ISteamMatchmaking#GetLobbyDataByIndex
 */
 extern "C" DLL_EXPORT char *GetLobbyDataJSON(int hLobbySteamID)
 {

@@ -221,6 +221,36 @@ extern "C" DLL_EXPORT char *GetSteamUILanguage()
 	return utils::CreateString(SteamUtils()->GetSteamUILanguage());
 }
 
+/*
+@desc Initializes text filtering. Returns false if filtering is unavailable for the language the user is currently running in.
+If the language is unsupported, the FilterText API will act as a passthrough.
+@return 1 if text filtering is available; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUtils#InitFilterText
+*/
+extern "C" DLL_EXPORT int InitFilterText()
+{
+	CheckInitialized(false);
+	return SteamUtils()->InitFilterText();
+}
+
+/*
+@desc Filters the provided input message and places the filtered result into pchOutFilteredText.
+@param inputMessage The input string that should be filtered.
+@param legalOnly 0 if you want profanity and legally required filtering (where required) and 1 if you want legally required filtering only.
+@return The filtered text.
+@url https://partner.steamgames.com/doc/api/ISteamUtils#FilterText
+*/
+extern "C" DLL_EXPORT char *FilterText(const char *inputMessage, int legalOnly)
+{
+	CheckInitialized(false);
+	size_t bufferLength = strnlen_s(inputMessage, 4096) + 1;
+	char *pchOutFilteredText = new char[bufferLength];
+	SteamUtils()->FilterText(pchOutFilteredText, (int) bufferLength, inputMessage, legalOnly != 0);
+	char *result = utils::CreateString(pchOutFilteredText);
+	delete[] pchOutFilteredText;
+	return result;
+}
+
 //IsAPICallCompleted - Not needed.
 
 /*
@@ -234,6 +264,18 @@ extern "C" DLL_EXPORT int IsOverlayEnabled()
 {
 	CheckInitialized(0);
 	return SteamUtils()->IsOverlayEnabled();
+}
+
+/*
+@desc Returns whether the current launcher is a Steam China launcher.
+You can cause the client to behave as the Steam China launcher by adding "-dev -steamchina" to the command line when running Steam.
+@return 1 when the current launcher is a Steam China launcher; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUtils#IsSteamChinaLauncher
+*/
+extern "C" DLL_EXPORT int IsSteamChinaLauncher()
+{
+	CheckInitialized(0);
+	return SteamUtils()->IsSteamChinaLauncher();
 }
 
 /*

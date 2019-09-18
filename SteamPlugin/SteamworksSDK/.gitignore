@@ -1,0 +1,6 @@
+# Ignore the Steamworks SDK.
+*
+
+# Only allow these files here.
+!.gitignore
+!README.md

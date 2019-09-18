@@ -1116,7 +1116,7 @@ extern "C" DLL_EXPORT int RequestGlobalStats(int historyDays)
 Sends a request for another user's stats to Steam.
 @param hSteamID The Steam ID handle of the user to load stats for.
 @return 1 when sending the request succeeds; otherwise 0.  This is not an indication of whether user stats are initialized.  See StatsInitialized.
-@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestCurrentStats
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestUserStats
 */
 extern "C" DLL_EXPORT int RequestUserStats(int hSteamID)
 {
@@ -1471,6 +1471,7 @@ extern "C" DLL_EXPORT int HasUserStatsReceivedResponse()
 @desc Returns whether the call was successful for the current UserStatsReceived_t callback response.
 @return 1 when the call is successful; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsReceived_t
+@url https://partner.steamgames.com/doc/api/steam_api#EResult
 */
 extern "C" DLL_EXPORT int GetUserStatsReceivedResult()
 {
@@ -1490,6 +1491,7 @@ extern "C" DLL_EXPORT int GetUserStatsReceivedUser()
 /*
 @desc Checks to see whether user stats have been initialized after a RequestCurrentStats call.
 @return 1 when users stats are initialized; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestCurrentStats
 */
 extern "C" DLL_EXPORT int StatsInitialized()
 {
@@ -1500,6 +1502,7 @@ extern "C" DLL_EXPORT int StatsInitialized()
 @desc Checks to see whether a user's stats have been initialized after a RequestUserStats call.
 @param hSteamID The Steam ID handle of the user to check.
 @return 1 when the user's stats are initialized; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#RequestUserStats
 @plugin-name StatsInitialized
 */
 extern "C" DLL_EXPORT int StatsInitializedForUser(int hSteamID)
@@ -1545,6 +1548,7 @@ extern "C" DLL_EXPORT int HasUserStatsStoredResponse()
 @desc Returns whether the call was successful for the current UserStatsStored_t callback response.
 @return 1 when the call is successful; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsStored_t
+@url https://partner.steamgames.com/doc/api/steam_api#EResult
 */
 extern "C" DLL_EXPORT int GetUserStatsStoredResult()
 {

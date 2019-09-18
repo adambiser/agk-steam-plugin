@@ -2,8 +2,9 @@
 
 #constant OPEN_URL_BUTTON			1
 #constant OPEN_URL_MODAL_BUTTON		2
+#constant DURATION_CONTROL_BUTTON	3
 
-global buttonText as string[1] = ["Open URL", "Open URL_(Modal)"]
+global buttonText as string[2] = ["Open URL", "Open URL_(Modal)", "Duration_Control"]
 x as integer
 for x = 0 to buttonText.length
 	CreateButton(x + 1, 752 + (x - 5) * 100, 40, ReplaceString(buttonText[x], "_", NEWLINE, -1))
@@ -36,6 +37,8 @@ AddStatus("IsPhoneRequiringVerification: " + TF(Steam.IsPhoneRequiringVerificati
 AddStatus("IsPhoneVerified: " + TF(Steam.IsPhoneVerified()))
 AddStatus("IsTwoFactorEnabled: " + TF(Steam.IsTwoFactorEnabled()))
 
+AddStatus("InitFilterText: " + TF(Steam.InitFilterText()))
+
 global filenames as string[1] = ["dummy.txt", "SteamworksExample.exe"]
 global fileCallResults as integer[1]
 
@@ -46,9 +49,15 @@ next
 
 global numberOfPlayersCallResult as integer
 numberOfPlayersCallResult = Steam.GetNumberOfCurrentPlayers()
-	
+
+global durationControlCallResult as integer
+global marketEligibilityCallResult as integer
+marketEligibilityCallResult = Steam.GetMarketEligibility()
 
 info as string
+filteredText as string
+filteredText = Steam.FilterText("Fuck this", 0)
+
 //
 // The main loop
 //
@@ -59,6 +68,7 @@ do
 	info = info + "Server Real Time: " + GetDateFromUnix(Steam.GetServerRealTime()) + NEWLINE
 	info = info + "Overlay Enabled: " + TF(Steam.IsOverlayEnabled()) + NEWLINE
 	info = info + "Current Battery Power: " + str(Steam.GetCurrentBatteryPower()) + NEWLINE
+	info = info + "Filtered Text: " + filteredText + NEWLINE
 	SetTextString(infoTextID, info)
 	Sync()
 	CheckInput()
@@ -82,6 +92,11 @@ Function CheckInput()
 	elseif GetVirtualButtonPressed(OPEN_URL_MODAL_BUTTON)
 		AddStatus("Open URL Modal")
 		Steam.ActivateGameOverlayToWebPageModal(URL_TO_OPEN)
+	elseif GetVirtualButtonPressed(DURATION_CONTROL_BUTTON)
+		if not durationControlCallResult
+			AddStatus("GetDurationControl")
+			durationControlCallResult = Steam.GetDurationControl()
+		endif
 	endif
 EndFunction
 
@@ -89,6 +104,42 @@ EndFunction
 // Processes all asynchronous callbacks.
 //
 Function ProcessCallbacks()
+	if durationControlCallResult
+		result = Steam.GetCallResultCode(durationControlCallResult)
+		if result
+			AddStatus("GetDurationControl call result, result code = " + str(result))
+			AddStatus("* AppID = " + str(Steam.GetDurationControlAppID(durationControlCallResult)))
+			AddStatus("* Applicable = " + TF(Steam.GetDurationControlApplicable(durationControlCallResult)))
+			AddStatus("* SecondsInLastFiveHours = " + str(Steam.GetDurationControlSecondsInLastFiveHours(durationControlCallResult)))
+			AddStatus("* Progress = " + str(Steam.GetDurationControlProgress(durationControlCallResult)))
+			AddStatus("* Notification = " + str(Steam.GetDurationControlNotification(durationControlCallResult)))
+			// Done with the call result.  Delete and clear.
+			Steam.DeleteCallResult(durationControlCallResult)
+			durationControlCallResult = 0
+		endif
+	endif
+	while Steam.HasDurationControlResponse()
+		AddStatus("Duration Control Callback:")
+		AddStatus("* Result = " + str(Steam.GetDurationControlResult()))
+		AddStatus("* AppID = " + str(Steam.GetDurationControlAppID()))
+		AddStatus("* Applicable = " + TF(Steam.GetDurationControlApplicable()))
+		AddStatus("* SecondsInLastFiveHours = " + str(Steam.GetDurationControlSecondsInLastFiveHours()))
+		AddStatus("* Progress = " + str(Steam.GetDurationControlProgress()))
+		AddStatus("* Notification = " + str(Steam.GetDurationControlNotification()))
+	endwhile
+	if marketEligibilityCallResult
+		result = Steam.GetCallResultCode(marketEligibilityCallResult)
+		if result
+			AddStatus("GetMarketEligibility, result code =" + str(result))
+			AddStatus("* Is Allowed = " + TF(Steam.GetMarketEligibilityIsAllowed(marketEligibilityCallResult)))
+			AddStatus("* Not Allowed Reason = " + str(Steam.GetMarketEligibilityNotAllowedReason(marketEligibilityCallResult)))
+			AddStatus("* Allowed At Time = " + GetDateFromUnix(Steam.GetMarketEligibilityAllowedAtTime(marketEligibilityCallResult)))
+			AddStatus("* Steam Guard Required Days = " + str(Steam.GetMarketEligibilitySteamGuardRequiredDays(marketEligibilityCallResult)))
+			AddStatus("* New Device Cooldown = " + str(Steam.GetMarketEligibilityNewDeviceCooldown(marketEligibilityCallResult)))
+			Steam.DeleteCallResult(marketEligibilityCallResult)
+			marketEligibilityCallResult = 0
+		endif
+	endif
 	if Steam.HasIPCountryChangedResponse()
 		AddStatus("IP Country Changed: " + Steam.GetIPCountry())
 	endif
