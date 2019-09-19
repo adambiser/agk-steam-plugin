@@ -396,6 +396,22 @@ CloudUGCRead,I,IIIII,CloudUGCReadEx,0,0,0,0,CloudUGCReadEx
 CloudUGCRead,I,II,CloudUGCRead,0,0,0,0,CloudUGCRead
 CloudUGCReadClose,0,I,CloudUGCReadClose,0,0,0,0,CloudUGCReadClose
 #
+# ISteamScreenshots
+#
+AddScreenshotToLibrary,I,SII,AddScreenshotToLibrary,0,0,0,0,AddScreenshotToLibrary
+AddVRScreenshotToLibrary,I,ISS,AddVRScreenshotToLibrary,0,0,0,0,AddVRScreenshotToLibrary
+HookScreenshots,0,I,HookScreenshots,0,0,0,0,HookScreenshots
+IsScreenshotsHooked,I,0,IsScreenshotsHooked,0,0,0,0,IsScreenshotsHooked
+SetScreenshotLocation,I,IS,SetScreenshotLocation,0,0,0,0,SetScreenshotLocation
+TagScreenshotPublishedFile,I,II,TagScreenshotPublishedFile,0,0,0,0,TagScreenshotPublishedFile
+TagScreenshotUser,I,II,TagScreenshotUser,0,0,0,0,TagScreenshotUser
+TriggerScreenshot,0,0,TriggerScreenshot,0,0,0,0,TriggerScreenshot
+WriteScreenshot,I,I,WriteScreenshot,0,0,0,0,WriteScreenshot
+HasScreenshotReadyResponse,I,0,HasScreenshotReadyResponse,0,0,0,0,HasScreenshotReadyResponse
+GetScreenshotReadyScreenshotHandle,I,0,GetScreenshotReadyScreenshotHandle,0,0,0,0,GetScreenshotReadyScreenshotHandle
+GetScreenshotReadyResult,I,0,GetScreenshotReadyResult,0,0,0,0,GetScreenshotReadyResult
+HasScreenshotRequestedResponse,I,0,HasScreenshotRequestedResponse,0,0,0,0,HasScreenshotRequestedResponse
+#
 # ISteamUser
 #
 IsBehindNAT,I,0,IsBehindNAT,0,0,0,0,IsBehindNAT

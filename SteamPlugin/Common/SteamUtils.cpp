@@ -78,8 +78,6 @@ extern "C" DLL_EXPORT int GetCurrentBatteryPower()
 //GetEnteredGamepadTextInput - used in callback
 //GetEnteredGamepadTextLength - used in callback
 
-#define MEMBLOCK_IMAGE_HEADER_LENGTH	12
-
 int LoadImageFromHandle(int imageID, int hImage)
 {
 	if (hImage == -1 || hImage == 0)

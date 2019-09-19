@@ -49,6 +49,8 @@ THE SOFTWARE.
 #define AVATAR_MEDIUM	1 // 64x64
 #define AVATAR_LARGE	2 // 128x128
 
+#define MEMBLOCK_IMAGE_HEADER_LENGTH	12
+
 extern bool g_SteamInitialized;
 extern uint32 g_AppID;
 /* @ignore docs */

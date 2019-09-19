@@ -1546,9 +1546,9 @@ extern "C" DLL_EXPORT int HasUserStatsStoredResponse()
 
 /*
 @desc Returns whether the call was successful for the current UserStatsStored_t callback response.
-@return 1 when the call is successful; otherwise 0.
+@return An EResult value.
+@return-url https://partner.steamgames.com/doc/api/steam_api#EResult
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#UserStatsStored_t
-@url https://partner.steamgames.com/doc/api/steam_api#EResult
 */
 extern "C" DLL_EXPORT int GetUserStatsStoredResult()
 {

@@ -213,6 +213,7 @@
     <ClCompile Include="..\Common\SteamMatchmaking.cpp" />
     <ClCompile Include="..\Common\SteamMusic.cpp" />
     <ClCompile Include="..\Common\SteamRemoteStorage.cpp" />
+    <ClCompile Include="..\Common\SteamScreenshots.cpp" />
     <ClCompile Include="..\Common\SteamUser.cpp" />
     <ClCompile Include="..\Common\SteamUserStats.cpp" />
     <ClCompile Include="..\Common\SteamUtils.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="..\Common\SteamMatchmaking.h" />
     <ClInclude Include="..\Common\SteamMusic.h" />
     <ClInclude Include="..\Common\SteamRemoteStorage.h" />
+    <ClInclude Include="..\Common\SteamScreenshots.h" />
     <ClInclude Include="..\Common\SteamUser.h" />
     <ClInclude Include="..\Common\SteamUserStats.h" />
     <ClInclude Include="..\Common\SteamUtils.h" />

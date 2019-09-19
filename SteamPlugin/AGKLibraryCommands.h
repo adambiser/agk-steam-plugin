@@ -116,8 +116,8 @@ extern char*(*AGKCommand0)( unsigned int );
 //extern unsigned int(*AGKCommand102)( unsigned int );
 //extern void(*AGKCommand103)( unsigned int );
 //extern void(*AGKCommand104)(  );
-//extern float(*AGKCommand105)( unsigned int );
-//extern float(*AGKCommand106)( unsigned int );
+extern float(*AGKCommand105)( unsigned int );
+extern float(*AGKCommand106)( unsigned int );
 //extern void(*AGKCommand107)( unsigned int, unsigned int );
 //extern void(*AGKCommand108)( unsigned int, unsigned int );
 //extern void(*AGKCommand109)( unsigned int, unsigned int );
@@ -1198,7 +1198,7 @@ extern void(*AGKCommand1183)( unsigned int, unsigned int, int );
 //extern void(*AGKCommand1184)( unsigned int, unsigned int, float );
 //extern void(*AGKCommand1185)( unsigned int, unsigned int, const char* );
 //extern void(*AGKCommand1186)( unsigned int, unsigned int );
-//extern unsigned int(*AGKCommand1187)( unsigned int );
+extern unsigned int(*AGKCommand1187)( unsigned int );
 extern void(*AGKCommand1188)( unsigned int, unsigned int );
 extern unsigned int(*AGKCommand1189)( unsigned int );
 //extern void(*AGKCommand1190)( unsigned int, unsigned int );
@@ -1900,7 +1900,141 @@ extern unsigned char*(*AGKCommand1832)( unsigned int );
 //extern int(*AGKCommand1886)( unsigned int );
 //extern void(*AGKCommand1887)( unsigned int, int, int );
 //extern int(*AGKCommand1888)( unsigned int );
-//
+//extern int(*AGKCommand1889)( unsigned int );
+//extern void(*AGKCommand1890)( const char* );
+//extern int(*AGKCommand1891)(  );
+//extern int(*AGKCommand1892)(  );
+//extern char*(*AGKCommand1893)( const char*, const char* );
+//extern void(*AGKCommand1894)( const char*, const char* );
+//extern void(*AGKCommand1895)( const char* );
+//extern int(*AGKCommand1896)(  );
+//extern int(*AGKCommand1897)( const char * );
+//extern int(*AGKCommand1898)( const char * );
+//extern int(*AGKCommand1899)( const char* );
+//extern void(*AGKCommand1900)( const char* );
+//extern void(*AGKCommand1901)( unsigned int );
+//extern void(*AGKCommand1902)( float, float, float );
+//extern void(*AGKCommand1903)(  );
+//extern int(*AGKCommand1904)(  );
+//extern void(*AGKCommand1905)(  );
+//extern void(*AGKCommand1906)(  );
+//extern void(*AGKCommand1907)(  );
+//extern void(*AGKCommand1908)( int );
+//extern void(*AGKCommand1909)( int );
+//extern float(*AGKCommand1910)(  );
+//extern int(*AGKCommand1911)( float, float );
+//extern float(*AGKCommand1912)( int );
+//extern float(*AGKCommand1913)( int );
+//extern float(*AGKCommand1914)( int );
+//extern float(*AGKCommand1915)( int );
+//extern float(*AGKCommand1916)( int );
+//extern float(*AGKCommand1917)( int );
+//extern int(*AGKCommand1918)( int );
+//extern void(*AGKCommand1919)(  );
+//extern int(*AGKCommand1920)( int );
+//extern float(*AGKCommand1921)( int );
+//extern float(*AGKCommand1922)( int );
+//extern float(*AGKCommand1923)( int );
+//extern float(*AGKCommand1924)( int );
+//extern float(*AGKCommand1925)( int );
+//extern float(*AGKCommand1926)( int );
+//extern float(*AGKCommand1927)( int );
+//extern float(*AGKCommand1928)( int );
+//extern void(*AGKCommand1929)(  );
+//extern int(*AGKCommand1930)( int );
+//extern int(*AGKCommand1931)( int );
+//extern void(*AGKCommand1932)( int, int );
+//extern int(*AGKCommand1933)( int );
+//extern void(*AGKCommand1934)( int );
+//extern void(*AGKCommand1935)( unsigned int );
+//extern void(*AGKCommand1936)( unsigned int, unsigned int, int, int );
+//extern void(*AGKCommand1937)( int );
+//extern void(*AGKCommand1938)( unsigned int, float, float, float );
+//extern void(*AGKCommand1939)( const char *, int );
+//extern void(*AGKCommand1940)( int );
+//extern void(*AGKCommand1941)( const char*, const char* );
+//extern int(*AGKCommand1942)(  );
+//extern void(*AGKCommand1943)(  );
+//extern int(*AGKCommand1944)(  );
+//extern int(*AGKCommand1945)(  );
+//extern char*(*AGKCommand1946)( int );
+//extern char*(*AGKCommand1947)( int );
+//extern void(*AGKCommand1948)( int );
+//extern void(*AGKCommand1949)( unsigned int, const char*, const char* );
+//extern void(*AGKCommand1950)( unsigned int, const char* );
+//extern int(*AGKCommand1951)( unsigned int );
+//extern char*(*AGKCommand1952)( int );
+//extern void(*AGKCommand1953)( const char* );
+//extern int(*AGKCommand1954)( unsigned int );
+//extern int(*AGKCommand1955)( unsigned int );
+//extern int(*AGKCommand1956)( unsigned int );
+//extern void(*AGKCommand1957)( unsigned int );
+//extern void(*AGKCommand1958)( unsigned int );
+//extern void(*AGKCommand1959)( const char* );
+//extern char*(*AGKCommand1960)(  );
+//extern void(*AGKCommand1961)( unsigned int, int );
+//extern int(*AGKCommand1962)(  );
+//extern int(*AGKCommand1963)( unsigned int );
+//extern int(*AGKCommand1964)( unsigned int );
+//extern char*(*AGKCommand1965)(  );
+//extern int(*AGKCommand1966)(  );
+//extern int(*AGKCommand1967)( unsigned int, unsigned int );
+//extern int(*AGKCommand1968)( unsigned int, unsigned int );
+//extern unsigned int(*AGKCommand1969)( unsigned int );
+//extern char*(*AGKCommand1970)(  );
+//extern void(*AGKCommand1971)( unsigned int, int );
+//extern int(*AGKCommand1972)( int );
+//extern int(*AGKCommand1973)( int );
+//extern int(*AGKCommand1974)( int );
+//extern int(*AGKCommand1975)( int );
+//extern void(*AGKCommand1976)(  );
+//extern void(*AGKCommand1977)( const char*, const char*, const char* );
+//extern unsigned int(*AGKCommand1978)( const char*, float, float, float, int, int, int, int );
+//extern void(*AGKCommand1979)( unsigned int, const char*, float, float, float, int, int, int, int );
+//extern void(*AGKCommand1980)( unsigned int, int, int );
+//extern void(*AGKCommand1981)( unsigned int, unsigned int, int );
+//extern char*(*AGKCommand1982)( unsigned int, unsigned int );
+//extern unsigned int(*AGKCommand1983)( unsigned int );
+//extern char*(*AGKCommand1984)( unsigned int );
+//extern void(*AGKCommand1985)( const char*, const char*, float );
+//extern void(*AGKCommand1986)( const char* );
+//extern int(*AGKCommand1987)( unsigned int );
+//extern unsigned int(*AGKCommand1988)( const char*, int );
+//extern int(*AGKCommand1989)( unsigned int, const char*, int );
+//extern void(*AGKCommand1990)( unsigned int, unsigned int, const char*, int );
+//extern unsigned int(*AGKCommand1991)( unsigned int );
+//extern void(*AGKCommand1992)( unsigned int );
+//extern void(*AGKCommand1993)( const char*, const char*, const char* );
+//extern float(*AGKCommand1994)(  );
+//extern int(*AGKCommand1995)(  );
+//extern int(*AGKCommand1996)(  );
+//extern int(*AGKCommand1997)(  );
+//extern void(*AGKCommand1998)(  );
+//extern void(*AGKCommand1999)(  );
+//extern unsigned int(*AGKCommand2000)( const char* );
+//extern void(*AGKCommand2001)( unsigned int, unsigned int, int );
+//extern void(*AGKCommand2002)( unsigned int, const char *, unsigned int, float );
+//extern void(*AGKCommand2003)( unsigned int, const char *, unsigned int, float, float );
+//extern void(*AGKCommand2004)( unsigned int, const char *, unsigned int, float, float, float );
+//extern void(*AGKCommand2005)( unsigned int, const char *, unsigned int, float, float, float, float );
+//extern void(*AGKCommand2006)( unsigned int );
+//extern void(*AGKCommand2007)( unsigned int, const char *, unsigned int, float );
+//extern void(*AGKCommand2008)( unsigned int, const char *, unsigned int, float, float );
+//extern void(*AGKCommand2009)( unsigned int, const char *, unsigned int, float, float, float );
+//extern void(*AGKCommand2010)( unsigned int, const char *, unsigned int, float, float, float, float );
+//extern float(*AGKCommand2011)( unsigned int );
+//extern int(*AGKCommand2012)(  );
+//extern int(*AGKCommand2013)(  );
+//extern int(*AGKCommand2014)(  );
+//extern float(*AGKCommand2015)(  );
+//extern unsigned int(*AGKCommand2016)( unsigned int, unsigned int, unsigned int, unsigned int );
+//extern unsigned int(*AGKCommand2017)( unsigned int );
+//extern void(*AGKCommand2018)( int );
+//extern void(*AGKCommand2019)(  );
+//extern int(*AGKCommand2020)( const char * );
+//extern void(*AGKCommand2021)( float, float, int, int, float );
+//extern void(*AGKCommand2022)( const char*, const char*, const char*, const char* );
+
 class agk
 {
 	public:
@@ -2009,8 +2143,8 @@ class agk
 		//static inline unsigned int GetImageExists( unsigned int iImageIndex ) { return AGKCommand102( iImageIndex ); }
 		//static inline void DeleteImage( unsigned int iImageIndex ) { AGKCommand103( iImageIndex ); }
 		//static inline void DeleteAllImages(  ) { AGKCommand104(  ); }
-		//static inline float GetImageWidth( unsigned int iImageIndex ) { return AGKCommand105( iImageIndex ); }
-		//static inline float GetImageHeight( unsigned int iImageIndex ) { return AGKCommand106( iImageIndex ); }
+		static inline float GetImageWidth( unsigned int iImageIndex ) { return AGKCommand105( iImageIndex ); }
+		static inline float GetImageHeight( unsigned int iImageIndex ) { return AGKCommand106( iImageIndex ); }
 		//static inline void SetImageMinFilter( unsigned int iImageIndex, unsigned int mode ) { AGKCommand107( iImageIndex, mode ); }
 		//static inline void SetImageMagFilter( unsigned int iImageIndex, unsigned int mode ) { AGKCommand108( iImageIndex, mode ); }
 		//static inline void SetImageWrapU( unsigned int iImageIndex, unsigned int mode ) { AGKCommand109( iImageIndex, mode ); }
@@ -3091,7 +3225,7 @@ class agk
 		//static inline void SetMemblockFloat( unsigned int memID, unsigned int offset, float value ) { AGKCommand1184( memID, offset, value ); }
 		//static inline void SetMemblockString( unsigned int memID, unsigned int offset, const char* value ) { AGKCommand1185( memID, offset, value ); }
 		//static inline void CreateMemblockFromImage( unsigned int memID, unsigned int imageID ) { AGKCommand1186( memID, imageID ); }
-		//static inline unsigned int CreateMemblockFromImage( unsigned int imageID ) { return AGKCommand1187( imageID ); }
+		static inline unsigned int CreateMemblockFromImage( unsigned int imageID ) { return AGKCommand1187( imageID ); }
 		static inline void CreateImageFromMemblock( unsigned int imageID, unsigned int memID ) { AGKCommand1188( imageID, memID ); }
 		static inline unsigned int CreateImageFromMemblock( unsigned int memID ) { return AGKCommand1189( memID ); }
 		//static inline void CreateMemblockFromSound( unsigned int memID, unsigned int soundID ) { AGKCommand1190( memID, soundID ); }
@@ -3793,6 +3927,140 @@ class agk
 		//static inline int GetNetworkExists( unsigned int iNetID ) { return AGKCommand1886( iNetID ); }
 		//static inline void SetObjectBlendModes( unsigned int objID, int src, int dst ) { AGKCommand1887( objID, src, dst ); }
 		//static inline int GetShaderExists( unsigned int shaderID ) { return AGKCommand1888( shaderID ); }
+		//static inline int GetTextAlignment( unsigned int iTextIndex ) { return AGKCommand1889( iTextIndex ); }
+		//static inline void SetupCloudData( const char* reserved ) { AGKCommand1890( reserved ); }
+		//static inline int GetCloudDataAllowed(  ) { return AGKCommand1891(  ); }
+		//static inline int GetCloudDataChanged(  ) { return AGKCommand1892(  ); }
+		//static inline char* GetCloudDataVariable( const char* varName, const char* defaultValue ) { return AGKCommand1893( varName, defaultValue ); }
+		//static inline void SetCloudDataVariable( const char* varName, const char* varValue ) { AGKCommand1894( varName, varValue ); }
+		//static inline void DeleteCloudDataVariable( const char* varName ) { AGKCommand1895( varName ); }
+		//static inline int GetDeviceNetworkType(  ) { return AGKCommand1896(  ); }
+		//static inline int GetStorageRemaining( const char * path ) { return AGKCommand1897( path ); }
+		//static inline int GetStorageTotal( const char * path ) { return AGKCommand1898( path ); }
+		//static inline int CheckPermission( const char* szPermission ) { return AGKCommand1899( szPermission ); }
+		//static inline void RequestPermission( const char* szPermission ) { AGKCommand1900( szPermission ); }
+		//static inline void DrawText( unsigned int iTextIndex ) { AGKCommand1901( iTextIndex ); }
+		//static inline void SetShadowCascadeValues( float cascade1, float cascade2, float cascade3 ) { AGKCommand1902( cascade1, cascade2, cascade3 ); }
+		//static inline void ARSetup(  ) { AGKCommand1903(  ); }
+		//static inline int ARGetStatus(  ) { return AGKCommand1904(  ); }
+		//static inline void ARDestroy(  ) { AGKCommand1905(  ); }
+		//static inline void ARControlCamera(  ) { AGKCommand1906(  ); }
+		//static inline void ARDrawBackground(  ) { AGKCommand1907(  ); }
+		//static inline void ARSetPlaneDetectionMode( int mode ) { AGKCommand1908( mode ); }
+		//static inline void ARSetLightEstimationMode( int mode ) { AGKCommand1909( mode ); }
+		//static inline float ARGetLightEstimate(  ) { return AGKCommand1910(  ); }
+		//static inline int ARHitTest( float screenX, float screenY ) { return AGKCommand1911( screenX, screenY ); }
+		//static inline float ARGetHitTestX( int index ) { return AGKCommand1912( index ); }
+		//static inline float ARGetHitTestY( int index ) { return AGKCommand1913( index ); }
+		//static inline float ARGetHitTestZ( int index ) { return AGKCommand1914( index ); }
+		//static inline float ARGetHitTestNormalX( int index ) { return AGKCommand1915( index ); }
+		//static inline float ARGetHitTestNormalY( int index ) { return AGKCommand1916( index ); }
+		//static inline float ARGetHitTestNormalZ( int index ) { return AGKCommand1917( index ); }
+		//static inline int ARGetHitTestType( int index ) { return AGKCommand1918( index ); }
+		//static inline void ARHitTestFinish(  ) { AGKCommand1919(  ); }
+		//static inline int ARGetPlanes( int reserved ) { return AGKCommand1920( reserved ); }
+		//static inline float ARGetPlaneX( int index ) { return AGKCommand1921( index ); }
+		//static inline float ARGetPlaneY( int index ) { return AGKCommand1922( index ); }
+		//static inline float ARGetPlaneZ( int index ) { return AGKCommand1923( index ); }
+		//static inline float ARGetPlaneAngleX( int index ) { return AGKCommand1924( index ); }
+		//static inline float ARGetPlaneAngleY( int index ) { return AGKCommand1925( index ); }
+		//static inline float ARGetPlaneAngleZ( int index ) { return AGKCommand1926( index ); }
+		//static inline float ARGetPlaneSizeX( int index ) { return AGKCommand1927( index ); }
+		//static inline float ARGetPlaneSizeZ( int index ) { return AGKCommand1928( index ); }
+		//static inline void ARGetPlanesFinish(  ) { AGKCommand1929(  ); }
+		//static inline int ARCreateAnchorFromHitTest( int index ) { return AGKCommand1930( index ); }
+		//static inline int ARCreateAnchorFromPlane( int index ) { return AGKCommand1931( index ); }
+		//static inline void ARFixObjectToAnchor( int objID, int anchorID ) { AGKCommand1932( objID, anchorID ); }
+		//static inline int ARGetAnchorStatus( int anchorID ) { return AGKCommand1933( anchorID ); }
+		//static inline void ARDeleteAnchor( int anchorID ) { AGKCommand1934( anchorID ); }
+		//static inline void DeleteObjectTree( unsigned int objID ) { AGKCommand1935( objID ); }
+		//static inline void FixSpriteToSkeleton2D( unsigned int spriteID, unsigned int iSkeletonID, int bone, int zorder ) { AGKCommand1936( spriteID, iSkeletonID, bone, zorder ); }
+		//static inline void SetRawTouchMoveSensitivity( int distance ) { AGKCommand1937( distance ); }
+		//static inline void Move3DPhysicsCharacterController( unsigned int objID, float x, float z, float velocity ) { AGKCommand1938( objID, x, z, velocity ); }
+		//static inline void Speak( const char * text, int delay ) { AGKCommand1939( text, delay ); }
+		//static inline void OverrideConsentAdMob( int consent ) { AGKCommand1940( consent ); }
+		//static inline void LoadConsentStatusAdMob( const char* szPubID, const char* privacyPolicy ) { AGKCommand1941( szPubID, privacyPolicy ); }
+		//static inline int GetConsentStatusAdMob(  ) { return AGKCommand1942(  ); }
+		//static inline void RequestConsentAdMob(  ) { AGKCommand1943(  ); }
+		//static inline int GetSupportedShaderVaryings(  ) { return AGKCommand1944(  ); }
+		//static inline int GetSpeechNumVoices(  ) { return AGKCommand1945(  ); }
+		//static inline char* GetSpeechVoiceLanguage( int index ) { return AGKCommand1946( index ); }
+		//static inline char* GetSpeechVoiceName( int index ) { return AGKCommand1947( index ); }
+		//static inline void OverrideConsentChartboost( int consent ) { AGKCommand1948( consent ); }
+		//static inline void AddHTTPHeader( unsigned int iHTTP, const char* headerName, const char* headerValue ) { AGKCommand1949( iHTTP, headerName, headerValue ); }
+		//static inline void RemoveHTTPHeader( unsigned int iHTTP, const char* headerName ) { AGKCommand1950( iHTTP, headerName ); }
+		//static inline int GetHTTPStatusCode( unsigned int iHTTP ) { return AGKCommand1951( iHTTP ); }
+		//static inline char* GetSpeechVoiceID( int index ) { return AGKCommand1952( index ); }
+		//static inline void SetSpeechLanguageByID( const char* sID ) { AGKCommand1953( sID ); }
+		//static inline int GetSpriteFlippedH( unsigned int iSpriteIndex ) { return AGKCommand1954( iSpriteIndex ); }
+		//static inline int GetSpriteInScreen( unsigned int iSpriteIndex ) { return AGKCommand1955( iSpriteIndex ); }
+		//static inline int GetSpriteFlippedV( unsigned int iSpriteIndex ) { return AGKCommand1956( iSpriteIndex ); }
+		//static inline void DrawParticles( unsigned int ID ) { AGKCommand1957( ID ); }
+		//static inline void Draw3DParticles( unsigned int ID ) { AGKCommand1958( ID ); }
+		//static inline void SetClipboardText( const char* szText ) { AGKCommand1959( szText ); }
+		//static inline char* GetClipboardText(  ) { return AGKCommand1960(  ); }
+		//static inline void SetEditBoxInputType( unsigned int index, int inputType ) { AGKCommand1961( index, inputType ); }
+		//static inline int GetExpansionFileError(  ) { return AGKCommand1962(  ); }
+		//static inline int GetSkeleton2DDepth( unsigned int iSkeleton ) { return AGKCommand1963( iSkeleton ); }
+		//static inline int GetEditBoxDepth( unsigned int index ) { return AGKCommand1964( index ); }
+		//static inline char* GetCharBuffer(  ) { return AGKCommand1965(  ); }
+		//static inline int GetCharBufferLength(  ) { return AGKCommand1966(  ); }
+		//static inline int GetRawJoystickSlider( unsigned int index, unsigned int slider ) { return AGKCommand1967( index, slider ); }
+		//static inline int GetRawJoystickPOV( unsigned int index, unsigned int pov ) { return AGKCommand1968( index, pov ); }
+		//static inline unsigned int CopyNetworkMessage( unsigned int iFromMsgID ) { return AGKCommand1969( iFromMsgID ); }
+		//static inline char* GetURLSchemeText(  ) { return AGKCommand1970(  ); }
+		//static inline void SetObjectAlpha( unsigned int objID, int alpha ) { AGKCommand1971( objID, alpha ); }
+		//static inline int GetObjectColorRed( int objID ) { return AGKCommand1972( objID ); }
+		//static inline int GetObjectColorGreen( int objID ) { return AGKCommand1973( objID ); }
+		//static inline int GetObjectColorBlue( int objID ) { return AGKCommand1974( objID ); }
+		//static inline int GetObjectAlpha( int objID ) { return AGKCommand1975( objID ); }
+		//static inline void ClearURLSchemeText(  ) { AGKCommand1976(  ); }
+		//static inline void ExtractZip( const char* zipfilename, const char* path, const char* password ) { AGKCommand1977( zipfilename, path, password ); }
+		//static inline unsigned int CreateObjectFromRawHeightMap( const char* szFilename, float width, float height, float length, int smoothing, int split, int rawWidth, int rawHeight ) { return AGKCommand1978( szFilename, width, height, length, smoothing, split, rawWidth, rawHeight ); }
+		//static inline void CreateObjectFromRawHeightMap( unsigned int objID, const char* szFilename, float width, float height, float length, int smoothing, int split, int rawWidth, int rawHeight ) { AGKCommand1979( objID, szFilename, width, height, length, smoothing, split, rawWidth, rawHeight ); }
+		//static inline void SetObjectMeshCollisionMode( unsigned int objID, int meshIndex, int mode ) { AGKCommand1980( objID, meshIndex, mode ); }
+		//static inline void SetObjectMeshVisible( unsigned int objID, unsigned int meshIndex, int mode ) { AGKCommand1981( objID, meshIndex, mode ); }
+		//static inline char* GetObjectTextureName( unsigned int objID, unsigned int textureIndex ) { return AGKCommand1982( objID, textureIndex ); }
+		//static inline unsigned int GetObjectNumTextures( unsigned int objID ) { return AGKCommand1983( objID ); }
+		//static inline char* GetRawJoystickName( unsigned int index ) { return AGKCommand1984( index ); }
+		//static inline void PlayYoutubeVideo( const char* developerKey, const char* videoID, float startTime ) { AGKCommand1985( developerKey, videoID, startTime ); }
+		//static inline void ShareFile( const char* szFilename ) { AGKCommand1986( szFilename ); }
+		//static inline int GetNetworkMessageFromPort( unsigned int iMsgID ) { return AGKCommand1987( iMsgID ); }
+		//static inline unsigned int CreateUDPListener( const char* ip, int port ) { return AGKCommand1988( ip, port ); }
+		//static inline int CreateUDPListener( unsigned int listenerID, const char* ip, int port ) { return AGKCommand1989( listenerID, ip, port ); }
+		//static inline void SendUDPNetworkMessage( unsigned int listenerID, unsigned int messageID, const char* toIP, int toPort ) { AGKCommand1990( listenerID, messageID, toIP, toPort ); }
+		//static inline unsigned int GetUDPNetworkMessage( unsigned int listenerID ) { return AGKCommand1991( listenerID ); }
+		//static inline void DeleteUDPListener( unsigned int listenerID ) { AGKCommand1992( listenerID ); }
+		//static inline void ExtractZipASync( const char* zipfilename, const char* path, const char* password ) { AGKCommand1993( zipfilename, path, password ); }
+		//static inline float GetZipExtractProgress(  ) { return AGKCommand1994(  ); }
+		//static inline int GetZipExtractComplete(  ) { return AGKCommand1995(  ); }
+		//static inline int GetWindowWidth(  ) { return AGKCommand1996(  ); }
+		//static inline int GetWindowHeight(  ) { return AGKCommand1997(  ); }
+		//static inline void CancelZipExtract(  ) { AGKCommand1998(  ); }
+		//static inline void GameCenterLogout(  ) { AGKCommand1999(  ); }
+		//static inline unsigned int GetImageSizeFromFile( const char* filename ) { return AGKCommand2000( filename ); }
+		//static inline void SetObjectMeshCastShadow( unsigned int objID, unsigned int meshIndex, int mode ) { AGKCommand2001( objID, meshIndex, mode ); }
+		//static inline void SetObjectShaderConstantArrayFloatByName( unsigned int objID, const char * szName, unsigned int arrayIndex, float value ) { AGKCommand2002( objID, szName, arrayIndex, value ); }
+		//static inline void SetObjectShaderConstantArrayVec2ByName( unsigned int objID, const char * szName, unsigned int arrayIndex, float value1, float value2 ) { AGKCommand2003( objID, szName, arrayIndex, value1, value2 ); }
+		//static inline void SetObjectShaderConstantArrayVec3ByName( unsigned int objID, const char * szName, unsigned int arrayIndex, float value1, float value2, float value3 ) { AGKCommand2004( objID, szName, arrayIndex, value1, value2, value3 ); }
+		//static inline void SetObjectShaderConstantArrayVec4ByName( unsigned int objID, const char * szName, unsigned int arrayIndex, float value1, float value2, float value3, float value4 ) { AGKCommand2005( objID, szName, arrayIndex, value1, value2, value3, value4 ); }
+		//static inline void SetShaderErrorMode( unsigned int mode ) { AGKCommand2006( mode ); }
+		//static inline void SetShaderConstantArrayFloatByName( unsigned int shaderID, const char * szName, unsigned int arrayIndex, float value ) { AGKCommand2007( shaderID, szName, arrayIndex, value ); }
+		//static inline void SetShaderConstantArrayVec2ByName( unsigned int shaderID, const char * szName, unsigned int arrayIndex, float value1, float value2 ) { AGKCommand2008( shaderID, szName, arrayIndex, value1, value2 ); }
+		//static inline void SetShaderConstantArrayVec3ByName( unsigned int shaderID, const char * szName, unsigned int arrayIndex, float value1, float value2, float value3 ) { AGKCommand2009( shaderID, szName, arrayIndex, value1, value2, value3 ); }
+		//static inline void SetShaderConstantArrayVec4ByName( unsigned int shaderID, const char * szName, unsigned int arrayIndex, float value1, float value2, float value3, float value4 ) { AGKCommand2010( shaderID, szName, arrayIndex, value1, value2, value3, value4 ); }
+		//static inline float GetObject3DPhysicsMaxLinearVelocity( unsigned int objID ) { return AGKCommand2011( objID ); }
+		//static inline int IsInvertedDepth(  ) { return AGKCommand2012(  ); }
+		//static inline int GetClipSpaceMode(  ) { return AGKCommand2013(  ); }
+		//static inline int IsTopLeftOrigin(  ) { return AGKCommand2014(  ); }
+		//static inline float GetDrawing3DSetupTime(  ) { return AGKCommand2015(  ); }
+		//static inline unsigned int MakeColor( unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha ) { return AGKCommand2016( red, green, blue, alpha ); }
+		//static inline unsigned int GetColorAlpha( unsigned int color ) { return AGKCommand2017( color ); }
+		//static inline void SetPresentMode( int mode ) { AGKCommand2018( mode ); }
+		//static inline void ForcePresent(  ) { AGKCommand2019(  ); }
+		//static inline int GetAppInstalled( const char * packageName ) { return AGKCommand2020( packageName ); }
+		//static inline void SetSnapChatStickerSettings( float x, float y, int width, int height, float angle ) { AGKCommand2021( x, y, width, height, angle ); }
+		//static inline void ShareSnapChatImage( const char* imageFile, const char* stickerFile, const char* caption, const char* url ) { AGKCommand2022( imageFile, stickerFile, caption, url ); }
 };
 
 #endif
