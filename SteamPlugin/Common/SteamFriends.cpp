@@ -878,7 +878,8 @@ extern "C" DLL_EXPORT char *GetFriendPersonaNameHistoryJSON(int hSteamIDFriend)
 		CSteamID steamIDFriend = SteamHandles()->GetSteamHandle(hSteamIDFriend);
 		int index = 0;
 		const char *name = SteamFriends()->GetFriendPersonaNameHistory(steamIDFriend, index);
-		while ((strnlen_s(name, k_cchPersonaNameMax) > 0))
+		//while ((strnlen_s(name, k_cchPersonaNameMax) > 0))
+		while ((strnlen(name, k_cchPersonaNameMax) > 0))
 		{
 			if (index > 0)
 			{

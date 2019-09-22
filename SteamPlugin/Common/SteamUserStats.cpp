@@ -179,7 +179,8 @@ protected:
 				if (SteamUserStats()->GetDownloadedLeaderboardEntry(pCallResult->m_hSteamLeaderboardEntries, index, &tempEntry, details, k_cLeaderboardDetailsMax))
 				{
 					PluginLeaderboardEntry_t entry(tempEntry);
-					memcpy_s(entry.m_Details, k_cLeaderboardDetailsMax, details, k_cLeaderboardDetailsMax);
+					//memcpy_s(entry.m_Details, k_cLeaderboardDetailsMax, details, k_cLeaderboardDetailsMax);
+					memcpy(entry.m_Details, details, k_cLeaderboardDetailsMax);
 					m_Entries.push_back(entry);
 				}
 				else

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\AGKLibraryCommands.cpp" />
+    <ClCompile Include="..\Common\CCallbacks.cpp" />
+    <ClCompile Include="..\Common\CCallResultItem.cpp" />
+    <ClCompile Include="..\Common\CRoomManager.cpp" />
+    <ClCompile Include="..\Common\CSteamHandleVector.cpp" />
+    <ClCompile Include="..\Common\DllMain.cpp" />
+    <ClCompile Include="..\Common\SteamApps.cpp" />
+    <ClCompile Include="..\Common\SteamAppsList.cpp" />
+    <ClCompile Include="..\Common\SteamFriends.cpp" />
+    <ClCompile Include="..\Common\SteamInput.cpp" />
+    <ClCompile Include="..\Common\SteamMatchmaking.cpp" />
+    <ClCompile Include="..\Common\SteamMusic.cpp" />
+    <ClCompile Include="..\Common\SteamRemoteStorage.cpp" />
+    <ClCompile Include="..\Common\SteamScreenshots.cpp" />
+    <ClCompile Include="..\Common\SteamUser.cpp" />
+    <ClCompile Include="..\Common\SteamUserStats.cpp" />
+    <ClCompile Include="..\Common\SteamUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\AGKLibraryCommands.h" />
+    <ClInclude Include="..\Common\CRoomManager.h" />
+    <ClInclude Include="..\Common\CSteamHandleVector.h" />
+    <ClInclude Include="..\Common\CCallResultItem.h" />
+    <ClInclude Include="..\Common\DllMain.h" />
+    <ClInclude Include="..\Common\SteamApps.h" />
+    <ClInclude Include="..\Common\SteamFriends.h" />
+    <ClInclude Include="..\Common\SteamInput.h" />
+    <ClInclude Include="..\Common\SteamMatchmaking.h" />
+    <ClInclude Include="..\Common\SteamMusic.h" />
+    <ClInclude Include="..\Common\SteamRemoteStorage.h" />
+    <ClInclude Include="..\Common\SteamScreenshots.h" />
+    <ClInclude Include="..\Common\SteamUser.h" />
+    <ClInclude Include="..\Common\SteamUserStats.h" />
+    <ClInclude Include="..\Common\SteamUtils.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\Common\CCallbacks.h" />
+    <ClInclude Include="..\Common\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SteamPlugin.rc" />
+  </ItemGroup>
+</Project>

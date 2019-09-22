@@ -100,7 +100,8 @@ int LoadImageFromHandle(int imageID, int hImage)
 		agk::SetMemblockInt(memID, 0, width);
 		agk::SetMemblockInt(memID, 4, height);
 		agk::SetMemblockInt(memID, 8, 32); // bitdepth always 32
-		memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
+		//memcpy_s(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageSizeInBytes, imageBuffer, imageSizeInBytes);
+		memcpy(agk::GetMemblockPtr(memID) + MEMBLOCK_IMAGE_HEADER_LENGTH, imageBuffer, imageSizeInBytes);
 		if (imageID)
 		{
 			agk::CreateImageFromMemblock(imageID, memID);
@@ -241,7 +242,8 @@ extern "C" DLL_EXPORT int InitFilterText()
 extern "C" DLL_EXPORT char *FilterText(const char *inputMessage, int legalOnly)
 {
 	CheckInitialized(false);
-	size_t bufferLength = strnlen_s(inputMessage, 4096) + 1;
+	//size_t bufferLength = strnlen_s(inputMessage, 4096) + 1;
+	size_t bufferLength = strnlen(inputMessage, 4096) + 1;
 	char *pchOutFilteredText = new char[bufferLength];
 	SteamUtils()->FilterText(pchOutFilteredText, (int) bufferLength, inputMessage, legalOnly != 0);
 	char *result = utils::CreateString(pchOutFilteredText);

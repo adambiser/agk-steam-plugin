@@ -21,10 +21,14 @@ THE SOFTWARE.
 */
 
 #define WIN32_LEAN_AND_MEAN
+#if defined(_WINDOWS)
 #include <windows.h>
+#endif
 #include "DllMain.h"
+#if defined(_WINDOWS)
 #include <shellapi.h>
 #include <psapi.h>
+#endif
 
 /*
 NOTE: Cannot use bool as an exported function return type because of AGK2 limitations.  Use int instead.
@@ -63,6 +67,7 @@ extern "C" DLL_EXPORT char *GetCommandLineArgsJSON()
 {
 	std::ostringstream json;
 	json << "[";
+#if defined(_WINDOWS)
 	int nArgs;
 	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
 	if (NULL != szArglist)
@@ -81,12 +86,15 @@ extern "C" DLL_EXPORT char *GetCommandLineArgsJSON()
 		// Free memory.
 		LocalFree(szArglist);
 	}
+#endif
 	json << "]";
 	return utils::CreateString(json);
 }
 
+#if defined(_WINDOWS)
 #define STEAM_REGISTRY_SUBKEY TEXT("Software\\Valve\\Steam")
 #define STEAM_REGISTRY_VALUE TEXT("SteamPath")
+#endif
 
 /*
 @desc Returns the path of the folder containing the Steam client EXE as found in the registry
@@ -96,6 +104,7 @@ The path may contain slashes instead of backslashes and the trailing slash may o
 */
 extern "C" DLL_EXPORT char *GetSteamPath()
 {
+#if defined(_WINDOWS)
 	HKEY hKey = 0;
 	if (RegOpenKeyEx(HKEY_CURRENT_USER, STEAM_REGISTRY_SUBKEY, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
 	{
@@ -110,6 +119,7 @@ extern "C" DLL_EXPORT char *GetSteamPath()
 			return utils::CreateString(szValue);
 		}
 	}
+#endif
 	return NULL_STRING;
 }
 
@@ -120,11 +130,12 @@ Emulation is sometimes used with pirated games, but it can also be used for vali
 */
 extern "C" DLL_EXPORT int IsSteamEmulated()
 {
+	bool emulated = false;
+#if defined(_WINDOWS)
 	HANDLE hProcess = GetCurrentProcess();
 	HMODULE hModules[1024];
 	DWORD cbNeeded;
 
-	bool emulated = false;
 	if (EnumProcessModules(hProcess, hModules, sizeof(hModules), &cbNeeded))
 	{
 		for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
@@ -146,6 +157,7 @@ extern "C" DLL_EXPORT int IsSteamEmulated()
 			}
 		}
 	}
+#endif
 	return emulated;
 }
 
@@ -159,7 +171,11 @@ This is only included to help with development because the AppGameKit IDE delete
 */
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes)
 {
+#if defined(_WINDOWS)
 	return SetFileAttributesA(filename, attributes);
+#else
+	return 0;
+#endif
 }
 
 //char *GetPublicIP()
@@ -373,6 +389,7 @@ extern "C" DLL_EXPORT void Shutdown()
 // SteamEncryptedAppTicket - Encrypted application tickets.
 //	SKIP? Would anyone using AppGameKit need this?
 
+#if defined(_WINDOWS)
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
 	switch (fdwReason)
@@ -389,3 +406,4 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 	}
 	return TRUE;
 }
+#endif

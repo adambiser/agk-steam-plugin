@@ -74,7 +74,8 @@ public:
 		if (length > 0)
 		{
 			info.m_MemblockID = agk::CreateMemblock(length);
-			memcpy_s(agk::GetMemblockPtr(info.m_MemblockID), length, data, length);
+			//memcpy_s(agk::GetMemblockPtr(info.m_MemblockID), length, data, length);
+			memcpy(agk::GetMemblockPtr(info.m_MemblockID), data, length);
 		}
 		StoreResponse(info);
 	}

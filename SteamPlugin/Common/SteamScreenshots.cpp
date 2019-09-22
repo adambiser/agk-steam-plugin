@@ -165,7 +165,8 @@ extern "C" DLL_EXPORT int WriteScreenshot(int imageID)
 	unsigned char *src = agk::GetMemblockPtr(memblock) + MEMBLOCK_IMAGE_HEADER_LENGTH;
 	for (uint32 dst = 0; dst < cubRGB; src += RGBA_SIZE, dst += RGB_SIZE)
 	{
-		memcpy_s(pubRGB + dst, RGB_SIZE, src, RGB_SIZE);
+		//memcpy_s(pubRGB + dst, RGB_SIZE, src, RGB_SIZE);
+		memcpy(pubRGB + dst, src, RGB_SIZE);
 	}
 	agk::DeleteMemblock(memblock);
 	ScreenshotHandle handle = SteamScreenshots()->WriteScreenshot(pubRGB, cubRGB, nWidth, nHeight);

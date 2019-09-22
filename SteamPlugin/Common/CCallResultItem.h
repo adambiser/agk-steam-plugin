@@ -24,7 +24,8 @@ THE SOFTWARE.
 #define _CCALLRESULTITEM_H_
 #pragma once
 
-#include "DllMain.h"
+#include "CSteamHandleVector.h"
+#include "utils.h"
 #include <map>
 
 class CCallResultItemBase
@@ -266,7 +267,7 @@ struct ResponseWrapper : T
 private:
 	void SetResult()
 	{
-		m_eResult = m_bSuccess ? k_EResultOK : k_EResultFail;
+		m_eResult = T::m_bSuccess ? k_EResultOK : k_EResultFail;
 	}
 };
 

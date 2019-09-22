@@ -771,7 +771,8 @@ extern "C" DLL_EXPORT int SendLobbyChatMessageMemblock(int hLobbySteamID, int me
 extern "C" DLL_EXPORT int SendLobbyChatMessage(int hLobbySteamID, const char *message)
 {
 	CheckInitialized(0);
-	return SteamMatchmaking()->SendLobbyChatMsg(SteamHandles()->GetSteamHandle(hLobbySteamID), message, (int)strnlen_s(message, MAX_CHAT_MESSAGE_LENGTH) + 1);
+	//return SteamMatchmaking()->SendLobbyChatMsg(SteamHandles()->GetSteamHandle(hLobbySteamID), message, (int)strnlen_s(message, MAX_CHAT_MESSAGE_LENGTH) + 1);
+	return SteamMatchmaking()->SendLobbyChatMsg(SteamHandles()->GetSteamHandle(hLobbySteamID), message, (int)strnlen(message, MAX_CHAT_MESSAGE_LENGTH) + 1);
 }
 
 // SetLinkedLobby - unused
