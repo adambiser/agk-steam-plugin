@@ -59,14 +59,56 @@ _Note: These commands are not part of the Steamworks SDK but are included as a c
 
 #include <stdio.h>
 #if defined(GNUC)
+//#include <sys/stat.h>
+
+//#define STEAM_RUNTIME_SUBPATH "/ubuntu12_32/steam-runtime/i386"
 int g_argc;
 char **g_argv;
 
 __attribute__((constructor))
 void OnStartup(int argc, char **argv)
 {
+	// Store the command line arguments for later.
 	g_argc = argc;
 	g_argv = argv;
+	// This doesn't work...
+	//std::cout << "OnStartup";
+	//// Set steam runtime environment variable.
+	//struct stat sb;
+	//if (stat("$HOME/.local/share/Steam/steam.sh", &sb) == 0)
+	//{
+	//	setenv("STEAM_RUNTIME", "$HOME/.local/share/Steam" STEAM_RUNTIME_SUBPATH, 0); // Don't overwrite.
+	//}
+	//else if (stat("$HOME/.steam/steam.sh", &sb) == 0)
+	//{
+	//	setenv("STEAM_RUNTIME", "$HOME/.steam" STEAM_RUNTIME_SUBPATH, 0); // Don't overwrite.
+	//}
+	//char *pEnv;
+	//if ((pEnv = getenv("STEAM_RUNTIME")) == NULL)
+	//{
+	//	// No runtime?  Abort...
+	//	return;
+	//}
+	//std::string sSTEAM_RUNTIME(pEnv);
+	//std::cout << "Steam runtime: " << sSTEAM_RUNTIME;
+	//// Show the Steam Overlay - https://partner.steamgames.com/doc/store/application/platforms/linux#FAQ
+	//std::string sLD_PRELOAD = sSTEAM_RUNTIME + "/../../../ubuntu12_64/gameoverlayrenderer.so";
+	//setenv("LD_PRELOAD", sLD_PRELOAD.c_str(), 0); // Don't overwrite.
+	//// Set up LD_LIBRARY_PATH/
+	//std::string sLD_LIBRARY_PATH;
+	//if ((pEnv = getenv("LD_LIBRARY_PATH")) != NULL)
+	//{
+	//	// Has a value, just use it.
+	//	sLD_LIBRARY_PATH.assign(pEnv);
+	//}
+	//else
+	//{
+	//	// No value.  Create it.
+	//	sLD_LIBRARY_PATH.assign(sSTEAM_RUNTIME + "/lib/i386-linux-gnu:" + sSTEAM_RUNTIME + "/usr/lib/i386-linux-gnu:" + sSTEAM_RUNTIME + "/usr/lib");
+	//}
+	//// Add the current directory to the library path to pick up libsteam_api.so
+	//sLD_LIBRARY_PATH.append(":.");
+	//setenv("LD_LIBRARY_PATH", sLD_LIBRARY_PATH.c_str(), 1);  // Overwrite.
 }
 #endif
 
@@ -119,9 +161,11 @@ extern "C" DLL_EXPORT char *GetCommandLineArgsJSON()
 #endif
 
 /*
-@desc Returns the path of the folder containing the Steam client EXE as found in the registry
+@desc On Windows, this returns the path of the folder containing the Steam client EXE as found in the registry
 by reading the value of SteamPath in HKEY_CURRENT_USER\Software\Valve\Steam.
 The path may contain slashes instead of backslashes and the trailing slash may or may not be included.
+
+On Linux, this returns the value of the "STEAM_RUNTIME" environment variable.
 @return The path at which the Steam client is installed.
 */
 extern "C" DLL_EXPORT char *GetSteamPath()
@@ -146,25 +190,22 @@ extern "C" DLL_EXPORT char *GetSteamPath()
 	if ((pPath = getenv("STEAM_RUNTIME")) != NULL)
 	{
 		char sPath[_MAX_PATH] = "";
-		strncpy(sPath, pPath, _MAX_PATH - 1);
+		strncpy(sPath, pPath, strlen(pPath));
 		// Chop off "/ubuntu12_32/steam-runtime/i386"
 		*(strrchr(sPath, '/')) = 0;
 		*(strrchr(sPath, '/')) = 0;
 		*(strrchr(sPath, '/')) = 0;
 		return utils::CreateString(sPath);
 	}
-	agk::Log("testing .local");
-	struct stat sb;
-	if (stat("$HOME/.local/share/Steam/steam.sh", &sb) == 0)
-	{
-		return utils::CreateString("$HOME/.local/share/Steam");
-	}
-	agk::Log("testing .steam");
-	if (stat("$HOME/.steam/steam.sh", &sb) == 0)
-	{
-		return utils::CreateString("$HOME/.steam");
-	}
-	return utils::CreateString("What?");
+	//struct stat sb;
+	//if (stat("$HOME/.local/share/Steam/steam.sh", &sb) == 0)
+	//{
+	//	return utils::CreateString("$HOME/.local/share/Steam");
+	//}
+	//if (stat("$HOME/.steam/steam.sh", &sb) == 0)
+	//{
+	//	return utils::CreateString("$HOME/.steam");
+	//}
 #endif
 	return NULL_STRING;
 }
