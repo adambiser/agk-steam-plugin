@@ -37,6 +37,8 @@ AddStatus("IsPhoneRequiringVerification: " + TF(Steam.IsPhoneRequiringVerificati
 AddStatus("IsPhoneVerified: " + TF(Steam.IsPhoneVerified()))
 AddStatus("IsTwoFactorEnabled: " + TF(Steam.IsTwoFactorEnabled()))
 
+AddStatus("CommandLineArgs: " + Steam.GetCommandLineArgsJSON())
+
 AddStatus("InitFilterText: " + TF(Steam.InitFilterText()))
 
 global filenames as string[1] = ["dummy.txt", "SteamworksExample.exe"]
