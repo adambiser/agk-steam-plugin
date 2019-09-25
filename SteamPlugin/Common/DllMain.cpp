@@ -20,12 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#define WIN32_LEAN_AND_MEAN
+#include "stdafx.h"
 #if defined(_WINDOWS)
 #include <windows.h>
-#endif
-#include "DllMain.h"
-#if defined(_WINDOWS)
 #include <shellapi.h>
 #include <psapi.h>
 #endif
@@ -59,6 +56,20 @@ void ResetSession()
 
 _Note: These commands are not part of the Steamworks SDK but are included as a convenience._
 */
+
+#include <stdio.h>
+#if defined(GNUC)
+int g_argc;
+char **g_argv;
+
+__attribute__((constructor))
+void OnStartup(int argc, char **argv)
+{
+	g_argc = argc;
+	g_argv = argv;
+}
+#endif
+
 /*
 @desc Returns the command line arguments.
 @return The command line arguments as a JSON string of an array of strings.
@@ -86,6 +97,15 @@ extern "C" DLL_EXPORT char *GetCommandLineArgsJSON()
 		// Free memory.
 		LocalFree(szArglist);
 	}
+#elif defined(GNUC)
+	for (int i = 0; i < g_argc; i++)
+	{
+		if (i > 0)
+		{
+			json << ",";
+		}
+		json << "\"" << utils::EscapeJSON(g_argv[i]) << "\"";
+}
 #endif
 	json << "]";
 	return utils::CreateString(json);
@@ -94,6 +114,8 @@ extern "C" DLL_EXPORT char *GetCommandLineArgsJSON()
 #if defined(_WINDOWS)
 #define STEAM_REGISTRY_SUBKEY TEXT("Software\\Valve\\Steam")
 #define STEAM_REGISTRY_VALUE TEXT("SteamPath")
+#elif defined(GNUC)
+#include <sys/stat.h>
 #endif
 
 /*
@@ -119,6 +141,30 @@ extern "C" DLL_EXPORT char *GetSteamPath()
 			return utils::CreateString(szValue);
 		}
 	}
+#elif defined(GNUC)
+	char *pPath;
+	if ((pPath = getenv("STEAM_RUNTIME")) != NULL)
+	{
+		char sPath[_MAX_PATH] = "";
+		strncpy(sPath, pPath, _MAX_PATH - 1);
+		// Chop off "/ubuntu12_32/steam-runtime/i386"
+		*(strrchr(sPath, '/')) = 0;
+		*(strrchr(sPath, '/')) = 0;
+		*(strrchr(sPath, '/')) = 0;
+		return utils::CreateString(sPath);
+	}
+	agk::Log("testing .local");
+	struct stat sb;
+	if (stat("$HOME/.local/share/Steam/steam.sh", &sb) == 0)
+	{
+		return utils::CreateString("$HOME/.local/share/Steam");
+	}
+	agk::Log("testing .steam");
+	if (stat("$HOME/.steam/steam.sh", &sb) == 0)
+	{
+		return utils::CreateString("$HOME/.steam");
+	}
+	return utils::CreateString("What?");
 #endif
 	return NULL_STRING;
 }
@@ -126,6 +172,8 @@ extern "C" DLL_EXPORT char *GetSteamPath()
 /*
 @desc Attempts to detect when Steam is being emulated.
 Emulation is sometimes used with pirated games, but it can also be used for valid reasons.
+
+Note: This only works on Windows.
 @return 1 when Steam emulation is detected, otherwise 0.
 */
 extern "C" DLL_EXPORT int IsSteamEmulated()
@@ -162,18 +210,22 @@ extern "C" DLL_EXPORT int IsSteamEmulated()
 }
 
 #undef SetFileAttributes
+#if defined(_WINDOWS)
 /*
 @desc Sets the attributes of a file.
 This is only included to help with development because the AppGameKit IDE deletes Steam files in the project folder when the interpreter exits.
+
+Note: This only works on Windows.
 @param filename The name of the file whose attributes are to be set.
 @param attributes The file attributes to set for the file.
 @return 1 if successful; otherwise, 0.
 */
 extern "C" DLL_EXPORT int SetFileAttributes(const char *filename, int attributes)
 {
-#if defined(_WINDOWS)
 	return SetFileAttributesA(filename, attributes);
 #else
+extern "C" DLL_EXPORT int SetFileAttributes(const char * /*filename*/, int /*attributes*/)
+{
 	return 0;
 #endif
 }

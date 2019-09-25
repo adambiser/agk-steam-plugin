@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamFriends.h"
-#include "DllMain.h"
 
 CAvatarImageLoadedCallback AvatarImageLoadedCallback;
 CFriendRichPresenceUpdateCallback FriendRichPresenceUpdateCallback;
@@ -1366,6 +1366,7 @@ extern "C" DLL_EXPORT int IsUserInSource(int hSteamIDUser, int hSteamIDSource)
 	return SteamFriends()->IsUserInSource(SteamHandles()->GetSteamHandle(hSteamIDUser), SteamHandles()->GetSteamHandle(hSteamIDSource));
 }
 
+template<>
 void ResponseWrapper<JoinClanChatRoomCompletionResult_t>::SetResult()
 {
 	m_eResult = (m_eChatRoomEnterResponse == k_EChatRoomEnterResponseSuccess) ? k_EResultOK : k_EResultFail;
@@ -1588,6 +1589,7 @@ extern "C" DLL_EXPORT void SetListenForFriendsMessages(int interceptEnabled)
 	SteamFriends()->SetListenForFriendsMessages(interceptEnabled != 0);
 }
 
+template<>
 void ResponseWrapper<SetPersonaNameResponse_t>::SetResult() { m_eResult = m_result; }
 
 class CSetPersonaNameCallResult : public CCallResultItem<SetPersonaNameResponse_t, ResponseWrapper<SetPersonaNameResponse_t>>

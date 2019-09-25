@@ -70,6 +70,7 @@ Copy /Y "%1" "AGKPlugin\%PLUGIN_NAME%\%2.dll" > nul
 Copy /Y "AGKPlugin\%PLUGIN_NAME%\Commands.txt" "%AGK_PLUGIN_PATH%\Commands.txt" > nul
 Copy /Y "AGKPlugin\%PLUGIN_NAME%\Windows.dll" "%AGK_PLUGIN_PATH%\Windows.dll" > nul
 Copy /Y "AGKPlugin\%PLUGIN_NAME%\Windows64.dll" "%AGK_PLUGIN_PATH%\Windows64.dll" > nul
+Copy /Y "AGKPlugin\%PLUGIN_NAME%\Linux64.so" "%AGK_PLUGIN_PATH%\Linux64.so" > nul
 REM debug symbols
 IF DEFINED DEBUG_MODE (
 	Copy /Y "%~dpn1.pdb" "AGKPlugin\%PLUGIN_NAME%\Windows.pdb" > nul

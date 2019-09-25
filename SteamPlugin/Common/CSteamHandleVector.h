@@ -24,8 +24,7 @@ THE SOFTWARE.
 #define _CSTEAMHANDLEVECTOR_H_
 #pragma once
 
-#include <steam_api.h>
-#include <vector>
+#include "stdafx.h"
 
 class CSteamHandleVector
 {

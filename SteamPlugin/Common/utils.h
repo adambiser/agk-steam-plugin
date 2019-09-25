@@ -24,16 +24,9 @@ THE SOFTWARE.
 #define _UTILS_H_
 #pragma once
 
-#include "../AGKLibraryCommands.h"
+#include "stdafx.h"
 
-#include "steam_api.h"
-
-#include <mutex>
-#include <string>
-#include <sstream>
 #include <iomanip>
-#include <vector>
-#include <algorithm>
 
 // From winnt.h
 #ifndef _MAC

@@ -112,6 +112,7 @@ class ExportedMethodLoader:
         type_pattern = r'void\s+|int\s+|(?:const\s+)?char\s*\*\s*|float\s+'
         name_pattern = r'[A-Za-z0-9_]+'
         methods = []
+        last_method_name = None
         for match in re.finditer(r'(?:/\*+(?P<comment>(?:(?!\*+/).)*)\*+/\n)?'
                                  r'^extern "C" DLL_EXPORT '
                                  # type name (params)
@@ -120,6 +121,10 @@ class ExportedMethodLoader:
                                  lines, re.DOTALL | re.MULTILINE):
             # Parse method name and return type.
             # method_declaration = declaration_pattern.match(match['method'])
+            # Skip methods with multiple definitions due to #ifdefs.  ie: To remove parameters for Linux, etc.
+            if match['name'] == last_method_name:
+                continue
+            last_method_name = match['name']
             method = {
                 'name': match['name'],
                 'start': match.start(),
@@ -328,7 +333,7 @@ class ExportedMethodLoader:
                                     return_type=var_type_letter[method.get('return_type')],
                                     param_types=param_types,
                                     windows=method['name'],
-                                    linux='0',
+                                    linux=method['name'],
                                     mac='0',
                                     android='0',
                                     ios='0',

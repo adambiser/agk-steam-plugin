@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamUtils.h"
-#include "DllMain.h"
 
 CGamepadTextInputDismissedCallback GamepadTextInputDismissedCallback;
 CIPCountryChangedCallback IPCountryChangedCallback;
@@ -241,7 +241,7 @@ extern "C" DLL_EXPORT int InitFilterText()
 */
 extern "C" DLL_EXPORT char *FilterText(const char *inputMessage, int legalOnly)
 {
-	CheckInitialized(false);
+	CheckInitialized(NULL_STRING);
 	//size_t bufferLength = strnlen_s(inputMessage, 4096) + 1;
 	size_t bufferLength = strnlen(inputMessage, 4096) + 1;
 	char *pchOutFilteredText = new char[bufferLength];

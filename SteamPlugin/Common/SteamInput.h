@@ -25,7 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 //#include "CCallbacks.h"
-#include "steam_api.h"
+//#include "steam/steam_api.h"
 
 void ResetSteamInput();
 

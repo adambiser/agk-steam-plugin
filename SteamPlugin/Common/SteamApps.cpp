@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamApps.h"
-#include "DllMain.h"
 
 CDlcInstalledCallback DlcInstalledCallback;
 CNewUrlLaunchParametersCallback NewUrlLaunchParametersCallback;
@@ -287,7 +287,7 @@ extern "C" DLL_EXPORT int GetDLCCount()
 
 _Note: Steamworks returns an unsigned 64-bit integer, but AppGameKit only supports signed 32-bit integers.  Files larger than 2 GB will cause problems._
 @param appID The App ID of the DLC to monitor.
-@return A JSON string of the download progress.
+@return The number of bytes downloaded.
 @url https://partner.steamgames.com/doc/api/ISteamApps#GetDlcDownloadProgress
 */
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesDownloaded(int appID)
@@ -307,7 +307,7 @@ extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesDownloaded(int appID)
 
 _Note: Steamworks returns an unsigned 64-bit integer, but AppGameKit only supports signed 32-bit integers.  Files larger than 2 GB will cause problems._
 @param appID The App ID of the DLC to monitor.
-@return A JSON string of the download progress.
+@return The total size of the download in bytes.
 @url https://partner.steamgames.com/doc/api/ISteamApps#GetDlcDownloadProgress
 */
 extern "C" DLL_EXPORT int GetDLCDownloadProgressBytesTotal(int appID)
@@ -409,7 +409,8 @@ extern "C" DLL_EXPORT int GetFileDetailsSize(int hCallResult)
 */
 extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots)
 {
-	std::string json("[");
+	std::ostringstream json;
+	json << "[";
 	if (g_SteamInitialized)
 	{
 		DepotId_t *depots = new DepotId_t[maxDepots];
@@ -418,13 +419,13 @@ extern "C" DLL_EXPORT char *GetInstalledDepotsJSON(int appID, int maxDepots)
 		{
 			if (index > 0)
 			{
-				json += ", ";
+				json << ", ";
 			}
-			json += std::to_string(depots[index]);
+			json << depots[index];
 		}
 		delete[] depots;
 	}
-	json += "]";
+	json << "]";
 	return utils::CreateString(json);
 }
 

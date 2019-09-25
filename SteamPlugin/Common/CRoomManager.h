@@ -24,9 +24,7 @@ THE SOFTWARE.
 #define _CROOMMANAGER_H_
 #pragma once
 
-#include "DllMain.h"
-#include <mutex>
-#include <vector>
+#include "stdafx.h"
 
 // Registers callbacks when joining a lobby or clan chat.  Unregisters when the last is left.
 class CRoomManager

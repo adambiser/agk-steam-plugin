@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamUserStats.h"
-#include "DllMain.h"
 
 CUserAchievementIconFetchedCallback UserAchievementIconFetchedCallback;
 CUserAchievementStoredCallback UserAchievementStoredCallback;
@@ -116,6 +116,7 @@ extern "C" DLL_EXPORT int ClearAchievement(const char *name)
 	return SteamUserStats()->ClearAchievement(name);
 }
 
+template<>
 void ResponseWrapper<LeaderboardScoresDownloaded_t>::SetResult() { m_eResult = m_hSteamLeaderboard != 0 ? k_EResultOK : k_EResultFail; }
 
 class CDownloadLeaderboardEntriesCallResult : public CCallResultItem<LeaderboardScoresDownloaded_t, ResponseWrapper<LeaderboardScoresDownloaded_t>>
@@ -353,6 +354,7 @@ extern "C" DLL_EXPORT int GetDownloadLeaderboardEntryUGC(int hCallResult, int in
 	return GetCallResultValue(hCallResult, index, &CDownloadLeaderboardEntriesCallResult::GetLeaderboardEntryUGCHandle, __FUNCTION__);
 }
 
+template<>
 void ResponseWrapper<LeaderboardFindResult_t>::SetResult() { m_eResult = k_EResultOK; }
 
 class CFindLeaderboardCallResult : public CCallResultItem<LeaderboardFindResult_t, ResponseWrapper<LeaderboardFindResult_t>>

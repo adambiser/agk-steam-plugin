@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "DllMain.h"
+#include "stdafx.h"
 
 /* @page ISteamAppsList
 This is a restricted interface that can only be used by approved apps.

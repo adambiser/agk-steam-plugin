@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamScreenshots.h"
-#include "DllMain.h"
 
 CScreenshotReadyCallback ScreenshotReadyCallback;
 CScreenshotRequestedCallback ScreenshotRequestedCallback;

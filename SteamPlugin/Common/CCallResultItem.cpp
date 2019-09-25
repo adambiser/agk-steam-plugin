@@ -20,6 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "CCallResultItem.h"
 
 void CCallResultItemBase::SetResultCode(EResult eResult, bool bFailure)

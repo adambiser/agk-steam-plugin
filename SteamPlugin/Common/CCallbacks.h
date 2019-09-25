@@ -24,12 +24,7 @@ THE SOFTWARE.
 #define _CALLBACKS_H
 #pragma once
 
-#include "DllMain.h"
-#include <steam_api.h>
-#include <list>
-#include <map>
-#include <mutex>
-#include <vector>
+#include "stdafx.h"
 
 extern bool g_SteamInitialized;
 
@@ -57,50 +52,57 @@ template <class derived_type, class callback_type>
 class BoolCallbackBase : public CallbackBase
 {
 public:
-	BoolCallbackBase() : CallbackBase() {};
-	~BoolCallbackBase() {}
-	void Reset() final
+	BoolCallbackBase() : CallbackBase()
 	{
-		Derived().Clear();
+		m_Callback.Register(this, &BoolCallbackBase<derived_type, callback_type>::OnResponse);
+	};
+	~BoolCallbackBase() {}
+	virtual void Reset() // final
+	{
+		//Derived().Clear();
+		m_bHadResponse = false;
 	}
-	virtual bool HasResponse() final
+	/*virtual */bool HasResponse() //final
 	{
 		if (m_bHadResponse)
 		{
 			m_bHadResponse = false;
 			return true;
 		}
-		Derived().Clear();
+		//Derived().Clear();
+		Reset();
 		return false;
 	}
 	// "Optional" overrides for derived classes.
-	template<typename T = derived_type>
-	auto OnResponse(callback_type *pParam) -> decltype(std::declval<T>().OnResponse(pParam), void()) {
-		Derived().OnResponse(pParam);
-	}
-	template<typename T = derived_type>
-	auto Clear() -> decltype(std::declval<T>().Clear(), void()) {
-		Derived().Clear();
-	}
+	//template<typename T = derived_type>
+	//auto OnResponse(callback_type *pParam) -> decltype(std::declval<T>().OnResponse(pParam), void()) {
+	//	Derived().OnResponse(pParam);
+	//}
+	//template<typename T = derived_type>
+	//auto Clear() -> decltype(std::declval<T>().Clear(), void()) {
+	//	Derived().Clear();
+	//}
 protected:
 	derived_type& Derived()
 	{
 		return *static_cast<derived_type*>(this);
 	}
 	bool m_bHadResponse;
-	typedef BoolCallbackBase<derived_type, callback_type> base;
-	STEAM_CALLBACK(base, OnResponseInner, callback_type)
-	{
-		Derived().OnResponse(pParam);
-	}
-	void OnResponse(callback_type *pParam)
+	CCallbackManual<BoolCallbackBase<derived_type, callback_type>, callback_type> m_Callback;
+
+	//typedef BoolCallbackBase<derived_type, callback_type> base;
+	//STEAM_CALLBACK(base, OnResponse, callback_type)
+	//{
+	//	//Derived().OnResponse(pParam);
+	//}
+	void OnResponse(callback_type * /*pParam*/)
 	{
 		m_bHadResponse = true;
 	}
-	void Clear()
-	{
-		m_bHadResponse = false;
-	}
+	//void Clear()
+	//{
+	//	m_bHadResponse = false;
+	//}
 };
 
 template <class derived_type, class callback_type, class list_type = callback_type>
@@ -109,23 +111,44 @@ class ListCallbackBase : public CallbackBase
 public:
 	ListCallbackBase() : CallbackBase(), m_bRegistered(false) {};
 	virtual ~ListCallbackBase() {}
-	virtual void Register() final
+	virtual void Register() // final
 	{
-		Derived().RegisterInner();
+		agk::Log("Inside");
+		//Derived().RegisterInner();
+		if (!g_SteamInitialized)
+		{
+			return;
+		}
+		if (!m_bRegistered)
+		{
+			m_bRegistered = true;
+			m_Callback.Register(this, &ListCallbackBase<derived_type, callback_type, list_type>::OnResponse);
+		}
+		agk::Log("Done");
 	}
-	virtual void Unregister() final
+	virtual void Unregister() // final
 	{
-		Derived().UnregisterInner();
+		//Derived().UnregisterInner();
+		if (!g_SteamInitialized)
+		{
+			return;
+		}
+		if (m_bRegistered)
+		{
+			m_bRegistered = false;
+			m_Callback.Unregister();
+		}
 	}
+	virtual void OnResponse(callback_type *pParam) = 0;
 	// "Optional" overrides for derived classes.
-	template<typename T = derived_type>
-	auto RegisterInner() -> decltype(std::declval<T>().RegisterInner(), void()) {
-		Derived().RegisterInner();
-	}
-	template<typename T = derived_type>
-	auto UnregisterInner() -> decltype(std::declval<T>().UnregisterInner(), void()) {
-		Derived().UnregisterInner();
-	}
+	//template<typename T = derived_type>
+	//auto RegisterInner() -> decltype(std::declval<T>().RegisterInner(), void()) {
+	//	Derived().RegisterInner();
+	//}
+	//template<typename T = derived_type>
+	//auto UnregisterInner() -> decltype(std::declval<T>().UnregisterInner(), void()) {
+	//	Derived().UnregisterInner();
+	//}
 	// Clears the callback response list and current value.
 	virtual void Reset() final
 	{
@@ -181,34 +204,34 @@ protected:
 	{
 		return *static_cast<derived_type*>(this);
 	}
-	void RegisterInner()
-	{
-		if (!g_SteamInitialized)
-		{
-			return;
-		}
-		if (!m_bRegistered)
-		{
-			m_bRegistered = true;
-			m_Callback.Register(this, &ListCallbackBase<derived_type, callback_type, list_type>::OnResponseInner);
-		}
-	}
-	void UnregisterInner()
-	{
-		if (!g_SteamInitialized)
-		{
-			return;
-		}
-		if (m_bRegistered)
-		{
-			m_bRegistered = false;
-			m_Callback.Unregister();
-		}
-	}
-	void OnResponseInner(callback_type *pParam)
-	{
-		Derived().OnResponse(pParam);
-	}
+	//void RegisterInner()
+	//{
+	//	if (!g_SteamInitialized)
+	//	{
+	//		return;
+	//	}
+	//	if (!m_bRegistered)
+	//	{
+	//		m_bRegistered = true;
+	//		m_Callback.Register(this, &ListCallbackBase<derived_type, callback_type, list_type>::OnResponseInner);
+	//	}
+	//}
+	//void UnregisterInner()
+	//{
+	//	if (!g_SteamInitialized)
+	//	{
+	//		return;
+	//	}
+	//	if (m_bRegistered)
+	//	{
+	//		m_bRegistered = false;
+	//		m_Callback.Unregister();
+	//	}
+	//}
+	//void OnResponseInner(callback_type *pParam)
+	//{
+	//	Derived().OnResponse(pParam);
+	//}
 	list_type m_CurrentValue;
 	bool m_bRegistered;
 	std::list<list_type> m_List;

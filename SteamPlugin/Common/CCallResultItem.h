@@ -32,10 +32,10 @@ class CCallResultItemBase
 {
 public:
 	CCallResultItemBase() :
-		m_eResult((EResult)0),
+		m_hSteamAPICall(k_uAPICallInvalid),
 		m_CallResultName("Unnamed Call Result"),
 		m_bRunning(false),
-		m_hSteamAPICall(k_uAPICallInvalid) {}
+		m_eResult((EResult)0) {}
 	virtual ~CCallResultItemBase(void) {}
 	// Return a 'name' for the CCallResultItemBase object, usually indicates type and some useful parameter values.
 	std::string GetName() { return m_CallResultName; }
@@ -64,7 +64,7 @@ template <class callback_type, class response_type = callback_type>
 class CCallResultItem : public CCallResultItemBase
 {
 public:
-	CCallResultItem() : iCallback(callback_type::k_iCallback){}
+	CCallResultItem() : CCallResultItemBase(), iCallback(callback_type::k_iCallback){}
 	virtual ~CCallResultItem(void)
 	{
 		m_CallResult.Cancel();
@@ -212,7 +212,7 @@ char *GetCallResultValue(int hCallResult, char *(callresult_type::*function)(voi
 
 // Indexes result values
 template <typename callresult_type>
-int GetCallResultValue(int hCallResult, int index, int(callresult_type::*function)(int), char *functionName)
+int GetCallResultValue(int hCallResult, int index, int(callresult_type::*function)(int), const char *functionName)
 {
 	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
@@ -226,7 +226,7 @@ int GetCallResultValue(int hCallResult, int index, int(callresult_type::*functio
 }
 
 template <typename callresult_type>
-int GetCallResultValue(int hCallResult, int index, uint64(callresult_type::*function)(int), char *functionName)
+int GetCallResultValue(int hCallResult, int index, uint64(callresult_type::*function)(int), const char *functionName)
 {
 	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
@@ -240,7 +240,7 @@ int GetCallResultValue(int hCallResult, int index, uint64(callresult_type::*func
 }
 
 template <typename callresult_type>
-int GetCallResultValue(int hCallResult, int index, CSteamID(callresult_type::*function)(int), char *functionName)
+int GetCallResultValue(int hCallResult, int index, CSteamID(callresult_type::*function)(int), const char *functionName)
 {
 	if (auto *callResult = CallResults()->Get<callresult_type>(hCallResult))
 	{
@@ -264,8 +264,8 @@ struct ResponseWrapper : T
 	{
 		SetResult();
 	}
-private:
-	void SetResult()
+protected:
+	virtual void SetResult()
 	{
 		m_eResult = T::m_bSuccess ? k_EResultOK : k_EResultFail;
 	}

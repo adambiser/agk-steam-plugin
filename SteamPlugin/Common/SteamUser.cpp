@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamUser.h"
-#include "DllMain.h"
 
 CDurationControlCallback DurationControlCallback;
 
@@ -296,7 +296,7 @@ extern "C" DLL_EXPORT int GetGameBadgeLevel(int series, int foil)
 
 //GetHSteamUser - internal use
 
-
+template<>
 void ResponseWrapper<MarketEligibilityResponse_t>::SetResult() { m_eResult = k_EResultOK; }
 
 class CGetMarketEligibilityCallResult : public CCallResultItem<MarketEligibilityResponse_t, ResponseWrapper<MarketEligibilityResponse_t>>
@@ -484,6 +484,8 @@ extern "C" DLL_EXPORT char *GetSteamID3(int hSteamIDUser)
 		case k_EAccountTypeAnonUser:
 			steam3 += ":" + std::to_string(steamID.GetUnAccountInstance());
 			break;
+		default:
+			break;
 		}
 		steam3 += "]";
 		return utils::CreateString(steam3);
@@ -501,7 +503,9 @@ extern "C" DLL_EXPORT char *GetSteamID64(int hSteamIDUser)
 {
 	CheckInitialized(NULL_STRING);
 	char id64[21]; // Max value is 18,446,744,073,709,551,615
-	_i64toa(SteamHandles()->GetSteamHandle(hSteamIDUser), id64, 10);
+	//_i64toa(SteamHandles()->GetSteamHandle(hSteamIDUser), id64, 10);
+	// Windows and Linux
+	snprintf(id64, 21, "%llu", SteamHandles()->GetSteamHandle(hSteamIDUser));
 	return utils::CreateString(id64);
 }
 
@@ -514,7 +518,8 @@ extern "C" DLL_EXPORT char *GetSteamID64(int hSteamIDUser)
 extern "C" DLL_EXPORT int GetHandleFromSteamID64(const char *steamID64)
 {
 	CheckInitialized(0);
-	uint64 id = _atoi64(steamID64);
+	//uint64 id = _atoi64(steamID64);
+	uint64 id = atoll(steamID64);
 	return SteamHandles()->GetPluginHandle(CSteamID(id));
 }
 

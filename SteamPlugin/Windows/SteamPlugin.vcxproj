@@ -82,12 +82,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\SteamworksSDK\public\steam;$(IncludePath)</IncludePath>
+    <IncludePath>..\SteamworksSDK\public;$(IncludePath)</IncludePath>
     <LibraryPath>..\SteamworksSDK\redistributable_bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\SteamworksSDK\public\steam;$(IncludePath)</IncludePath>
+    <IncludePath>..\SteamworksSDK\public;$(IncludePath)</IncludePath>
     <LibraryPath>..\SteamworksSDK\redistributable_bin\win64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -223,7 +223,7 @@
     <ClInclude Include="..\Common\CRoomManager.h" />
     <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
-    <ClInclude Include="..\Common\DllMain.h" />
+    <ClInclude Include="..\Common\stdafx.h" />
     <ClInclude Include="..\Common\SteamApps.h" />
     <ClInclude Include="..\Common\SteamFriends.h" />
     <ClInclude Include="..\Common\SteamInput.h" />

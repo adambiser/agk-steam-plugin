@@ -38,6 +38,12 @@ THE SOFTWARE.
 class CUserAchievementIconFetchedCallback : public ListCallbackBase<CUserAchievementIconFetchedCallback, UserAchievementIconFetched_t>
 {
 public:
+	void Register()
+	{
+		agk::Log("Before Register");
+		ListCallbackBase<CUserAchievementIconFetchedCallback, UserAchievementIconFetched_t>::Register();
+		agk::Log("After Register");
+	}
 	void OnResponse(UserAchievementIconFetched_t *pParam)
 	{
 		if (pParam->m_nGameID.AppID() != g_AppID)
@@ -60,9 +66,9 @@ public:
 		value.m_nIconHandle = 0;
 		value.m_rgchAchievementName[0] = 0;
 	}
-	void UnregisterInner()
+	void Unregister()
 	{
-		ListCallbackBase::UnregisterInner();
+		ListCallbackBase<CUserAchievementIconFetchedCallback, UserAchievementIconFetched_t>::Unregister();
 		m_AchievementIconsMap.clear();
 	}
 	int GetAchievementIcon(const char *pchName)
@@ -156,9 +162,9 @@ public:
 		value.m_nGameID = 0;
 		value.m_steamIDUser = k_steamIDNil;
 	}
-	void UnregisterInner()
+	void Unregister()
 	{
-		ListCallbackBase::UnregisterInner();
+		ListCallbackBase<CUserStatsReceivedCallback, UserStatsReceived_t>::Unregister();
 		m_StatsInitialized = false;
 		m_StatsInitializedUsers.clear();
 	}

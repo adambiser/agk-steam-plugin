@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef _DLLMAIN_H_
-#define _DLLMAIN_H_
+#ifndef _STDAFX_H_
+#define _STDAFX_H_
 #pragma once
 
 #include "../AGKLibraryCommands.h"
@@ -33,9 +33,26 @@ THE SOFTWARE.
 #pragma comment(lib, "steam_api.lib")
 #endif
 #endif
-#include "steam_api.h"
-
-#include "utils.h"
+#ifndef _MSC_VER // Linux
+#include <limits.h>
+// This won't link in GCC unless steam_api is visible.  Undo the visibility set in AGKLibraryCommands and redo it afterwards.
+// Also needed for atoll() from stdlib.
+#pragma GCC visibility pop
+#include <stdlib.h>
+#define _MAX_PATH PATH_MAX
+#endif
+#include "steam/steam_api.h"
+#ifndef _MSC_VER
+#pragma GCC visibility push(hidden)
+#endif
+#include <string>
+#include <list>
+#include <map>
+#include <mutex>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <inttypes.h>
 
 #include "CSteamHandleVector.h"
 #include "CCallbacks.h"
@@ -84,4 +101,4 @@ inline bool InRange(int value, int min, int max)
 	return (min <= value && value <= max);
 }
 
-#endif // _DLLMAIN_H_
+#endif // _STDAFX_H_

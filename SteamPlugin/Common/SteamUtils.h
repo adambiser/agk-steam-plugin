@@ -75,9 +75,9 @@ public:
 		BoolCallbackBase::OnResponse(pParam);
 		m_nMinutesBatteryLeft = pParam->m_nMinutesBatteryLeft;
 	}
-	void Clear()
+	void Reset()
 	{
-		BoolCallbackBase::Clear();
+		BoolCallbackBase::Reset();
 		m_nMinutesBatteryLeft = 0;
 	}
 	uint8 GetMinutesBatteryLeft() { return m_nMinutesBatteryLeft; }

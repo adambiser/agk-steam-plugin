@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#include "stdafx.h"
 #include "SteamMatchmaking.h"
-#include "DllMain.h"
 
 /* @page ISteamMatchmaking */
 
@@ -556,6 +556,7 @@ extern "C" DLL_EXPORT int InviteUserToLobby(int hLobbySteamID, int hInviteeSteam
 	return SteamMatchmaking()->InviteUserToLobby(SteamHandles()->GetSteamHandle(hLobbySteamID), SteamHandles()->GetSteamHandle(hInviteeSteamID));
 }
 
+template<>
 void ResponseWrapper<LobbyEnter_t>::SetResult() { m_eResult = m_ulSteamIDLobby != 0 ? k_EResultOK : k_EResultFail; }
 
 class CJoinLobbyCallResult : public CCallResultItem<LobbyEnter_t, ResponseWrapper<LobbyEnter_t>>
@@ -686,6 +687,7 @@ extern "C" DLL_EXPORT int RequestLobbyData(int hLobbySteamID)
 	return SteamMatchmaking()->RequestLobbyData(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
+template<>
 void ResponseWrapper<LobbyMatchList_t>::SetResult() { m_eResult = k_EResultOK; }
 
 class CRequestLobbyListCallResult : public CCallResultItem<LobbyMatchList_t, ResponseWrapper<LobbyMatchList_t>>

@@ -24,7 +24,6 @@
     <ClInclude Include="..\Common\CRoomManager.h" />
     <ClInclude Include="..\Common\CSteamHandleVector.h" />
     <ClInclude Include="..\Common\CCallResultItem.h" />
-    <ClInclude Include="..\Common\DllMain.h" />
     <ClInclude Include="..\Common\SteamApps.h" />
     <ClInclude Include="..\Common\SteamFriends.h" />
     <ClInclude Include="..\Common\SteamInput.h" />
@@ -38,6 +37,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\Common\CCallbacks.h" />
     <ClInclude Include="..\Common\utils.h" />
+    <ClInclude Include="..\Common\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SteamPlugin.rc" />
