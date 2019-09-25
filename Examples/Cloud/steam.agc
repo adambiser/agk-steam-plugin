@@ -108,10 +108,19 @@ Function CheckInput()
 	endif
 	if GetVirtualButtonPressed(OPEN_FOLDER_BUTTON)
 		path as string
-		path = JoinPaths(Steam.GetSteamPath(), "userdata/" + str(Steam.GetAccountID(Steam.GetSteamID())) + "/" + str(Steam.GetAppID()) + "/remote")
-		path = ReplaceString(path, "/", "\", -1) // Must use backslash for explorer.
-		AddStatus(path)
-		RunApp("explorer", path)
+		if GetDeviceBaseName() = "windows"
+			path = JoinPaths(Steam.GetSteamPath(), "userdata/" + str(Steam.GetAccountID(Steam.GetSteamID())) + "/" + str(Steam.GetAppID()) + "/remote")
+			path = ReplaceString(path, "/", "\", -1) // Must use backslash for explorer.
+			AddStatus(path)
+			RunApp("explorer", path)
+		elseif GetDeviceBaseName() = "linux"
+			path = JoinPaths(Steam.GetSteamPath(), "userdata/" + str(Steam.GetAccountID(Steam.GetSteamID())) + "/" + str(Steam.GetAppID()) + "/remote")
+			//path = ReplaceString(path, "/", "\", -1) // Must use backslash for explorer.
+			AddStatus(path)
+			RunApp("nautilus", path)
+		else
+			AddStatus("OS not supported!")
+		endif
 	endif
 EndFunction
 
