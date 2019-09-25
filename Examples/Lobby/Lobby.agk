@@ -43,6 +43,7 @@ splash_960_path=
 splash_2048_path=
 splash_1136_path=
 prov_profile_path=
+
 [html5_settings]
 commands_used=0
 dynamic_memory=0
@@ -52,9 +53,11 @@ output_path=
 FILE_0=gameserver.agc;-1
 FILE_1=main.agc;-1
 FILE_2=steam.agc;-1
+
 [files]
 FILE_NAME_0=0;gameserver.agc;0;0
-FILE_NAME_1=0;main.agc;13;1
+FILE_NAME_1=0;main.agc;464;1
+
 [project]
 description=
 
