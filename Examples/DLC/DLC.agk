@@ -43,6 +43,8 @@ url_scheme=
 deep_link=
 admob_app_id=
 snapchat_client_id=
+splash_logo=
+splash_color=
 
 [html5_settings]
 commands_used=0
@@ -54,7 +56,6 @@ FILE_0=main.agc;-1
 FILE_1=steam.agc;-1
 
 [files]
-FILE_NAME_0=1;steam.agc;642;0
 
 [project]
 description=

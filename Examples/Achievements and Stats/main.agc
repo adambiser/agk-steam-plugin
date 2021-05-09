@@ -2,6 +2,7 @@
 // Created: 2017-12-14
 // Copyright 2017 Adam Biser
 #option_explicit
+#company_name "Steam Example"
 
 #import_plugin SteamPlugin As Steam
 
