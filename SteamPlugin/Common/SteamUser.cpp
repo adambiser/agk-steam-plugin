@@ -403,6 +403,20 @@ extern "C" DLL_EXPORT int GetPlayerSteamLevel()
 }
 
 /*
+@desc Advise steam china duration control system about the online state of the game.
+This will prevent offline gameplay time from counting against a user's playtime limits.
+@param newState	The new state
+@return 1 when the call succeeds; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUser#BSetDurationControlOnlineState
+@url https://partner.steamgames.com/doc/api/ISteamUser#EDurationControlOnlineState
+*/
+extern "C" DLL_EXPORT int SetDurationControlOnlineState(int newState)
+{
+	CheckInitialized(0);
+	return SteamUser()->BSetDurationControlOnlineState((EDurationControlOnlineState)newState);
+}
+
+/*
 @desc Gets a handle to the Steam ID of the account currently logged into the Steam client.
 @return A SteamID handle
 @url https://partner.steamgames.com/doc/api/ISteamUser#GetSteamID

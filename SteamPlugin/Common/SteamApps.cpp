@@ -170,6 +170,40 @@ extern "C" DLL_EXPORT int IsSubscribedFromFamilySharing()
 }
 
 /*
+@desc Returns the number of seconds allowed when the game is ran in a timed trial with limited playtime.
+@return The number of seconds allowed or 0 if the game is not running in a timed trial.
+@url https://partner.steamgames.com/doc/api/ISteamApps#BIsTimedTrial
+*/
+extern "C" DLL_EXPORT int GetTimedTrialSecondsAllowed()
+{
+	CheckInitialized(0);
+	uint32 punSecondsAllowed;
+	uint32 punSecondsPlayed;
+	if (SteamApps()->BIsTimedTrial(&punSecondsAllowed, &punSecondsPlayed))
+	{
+		return (int)punSecondsAllowed;
+	}
+	return 0;
+}
+
+/*
+@desc Returns the number of seconds played when the game is ran in a timed trial with limited playtime.
+@return The number of seconds played or 0 if the game is not running in a timed trial.
+@url https://partner.steamgames.com/doc/api/ISteamApps#BIsTimedTrial
+*/
+extern "C" DLL_EXPORT int GetTimedTrialSecondsPlayed()
+{
+	CheckInitialized(0);
+	uint32 punSecondsAllowed;
+	uint32 punSecondsPlayed;
+	if (SteamApps()->BIsTimedTrial(&punSecondsAllowed, &punSecondsPlayed))
+	{
+		return (int)punSecondsPlayed;
+	}
+	return 0;
+}
+
+/*
 @desc Checks if the user is subscribed to the current App ID through a free weekend.
 @return 1 if the active user is subscribed to the current App Id via a free weekend; otherwise 0 for any other kind of license.
 @url https://partner.steamgames.com/doc/api/ISteamApps#BIsSubscribedFromFreeWeekend

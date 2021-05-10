@@ -235,6 +235,21 @@ public:
 
 //JoinClanChatRoomCompletionResult_t - call result for JoinClanChatRoom
 
+class COverlayBrowserProtocolNavigationCallBack : public ListCallbackBase<COverlayBrowserProtocolNavigationCallBack, OverlayBrowserProtocolNavigation_t>
+{
+public:
+	void OnResponse(OverlayBrowserProtocolNavigation_t *pParam)
+	{
+		agk::Log("Callback: OverlayBrowserProtocolNavigation.");
+		StoreResponse(*pParam);
+	}
+	void Clear(OverlayBrowserProtocolNavigation_t& value)
+	{
+		value.rgchURI[0] = 0;
+	}
+};
+	
+
 class CPersonaStateChangeCallback : public ListCallbackBase<CPersonaStateChangeCallback, PersonaStateChange_t>
 {
 public:

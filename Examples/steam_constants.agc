@@ -538,7 +538,84 @@ EndType
 #constant EInputActionOrigin_Switch_Reserved19				256
 #constant EInputActionOrigin_Switch_Reserved20				257
 
-#constant EInputActionOrigin_Count							258	// The number of values in this enum, useful for iterating.
+// Added in SDK 1.51
+#constant EInputActionOrigin_PS5_X							258
+#constant EInputActionOrigin_PS5_Circle						259
+#constant EInputActionOrigin_PS5_Triangle					260
+#constant EInputActionOrigin_PS5_Square						261
+#constant EInputActionOrigin_PS5_LeftBumper					262
+#constant EInputActionOrigin_PS5_RightBumper				263
+#constant EInputActionOrigin_PS5_Option						264 // Start
+#constant EInputActionOrigin_PS5_Create						265 // Back
+#constant EInputActionOrigin_PS5_Mute						266
+#constant EInputActionOrigin_PS5_LeftPad_Touch				267
+#constant EInputActionOrigin_PS5_LeftPad_Swipe				268
+#constant EInputActionOrigin_PS5_LeftPad_Click				269
+#constant EInputActionOrigin_PS5_LeftPad_DPadNorth			270
+#constant EInputActionOrigin_PS5_LeftPad_DPadSouth			271
+#constant EInputActionOrigin_PS5_LeftPad_DPadWest			272
+#constant EInputActionOrigin_PS5_LeftPad_DPadEast			273
+#constant EInputActionOrigin_PS5_RightPad_Touch				274
+#constant EInputActionOrigin_PS5_RightPad_Swipe				275
+#constant EInputActionOrigin_PS5_RightPad_Click				276
+#constant EInputActionOrigin_PS5_RightPad_DPadNorth			277
+#constant EInputActionOrigin_PS5_RightPad_DPadSouth			278
+#constant EInputActionOrigin_PS5_RightPad_DPadWest			279
+#constant EInputActionOrigin_PS5_RightPad_DPadEast			280
+#constant EInputActionOrigin_PS5_CenterPad_Touch			281
+#constant EInputActionOrigin_PS5_CenterPad_Swipe			282
+#constant EInputActionOrigin_PS5_CenterPad_Click			283
+#constant EInputActionOrigin_PS5_CenterPad_DPadNorth		284
+#constant EInputActionOrigin_PS5_CenterPad_DPadSouth		285
+#constant EInputActionOrigin_PS5_CenterPad_DPadWest			286
+#constant EInputActionOrigin_PS5_CenterPad_DPadEast			287
+#constant EInputActionOrigin_PS5_LeftTrigger_Pull			288
+#constant EInputActionOrigin_PS5_LeftTrigger_Click			289
+#constant EInputActionOrigin_PS5_RightTrigger_Pull			290
+#constant EInputActionOrigin_PS5_RightTrigger_Click			291
+#constant EInputActionOrigin_PS5_LeftStick_Move				292
+#constant EInputActionOrigin_PS5_LeftStick_Click			293
+#constant EInputActionOrigin_PS5_LeftStick_DPadNorth		294
+#constant EInputActionOrigin_PS5_LeftStick_DPadSouth		295
+#constant EInputActionOrigin_PS5_LeftStick_DPadWest			296
+#constant EInputActionOrigin_PS5_LeftStick_DPadEast			297
+#constant EInputActionOrigin_PS5_RightStick_Move			298
+#constant EInputActionOrigin_PS5_RightStick_Click			299
+#constant EInputActionOrigin_PS5_RightStick_DPadNorth		300
+#constant EInputActionOrigin_PS5_RightStick_DPadSouth		301
+#constant EInputActionOrigin_PS5_RightStick_DPadWest		302
+#constant EInputActionOrigin_PS5_RightStick_DPadEast		303
+#constant EInputActionOrigin_PS5_DPad_North					304
+#constant EInputActionOrigin_PS5_DPad_South					305
+#constant EInputActionOrigin_PS5_DPad_West					306
+#constant EInputActionOrigin_PS5_DPad_East					307
+#constant EInputActionOrigin_PS5_Gyro_Move					308
+#constant EInputActionOrigin_PS5_Gyro_Pitch					309
+#constant EInputActionOrigin_PS5_Gyro_Yaw					310
+#constant EInputActionOrigin_PS5_Gyro_Roll					311
+#constant EInputActionOrigin_PS5_DPad_Move					312
+#constant EInputActionOrigin_PS5_Reserved1					313
+#constant EInputActionOrigin_PS5_Reserved2					314
+#constant EInputActionOrigin_PS5_Reserved3					315
+#constant EInputActionOrigin_PS5_Reserved4					316
+#constant EInputActionOrigin_PS5_Reserved5					317
+#constant EInputActionOrigin_PS5_Reserved6					318
+#constant EInputActionOrigin_PS5_Reserved7					319
+#constant EInputActionOrigin_PS5_Reserved8					320
+#constant EInputActionOrigin_PS5_Reserved9					321
+#constant EInputActionOrigin_PS5_Reserved10					322
+#constant EInputActionOrigin_PS5_Reserved11					323
+#constant EInputActionOrigin_PS5_Reserved12					324
+#constant EInputActionOrigin_PS5_Reserved13					325
+#constant EInputActionOrigin_PS5_Reserved14					326
+#constant EInputActionOrigin_PS5_Reserved15					327
+#constant EInputActionOrigin_PS5_Reserved16					328
+#constant EInputActionOrigin_PS5_Reserved17					329
+#constant EInputActionOrigin_PS5_Reserved18					330
+#constant EInputActionOrigin_PS5_Reserved19					331
+#constant EInputActionOrigin_PS5_Reserved20					332
+
+#constant EInputActionOrigin_Count							333	// The number of values in this enum, useful for iterating.
 
 // EInputSourceMode
 // The virtual input mode imposed by the configurator upon a input source. 
@@ -608,7 +685,8 @@ EndType
 #constant ESteamInputType_SwitchProController	10
 #constant ESteamInputType_MobileTouch			11	// Steam Link App On-screen Virtual Controller
 #constant ESteamInputType_PS3Controller			12	// Currently uses PS4 Origins
-#constant ESteamInputType_Count					13
+#constant ESteamInputType_PS5Controller			13	// Added in SDK 151
+#constant ESteamInputType_Count					14
 //#constant ESteamInputType_MaximumPossibleValue	255
 
 // ESteamControllerPad
@@ -801,7 +879,7 @@ EndType
 #constant ERemoteStoragePlatformOSX	0x2	// This file will download on macOS.	// (1 << 1)
 #constant ERemoteStoragePlatformPS3	0x4	// This file will download on the Playstation 3.	// (1 << 2)
 #constant ERemoteStoragePlatformLinux	0x8	// This file will download on SteamOS/Linux.	// (1 << 3)
-#constant ERemoteStoragePlatformReserved2	0x10	// Reserved.	// (1 << 4)
+#constant ERemoteStoragePlatformSwitch	0x10	// Reserved.	// (1 << 4)
 #constant ERemoteStoragePlatformAndroid	0x20	// (1 << 5),
 #constant ERemoteStoragePlatformIOS	0x40	// (1 << 6),
 #constant ERemoteStoragePlatformAll	0xffffffff	// This file will download on every platform.
@@ -811,6 +889,7 @@ EndType
 #constant ERemoteStoragePublishedFileVisibilityPublic	0	// Visible to everyone.
 #constant ERemoteStoragePublishedFileVisibilityFriendsOnly	1	// Visible to friends only.
 #constant ERemoteStoragePublishedFileVisibilityPrivate	2	// Only visible to the creator.
+#constant ERemoteStoragePublishedFileVisibilityUnlisted	3	
 
 // EUGCReadAction
 // Possible UGC Read Actions used with UGCRead.
@@ -925,7 +1004,7 @@ EndType
 #constant EUGCMatchingUGCType_UsableInGame	10	// Ready-to-use items and integrated guides.
 #constant EUGCMatchingUGCType_ControllerBindings	11	// Controller Bindings which have been shared.
 #constant EUGCMatchingUGCType_GameManagedItems	12	// Game managed items (Not managed by users.
-#constant EUGCMatchingUGCType_All	0xffffffff	// Return everything.	// ~0
+#constant EUGCMatchingUGCType_All	0xffffffff	// @note: will only be valid for CreateQueryUserUGCRequest requests	// ~0
 
 // EUGCQuery
 // Used with CreateQueryAllUGCRequest to specify the sorting and filtering for queries across all available UGC.
@@ -1230,23 +1309,24 @@ EndType
 
 // EMarketingMessageFlags
 // Internal Steam marketing message flags that change how a client should handle them.
-#constant EMarketingMessageFlagsNone	0x0
+#constant EMarketingMessageFlagsNone			0x0
 #constant EMarketingMessageFlagsHighPriority	0x1	// 	// 1 << 0
 #constant EMarketingMessageFlagsPlatformWindows	0x2	// 	// 1 << 1
-#constant EMarketingMessageFlagsPlatformMac	0x4	// 	// 1 << 2
+#constant EMarketingMessageFlagsPlatformMac		0x4	// 	// 1 << 2
 #constant EMarketingMessageFlagsPlatformLinux	0x8	// 	// 1 << 3
 //#constant EMarketingMessageFlagsPlatformRestrictions	=	// aggregate flags
 
 // ENotificationPosition
 // Possible positions to have the overlay show notifications in.
-#constant EPositionTopLeft	0	// Top left corner.
-#constant EPositionTopRight	1	// Top right corner.
+#constant EPositionTopLeft		0	// Top left corner.
+#constant EPositionTopRight		1	// Top right corner.
 #constant EPositionBottomLeft	2	// Bottom left corner.
 #constant EPositionBottomRight	3	// Bottom right corner.
 
 // EResult
 // Steam error result codes.
-#constant EResultOK	1	// Success.
+#constant EResultNone	0
+#constant EResultOK		1	// Success.
 #constant EResultFail	2	// Generic failure.
 #constant EResultNoConnection	3	// Your Steam client doesn't have a connection to the back-end.
 #constant EResultInvalidPassword	5	// Password/ticket is invalid.
@@ -1358,7 +1438,19 @@ EndType
 #constant EResultAccountNotFriends	111	// the user is not mutually friends
 #constant EResultLimitedUserAccount	112	// the user is limited
 #constant EResultCantRemoveItem	113	// item can't be removed
+#constant EResultAccountDeleted	114	// account has been deleted
+#constant EResultExistingUserCancelledLicense	115	// A license for this already exists, but cancelled
+#constant EResultCommunityCooldown	116	// access is denied because of a community cooldown (probably from support profile data resets)
+#constant EResultNoLauncherSpecified	117	// No launcher was specified, but a launcher was needed to choose correct realm for operation.
+#constant EResultMustAgreeToSSA	118	// User must agree to china SSA or global SSA before login
+#constant EResultLauncherMigrated	119	// The specified launcher type is no longer supported; the user should be directed elsewhere
 
+// ETextFilteringContext
+// Parameter to ISteamUtils::FilterText
+#constant ETextFilteringContextUnknown		0	// Unknown context.
+#constant ETextFilteringContextGameContent	1	// Game content, only legally required filtering is performed.
+#constant ETextFilteringContextChat			2	// Chat from another player.
+#constant ETextFilteringContextName			3	// Character or item name.
 
 // EUniverse
 // Steam universes.
@@ -1389,17 +1481,68 @@ EndType
 //#constant EVoiceResultReceiverDidNotAnswer	9	// Deprecated.
 
 // EVRHMDType
-// Code points for VR HMD vendors and models.
+// Code points for VR HMD vendors and models. Use the special functions BIsOculusHMD and BIsViveHMD to check for a specific brand.
 #constant EVRHMDType_None	-1	// Unknown vendor and model.
 #constant EVRHMDType_Unknown	0	// Unknown vendor and model.
 #constant EVRHMDType_HTC_Dev	1	// Original HTC dev kits.
 #constant EVRHMDType_HTC_VivePre	2	// HTC Vive Pre dev kits.
 #constant EVRHMDType_HTC_Vive	3	// HTC Vive Consumer Release.
+#constant EVRHMDType_HTC_VivePro	4	// htc vive pro release
+#constant EVRHMDType_HTC_ViveCosmos	5	// HTC Vive Cosmos
 #constant EVRHMDType_HTC_Unknown	20	// Unknown HTC HMD.
 #constant EVRHMDType_Oculus_DK1	21	// Oculus Rift Development Kit 1.
 #constant EVRHMDType_Oculus_DK2	22	// Oculus Rift Development Kit 2
 #constant EVRHMDType_Oculus_Rift	23	// Oculus Rift Consumer Version 1.
+#constant EVRHMDType_Oculus_RiftS	24	// Oculus Rift S
+#constant EVRHMDType_Oculus_Quest	25	// Oculus Quest
 #constant EVRHMDType_Oculus_Unknown	40	// Unknown Oculus HMD.
+#constant EVRHMDType_Acer_Unknown	50	// Acer unknown HMD
+#constant EVRHMDType_Acer_WindowsMR	51	// Acer QHMD Windows MR headset
+#constant EVRHMDType_Dell_Unknown	60	// Dell unknown HMD
+#constant EVRHMDType_Dell_Visor	61	// Dell Visor Windows MR headset
+#constant EVRHMDType_Lenovo_Unknown	70	// Lenovo unknown HMD
+#constant EVRHMDType_Lenovo_Explorer	71	// Lenovo Explorer Windows MR headset
+#constant EVRHMDType_HP_Unknown	80	// HP unknown HMD
+#constant EVRHMDType_HP_WindowsMR	81	// HP Windows MR headset
+#constant EVRHMDType_HP_Reverb	82	// HP Reverb Windows MR headset
+#constant EVRHMDType_HP_ReverbG2	1463	// HP Reverb G2 Windows MR headset
+#constant EVRHMDType_Samsung_Unknown	90	// Samsung unknown HMD
+#constant EVRHMDType_Samsung_Odyssey	91	// Samsung Odyssey Windows MR headset
+#constant EVRHMDType_Unannounced_Unknown	100	// Unannounced unknown HMD
+#constant EVRHMDType_Unannounced_WindowsMR	101	// Unannounced Windows MR headset
+#constant EVRHMDType_vridge	110	// VRIDGE tool
+#constant EVRHMDType_Huawei_Unknown	120	// Huawei unknown HMD
+#constant EVRHMDType_Huawei_VR2	121	// Huawei VR2 3DOF headset
+#constant EVRHMDType_Huawei_EndOfRange	129	// end of Huawei HMD range
+#constant EVRHmdType_Valve_Unknown	130	// Valve Unknown HMD
+#constant EVRHmdType_Valve_Index	131	// Valve Index HMD
+
+// EDurationControlProgress
+// Describes XP / progress restrictions to apply for games with duration control / anti-indulgence enabled for minor Steam China users.
+#constant EDurationControlProgress_Full		0	// Full progress
+//#constant EDurationControlProgress_Half		1	// deprecated - XP or persistent rewards should be halved
+//#constant EDurationControlProgress_None		2	// deprecated - XP or persistent rewards should be stopped
+#constant EDurationControl_ExitSoon_3h		3	// allowed 3h time since 5h gap/break has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControl_ExitSoon_5h		4	// allowed 5h time in calendar day has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControl_ExitSoon_Night	5	// game running after day period, game should exit - steam will terminate the game soon
+
+// EDurationControlNotification
+// Describes which notification timer has expired, for steam China duration control feature
+#constant EDurationControlNotification_None				0	// just informing you about progress, no notification to show
+#constant EDurationControlNotification_1Hour			1	// "you've been playing for N hours"
+//#constant EDurationControlNotification_3Hours			2	// deprecated - "you've been playing for 3 hours; take a break"
+//#constant EDurationControlNotification_HalfProgress		3	// deprecated - "your XP / progress is half normal"
+//#constant EDurationControlNotification_NoProgress		4	// deprecated - "your XP / progress is zero"
+#constant EDurationControlNotification_ExitSoon_3h		5	// allowed 3h time since 5h gap/break has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControlNotification_ExitSoon_5h		6	// allowed 5h time in calendar day has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControlNotification_ExitSoon_Night	7	// game running after day period, game should exit - steam will terminate the game soon
+
+// EDurationControlOnlineState
+// Specifies a game's online state in relation to duration control
+#constant EDurationControlOnlineState_Invalid		0	// nil value
+#constant EDurationControlOnlineState_Offline		1	// currently in offline play - single-player, offline co-op, etc.
+#constant EDurationControlOnlineState_Online		2	// currently in online play
+#constant EDurationControlOnlineState_OnlineHighPri	3	// currently in online play and requests not to be interrupted
 
 ////////////////////////////////////////////////////////////////////////////////
 // steam_gameserver.h

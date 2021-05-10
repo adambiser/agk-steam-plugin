@@ -567,6 +567,45 @@ extern "C" DLL_EXPORT char *GetAchievementAPIName(int index)
 }
 
 /*
+@desc  For achievements that have related Progress stats, use this to query what the bounds of that progress are.
+You may want this info to selectively call IndicateAchievementProgress when appropriate milestones of progress have been made, to show a progress notification to the user.
+@param name The 'API Name' of the achievement.
+@return The minimum progress when the call succeeds; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementProgressLimits
+*/
+extern "C" DLL_EXPORT int32 GetAchievementProgressLimitsInt32Min(const char* name)
+{
+	CheckInitialized(0);
+	int32 pnMinProgress;
+	int32 pnMaxProgress;
+	if (SteamUserStats()->GetAchievementProgressLimits(name, &pnMinProgress, &pnMaxProgress))
+	{
+		return pnMinProgress;
+	}
+	return 0;
+}
+
+/*
+@desc  For achievements that have related Progress stats, use this to query what the bounds of that progress are.
+You may want this info to selectively call IndicateAchievementProgress when appropriate milestones of progress have been made, to show a progress notification to the user.
+@param name The 'API Name' of the achievement.
+@return The maximum progress when the call succeeds; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementProgressLimits
+*/
+extern "C" DLL_EXPORT int32 GetAchievementProgressLimitsInt32Max(const char* name)
+{
+	CheckInitialized(0);
+	int32 pnMinProgress;
+	int32 pnMaxProgress;
+	if (SteamUserStats()->GetAchievementProgressLimits(name, &pnMinProgress, &pnMaxProgress))
+	{
+		return pnMaxProgress;
+		;
+	}
+	return 0;
+}
+
+/*
 @desc Gets the lifetime totals for an aggregated integer stat.
 
 You must have called RequestGlobalStats and it needs to return successfully via its callback prior to calling this.
@@ -887,7 +926,7 @@ If the stat is not defined as an integer, an error will be raised.
 @return The value of the stat.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#GetStat
 */
-extern "C" DLL_EXPORT int GetStatInt(const char *name)
+extern "C" DLL_EXPORT int GetStatInt32(const char *name)
 {
 	CheckInitialized(0);
 	int result = 0;
@@ -969,7 +1008,7 @@ If the stat is not defined as an integer, an error will be raised.
 @return The value of the stat.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#GetUserStat
 */
-extern "C" DLL_EXPORT int GetUserStatInt(int hSteamID, const char *name)
+extern "C" DLL_EXPORT int GetUserStatInt32(int hSteamID, const char *name)
 {
 	CheckInitialized(0);
 	int result = 0;
@@ -1169,7 +1208,7 @@ extern "C" DLL_EXPORT int SetAchievement(const char *name)
 @return 1 if setting the value succeeds; otherwise 0.
 @url https://partner.steamgames.com/doc/api/ISteamUserStats#SetStat
 */
-extern "C" DLL_EXPORT int SetStatInt(const char *name, int value)
+extern "C" DLL_EXPORT int SetStatInt32(const char *name, int value)
 {
 	CheckInitialized(false);
 	return SteamUserStats()->SetStat(name, value);

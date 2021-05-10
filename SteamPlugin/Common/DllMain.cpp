@@ -225,7 +225,7 @@ extern "C" DLL_EXPORT int IsSteamEmulated()
 	HMODULE hModules[1024];
 	DWORD cbNeeded;
 
-	if (EnumProcessModules(hProcess, hModules, sizeof(hModules), &cbNeeded))
+	if (EnumProcessModulesEx(hProcess, hModules, sizeof(hModules), &cbNeeded, LIST_MODULES_DEFAULT))
 	{
 		for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
 		{

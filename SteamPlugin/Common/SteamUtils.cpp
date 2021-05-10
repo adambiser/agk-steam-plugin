@@ -62,7 +62,7 @@ extern "C" DLL_EXPORT int GetAppID()
 }
 
 //GetConnectedUniverse - Valve use only.
-//GetCSERIPPort - Only used in Source engine games.
+//GetCSERIPPort - Only used in Source engine games.  Deprecated.
 
 /*
 @desc Gets the current amount of battery power on the computer.
@@ -234,22 +234,26 @@ extern "C" DLL_EXPORT int InitFilterText()
 
 /*
 @desc Filters the provided input message and places the filtered result into pchOutFilteredText.
+@param context	The type of content in the input string.
+@param hSteamIDSource	The Steam ID handle that is the source of the input string (e.g. the player with the name, or who said the chat text).
 @param inputMessage The input string that should be filtered.
-@param legalOnly 0 if you want profanity and legally required filtering (where required) and 1 if you want legally required filtering only.
 @return The filtered text.
 @url https://partner.steamgames.com/doc/api/ISteamUtils#FilterText
+@url https://partner.steamgames.com/doc/api/ISteamUtils#ETextFilteringContext
 */
-extern "C" DLL_EXPORT char *FilterText(const char *inputMessage, int legalOnly)
+extern "C" DLL_EXPORT char *FilterText(int context, int hSteamIDSource, const char *inputMessage)
 {
 	CheckInitialized(NULL_STRING);
 	//size_t bufferLength = strnlen_s(inputMessage, 4096) + 1;
 	size_t bufferLength = strnlen(inputMessage, 4096) + 1;
 	char *pchOutFilteredText = new char[bufferLength];
-	SteamUtils()->FilterText(pchOutFilteredText, (int) bufferLength, inputMessage, legalOnly != 0);
+	SteamUtils()->FilterText((ETextFilteringContext)context,  SteamHandles()->GetSteamHandle(hSteamIDSource), inputMessage, pchOutFilteredText, (int) bufferLength);
 	char *result = utils::CreateString(pchOutFilteredText);
 	delete[] pchOutFilteredText;
 	return result;
 }
+
+//GetIPv6ConnectivityState - Not needed.
 
 //IsAPICallCompleted - Not needed.
 
@@ -301,7 +305,7 @@ extern "C" DLL_EXPORT int IsSteamRunningInVR()
 }
 
 /*
-@desc Checks if the HMD view will be streamed via Steam In-Home Streaming.
+@desc Checks if the HMD view will be streamed via Steam Remote Play.
 
 See API reference for further information.
 @return 1 if streaming is enabled; otherwise 0.
@@ -340,7 +344,7 @@ extern "C" DLL_EXPORT void SetOverlayNotificationPosition(int eNotificationPosit
 }
 
 /*
-@desc Set whether the HMD content will be streamed via Steam In-Home Streaming.
+@desc Set whether the HMD content will be streamed via Steam Remote Play.
 
 See API reference for further information.
 @param enabled Turns VR HMD Streaming on (1) or off (0).

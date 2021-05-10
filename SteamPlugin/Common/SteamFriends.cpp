@@ -33,6 +33,7 @@ CGameLobbyJoinRequestedCallback GameLobbyJoinRequestedCallback;
 CGameOverlayActivatedCallback GameOverlayActivatedCallback;
 CGameRichPresenceJoinRequestedCallback GameRichPresenceJoinRequestedCallback;
 CGameServerChangeRequestedCallback GameServerChangeRequestedCallback;
+COverlayBrowserProtocolNavigationCallBack OverlayBrowserProtocolNavigationCallback;
 CPersonaStateChangeCallback PersonaStateChangeCallback;
 
 /* @page ISteamFriends */
@@ -58,6 +59,17 @@ extern "C" DLL_EXPORT void ActivateGameOverlayInviteDialog(int hLobbySteamID)
 {
 	CheckInitialized(NORETURN);
 	SteamFriends()->ActivateGameOverlayInviteDialog(SteamHandles()->GetSteamHandle(hLobbySteamID));
+}
+
+/*
+@desc Activates game overlay to open the remote play together invite dialog. Invitations will be sent for remote play together.
+@param @param hLobbySteamID The Steam ID handle of the lobby that selected users will be invited to.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#ActivateGameOverlayRemotePlayTogetherInviteDialog
+*/
+extern "C" DLL_EXPORT void ActivateGameOverlayRemotePlayTogetherInviteDialog(int hLobbySteamID)
+{
+	CheckInitialized(NORETURN);
+	SteamFriends()->ActivateGameOverlayRemotePlayTogetherInviteDialog(SteamHandles()->GetSteamHandle(hLobbySteamID));
 }
 
 /*
@@ -927,6 +939,7 @@ extern "C" DLL_EXPORT int GetFriendRelationship(int hSteamIDUser)
 @param key The Rich Presence key to request.
 @return The value.  An empty string if the specified key is not set.
 @url https://partner.steamgames.com/doc/api/ISteamFriends#GetFriendRichPresence
+@url https://partner.steamgames.com/doc/api/ISteamFriends#SetRichPresence
 */
 extern "C" DLL_EXPORT char *GetFriendRichPresence(int hSteamIDFriend, const char *key)
 {
@@ -937,7 +950,7 @@ extern "C" DLL_EXPORT char *GetFriendRichPresence(int hSteamIDFriend, const char
 /*
 @desc Gets the Rich Presence key at the given index from a specified friend.
 
-_NOTE: GetFriendRichPresenceKeyCount must ba called before this can be used._
+_NOTE: GetFriendRichPresenceKeyCount must be called before this can be used._
 
 _This is typically only ever used for debugging purposes._
 @param hSteamIDFriend This should be the same user provided to the previous call to GetFriendRichPresenceKeyCount!
@@ -1452,6 +1465,20 @@ extern "C" DLL_EXPORT int OpenClanChatWindowInSteam(int hSteamIDClanChat)
 {
 	CheckInitialized(0);
 	return SteamFriends()->OpenClanChatWindowInSteam(SteamHandles()->GetSteamHandle(hSteamIDClanChat));
+}
+
+/*
+@desc Call this before calling ActivateGameOverlayToWebPage() to have the Steam Overlay Browser block navigations 
+to your specified protocol (scheme) uris and instead dispatch a OverlayBrowserProtocolNavigation_t callback to your game.
+@param protocol The protocol to register
+@return 1 if the protocol is successfully registered; otherwise, 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RegisterProtocolInOverlayBrowser
+@url https://partner.steamgames.com/doc/api/ISteamFriends#OverlayBrowserProtocolNavigation_t
+*/
+extern "C" DLL_EXPORT int RegisterProtocolInOverlayBrowser(const char *protocol)
+{
+	CheckInitialized(0);
+	return SteamFriends()->RegisterProtocolInOverlayBrowser(protocol);
 }
 
 /*
@@ -2019,6 +2046,29 @@ extern "C" DLL_EXPORT char *GetGameServerChangeRequestedServer()
 //{
 //	return SteamHandles()->GetPluginHandle(JoinClanChatRoomCompletionResultCallback.GetCurrent().m_steamIDClanChat);
 //}
+
+/*
+@desc Triggered whenever an overlay browser instance is navigated to a protocol/scheme registered by RegisterProtocolInOverlayBrowser()
+@callback-type list
+@callback-getters	GetOverlayBrowserProtocolNavigationURI
+@return 1 when the callback has more responses to process; otherwise 0.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#OverlayBrowserProtocolNavigation_t
+@url https://partner.steamgames.com/doc/api/ISteamFriends#RegisterProtocolInOverlayBrowser
+*/
+extern "C" DLL_EXPORT int HasOverlayBrowserProtocolNavigationResponse()
+{
+	return OverlayBrowserProtocolNavigationCallback.HasResponse();
+}
+
+/*
+@desc Returns the URI requested.
+@return The requested URI.
+@url https://partner.steamgames.com/doc/api/ISteamFriends#OverlayBrowserProtocolNavigation_t
+*/
+extern "C" DLL_EXPORT char *GetOverlayBrowserProtocolNavigationURI()
+{
+	return utils::CreateString(OverlayBrowserProtocolNavigationCallback.GetCurrent().rgchURI);
+}
 
 /*
 @desc Triggered whenever a friend's status changes.
