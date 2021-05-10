@@ -20,7 +20,7 @@ if "%2" == "Windows" (
 	SET CONFIGURATION=release
 	IF DEFINED DEBUG_MODE SET CONFIGURATION=debug
 	ECHO Building 64-bit plugin: !CONFIGURATION!
-	C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe "%PLUGIN_NAME%\Windows\%PLUGIN_NAME%.vcxproj" /p:configuration=!CONFIGURATION! /p:platform=x64
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe" "%PLUGIN_NAME%\Windows\%PLUGIN_NAME%.vcxproj" /p:configuration=!CONFIGURATION! /p:platform=x64
 )
 
 REM Determine the path to the compiler.
