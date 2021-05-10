@@ -879,7 +879,7 @@ EndType
 #constant ERemoteStoragePlatformOSX	0x2	// This file will download on macOS.	// (1 << 1)
 #constant ERemoteStoragePlatformPS3	0x4	// This file will download on the Playstation 3.	// (1 << 2)
 #constant ERemoteStoragePlatformLinux	0x8	// This file will download on SteamOS/Linux.	// (1 << 3)
-#constant ERemoteStoragePlatformSwitch	0x10	// Reserved.	// (1 << 4)
+#constant ERemoteStoragePlatformSwitch	0x10	// Switch.	// (1 << 4)
 #constant ERemoteStoragePlatformAndroid	0x20	// (1 << 5),
 #constant ERemoteStoragePlatformIOS	0x40	// (1 << 6),
 #constant ERemoteStoragePlatformAll	0xffffffff	// This file will download on every platform.
@@ -1066,17 +1066,32 @@ EndType
 
 // EDurationControlProgress
 // Describes XP / progress restrictions to apply for games with duration control / anti-indulgence enabled for minor Steam China users.
-#constant EDurationControlProgress_Full	0	// Full progress
-#constant EDurationControlProgress_Half	1	// XP or persistent rewards should be halved
-#constant EDurationControlProgress_None	2	// XP or persistent rewards should be stopped
+#constant EDurationControlProgress_Full		0	// Full progress
+//#constant EDurationControlProgress_Half		1	// deprecated - XP or persistent rewards should be halved
+//#constant EDurationControlProgress_None		2	// deprecated - XP or persistent rewards should be stopped
+#constant EDurationControl_ExitSoon_3h		3	// allowed 3h time since 5h gap/break has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControl_ExitSoon_5h		4	// allowed 5h time in calendar day has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControl_ExitSoon_Night	5	// game running after day period, game should exit - steam will terminate the game soon
 
 // EDurationControlNotification
 // Describes which notification timer has expired, for steam china duration control feature.
-#constant EDurationControlNotification_None	0	// Callback is just informing you about progress, no notification to show
-#constant EDurationControlNotification_1Hour	1	// "you've been playing for an hour"
-#constant EDurationControlNotification_3Hours	2	// "you've been playing for 3 hours; take a break"
-#constant EDurationControlNotification_HalfProgress	3	// "your XP / progress is half normal"
-#constant EDurationControlNotification_NoProgress	4	// "your XP / progress is zero"
+#constant EDurationControlNotification_None				0	// just informing you about progress, no notification to show
+#constant EDurationControlNotification_1Hour			1	// "you've been playing for N hours"
+//#constant EDurationControlNotification_3Hours			2	// deprecated - "you've been playing for 3 hours; take a break"
+//#constant EDurationControlNotification_HalfProgress		3	// deprecated - "your XP / progress is half normal"
+//#constant EDurationControlNotification_NoProgress		4	// deprecated - "your XP / progress is zero"
+#constant EDurationControlNotification_ExitSoon_3h		5	// allowed 3h time since 5h gap/break has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControlNotification_ExitSoon_5h		6	// allowed 5h time in calendar day has elapsed, game should exit - steam will terminate the game soon
+#constant EDurationControlNotification_ExitSoon_Night	7	// game running after day period, game should exit - steam will terminate the game soon
+
+// EDurationControlOnlineState
+// Specifies a game's online state in relation to duration control
+#constant EDurationControlOnlineState_Invalid		0	// nil value
+#constant EDurationControlOnlineState_Offline		1	// currently in offline play - single-player, offline co-op, etc.
+#constant EDurationControlOnlineState_Online		2	// currently in online play
+#constant EDurationControlOnlineState_OnlineHighPri	3	// currently in online play and requests not to be interrupted
+
+
 
 // EMarketNotAllowedReasonFlags
 // Reasons a user may not use the Community Market.
@@ -1516,33 +1531,6 @@ EndType
 #constant EVRHMDType_Huawei_EndOfRange	129	// end of Huawei HMD range
 #constant EVRHmdType_Valve_Unknown	130	// Valve Unknown HMD
 #constant EVRHmdType_Valve_Index	131	// Valve Index HMD
-
-// EDurationControlProgress
-// Describes XP / progress restrictions to apply for games with duration control / anti-indulgence enabled for minor Steam China users.
-#constant EDurationControlProgress_Full		0	// Full progress
-//#constant EDurationControlProgress_Half		1	// deprecated - XP or persistent rewards should be halved
-//#constant EDurationControlProgress_None		2	// deprecated - XP or persistent rewards should be stopped
-#constant EDurationControl_ExitSoon_3h		3	// allowed 3h time since 5h gap/break has elapsed, game should exit - steam will terminate the game soon
-#constant EDurationControl_ExitSoon_5h		4	// allowed 5h time in calendar day has elapsed, game should exit - steam will terminate the game soon
-#constant EDurationControl_ExitSoon_Night	5	// game running after day period, game should exit - steam will terminate the game soon
-
-// EDurationControlNotification
-// Describes which notification timer has expired, for steam China duration control feature
-#constant EDurationControlNotification_None				0	// just informing you about progress, no notification to show
-#constant EDurationControlNotification_1Hour			1	// "you've been playing for N hours"
-//#constant EDurationControlNotification_3Hours			2	// deprecated - "you've been playing for 3 hours; take a break"
-//#constant EDurationControlNotification_HalfProgress		3	// deprecated - "your XP / progress is half normal"
-//#constant EDurationControlNotification_NoProgress		4	// deprecated - "your XP / progress is zero"
-#constant EDurationControlNotification_ExitSoon_3h		5	// allowed 3h time since 5h gap/break has elapsed, game should exit - steam will terminate the game soon
-#constant EDurationControlNotification_ExitSoon_5h		6	// allowed 5h time in calendar day has elapsed, game should exit - steam will terminate the game soon
-#constant EDurationControlNotification_ExitSoon_Night	7	// game running after day period, game should exit - steam will terminate the game soon
-
-// EDurationControlOnlineState
-// Specifies a game's online state in relation to duration control
-#constant EDurationControlOnlineState_Invalid		0	// nil value
-#constant EDurationControlOnlineState_Offline		1	// currently in offline play - single-player, offline co-op, etc.
-#constant EDurationControlOnlineState_Online		2	// currently in online play
-#constant EDurationControlOnlineState_OnlineHighPri	3	// currently in online play and requests not to be interrupted
 
 ////////////////////////////////////////////////////////////////////////////////
 // steam_gameserver.h
