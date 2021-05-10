@@ -254,8 +254,8 @@ Function GetSyncPlatformList(flags as integer)
 	if flags and ERemoteStoragePlatformLinux
 		platforms.insert("SteamOS/Linux")
 	endif
-	if flags and ERemoteStoragePlatformReserved2
-		platforms.insert("Reserved2")
+	if flags and ERemoteStoragePlatformSwitch
+		platforms.insert("Switch")
 	endif
 EndFunction platforms.toJSON()
 
