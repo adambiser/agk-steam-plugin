@@ -439,7 +439,7 @@ extern "C" DLL_EXPORT int GetGamepadIndexForController(int hInput)
 extern "C" DLL_EXPORT char *GetGlyphForActionOrigin(int eOrigin)
 {
 	CheckInitialized(NULL_STRING);
-	return utils::CreateString(SteamInput()->GetGlyphForActionOrigin((EInputActionOrigin)eOrigin));
+	return utils::CreateString(SteamInput()->GetGlyphForActionOrigin_Legacy((EInputActionOrigin)eOrigin));
 }
 
 /*
@@ -588,7 +588,8 @@ extern "C" DLL_EXPORT char *GetStringForActionOrigin(int eOrigin)
 extern "C" DLL_EXPORT int InitSteamInput()
 {
 	CheckInitialized(false);
-	if (SteamInput()->Init())
+	// TODO Add parameter for bExplicitlyCallRunFrame?
+	if (SteamInput()->Init(false))
 	{
 		// Give the API some time to refresh the inputs.
 		SteamInput()->RunFrame();
@@ -696,7 +697,7 @@ extern "C" DLL_EXPORT void TriggerInputHapticPulse(int hInput, int eTargetPad, i
 {
 	ValidateInputHandle(hInput, );
 	Clamp(duration, 0, USHRT_MAX);
-	SteamInput()->TriggerHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
+	SteamInput()->Legacy_TriggerHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)duration);
 }
 
 /*
@@ -720,7 +721,7 @@ extern "C" DLL_EXPORT void TriggerInputRepeatedHapticPulse(int hInput, int eTarg
 	Clamp(onDuration, 0, USHRT_MAX);
 	Clamp(offDuration, 0, USHRT_MAX);
 	Clamp(repeat, 0, USHRT_MAX);
-	SteamInput()->TriggerRepeatedHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
+	SteamInput()->Legacy_TriggerRepeatedHapticPulse(g_InputHandles[hInput], (ESteamControllerPad)eTargetPad, (unsigned short)onDuration, (unsigned short)offDuration, (unsigned short)repeat, 0);
 }
 
 /*
