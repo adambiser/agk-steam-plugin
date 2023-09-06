@@ -11,9 +11,9 @@ See the [Wiki](https://github.com/adambiser/agk-steam-plugin/wiki) for this info
 ## Compiling the Plugin
 
 You will need:
-* [Visual Studio 2015 Community Edition](https://www.visualstudio.com/vs/older-downloads/) for Windows
+* [Visual Studio 2019 Community Edition](https://www.visualstudio.com/vs/) for Windows
 * sudo apt-get install build-essential for Linux
-* [Steamworks SDK](https://partner.steamgames.com) v1.46
+* [Steamworks SDK](https://partner.steamgames.com) v1.51
 
 After getting the code for this project, download the Steamworks SDK and place its "public" and "redistributable_bin" folders into the "SteamPlugin/SteamworksSDK" folder of this project.
 
