@@ -22,6 +22,7 @@ url_scheme=
 deep_link=
 admob_app_id=
 snapchat_client_id=
+app_icon_new_path=
 
 [ipa_settings]
 app_icon_path=

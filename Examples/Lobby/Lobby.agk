@@ -1,6 +1,7 @@
 
 [apk_settings]
 alias=
+app_new_icon_path=
 app_icon_path=
 notif_icon_path=
 app_name=
@@ -41,10 +42,6 @@ splash_logo=
 firebase_config_path=
 splash_color=
 prov_profile_path=
-splash_1136_path=
-splash_2436_path=
-splash_2048_path=
-splash_960_path=
 
 [html5_settings]
 commands_used=0
@@ -57,8 +54,10 @@ FILE_1=main.agc;-1
 FILE_2=steam.agc;-1
 
 [files]
+FILE_NAME_0=1;steam.agc;19;0
 
 [project]
 description=
 
 [watchvariables]
+
