@@ -84,7 +84,7 @@ namespace utils
 
 	static inline void Log(std::string msg)
 	{
-		agk::Log(msg.c_str());
+		utils::Log(msg.c_str());
 	}
 
 	static inline void PluginError(std::string msg)

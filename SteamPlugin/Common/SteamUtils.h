@@ -34,7 +34,7 @@ namespace wrapper
 {
 	struct GamepadTextInputDismissed_t : ::GamepadTextInputDismissed_t
 	{
-		char m_chSubmittedText[MAX_GAMEPAD_TEXT_INPUT_LENGTH];
+		char m_chSubmittedText[MAX_GAMEPAD_TEXT_INPUT_LENGTH + 1];
 		GamepadTextInputDismissed_t() : m_chSubmittedText{} {}
 		GamepadTextInputDismissed_t(::GamepadTextInputDismissed_t from) : ::GamepadTextInputDismissed_t(from), m_chSubmittedText{} {}
 	};
@@ -46,7 +46,24 @@ public:
 	void OnResponse(GamepadTextInputDismissed_t *pParam)
 	{
 		agk::Log("Callback: OnGamepadTextInputDismissed");
-		StoreResponse(*pParam);
+		// Convert to the wrapper version here so that m_chSubmittedText doesn't clear later.
+		wrapper::GamepadTextInputDismissed_t response(*pParam);
+		if (response.m_bSubmitted)
+		{
+			uint32 length = SteamUtils()->GetEnteredGamepadTextLength();
+			//utils::Log("GetEnteredGamepadTextLength: " + std::to_string(length));
+			bool success = SteamUtils()->GetEnteredGamepadTextInput(response.m_chSubmittedText, length);
+			if (!success)
+			{
+				agk::Log("GamepadTextInputDismissedCallback - GetEnteredGamepadTextInput failed.");
+				strcpy(response.m_chSubmittedText, "ERROR");
+			}
+		}
+		else
+		{
+			Clear(response);
+		}
+		StoreResponse(response); // Store the wrapper version!
 	}
 	void Clear(wrapper::GamepadTextInputDismissed_t &value)
 	{

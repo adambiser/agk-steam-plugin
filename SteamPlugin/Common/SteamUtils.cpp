@@ -441,16 +441,18 @@ extern "C" DLL_EXPORT int HasGamepadTextInputDismissedResponse()
 */
 extern "C" DLL_EXPORT int GetGamepadTextInputDismissedSubmitted()
 {
+	CheckInitialized(0);
 	return GamepadTextInputDismissedCallback.GetCurrent().m_bSubmitted;
 }
 
 /*
 @desc Gets the text for the current GamepadTextInputDismissed_t call.
 @return A string.
-@url https://partner.steamgames.com/doc/api/ISteamUtils#GamepadTextInputDismissed_t
+@url https://partner.steamgames.com/doc/api/ISteamUtils#GetEnteredGamepadTextInput
 */
-extern "C" DLL_EXPORT char *GetGamepadTextInputDismissedSubmittedText()
+extern "C" DLL_EXPORT char *GetEnteredGamepadTextInput()
 {
+	CheckInitialized(NULL_STRING);
 	return utils::CreateString(GamepadTextInputDismissedCallback.GetCurrent().m_chSubmittedText);
 }
 
