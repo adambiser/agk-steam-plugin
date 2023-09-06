@@ -85,6 +85,13 @@ for /D %%G in ("Examples\*") do (
 	REM copy %PLUGIN_FILE% "%%G\Plugins\%PLUGIN_NAME%\Windows.dll" > nul
 	REM if !errorlevel! neq 0 echo ERROR: "%%G" plugin copy failed!
 	echo    %%G
+	REM echo       Copying steam_api DLLs.
+	attrib "%%G\steam_api.dll" -r
+	copy "SteamPlugin\SteamworksSDK\redistributable_bin\steam_api.dll" "%%G\steam_api.dll" > nul
+	attrib "%%G\steam_api.dll" +r
+	attrib "%%G\steam_api64.dll" -r
+	copy "SteamPlugin\SteamworksSDK\redistributable_bin\win64\steam_api64.dll" "%%G\steam_api64.dll" > nul
+	attrib "%%G\steam_api64.dll" +r
 	pushd "%%G"
 	"%AGK_COMPILER_PATH%" -agk "main.agc"
 	if !errorlevel! neq 0 echo ERROR: "%%G" compilation failed!
