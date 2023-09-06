@@ -17,22 +17,33 @@ global buttonInputLengths as integer[2] = [10, 100, 10]
 global textinput as string[2] = ["", "", ""]
 global lastButtonPressed as integer
 
-if Steam.IsSteamInBigPictureMode()
-	SetButtonEnabled(SINGLE_LINE_BUTTON, 1)
-	SetButtonEnabled(MULTUPLE_LINE_BUTTON, 1)
-	SetButtonEnabled(PASSWORD_BUTTON, 1)
-else
-	// To see how this works, the example must be started from the Steam client.
-	// To test, add this examples's EXE as a Non-Steam Game in the Steam client.
-	// Connect a controller, start Big Picture Mode, and give it a try.
-	Message("Steam needs to be in Big Picture Mode to test this.")
-	end
-endif
+AddStatus("Waiting on Steam overlay to become enabled.")
+overlayEnabled as integer = 0
+
+// According to The Steamworks SDK, in order for Big Picture Mode to work,
+// the game must be started from the Steam client.  For testing, they say
+// to add the EXE as a non-Steam Game in the Steam client.
+// However, this doesn't seem to be the case as of September 2023.
+// IsSteamInBigPictureMode reports BPM properly, but the  gamepad text 
+// input doesn't work in BPM.
+// Instead, just start BPM in the Steam client and run the example from the 
+// IDE or directly from its EXE.
+
+AddStatus("Big Picture Mode = " + TF(Steam.IsSteamInBigPictureMode()))
 
 //
 // The main loop
 //
 do
+	if not overlayEnabled
+		if Steam.IsOverlayEnabled()
+			AddStatus("Steam overlay is now enabled.")
+			overlayEnabled = 1
+			SetButtonEnabled(SINGLE_LINE_BUTTON, 1)
+			SetButtonEnabled(MULTUPLE_LINE_BUTTON, 1)
+			SetButtonEnabled(PASSWORD_BUTTON, 1)
+		endif
+	endif
 	Sync()
 	CheckInput()
 	// Very important!  This MUST be called each frame to allow the Steam API callbacks to process.
@@ -54,6 +65,7 @@ Function CheckInput()
 	for x = SINGLE_LINE_BUTTON to PASSWORD_BUTTON
 		if GetVirtualButtonPressed(x)
 			if Steam.ShowGamepadTextInput(buttonModes[x - 1], buttonLineModes[x - 1], buttonInputDesc[x - 1], buttonInputLengths[x - 1], textinput[x - 1])
+				AddStatus("ShowGamepadTextInput succeeded.")
 				lastButtonPressed = x
 			else
 				AddStatus("ShowGamepadTextInput failed.")
@@ -67,9 +79,10 @@ EndFunction
 //
 Function ProcessCallbacks()
 	if Steam.HasGamepadTextInputDismissedResponse()
+		AddStatus("Has response")
 		if Steam.GetGamepadTextInputDismissedSubmitted()
-			textinput[lastButtonPressed - 1] = Steam.GetGamepadTextInputDismissedSubmittedText()
-			AddStatus("User entered: " + Steam.GetGamepadTextInputDismissedSubmittedText())
+			textinput[lastButtonPressed - 1] = Steam.GetEnteredGamepadTextInput()
+			AddStatus("User entered: " + Steam.GetEnteredGamepadTextInput())
 		else
 			AddStatus("User cancelled text input.")
 		endif
