@@ -29,7 +29,8 @@ DEPS = $(SRCROOT)/Common/stdafx.h \
 	$(SRCROOT)/Common/SteamUser.h \
 	$(SRCROOT)/Common/SteamUserStats.h \
 	$(SRCROOT)/Common/SteamUtils.h \
-	$(SRCROOT)/Common/utils.h
+	$(SRCROOT)/Common/utils.h \
+	$(SRCROOT)/Common/version.h
 
 # list of object files to compile, they will be placed in the $(ODIR) folder
 # matching .cpp files will be searched for below
