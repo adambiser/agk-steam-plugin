@@ -38,6 +38,7 @@
     <ClInclude Include="..\Common\CCallbacks.h" />
     <ClInclude Include="..\Common\utils.h" />
     <ClInclude Include="..\Common\stdafx.h" />
+    <ClInclude Include="..\Common\version.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SteamPlugin.rc" />

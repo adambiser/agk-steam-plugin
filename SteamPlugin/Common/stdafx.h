@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "../AGKLibraryCommands.h"
+#include "version.h"
 
 #if defined(_WINDOWS)
 #if defined(_WIN64)

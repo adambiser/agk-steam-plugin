@@ -237,6 +237,7 @@
     <ClInclude Include="..\Common\SteamUserStats.h" />
     <ClInclude Include="..\Common\SteamUtils.h" />
     <ClInclude Include="..\Common\utils.h" />
+    <ClInclude Include="..\Common\version.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\Common\CCallbacks.h" />
   </ItemGroup>

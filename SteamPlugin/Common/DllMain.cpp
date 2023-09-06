@@ -113,6 +113,15 @@ void OnStartup(int argc, char **argv)
 #endif
 
 /*
+@desc Returns the plugin version.
+@return A version string.
+*/
+extern "C" DLL_EXPORT char* GetPluginVersion()
+{
+	return utils::CreateString(PLUGIN_VERSION_STR);
+}
+
+/*
 @desc Returns the command line arguments.
 @return The command line arguments as a JSON string of an array of strings.
 */

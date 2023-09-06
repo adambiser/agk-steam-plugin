@@ -2,6 +2,7 @@
 #
 # Additional Methods
 #
+GetPluginVersion,S,0,GetPluginVersion,GetPluginVersion,0,0,0,GetPluginVersion
 GetCommandLineArgsJSON,S,0,GetCommandLineArgsJSON,GetCommandLineArgsJSON,0,0,0,GetCommandLineArgsJSON
 GetSteamPath,S,0,GetSteamPath,GetSteamPath,0,0,0,GetSteamPath
 IsSteamEmulated,I,0,IsSteamEmulated,IsSteamEmulated,0,0,0,IsSteamEmulated

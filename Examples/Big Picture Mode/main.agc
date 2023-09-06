@@ -51,6 +51,7 @@ endif
 CreateTextEx(0, 00, "AppID: " + str(Steam.GetAppID()))
 CreateTextEx(0, 20, "LoggedOn: " + TF(Steam.LoggedOn()))
 CreateTextEx(0, 40, "SteamID: " + Steam.GetPersonaName())
+CreateTextEx(0, 60, "Plugin version: " + Steam.GetPluginVersion())
 
 #insert "../steam_constants.agc"
 // The main plugin usage are in these files.
